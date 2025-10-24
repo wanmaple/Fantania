@@ -17,7 +17,7 @@
   </Window.KeyBindings>
   <DockPanel>
     <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="5">
-      <TextBlock Classes="h2" Text="{Binding Workspace.CurrentWorld.Group, StringFormat='{}Current world group: {0}'}" />
+      <TextBlock Classes="h2" Text="{Binding Workspace.CurrentLevel.Group, StringFormat='{}Current level group: {0}'}" />
     </StackPanel>
     <ContentControl>
       <v:StylegroundEditorView />

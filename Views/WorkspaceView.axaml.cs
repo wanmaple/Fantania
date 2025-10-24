@@ -67,7 +67,7 @@ public partial class WorkspaceView : UserControl
                 if (selected.Count == 1 && selected[0] is DatabaseObject)
                 {
                     ViewModel.ClearSelections();
-                    ViewModel.Workspace.CurrentWorld.CancelAdd();
+                    ViewModel.Workspace.CurrentLevel.CancelAdd();
                 }
             }
         }
@@ -87,9 +87,9 @@ public partial class WorkspaceView : UserControl
         window.ShowDialog(topLevel);
     }
 
-    void ButtonWorlds_Click(object sender, RoutedEventArgs e)
+    void ButtonLevels_Click(object sender, RoutedEventArgs e)
     {
-        ViewModel.Workspace.PanelStates.ShowWorldPanel = !ViewModel.Workspace.PanelStates.ShowWorldPanel;
+        ViewModel.Workspace.PanelStates.ShowLevelPanel = !ViewModel.Workspace.PanelStates.ShowLevelPanel;
     }
 
     void ButtonStylegrounds_Click(object sender, RoutedEventArgs e)
@@ -123,7 +123,7 @@ public partial class WorkspaceView : UserControl
         if (cb.Content == null) return;
         string layerName = cb.Content.ToString();
         RenderLayers layer = Enum.Parse<RenderLayers>(layerName);
-        ViewModel.Workspace.CurrentWorld.SetLayerVisible(layer, cb.IsChecked.Value);
+        ViewModel.Workspace.CurrentLevel.SetLayerVisible(layer, cb.IsChecked.Value);
     }
 
     async void Placement_PointerPressed(object sender, PointerPressedEventArgs e)

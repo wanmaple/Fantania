@@ -1,7 +1,5 @@
 using System;
-using System.IO;
 using Avalonia.OpenGL;
-using Avalonia.Platform;
 using static Avalonia.OpenGL.GlConsts;
 
 namespace Fantania;
@@ -52,8 +50,8 @@ public class OpenGLShader : IDisposableGL, IEquatable<OpenGLShader>
     {
         _vertPath = vertPath;
         _fragPath = fragPath;
-        _vertSource = GetSourceCode(_vertPath);
-        _fragSource = GetSourceCode(_fragPath);
+        _vertSource = IOHelper.ReadAllText(_vertPath);
+        _fragSource = IOHelper.ReadAllText(_fragPath);
     }
 
     public void CompileAndLink(GlInterface gl)
@@ -131,34 +129,6 @@ public class OpenGLShader : IDisposableGL, IEquatable<OpenGLShader>
             gl.DeleteShader(_frag);
         if (_program != -1)
             gl.DeleteProgram(_program);
-    }
-
-    string GetSourceCode(string path)
-    {
-        if (path.StartsWith("avares://"))
-        {
-            var uri = new Uri(path);
-            using (var assets = AssetLoader.Open(uri))
-            {
-                using (var sr = new StreamReader(assets))
-                {
-                    string source = sr.ReadToEnd();
-                    return source;
-                }
-            }
-        }
-        else if (File.Exists(path))
-        {
-            using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read))
-            {
-                using (var sr = new StreamReader(fs))
-                {
-                    string source = sr.ReadToEnd();
-                    return source;
-                }
-            }
-        }
-        return null;
     }
 
     string _vertPath, _fragPath;

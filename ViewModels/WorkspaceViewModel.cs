@@ -76,7 +76,7 @@ namespace Fantania.ViewModels
             {
                 var obj = SelectedObjects[i];
                 if (obj is DatabaseObject) continue;
-                (obj as WorldObject).IsSelected = false;
+                (obj as LevelObject).IsSelected = false;
             }
             _selectedObjs.Clear();
             RaiseSelectedObjectsChanged();
@@ -173,9 +173,9 @@ namespace Fantania.ViewModels
             _placements = new ObservableCollection<IPlacement>();
             var decos = new PlacementContainer(Localization.Resources.PlacementDecoration, "avares://Fantania/Assets/icons/placements/decoration.png");
             _placements.Add(decos);
-            decos.Children.Add(new PlacementGroup(Localization.Resources.PlacementUnlitSprite, "avares://Fantania/Assets/icons/placements/image.png", Localization.Resources.TooltipPlacementUnlitSprite, typeof(UnlitSpriteTemplate)));
-            decos.Children.Add(new PlacementGroup(Localization.Resources.PlacementUnlitCurvedSprite, "avares://Fantania/Assets/icons/placements/curved.png", Localization.Resources.TooltipUnlitCurvedSprite, typeof(UnlitCurvedSpriteTemplate)));
-            decos.Children.Add(new PlacementGroup(Localization.Resources.PlacementUnlitNoiseSprite, "avares://Fantania/Assets/icons/placements/noise.png", Localization.Resources.TooltipUnlitNoiseSprite, typeof(UnlitNoiseSpriteTemplate)));
+            // decos.Children.Add(new PlacementGroup(Localization.Resources.PlacementUnlitSprite, "avares://Fantania/Assets/icons/placements/image.png", Localization.Resources.TooltipPlacementUnlitSprite, typeof(UnlitSpriteTemplate)));
+            // decos.Children.Add(new PlacementGroup(Localization.Resources.PlacementUnlitCurvedSprite, "avares://Fantania/Assets/icons/placements/curved.png", Localization.Resources.TooltipUnlitCurvedSprite, typeof(UnlitCurvedSpriteTemplate)));
+            // decos.Children.Add(new PlacementGroup(Localization.Resources.PlacementUnlitNoiseSprite, "avares://Fantania/Assets/icons/placements/noise.png", Localization.Resources.TooltipUnlitNoiseSprite, typeof(UnlitNoiseSpriteTemplate)));
         }
 
         void RaiseSelectedObjectsChanged()

@@ -24,7 +24,7 @@
           <Button x:Name="btnLayerVisibility" Classes="p" Content="{x:Static lang:Resources.ButtonTextLayerVisibility}" HorizontalContentAlignment="Center" Click="ButtonLayerVisibility_Click" />
           <Popup PlacementTarget="{Binding #btnLayerVisibility}" IsOpen="{Binding Workspace.PanelStates.ShowLayerPanel}" PlacementMode="BottomEdgeAlignedLeft">
             <Border Classes="thin s1" Background="{x:Static f:ThemeHelper.BackgroundBrush}">
-              <ItemsControl ItemsSource="{Binding Workspace.CurrentWorld.LayerStrings}" Width="200">
+              <ItemsControl ItemsSource="{Binding Workspace.CurrentLevel.LayerStrings}" Width="200">
                 <ItemsControl.ItemTemplate>
                   <DataTemplate>
                     <StackPanel Orientation="Horizontal">
@@ -38,13 +38,13 @@
         </StackPanel>
         <Separator DockPanel.Dock="Bottom" />
         <DockPanel DockPanel.Dock="Bottom">
-          <TextBlock DockPanel.Dock="Right" Classes="p" Text="{ReflectionBinding #canvasContainer.Content.PointerWorldPosition, StringFormat='{}({0})'}" VerticalAlignment="Center" />
+          <TextBlock DockPanel.Dock="Right" Classes="p" Text="{ReflectionBinding #canvasContainer.Content.PointerLevelPosition, StringFormat='{}({0})'}" VerticalAlignment="Center" />
           <StackPanel Orientation="Horizontal" Margin="5">
-            <Button x:Name="btnWorlds" Classes="p" Content="{Binding Workspace.CurrentWorld.Name, StringFormat='{}Current World: {0}'}" Margin="0 0 10 0" Click="ButtonWorlds_Click" />
-            <Popup PlacementTarget="{Binding #btnWorlds}" IsOpen="{Binding Workspace.PanelStates.ShowWorldPanel}" PlacementMode="BottomEdgeAlignedLeft">
+            <Button x:Name="btnLevels" Classes="p" Content="{Binding Workspace.CurrentLevel.Name, StringFormat='{}Current Level: {0}'}" Margin="0 0 10 0" Click="ButtonLevels_Click" />
+            <Popup PlacementTarget="{Binding #btnLevels}" IsOpen="{Binding Workspace.PanelStates.ShowLevelPanel}" PlacementMode="BottomEdgeAlignedLeft">
               <Border Classes="thin s1" Background="{x:Static f:ThemeHelper.BackgroundBrush}">
                 <ScrollViewer MaxHeight="400">
-                  <v:WorldPanel DataContext="{Binding Workspace}" />
+                  <v:LevelPanel DataContext="{Binding Workspace}" />
                 </ScrollViewer>
               </Border>
             </Popup>
@@ -73,7 +73,7 @@
     </Border>
     <Border Classes="thin s1" Grid.Row="1" Grid.Column="0">
       <Grid>
-        <ContentControl x:Name="canvasContainer" Content="{Binding Workspace.CurrentWorld, Converter={StaticResource Cvt_World2WorldCanvas}}" />
+        <ContentControl x:Name="canvasContainer" Content="{Binding Workspace.CurrentLevel, Converter={StaticResource Cvt_Lv2LvCanvas}}" />
         <Canvas>
           <Slider Canvas.Left="10" Canvas.Top="20" Orientation="Vertical" Minimum="0.25" Maximum="4.0" Height="200" IsEnabled="False" Value="{ReflectionBinding #canvasContainer.Content.ViewScale}" IsHitTestVisible="False" />
           <Rectangle Canvas.Left="{ReflectionBinding #canvasContainer.Content.SelectionLeft}" Canvas.Top="{ReflectionBinding #canvasContainer.Content.SelectionTop}" Width="{ReflectionBinding #canvasContainer.Content.SelectionWidth}" Height="{ReflectionBinding #canvasContainer.Content.SelectionHeight}" Stroke="OrangeRed" StrokeThickness="4" Fill="#7FDF3400" IsHitTestVisible="False" />

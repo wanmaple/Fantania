@@ -1,6 +1,5 @@
+.DS_Store
+.vs/
 bin/
 obj/
-
 Publish/
-
-.DS_Store

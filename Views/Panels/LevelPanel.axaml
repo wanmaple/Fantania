@@ -1,0 +1,44 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:f="using:Fantania"
+             xmlns:m="using:Fantania.Models"
+             xmlns:lang="using:Fantania.Localization"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="{x:Type m:Workspace}"
+             x:Class="Fantania.Views.LevelPanel"
+             x:Name="Root">
+  <UserControl.Resources>
+    <f:LevelName2ForegroundConverter x:Key="Cvt_Name2Fore" />
+    <f:LevelName2VisibilityConverter x:Key="Cvt_Name2B" />
+    <f:LevelName2InvertVisibilityConverter x:Key="Cvt_Name2InvB" />
+  </UserControl.Resources>
+  <Grid RowDefinitions="auto,*" Margin="10">
+    <Button Grid.Row="0" Content="{x:Static lang:Resources.ButtonTextCreateLevel}" Command="{Binding #Root.CreateLevel}" />
+    <ItemsControl Grid.Row="1" ItemsSource="{Binding LevelGrouping.Groups}">
+      <ItemsControl.ItemTemplate>
+        <DataTemplate>
+          <Grid RowDefinitions="auto,*">
+            <TextBlock Grid.Row="0" DragDrop.AllowDrop="True" DragDrop.DragEnter="OnDragEnter" DragDrop.DragLeave="OnDragLeave" DragDrop.Drop="OnDrop" Classes="h3" Text="{Binding GroupName}" Foreground="LightGreen" Margin="0 5 0 0" />
+            <ItemsControl Grid.Row="1" ItemsSource="{Binding LevelNames}" Margin="10 5 0 0 ">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <Grid ColumnDefinitions="*,auto" Margin="2" IsHitTestVisible="True" PointerPressed="Cell_PointerPressed">
+                    <TextBlock Grid.Column="0" Classes="p" Text="{Binding}" Foreground="{Binding Converter={StaticResource Cvt_Name2Fore}}" VerticalAlignment="Center" MinWidth="150" />
+                    <Button Grid.Column="1" IsVisible="{Binding Converter={StaticResource Cvt_Name2B}}" VerticalAlignment="Center" Width="24" Height="24" Click="ButtonSwitch_Click">
+                      <Button.Content>
+                        <Image Width="16" Height="16" Source="avares://Fantania/Assets/icons/switch.png" />
+                      </Button.Content>
+                    </Button>
+                    <Image Grid.Column="1" IsVisible="{Binding Converter={StaticResource Cvt_Name2InvB}}" Width="24" Height="24" Source="avares://Fantania/Assets/icons/correct.png" VerticalAlignment="Center" />
+                  </Grid>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </Grid>
+        </DataTemplate>
+      </ItemsControl.ItemTemplate>
+    </ItemsControl>
+  </Grid>
+</UserControl>

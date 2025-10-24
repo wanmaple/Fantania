@@ -16,14 +16,14 @@ public class BVHVisualDebugger
 
         public BoundsNode(Workspace workspace)
         {
-            _world = workspace.CurrentWorld;
+            _lv = workspace.CurrentLevel;
             _bounds = ObjectPool<BVHBounds>.Get();
-            _world.AddObject(_bounds, false);
+            _lv.AddObject(_bounds, false);
         }
 
         ~BoundsNode()
         {
-            _world.RemoveObject(_bounds);
+            _lv.RemoveObject(_bounds);
         }
 
         public void Sync(Rect bounds, int depth, float mix)
@@ -43,15 +43,15 @@ public class BVHVisualDebugger
 
         public void OnPooled()
         {
-            _world.RemoveObject(_bounds);
+            _lv.RemoveObject(_bounds);
             ObjectPool<BVHBounds>.Return(_bounds);
         }
 
         public void OnRecycled(params object[] args)
         {
             Left = Right = null;
-            _world.AddObject(_bounds, false);
-            _world = WorkspaceViewModel.Current.Workspace.CurrentWorld;
+            _lv.AddObject(_bounds, false);
+            _lv = WorkspaceViewModel.Current.Workspace.CurrentLevel;
             _bounds = ObjectPool<BVHBounds>.Get(args);
         }
 
@@ -65,7 +65,7 @@ public class BVHVisualDebugger
         }
 
         BVHBounds _bounds;
-        World _world;
+        Level _lv;
     }
 
     private bool _enabled = false;
@@ -98,9 +98,9 @@ public class BVHVisualDebugger
     public BVHVisualDebugger()
     {
         _workspace = WorkspaceViewModel.Current.Workspace;
-        _workspace.WorldChanged += OnWorldChanged;
-        _world = _workspace.CurrentWorld;
-        _bvh = _world._bvh;
+        _workspace.LevelChanged += OnLevelChanged;
+        _lv = _workspace.CurrentLevel;
+        _bvh = _lv._bvh;
     }
 
     ~BVHVisualDebugger()
@@ -108,12 +108,12 @@ public class BVHVisualDebugger
         IsEnabled = false;
     }
 
-    void OnBVHItemChanged(BoundingVolumeHierarchy<WorldObject> bvh)
+    void OnBVHItemChanged(BoundingVolumeHierarchy<LevelObject> bvh)
     {
         _root = SyncBVH(bvh.Root, _root);
     }
 
-    BoundsNode SyncBVH(BoundingVolumeHierarchyNode<WorldObject> bvhNode, BoundsNode node)
+    BoundsNode SyncBVH(BoundingVolumeHierarchyNode<LevelObject> bvhNode, BoundsNode node)
     {
         if (bvhNode == null)
         {
@@ -134,19 +134,19 @@ public class BVHVisualDebugger
         return node;
     }
 
-    void OnWorldChanged(World world)
+    void OnLevelChanged(Level lv)
     {
         if (IsEnabled)
         {
             Preferences.Singleton.DebugSettings.IsBVHVisualizerOn = false;
             IsEnabled = false;
         }
-        _world = world;
-        _bvh = _world._bvh;
+        _lv = lv;
+        _bvh = _lv._bvh;
     }
 
-    World _world;
-    BoundingVolumeHierarchy<WorldObject> _bvh;
+    Level _lv;
+    BoundingVolumeHierarchy<LevelObject> _bvh;
     BoundsNode _root;
     Workspace _workspace;
 }

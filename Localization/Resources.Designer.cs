@@ -94,11 +94,11 @@ namespace Fantania.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Create World.
+        ///   Looks up a localized string similar to Create Level.
         /// </summary>
-        public static string ButtonTextCreateWorld {
+        public static string ButtonTextCreateLevel {
             get {
-                return ResourceManager.GetString("ButtonTextCreateWorld", resourceCulture);
+                return ResourceManager.GetString("ButtonTextCreateLevel", resourceCulture);
             }
         }
         
@@ -139,29 +139,29 @@ namespace Fantania.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to World name already exists..
+        ///   Looks up a localized string similar to Level name already exists..
         /// </summary>
-        public static string ErrorDuplicateWorldName {
+        public static string ErrorDuplicateLevelName {
             get {
-                return ResourceManager.GetString("ErrorDuplicateWorldName", resourceCulture);
+                return ResourceManager.GetString("ErrorDuplicateLevelName", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to World name can&apos;t be empty..
+        ///   Looks up a localized string similar to Level name can&apos;t be empty..
         /// </summary>
-        public static string ErrorEmptyWorldName {
+        public static string ErrorEmptyLevelName {
             get {
-                return ResourceManager.GetString("ErrorEmptyWorldName", resourceCulture);
+                return ResourceManager.GetString("ErrorEmptyLevelName", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Invalid world name, should be combination of letters, numbers and underlines..
+        ///   Looks up a localized string similar to Invalid level name, should be combination of letters, numbers and underlines..
         /// </summary>
-        public static string ErrorInvalidWorldName {
+        public static string ErrorInvalidLevelName {
             get {
-                return ResourceManager.GetString("ErrorInvalidWorldName", resourceCulture);
+                return ResourceManager.GetString("ErrorInvalidLevelName", resourceCulture);
             }
         }
         
@@ -580,20 +580,20 @@ namespace Fantania.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Create Level.
+        /// </summary>
+        public static string TitleLevelCreate {
+            get {
+                return ResourceManager.GetString("TitleLevelCreate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Styleground Editor.
         /// </summary>
         public static string TitleStylegroundEditor {
             get {
                 return ResourceManager.GetString("TitleStylegroundEditor", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Create World.
-        /// </summary>
-        public static string TitleWorldCreate {
-            get {
-                return ResourceManager.GetString("TitleWorldCreate", resourceCulture);
             }
         }
         
@@ -688,7 +688,7 @@ namespace Fantania.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Render layer in the world..
+        ///   Looks up a localized string similar to Render layer in the level..
         /// </summary>
         public static string TooltipLayer {
             get {
@@ -994,11 +994,11 @@ namespace Fantania.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Are you sure to delete world &apos;{0}&apos;? All data will be removed permanently and cannot recover!.
+        ///   Looks up a localized string similar to Are you sure to delete level &apos;{0}&apos;? All data will be removed permanently and cannot recover!.
         /// </summary>
-        public static string WarningDeleteWorld {
+        public static string WarningDeleteLevel {
             get {
-                return ResourceManager.GetString("WarningDeleteWorld", resourceCulture);
+                return ResourceManager.GetString("WarningDeleteLevel", resourceCulture);
             }
         }
         

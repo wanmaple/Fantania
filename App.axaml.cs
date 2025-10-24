@@ -5,6 +5,8 @@ using System.Linq;
 using Avalonia.Markup.Xaml;
 using Fantania.ViewModels;
 using Fantania.Views;
+using Fantania.Scripting;
+using System.Reflection;
 
 namespace Fantania;
 
@@ -48,9 +50,13 @@ public partial class App : Application
 
     private void OnApplicationStartup(object? sender, ControlledApplicationLifetimeStartupEventArgs e)
     {
+        _luaEngine.BindAssemblyToLua(Assembly.GetExecutingAssembly());
+        _luaEngine.ExecuteFile("avares://Fantania/Assets/scripts/init.lua");
     }
 
     private void OnApplicationExit(object? sender, ControlledApplicationLifetimeExitEventArgs e)
     {
     }
+
+    LuaScriptEngine _luaEngine = new LuaScriptEngine();
 }

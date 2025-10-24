@@ -16,7 +16,7 @@ public class Preferences : ObservableObject
     }
 
     public DebugSettings DebugSettings { get; private set; } = new DebugSettings();
-    public WorldSettings WorldSettings { get; private set; } = new WorldSettings();
+    public LevelSettings LevelSettings { get; private set; } = new LevelSettings();
 
     Preferences()
     { }

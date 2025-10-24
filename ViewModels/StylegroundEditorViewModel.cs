@@ -80,8 +80,8 @@ public partial class StylegroundEditorViewModel : ViewModelBase
     {
         _placements = new ObservableCollection<IPlacement>();
         var bgs = new PlacementContainer(Localization.Resources.PlacementStylegrounds, "avares://Fantania/Assets/icons/placements/bg.png");
-        bgs.Children.Add(new PlacementGroup(Localization.Resources.PlacementGradientStylegrounds, "avares://Fantania/Assets/icons/placements/gradient.png", Localization.Resources.TooltipGradientStylegrounds, typeof(GradientStylegroundTemplate)));
-        bgs.Children.Add(new PlacementGroup(Localization.Resources.PlacementDrawablesStylegrounds, "", Localization.Resources.TooltipDrawablesStylegrounds, typeof(DrawablesStylegroundTemplate)));
+        // bgs.Children.Add(new PlacementGroup(Localization.Resources.PlacementGradientStylegrounds, "avares://Fantania/Assets/icons/placements/gradient.png", Localization.Resources.TooltipGradientStylegrounds, typeof(GradientStylegroundTemplate)));
+        // bgs.Children.Add(new PlacementGroup(Localization.Resources.PlacementDrawablesStylegrounds, "", Localization.Resources.TooltipDrawablesStylegrounds, typeof(DrawablesStylegroundTemplate)));
         _placements.Add(bgs);
     }
 

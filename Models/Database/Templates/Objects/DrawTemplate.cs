@@ -50,7 +50,7 @@ public abstract class DrawTemplate : DatabaseObject
     {
     }
 
-    public abstract WorldObject OnCreateWorldObject();
+    public abstract LevelObject OnCreateLevelObject();
 
     public virtual IBatchBuilder BatchBuilderOfPassId(int passId)
     {

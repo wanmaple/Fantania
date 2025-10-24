@@ -3,18 +3,16 @@ using System.Globalization;
 using Avalonia;
 using Avalonia.Data.Converters;
 using Fantania.Models;
-using Fantania.ViewModels;
 
 namespace Fantania;
 
-public class LayerName2VisibleConverter : IValueConverter
+public class Level2LevelCanvasConverter : IValueConverter
 {
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value == null) return AvaloniaProperty.UnsetValue;
-        string layerName = value as string;
-        RenderLayers layer = Enum.Parse<RenderLayers>(layerName);
-        return WorkspaceViewModel.Current.Workspace.CurrentLevel.IsLayerVisible(layer);
+        Level lv = value as Level;
+        return new LevelCanvas(lv);
     }
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)

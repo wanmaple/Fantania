@@ -16,16 +16,16 @@ public class Workspace : ObservableObject
     public const string MAIN_DATABASE_NAME = "project.db";
     public const string EDITOR_DATABASE_NAME = "editor.db";
     public const string STYLEGROUNDS_NAME = "stylegrounds.bin";
-    public const string WORLDS_FOLDER = "worlds";
+    public const string LEVELS_FOLDER = "levels";
     public const string TEXTURE_FOLDER = "textures";
     public const string ATLAS_FOLDER = "atlas";
     public const string MESS_FOLDER = ".fantania";
     public const string TEMP_FOLDER = ".temp";
 
-    public event Action<World> WorldChanged;
+    public event Action<Level> LevelChanged;
 
     public string RootFolder { get; private set; } = string.Empty;
-    public string WorldsFolder { get; private set; } = string.Empty;
+    public string LevelsFolder { get; private set; } = string.Empty;
     public string MessFolder { get; private set; } = string.Empty;
     public string TempFolder { get; private set; } = string.Empty;
     public string TextureFolder { get; private set; } = string.Empty;
@@ -33,12 +33,12 @@ public class Workspace : ObservableObject
     public SqliteDatabase MainDatabase => _dbMain;
     public SqliteDatabase EditorDatabase => _dbEditor;
     public DatabaseObjectSync DatabaseSync => _dbSync;
-    public WorldGrouping WorldGrouping => _worldGrouping;
+    public LevelGrouping LevelGrouping => _lvGrouping;
     public Stylegrounds CurrentStylegrounds
     {
         get
         {
-            var ret = _stylegrounds.GetStylegrounds(CurrentWorld.Group, out bool isNew);
+            var ret = _stylegrounds.GetStylegrounds(CurrentLevel.Group, out bool isNew);
             if (isNew)
             {
                 WatchStylegroundAddedOrRemoved(ret);
@@ -67,16 +67,16 @@ public class Workspace : ObservableObject
         }
     }
 
-    private World _currentWorld;
-    public World CurrentWorld
+    private Level _currentLv;
+    public Level CurrentLevel
     {
-        get { return _currentWorld; }
+        get { return _currentLv; }
         set
         {
-            if (_currentWorld != value)
+            if (_currentLv != value)
             {
-                _currentWorld = value;
-                OnPropertyChanged(nameof(CurrentWorld));
+                _currentLv = value;
+                OnPropertyChanged(nameof(CurrentLevel));
             }
         }
     }
@@ -171,15 +171,15 @@ public class Workspace : ObservableObject
         if (File.Exists(editorDbFile))
             File.Delete(editorDbFile);
         _dbEditor = new SqliteDatabase(editorDbFile);
-        // worlds
+        // levels
         string sgFile = GetAbsolutePath(STYLEGROUNDS_NAME);
         if (File.Exists(sgFile))
             File.Delete(sgFile);
-        if (Directory.Exists(WorldsFolder))
-            Directory.Delete(WorldsFolder, true);
+        if (Directory.Exists(LevelsFolder))
+            Directory.Delete(LevelsFolder, true);
         // folders
-        if (!Directory.Exists(WorldsFolder))
-            Directory.CreateDirectory(WorldsFolder);
+        if (!Directory.Exists(LevelsFolder))
+            Directory.CreateDirectory(LevelsFolder);
         if (!Directory.Exists(MessFolder))
             Directory.CreateDirectory(MessFolder);
         if (!Directory.Exists(TextureFolder))
@@ -192,10 +192,10 @@ public class Workspace : ObservableObject
     public async Task SyncAllData(bool syncDbScheme = false)
     {
         await SyncDatabase(syncDbScheme);
-        var worldDI = new DirectoryInfo(WorldsFolder);
-        foreach (FileInfo worldFI in worldDI.GetFiles("*.bin"))
+        var lvDI = new DirectoryInfo(LevelsFolder);
+        foreach (FileInfo lvFI in lvDI.GetFiles("*.bin"))
         {
-            string fullPath = worldFI.FullName;
+            string fullPath = lvFI.FullName;
             // check valid
             string group = string.Empty;
             using (var fs = new FileStream(fullPath, FileMode.Open, FileAccess.Read))
@@ -203,18 +203,18 @@ public class Workspace : ObservableObject
                 using (var br = new BinaryReader(fs))
                 {
                     uint marker = br.ReadUInt32();
-                    if (marker != World.SERILIZATION_MARKER)
+                    if (marker != Level.SERILIZATION_MARKER)
                     {
                         continue;
                     }
                     group = br.ReadString();
                 }
             }
-            _worldGrouping.AddWorldInfo(Path.GetFileNameWithoutExtension(fullPath), group);
+            _lvGrouping.AddLevelInfo(Path.GetFileNameWithoutExtension(fullPath), group);
         }
-        if (!_worldGrouping.IsValid)
-            throw new Exception("Invalid workspace without any worlds.");
-        await SyncWorld(_worldGrouping.Groups[0].WorldNames[0]);
+        if (!_lvGrouping.IsValid)
+            throw new Exception("Invalid workspace without any levels.");
+        await SyncLevel(_lvGrouping.Groups[0].LevelNames[0]);
         string stylegroundsPath = GetAbsolutePath(STYLEGROUNDS_NAME);
         _stylegrounds = new GroupedStylegrounds();
         if (File.Exists(stylegroundsPath))
@@ -228,8 +228,8 @@ public class Workspace : ObservableObject
         await CreateBackup();
         if (_dbSync.CheckModified())
             await _dbSync.SyncTo(this);
-        if (_currentWorld.CheckModified())
-            await _currentWorld.Save(this);
+        if (_currentLv.CheckModified())
+            await _currentLv.Save(this);
         if (_stylegrounds.CheckModified())
             await _stylegrounds.Save(this);
         CheckModified();
@@ -237,74 +237,74 @@ public class Workspace : ObservableObject
 
     public void CheckModified()
     {
-        IsModified = _currentWorld.CheckModified() || _dbSync.CheckModified() || _stylegrounds.CheckModified();
+        IsModified = _currentLv.CheckModified() || _dbSync.CheckModified() || _stylegrounds.CheckModified();
     }
 
-    public async Task CreateWorldAsync(string worldName, string groupName)
+    public async Task CreateLevelAsync(string lvName, string groupName)
     {
         string oldGroup = null;
-        if (_currentWorld != null)
+        if (_currentLv != null)
         {
-            oldGroup = _currentWorld.Group;
-            _currentWorld.RenderInitialized -= OnWorldRenderInitialized;
+            oldGroup = _currentLv.Group;
+            _currentLv.RenderInitialized -= OnLevelRenderInitialized;
             UnwatchBVHItemChanged();
             UnwatchLayerVisibilityChange();
         }
-        CurrentWorld = new World(worldName, groupName);
-        await CurrentWorld.Save(this);
-        _worldGrouping.AddWorldInfo(worldName, groupName);
-        string newGroup = CurrentWorld.Group;
+        CurrentLevel = new Level(lvName, groupName);
+        await CurrentLevel.Save(this);
+        _lvGrouping.AddLevelInfo(lvName, groupName);
+        string newGroup = CurrentLevel.Group;
         if (oldGroup != newGroup)
         {
             OnPropertyChanged(nameof(CurrentStylegrounds));
         }
-        CurrentWorld.RenderInitialized += OnWorldRenderInitialized;
-        WorldChanged?.Invoke(CurrentWorld);
+        CurrentLevel.RenderInitialized += OnLevelRenderInitialized;
+        LevelChanged?.Invoke(CurrentLevel);
         CheckModified();
     }
 
-    public async Task SwitchWorldAsync(string worldName)
+    public async Task SwitchLevelAsync(string lvName)
     {
-        string oldGroup = _currentWorld.Group;
-        _currentWorld.RenderInitialized -= OnWorldRenderInitialized;
+        string oldGroup = _currentLv.Group;
+        _currentLv.RenderInitialized -= OnLevelRenderInitialized;
         UnwatchBVHItemChanged();
         UnwatchLayerVisibilityChange();
-        CurrentWorld = new World(worldName, string.Empty);
-        string worldPath = Path.Combine(WorldsFolder, worldName + ".bin");
-        await CurrentWorld.Load(this, worldPath);
-        string newGroup = CurrentWorld.Group;
+        CurrentLevel = new Level(lvName, string.Empty);
+        string lvPath = Path.Combine(LevelsFolder, lvName + ".bin");
+        await CurrentLevel.Load(this, lvPath);
+        string newGroup = CurrentLevel.Group;
         if (oldGroup != newGroup)
         {
             OnPropertyChanged(nameof(CurrentStylegrounds));
         }
-        CurrentWorld.RenderInitialized += OnWorldRenderInitialized;
-        WorldChanged?.Invoke(_currentWorld);
+        CurrentLevel.RenderInitialized += OnLevelRenderInitialized;
+        LevelChanged?.Invoke(_currentLv);
         CheckModified();
     }
 
-    public async Task DeleteWorld(string worldName)
+    public async Task DeleteLevel(string lvName)
     {
         await Task.Run(() =>
         {
-            string worldPath = Path.Combine(WorldsFolder, worldName + ".bin");
-            if (File.Exists(worldPath))
+            string lvPath = Path.Combine(LevelsFolder, lvName + ".bin");
+            if (File.Exists(lvPath))
             {
-                File.Delete(worldPath);
+                File.Delete(lvPath);
             }
-            string groupName = WorldGrouping.GetGroupName(worldName);
-            WorldGrouping.RemoveWorldInfo(worldName, groupName);
+            string groupName = LevelGrouping.GetGroupName(lvName);
+            LevelGrouping.RemoveLevelInfo(lvName, groupName);
         });
     }
 
-    public async Task ChangeWorldGroup(string worldName, string oldGroup, string newGroup)
+    public async Task ChangeLevelGroup(string lvName, string oldGroup, string newGroup)
     {
         await Task.Run(() =>
         {
-            string worldPath = Path.Combine(WorldsFolder, worldName + ".bin");
-            if (File.Exists(worldPath))
+            string lvPath = Path.Combine(LevelsFolder, lvName + ".bin");
+            if (File.Exists(lvPath))
             {
                 byte[] bytes = null;
-                using (var fs = new FileStream(worldPath, FileMode.Open, FileAccess.Read))
+                using (var fs = new FileStream(lvPath, FileMode.Open, FileAccess.Read))
                 {
                     using (var br = new BinaryReader(fs))
                     {
@@ -313,18 +313,18 @@ public class Workspace : ObservableObject
                         bytes = br.ReadBytes((int)(fs.Length - fs.Position));
                     }
                 }
-                using (var fs = new FileStream(worldPath, FileMode.Create, FileAccess.Write))
+                using (var fs = new FileStream(lvPath, FileMode.Create, FileAccess.Write))
                 {
                     using (var bw = new BinaryWriter(fs))
                     {
-                        bw.Write(World.SERILIZATION_MARKER);
+                        bw.Write(Level.SERILIZATION_MARKER);
                         bw.Write(newGroup);
                         bw.Write(bytes);
                     }
                 }
             }
-            WorldGrouping.RemoveWorldInfo(worldName, oldGroup);
-            WorldGrouping.AddWorldInfo(worldName, newGroup);
+            LevelGrouping.RemoveLevelInfo(lvName, oldGroup);
+            LevelGrouping.AddLevelInfo(lvName, newGroup);
         });
     }
 
@@ -388,7 +388,7 @@ public class Workspace : ObservableObject
         DatabaseObject obj = sender as DatabaseObject;
         if (_dbSync.IsDatabasePropertyType(obj.GetType(), e.PropertyName))
         {
-            _cacheWorldObjModifying = new PropertyChangeInfo
+            _cacheLvObjModifying = new PropertyChangeInfo
             {
                 PropertyName = e.PropertyName,
                 OldValue = DatabaseObjectSync.DatabaseValue2CommandText(_dbSync.GetDatabasePropertyType(obj.GetType(), e.PropertyName), obj.GetType().GetProperty(e.PropertyName, BindingFlags.Instance | BindingFlags.Public).GetValue(obj)),
@@ -398,55 +398,55 @@ public class Workspace : ObservableObject
 
     void OnWatchDatabaseObjectPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (_cacheWorldObjModifying == null) return;
+        if (_cacheLvObjModifying == null) return;
         DatabaseObject obj = sender as DatabaseObject;
         string newValue = DatabaseObjectSync.DatabaseValue2CommandText(_dbSync.GetDatabasePropertyType(obj.GetType(), e.PropertyName), obj.GetType().GetProperty(e.PropertyName, BindingFlags.Instance | BindingFlags.Public).GetValue(obj));
         _undoStack.AddOperation(new ModifyDatabaseObjectOperation(obj, new PropertyChangeInfo
         {
-            PropertyName = _cacheWorldObjModifying.PropertyName,
-            OldValue = _cacheWorldObjModifying.OldValue,
+            PropertyName = _cacheLvObjModifying.PropertyName,
+            OldValue = _cacheLvObjModifying.OldValue,
             NewValue = newValue,
         }));
-        _cacheWorldObjModifying = null;
+        _cacheLvObjModifying = null;
     }
 
-    void OnWorldRenderInitialized()
+    void OnLevelRenderInitialized()
     {
-        _currentWorld.RenderInitialized -= OnWorldRenderInitialized;
-        foreach (var obj in _currentWorld._bvh.Enumerate())
+        _currentLv.RenderInitialized -= OnLevelRenderInitialized;
+        foreach (var obj in _currentLv._bvh.Enumerate())
         {
-            WatchWorldObjectPropertyChange(obj);
+            WatchLevelObjectPropertyChange(obj);
         }
         WatchBVHItemChanged();
         WatchLayerVisibilityChange();
     }
 
-    void OnWorldObjectAdded(WorldObject obj)
+    void OnLevelObjectAdded(LevelObject obj)
     {
-        WatchWorldObjectPropertyChange(obj);
-        _undoStack.AddOperation(new NewWorldObjectOperation(obj));
-        _currentWorld.MarkDirty();
+        WatchLevelObjectPropertyChange(obj);
+        _undoStack.AddOperation(new NewLevelObjectOperation(obj));
+        _currentLv.MarkDirty();
         CheckModified();
     }
 
-    void OnWorldObjectRemoved(WorldObject obj)
+    void OnLevelObjectRemoved(LevelObject obj)
     {
-        UnwatchWorldObjectPropertyChange(obj);
-        _undoStack.AddOperation(new DeleteWorldObjectOperation(obj));
-        _currentWorld.MarkDirty();
+        UnwatchLevelObjectPropertyChange(obj);
+        _undoStack.AddOperation(new DeleteLevelObjectOperation(obj));
+        _currentLv.MarkDirty();
         CheckModified();
     }
 
     internal void WatchBVHItemChanged()
     {
-        _currentWorld._bvh.ItemAdded += OnWorldObjectAdded;
-        _currentWorld._bvh.ItemRemoved += OnWorldObjectRemoved;
+        _currentLv._bvh.ItemAdded += OnLevelObjectAdded;
+        _currentLv._bvh.ItemRemoved += OnLevelObjectRemoved;
     }
 
     internal void UnwatchBVHItemChanged()
     {
-        _currentWorld._bvh.ItemAdded -= OnWorldObjectAdded;
-        _currentWorld._bvh.ItemRemoved -= OnWorldObjectRemoved;
+        _currentLv._bvh.ItemAdded -= OnLevelObjectAdded;
+        _currentLv._bvh.ItemRemoved -= OnLevelObjectRemoved;
     }
 
     void OnLayerVisibilityChanged(RenderLayers layer, bool visible)
@@ -456,35 +456,35 @@ public class Workspace : ObservableObject
 
     internal void WatchLayerVisibilityChange()
     {
-        _currentWorld._allObjects.LayerVisibilityChanged += OnLayerVisibilityChanged;
+        _currentLv._allObjects.LayerVisibilityChanged += OnLayerVisibilityChanged;
     }
 
     internal void UnwatchLayerVisibilityChange()
     {
-        _currentWorld._allObjects.LayerVisibilityChanged -= OnLayerVisibilityChanged;
+        _currentLv._allObjects.LayerVisibilityChanged -= OnLayerVisibilityChanged;
     }
 
-    internal void WatchWorldObjectPropertyChange(WorldObject obj)
+    internal void WatchLevelObjectPropertyChange(LevelObject obj)
     {
-        obj.PropertyChanging += OnWorldObjectPropertyChanging;
-        obj.PropertyChanged += OnWorldObjectPropertyChanged;
+        obj.PropertyChanging += OnLevelObjectPropertyChanging;
+        obj.PropertyChanged += OnLevelObjectPropertyChanged;
     }
 
-    internal void UnwatchWorldObjectPropertyChange(WorldObject obj)
+    internal void UnwatchLevelObjectPropertyChange(LevelObject obj)
     {
-        obj.PropertyChanging -= OnWorldObjectPropertyChanging;
-        obj.PropertyChanged -= OnWorldObjectPropertyChanged;
+        obj.PropertyChanging -= OnLevelObjectPropertyChanging;
+        obj.PropertyChanged -= OnLevelObjectPropertyChanged;
     }
 
-    void OnWorldObjectPropertyChanging(object? sender, PropertyChangingEventArgs e)
+    void OnLevelObjectPropertyChanging(object? sender, PropertyChangingEventArgs e)
     {
-        WorldObject obj = sender as WorldObject;
+        LevelObject obj = sender as LevelObject;
         var props = SerializationHelper.GetSerializableProperties(obj.GetType());
         var property = props.FirstOrDefault(prop => prop.PropertyInfo.Name == e.PropertyName);
         if (property != null)
         {
             object oldValue = SerializationHelper.StoreSerializableProperty(property.PropertyInfo, property.PropertyInfo.GetValue(obj));
-            _cacheWorldObjModifying = new PropertyChangeInfo
+            _cacheLvObjModifying = new PropertyChangeInfo
             {
                 PropertyName = e.PropertyName,
                 OldValue = oldValue,
@@ -492,21 +492,21 @@ public class Workspace : ObservableObject
         }
     }
 
-    void OnWorldObjectPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    void OnLevelObjectPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        WorldObject obj = sender as WorldObject;
+        LevelObject obj = sender as LevelObject;
         var props = SerializationHelper.GetSerializableProperties(obj.GetType());
         var property = props.FirstOrDefault(prop => prop.PropertyInfo.Name == e.PropertyName);
         if (property != null)
         {
             object newValue = SerializationHelper.StoreSerializableProperty(property.PropertyInfo, property.PropertyInfo.GetValue(obj));
-            _undoStack.AddOperation(new ModifyWorldObjectOperation(obj, new PropertyChangeInfo
+            _undoStack.AddOperation(new ModifyLevelObjectOperation(obj, new PropertyChangeInfo
             {
-                PropertyName = _cacheWorldObjModifying.PropertyName,
-                OldValue = _cacheWorldObjModifying.OldValue,
+                PropertyName = _cacheLvObjModifying.PropertyName,
+                OldValue = _cacheLvObjModifying.OldValue,
                 NewValue = newValue,
             }));
-            _currentWorld.MarkDirty();
+            _currentLv.MarkDirty();
             CheckModified();
         }
     }
@@ -644,19 +644,19 @@ public class Workspace : ObservableObject
         await _dbSync.SyncFrom(this, groups);
     }
 
-    async Task SyncWorld(string worldName)
+    async Task SyncLevel(string lvName)
     {
-        if (_currentWorld != null)
+        if (_currentLv != null)
         {
-            _currentWorld.RenderInitialized -= OnWorldRenderInitialized;
+            _currentLv.RenderInitialized -= OnLevelRenderInitialized;
         }
-        _currentWorld = new World(worldName, string.Empty);
-        string worldPath = Path.Combine(WorldsFolder, worldName + ".bin");
-        if (File.Exists(worldPath))
+        _currentLv = new Level(lvName, string.Empty);
+        string lvPath = Path.Combine(LevelsFolder, lvName + ".bin");
+        if (File.Exists(lvPath))
         {
-            await _currentWorld.Load(this, worldPath);
+            await _currentLv.Load(this, lvPath);
         }
-        _currentWorld.RenderInitialized += OnWorldRenderInitialized;
+        _currentLv.RenderInitialized += OnLevelRenderInitialized;
     }
 
     async Task SyncStylegrounds()
@@ -691,7 +691,9 @@ public class Workspace : ObservableObject
             _dbMain = new SqliteDatabase(dbFile);
             string dbEditor = GetAbsolutePath(EDITOR_DATABASE_NAME);
             _dbEditor = new SqliteDatabase(dbEditor);
-            WorldsFolder = GetAbsolutePath(WORLDS_FOLDER);
+            LevelsFolder = GetAbsolutePath(LEVELS_FOLDER);
+            if (!Directory.Exists(LevelsFolder))
+                Directory.CreateDirectory(LevelsFolder);
             TextureFolder = GetAbsolutePath(TEXTURE_FOLDER);
             AtlasFolder = GetAbsolutePath(ATLAS_FOLDER);
             MessFolder = GetAbsolutePath(MESS_FOLDER);
@@ -716,14 +718,14 @@ public class Workspace : ObservableObject
     SqliteDatabase _dbMain;
     SqliteDatabase _dbEditor;
     DatabaseObjectSync _dbSync = new DatabaseObjectSync();
-    WorldGrouping _worldGrouping = new WorldGrouping();
+    LevelGrouping _lvGrouping = new LevelGrouping();
     GroupedStylegrounds _stylegrounds = new GroupedStylegrounds();
 
     // UI related.
     PanelStates _panelStates = new PanelStates();
 
     // For undoables and not effect DBSync logic.
-    PropertyChangeInfo _cacheWorldObjModifying;
+    PropertyChangeInfo _cacheLvObjModifying;
     PropertyChangeInfo _cacheStylegroundModifying;
 
     // Background jobs.

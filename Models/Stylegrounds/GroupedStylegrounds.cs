@@ -61,7 +61,7 @@ public class GroupedStylegrounds
         var toRm = new List<string>();
         foreach (var pair in _all)
         {
-            if (!workspace.WorldGrouping.HasGroup(pair.Key))
+            if (!workspace.LevelGrouping.HasGroup(pair.Key))
                 toRm.Add(pair.Key);
         }
         foreach (var group in toRm)

@@ -322,7 +322,7 @@
     <comment/>
   </data>
   <data name="TooltipLayer" xml:space="preserve">
-    <value>Render layer in the world.</value>
+    <value>Render layer in the level.</value>
     <comment/>
   </data>
   <data name="TooltipRelativeDepth" xml:space="preserve">
@@ -381,24 +381,24 @@
     <value>Random</value>
     <comment/>
   </data>
-  <data name="TitleWorldCreate" xml:space="preserve">
-    <value>Create World</value>
+  <data name="TitleLevelCreate" xml:space="preserve">
+    <value>Create Level</value>
     <comment/>
   </data>
   <data name="WaterMarkNameConvention" xml:space="preserve">
     <value>Combination of letters, numbers and underlines.</value>
     <comment/>
   </data>
-  <data name="ErrorDuplicateWorldName" xml:space="preserve">
-    <value>World name already exists.</value>
+  <data name="ErrorDuplicateLevelName" xml:space="preserve">
+    <value>Level name already exists.</value>
     <comment/>
   </data>
-  <data name="ErrorInvalidWorldName" xml:space="preserve">
-    <value>Invalid world name, should be combination of letters, numbers and underlines.</value>
+  <data name="ErrorInvalidLevelName" xml:space="preserve">
+    <value>Invalid level name, should be combination of letters, numbers and underlines.</value>
     <comment/>
   </data>
-  <data name="ErrorEmptyWorldName" xml:space="preserve">
-    <value>World name can't be empty.</value>
+  <data name="ErrorEmptyLevelName" xml:space="preserve">
+    <value>Level name can't be empty.</value>
     <comment/>
   </data>
   <data name="PlacementStylegrounds" xml:space="preserve">
@@ -421,12 +421,12 @@
     <value>Gradient style.</value>
     <comment/>
   </data>
-  <data name="ButtonTextCreateWorld" xml:space="preserve">
-    <value>Create World</value>
+  <data name="ButtonTextCreateLevel" xml:space="preserve">
+    <value>Create Level</value>
     <comment/>
   </data>
-  <data name="WarningDeleteWorld" xml:space="preserve">
-    <value>Are you sure to delete world '{0}'? All data will be removed permanently and cannot recover!</value>
+  <data name="WarningDeleteLevel" xml:space="preserve">
+    <value>Are you sure to delete level '{0}'? All data will be removed permanently and cannot recover!</value>
     <comment/>
   </data>
   <data name="ButtonTextStylegrounds" xml:space="preserve">

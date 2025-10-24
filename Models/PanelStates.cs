@@ -4,16 +4,16 @@ namespace Fantania.Models;
 
 public class PanelStates : ObservableObject
 {
-    private bool _showWorldPanel = false;
-    public bool ShowWorldPanel
+    private bool _showLevelPanel = false;
+    public bool ShowLevelPanel
     {
-        get { return _showWorldPanel; }
+        get { return _showLevelPanel; }
         set
         {
-            if (_showWorldPanel != value)
+            if (_showLevelPanel != value)
             {
-                _showWorldPanel = value;
-                OnPropertyChanged(nameof(ShowWorldPanel));
+                _showLevelPanel = value;
+                OnPropertyChanged(nameof(ShowLevelPanel));
             }
         }
     }
@@ -48,6 +48,6 @@ public class PanelStates : ObservableObject
 
     public void HideAll()
     {
-        ShowWorldPanel = ShowStylegroundPanel = ShowLayerPanel = false;
+        ShowLevelPanel = ShowStylegroundPanel = ShowLayerPanel = false;
     }
 }

@@ -6,7 +6,7 @@
   <f:Path2BitmapConverter x:Key="Cvt_Path2Bitmap" />
   <f:EditableProperty2ConstantOptionConverter x:Key="Cvt_EP2ConstOp" />
   <f:OptionValue2NameMultiConverter x:Key="Cvt_Op2Name" />
-  <f:World2WorldCanvasConverter x:Key="Cvt_World2WorldCanvas" />
+  <f:Level2LevelCanvasConverter x:Key="Cvt_Lv2LvCanvas" />
   <f:Observable2GeneralNameConverter x:Key="Cvt_Ob2Str" />
   <f:EditableProperty2EnumListConverter x:Key="Cvt_EP2EnumList" />
   <f:EnumValue2StringConverter x:Key="Cvt_EnumVal2Str" />

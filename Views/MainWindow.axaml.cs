@@ -69,13 +69,13 @@ public partial class MainWindow : Window
                     return;
                 }
             }
-            var newWorldView = new NewWorldView();
-            newWorldView.DataContext = workspace;
-            bool confirm = await newWorldView.ShowDialog<bool>(this);
+            var newLvView = new NewLevelView();
+            newLvView.DataContext = workspace;
+            bool confirm = await newLvView.ShowDialog<bool>(this);
             if (confirm)
             {
                 await workspace.Initialize();
-                await workspace.CurrentWorld.Save(workspace);
+                await workspace.CurrentLevel.Save(workspace);
                 var vmWorkspace = new WorkspaceViewModel(workspace);
                 content.Content = new WorkspaceView
                 {
