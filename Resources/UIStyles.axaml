@@ -1,0 +1,70 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:av="using:AvRichTextBox">
+  <Style Selector=":is(TemplatedControl).h1">
+    <Setter Property="FontSize" Value="24" />
+    <Setter Property="FontWeight" Value="Bold" />
+  </Style>
+  <Style Selector=":is(TemplatedControl).h2">
+    <Setter Property="FontSize" Value="18" />
+    <Setter Property="FontWeight" Value="Bold" />
+  </Style>
+  <Style Selector=":is(TemplatedControl).h3">
+    <Setter Property="FontSize" Value="14" />
+    <Setter Property="FontWeight" Value="Bold" />
+  </Style>
+  <Style Selector=":is(TemplatedControl).p">
+    <Setter Property="FontSize" Value="14" />
+  </Style>
+  <Style Selector=":is(TemplatedControl).m">
+    <Setter Property="FontSize" Value="16" />
+  </Style>
+  <Style Selector=":is(TextBlock).h1">
+    <Setter Property="FontSize" Value="24" />
+    <Setter Property="FontWeight" Value="Bold" />
+  </Style>
+  <Style Selector=":is(TextBlock).h2">
+    <Setter Property="FontSize" Value="18" />
+    <Setter Property="FontWeight" Value="Bold" />
+  </Style>
+  <Style Selector=":is(TextBlock).h3">
+    <Setter Property="FontSize" Value="14" />
+    <Setter Property="FontWeight" Value="Bold" />
+  </Style>
+  <Style Selector=":is(TextBlock).p">
+    <Setter Property="FontSize" Value="14" />
+  </Style>
+  <Style Selector=":is(TextBlock).m">
+    <Setter Property="FontSize" Value="16" />
+  </Style>
+  <Style Selector=":is(TextBlock).l">
+    <Setter Property="FontSize" Value="20" />
+  </Style>
+  <Style Selector=":is(TextBlock).warn">
+    <Setter Property="Foreground" Value="Yellow" />
+  </Style>
+  <Style Selector=":is(TextBlock).err">
+    <Setter Property="Foreground" Value="Red" />
+  </Style>
+  <Style Selector=":is(TextBlock).header">
+    <Setter Property="Foreground" Value="LightSlateGray" />
+  </Style>
+  <Style Selector=":is(TextBlock).tooltip">
+    <Setter Property="Foreground" Value="Orange" />
+  </Style>
+  <Style Selector="Border.thin">
+    <Setter Property="BorderThickness" Value="1" />
+  </Style>
+  <Style Selector="Border.thick">
+    <Setter Property="BorderThickness" Value="2" />
+  </Style>
+  <Style Selector="Border.s1">
+    <Setter Property="BorderBrush" Value="Aqua" />
+  </Style>
+  <Style Selector="Border.s2">
+    <Setter Property="BorderBrush" Value="LightGray" />
+  </Style>
+  <Style Selector="Border.err">
+    <Setter Property="BorderBrush" Value="Red" />
+  </Style>
+</Styles>

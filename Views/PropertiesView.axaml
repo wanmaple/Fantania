@@ -1,0 +1,43 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:f="using:Fantania"
+             xmlns:vm="using:Fantania.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="450"
+             x:DataType="{x:Type vm:PropertiesViewModel}"
+             x:Class="Fantania.Views.PropertiesView"
+             x:Name="Root">
+  <DataGrid ItemsSource="{Binding EditableProperties}" GridLinesVisibility="All" BorderThickness="1" HorizontalAlignment="Stretch" CanUserResizeColumns="True" HeadersVisibility="{Binding #Root.IsHeaderVisible, Converter={StaticResource Cvt_B2DGHV}}">
+    <DataGrid.Columns>
+      <DataGridTemplateColumn Header="Property Name">
+        <DataGridTemplateColumn.CellTemplate>
+          <DataTemplate DataType="f:IEditableProperty">
+            <TextBlock Classes="p" Text="{Binding PropertyName, Converter={StaticResource Cvt_PrettyName}}" ToolTip.ServiceEnabled="{Binding Tooltip, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" ToolTip.Placement="LeftEdgeAlignedTop" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5">
+              <ToolTip.Tip>
+                <TextBlock Classes="p tooltip" Text="{Binding Tooltip}" />
+              </ToolTip.Tip>
+            </TextBlock>
+          </DataTemplate>
+        </DataGridTemplateColumn.CellTemplate>
+        <DataGridTemplateColumn.HeaderTemplate>
+          <DataTemplate>
+            <TextBlock Classes="p header" Text="{Binding}" />
+          </DataTemplate>
+        </DataGridTemplateColumn.HeaderTemplate>
+      </DataGridTemplateColumn>
+      <DataGridTemplateColumn Header="Property Value" MinWidth="300">
+        <DataGridTemplateColumn.CellTemplate>
+          <DataTemplate DataType="f:IEditableProperty">
+            <ContentPresenter Content="{Binding Converter={StaticResource Cvt_EP2Ctrl}}" Margin="5" />
+          </DataTemplate>
+        </DataGridTemplateColumn.CellTemplate>
+        <DataGridTemplateColumn.HeaderTemplate>
+          <DataTemplate>
+            <TextBlock Classes="p header" Text="{Binding}" />
+          </DataTemplate>
+        </DataGridTemplateColumn.HeaderTemplate>
+      </DataGridTemplateColumn>
+    </DataGrid.Columns>
+  </DataGrid>
+</UserControl>

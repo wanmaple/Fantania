@@ -1,0 +1,28 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:f="using:Fantania"
+             mc:Ignorable="d" d:DesignWidth="250" d:DesignHeight="30"
+             x:DataType="{x:Type f:IEditableProperty}"
+             x:Class="Fantania.EditVector4Control"
+             x:Name="Root">
+  <Grid RowDefinitions="*,*" ColumnDefinitions="*,*">
+    <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
+      <TextBlock Text="X" Margin="0 0 5 0" VerticalAlignment="Center" />
+      <NumericUpDown Value="{Binding #Root.X}" Increment="{ReflectionBinding EditInfo.Increment}" ParsingNumberStyle="Float" FormatString="F2" />
+    </StackPanel>
+    <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal">
+      <TextBlock Text="Y" Margin="0 0 5 0" VerticalAlignment="Center" />
+      <NumericUpDown Value="{Binding #Root.Y}" Increment="{ReflectionBinding EditInfo.Increment}" ParsingNumberStyle="Float" FormatString="F2" />
+    </StackPanel>
+    <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal">
+      <TextBlock Text="Z" Margin="0 0 5 0" VerticalAlignment="Center" />
+      <NumericUpDown Value="{Binding #Root.Z}" Increment="{ReflectionBinding EditInfo.Increment}" ParsingNumberStyle="Float" FormatString="F2" />
+    </StackPanel>
+    <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal">
+      <TextBlock Text="W" Margin="0 0 5 0" VerticalAlignment="Center" />
+      <NumericUpDown Value="{Binding #Root.W}" Increment="{ReflectionBinding EditInfo.Increment}" ParsingNumberStyle="Float" FormatString="F2" />
+    </StackPanel>
+  </Grid>
+</UserControl>

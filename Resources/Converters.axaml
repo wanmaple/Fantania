@@ -1,0 +1,23 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:f="using:Fantania">
+  <f:Observable2PropertiesVMConverter x:Key="Cvt_Ob2PropsVM" />
+  <f:EditableProperty2ControlConverter x:Key="Cvt_EP2Ctrl" />
+  <f:Path2BitmapConverter x:Key="Cvt_Path2Bitmap" />
+  <f:EditableProperty2ConstantOptionConverter x:Key="Cvt_EP2ConstOp" />
+  <f:OptionValue2NameMultiConverter x:Key="Cvt_Op2Name" />
+  <f:World2WorldCanvasConverter x:Key="Cvt_World2WorldCanvas" />
+  <f:Observable2GeneralNameConverter x:Key="Cvt_Ob2Str" />
+  <f:EditableProperty2EnumListConverter x:Key="Cvt_EP2EnumList" />
+  <f:EnumValue2StringConverter x:Key="Cvt_EnumVal2Str" />
+  <f:Radian2DegreeConverter x:Key="Cvt_Rad2Deg" />
+  <f:Vector42ColorConverter x:Key="Cvt_Vec42Color" />
+  <f:Observable2PropertiesViewConverter x:Key="Cvt_Ob2PropV" />
+  <f:Observables2PropertiesViewConverter x:Key="Cvt_Obs2PropV" />
+  <f:LayerName2VisibleConverter x:Key="Cvt_Layer2Visible" />
+  <f:Name2PrettyFormatConverter x:Key="Cvt_PrettyName" />
+  <f:Boolean2DataGridHeaderVisibilityConverter x:Key="Cvt_B2DGHV" />
+  <f:Group2OptionsConverter x:Key="Cvt_G2Ops" />
+  <f:Type2OptionsConverter x:Key="Cvt_T2Ops" />
+  <f:Array2IndexedPropertiesConverter x:Key="Cvt_Ary2IPs" />
+</ResourceDictionary>

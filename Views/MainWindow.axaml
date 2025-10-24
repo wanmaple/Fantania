@@ -1,0 +1,75 @@
+<Window
+    x:Class="Fantania.Views.MainWindow"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:f="using:Fantania"
+    xmlns:vm="using:Fantania.ViewModels"
+    xmlns:lang="using:Fantania.Localization"
+    Title="{x:Static lang:Resources.MainWindowTitle}"
+    d:DesignHeight="1080"
+    d:DesignWidth="1920"
+    x:DataType="vm:MainWindowViewModel"
+    Icon="/Assets/app_icon.ico"
+    mc:Ignorable="d"
+    Name="ParentWindow"
+    WindowState="Maximized">
+  <Design.DataContext>
+    <!--
+        This only sets the DataContext for the previewer in an IDE,
+        to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs)
+    -->
+    <vm:MainWindowViewModel />
+  </Design.DataContext>
+  <Window.KeyBindings>
+    <KeyBinding Command="{Binding #ParentWindow.NewWorkspace}" Gesture="Ctrl+N" />
+    <KeyBinding Command="{Binding #ParentWindow.OpenWorkspace}" Gesture="Ctrl+O" />
+    <KeyBinding Command="{Binding #ParentWindow.SaveWorkspace}" Gesture="Ctrl+S" />
+    <KeyBinding Command="{Binding #ParentWindow.CloseWorkspace}" Gesture="Alt+C" />
+    <KeyBinding Command="{Binding #ParentWindow.Exit}" Gesture="Alt+F4" />
+    <KeyBinding Command="{Binding UndoCommand}" Gesture="Ctrl+Z" />
+    <KeyBinding Command="{Binding RedoCommand}" Gesture="Ctrl+Shift+Z" />
+  </Window.KeyBindings>
+  <DockPanel>
+    <Menu DockPanel.Dock="Top">
+      <MenuItem Classes="m" Header="{x:Static lang:Resources.MainMenuFile}">
+        <MenuItem Header="{x:Static lang:Resources.MainMenuFileNewWorkspace}" InputGesture="Ctrl+N" Command="{Binding #ParentWindow.NewWorkspace}" />
+        <MenuItem Header="{x:Static lang:Resources.MainMenuFileOpenWorkspace}" InputGesture="Ctrl+O" Command="{Binding #ParentWindow.OpenWorkspace}" />
+        <MenuItem Header="{x:Static lang:Resources.MainMenuFileSaveWorkspace}" InputGesture="Ctrl+S" Command="{Binding #ParentWindow.SaveWorkspace}" IsEnabled="{Binding CurrentWorkspace, Converter={x:Static ObjectConverters.IsNotNull}}" />
+        <MenuItem Header="{x:Static lang:Resources.MainMenuFileCloseWorkspace}" InputGesture="Alt+C" Command="{Binding #ParentWindow.CloseWorkspace}" IsEnabled="{Binding CurrentWorkspace, Converter={x:Static ObjectConverters.IsNotNull}}" />
+        <Separator />
+        <MenuItem Header="{x:Static lang:Resources.MainMenuFilePreferences}" />
+        <Separator />
+        <MenuItem Header="{x:Static lang:Resources.MainMenuFileExit}" InputGesture="Alt+F4" Command="{Binding #ParentWindow.Exit}" />
+      </MenuItem>
+      <MenuItem Classes="m" Header="{x:Static lang:Resources.MainMenuEdit}" IsEnabled="{Binding CurrentWorkspace, Converter={x:Static ObjectConverters.IsNotNull}}">
+        <MenuItem Header="{x:Static lang:Resources.MainMenuEditUndo}" IsEnabled="{Binding CurrentWorkspace.UndoStack.IsUndoable}" InputGesture="Ctrl+Z" Command="{Binding UndoCommand}">
+          <MenuItem.Icon>
+            <Image Width="24" Height="24" Source="avares://Fantania/Assets/icons/undo.png" />
+          </MenuItem.Icon>
+        </MenuItem>
+        <MenuItem Header="{x:Static lang:Resources.MainMenuEditRedo}" IsEnabled="{Binding CurrentWorkspace.UndoStack.IsRedoable}" InputGesture="Ctrl+Shift+Z" Command="{Binding RedoCommand}">
+          <MenuItem.Icon>
+            <Image Width="24" Height="24" Source="avares://Fantania/Assets/icons/redo.png" />
+          </MenuItem.Icon>
+        </MenuItem>
+        <Separator />
+        <MenuItem Header="{x:Static lang:Resources.MainMenuEditCut}" InputGesture="Ctrl+X" />
+        <MenuItem Header="{x:Static lang:Resources.MainMenuEditCopy}" InputGesture="Ctrl+C" />
+        <MenuItem Header="{x:Static lang:Resources.MainMenuEditPaste}" InputGesture="Ctrl+V" />
+      </MenuItem>
+      <MenuItem Classes="m" Header="{x:Static lang:Resources.MainMenuView}">
+      </MenuItem>       
+      <MenuItem Classes="m" Header="{x:Static lang:Resources.MainMenuDatabase}">
+      </MenuItem>
+      <MenuItem Classes="m" Header="{x:Static lang:Resources.MainMenuDebug}">
+        <MenuItem Classes="m" Header="{x:Static lang:Resources.MainMenuDebugVisual}">
+          <MenuItem Classes="m" Header="{x:Static lang:Resources.MainMenuDebugVisualBVH}" ToggleType="CheckBox" IsChecked="{Binding DebugSettings.IsBVHVisualizerOn, Mode=TwoWay, Source={x:Static f:Preferences.Singleton}}" />
+          <Separator />
+        </MenuItem>
+      </MenuItem>
+    </Menu>
+    <ContentPresenter Classes="dark" x:Name="content" />
+  </DockPanel>
+</Window>

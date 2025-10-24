@@ -1,0 +1,51 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:f="using:Fantania"
+             mc:Ignorable="d" d:DesignWidth="250" d:DesignHeight="30"
+             x:DataType="{x:Type f:IEditableProperty}"
+             x:Class="Fantania.EditAnchorControl"
+             Name="Root">
+  <UserControl.Resources>
+    <f:CoordinateXConverter x:Key="Cvt_XCoord" />
+    <f:CoordinateYConverter x:Key="Cvt_YCoord" />
+  </UserControl.Resources>
+  <Grid RowDefinitions="auto,*">
+    <SelectableTextBlock Grid.Row="0" Text="{ReflectionBinding EditValue, StringFormat='{}({0})'}" Margin="0 0 10 0" VerticalAlignment="Center" />
+    <StackPanel Grid.Row="1" Orientation="Horizontal">
+      <Canvas Grid.Row="1" Background="DimGray" Width="60" Height="60" HorizontalAlignment="Left" VerticalAlignment="Center" PointerPressed="Canvas_PointerPressed" PointerMoved="Canvas_PointerMoved" PointerReleased="Canvas_PointerReleased">
+        <Ellipse Canvas.Left="{Binding EditValue, Converter={StaticResource Cvt_XCoord}, ConverterParameter=56}" Canvas.Top="{Binding EditValue, Converter={StaticResource Cvt_YCoord}, ConverterParameter=56}" Width="4" Height="4" Fill="Yellow" />
+      </Canvas>
+      <Grid Grid.Row="1" RowDefinitions="*,*,*" ColumnDefinitions="*,*,*" Width="60" Height="60" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10 0 0 0">
+        <Button Grid.Row="0" Grid.Column="0" Command="{Binding #Root.SetTopLeft}">
+          <Image Source="avares://Fantania/Assets/icons/arrow_tl.png" Width="15" Height="15" />
+        </Button>
+        <Button Grid.Row="0" Grid.Column="1" Command="{Binding #Root.SetTopCenter}">
+          <Image Source="avares://Fantania/Assets/icons/arrow_t.png" Width="15" Height="15" />
+        </Button>
+        <Button Grid.Row="0" Grid.Column="2" Command="{Binding #Root.SetTopRight}">
+          <Image Source="avares://Fantania/Assets/icons/arrow_tr.png" Width="15" Height="15" />
+        </Button>
+        <Button Grid.Row="1" Grid.Column="0" Command="{Binding #Root.SetCenterLeft}">
+          <Image Source="avares://Fantania/Assets/icons/arrow_l.png" Width="15" Height="15" />
+        </Button>
+        <Button Grid.Row="1" Grid.Column="1" Command="{Binding #Root.SetCenter}">
+          <Image Source="avares://Fantania/Assets/icons/arrow_c.png" Width="15" Height="15" />
+        </Button>
+        <Button Grid.Row="1" Grid.Column="2" Command="{Binding #Root.SetCenterRight}">
+          <Image Source="avares://Fantania/Assets/icons/arrow_r.png" Width="15" Height="15" />
+        </Button>
+        <Button Grid.Row="2" Grid.Column="0" Command="{Binding #Root.SetBottomLeft}">
+          <Image Source="avares://Fantania/Assets/icons/arrow_bl.png" Width="15" Height="15" />
+        </Button>
+        <Button Grid.Row="2" Grid.Column="1" Command="{Binding #Root.SetBottomCenter}">
+          <Image Source="avares://Fantania/Assets/icons/arrow_b.png" Width="15" Height="15" />
+        </Button>
+        <Button Grid.Row="2" Grid.Column="2" Command="{Binding #Root.SetBottomRight}">
+          <Image Source="avares://Fantania/Assets/icons/arrow_br.png" Width="15" Height="15" />
+        </Button>
+      </Grid>
+    </StackPanel>
+  </Grid>
+</UserControl>

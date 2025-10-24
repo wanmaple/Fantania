@@ -1,0 +1,77 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:f="using:Fantania"
+             mc:Ignorable="d" d:DesignWidth="250" d:DesignHeight="150"
+             x:DataType="{x:Type f:IEditableProperty}"
+             x:Class="Fantania.EditCurveControl"
+             x:Name="Root">
+  <UserControl.Resources>
+    <f:Index2PositionXMultiConverter x:Key="Cvt_Idx2PosX" />
+    <f:Value2PositionYMultiConverter x:Key="Cvt_Val2PosY" />
+    <f:PivotColorMultiConverter x:Key="Cvt_PivotColor" />
+    <f:Tangent2RotationConverter x:Key="Cvt_Tan2Angle" />
+    <f:PivotIsSelectedMultiConverter x:Key="Cvt_IsSelected" />
+  </UserControl.Resources>
+  <Grid x:Name="canvas" Margin="5" Width="264" Height="144">
+    <Canvas>
+      <Polyline Stroke="White" StrokeThickness="1" Points="{Binding #Root.Points}" />
+    </Canvas>
+    <ItemsControl ItemsSource="{Binding #Root.Pivots}" Padding="0">
+      <ItemsControl.ItemsPanel>
+        <ItemsPanelTemplate>
+          <Canvas />
+        </ItemsPanelTemplate>
+      </ItemsControl.ItemsPanel>
+      <ItemsControl.Styles>
+        <Style Selector="ContentPresenter" x:DataType="{x:Type f:HermitPivot}">
+          <Setter Property="Canvas.Left">
+            <Setter.Value>
+              <MultiBinding Converter="{StaticResource Cvt_Idx2PosX}">
+                <Binding Path="Index" />
+                <Binding Path="Bounds.Width" ElementName="canvas" />
+              </MultiBinding>
+            </Setter.Value>
+          </Setter>
+          <Setter Property="Canvas.Top">
+            <Setter.Value>
+              <MultiBinding Converter="{StaticResource Cvt_Val2PosY}">
+                <Binding Path="Value" />
+                <Binding Path="Bounds.Height" ElementName="canvas" />
+              </MultiBinding>
+            </Setter.Value>
+          </Setter>
+        </Style>
+      </ItemsControl.Styles>
+      <ItemsControl.ItemTemplate>
+        <DataTemplate>
+          <Grid>
+            <Ellipse Width="8" Height="8">
+              <Ellipse.RenderTransform>
+                <TranslateTransform X="-4" Y="-4" />
+              </Ellipse.RenderTransform>
+              <Ellipse.Fill>
+                <MultiBinding Converter="{StaticResource Cvt_PivotColor}">
+                  <Binding Path="Index" />
+                  <Binding Path="#Root.SelectedIndex" />
+                </MultiBinding>
+              </Ellipse.Fill>
+            </Ellipse>
+            <Line Stroke="Yellow" StrokeThickness="2" StartPoint="0,0" EndPoint="12,0" RenderTransformOrigin="0,0">
+              <Line.IsVisible>
+                <MultiBinding Converter="{StaticResource Cvt_IsSelected}">
+                  <Binding Path="Index" />
+                  <Binding Path="#Root.SelectedIndex" />
+                </MultiBinding>
+              </Line.IsVisible>
+              <Line.RenderTransform>
+                <RotateTransform Angle="{Binding Tangent, Converter={StaticResource Cvt_Tan2Angle}}" />
+              </Line.RenderTransform>
+            </Line>
+          </Grid>
+        </DataTemplate>
+      </ItemsControl.ItemTemplate>
+    </ItemsControl>
+  </Grid>
+</UserControl>

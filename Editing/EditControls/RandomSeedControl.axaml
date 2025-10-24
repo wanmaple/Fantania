@@ -1,0 +1,22 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:f="using:Fantania"
+             xmlns:lang="using:Fantania.Localization"
+             mc:Ignorable="d" d:DesignWidth="250" d:DesignHeight="30"
+             x:DataType="{x:Type f:IEditableProperty}"
+             x:Class="Fantania.RandomSeedControl"
+             x:Name="Root">
+  <Grid ColumnDefinitions="*,auto">
+    <Grid Grid.Column="0">
+      <TextBox Text="{Binding Path=EditValue, Mode=TwoWay, Converter={x:Static f:NumberConverters.Integer2String}}" ToolTip.ServiceEnabled="{Binding Error, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" HorizontalAlignment="Stretch" VerticalAlignment="Center">
+        <ToolTip.Tip>
+          <TextBlock Classes="p err" Text="{Binding Error}" />
+        </ToolTip.Tip>
+      </TextBox>
+      <Border Classes="thick err" IsVisible="{Binding Error, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+    </Grid>
+    <Button Grid.Column="1" Content="{x:Static lang:Resources.ButtonTextRandom}" Command="{Binding #Root.GenerateSeed}" VerticalAlignment="Center" Margin="5 0 0 0" />
+  </Grid>
+</UserControl>

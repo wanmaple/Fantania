@@ -1,0 +1,21 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="Fantania.EditScaleControl"
+             x:Name="Root">
+  <Grid ColumnDefinitions="*,32,*">
+    <StackPanel Grid.Column="0" Orientation="Horizontal">
+      <TextBlock Text="X" Margin="0 0 5 0" VerticalAlignment="Center" />
+      <NumericUpDown x:Name="nudX" Value="{Binding #Root.X}" Minimum="{ReflectionBinding EditInfo.XMinimum}" Maximum="{ReflectionBinding EditInfo.XMaximum}" Increment="{ReflectionBinding EditInfo.Increment}" />
+    </StackPanel>
+    <Button Grid.Column="1" Click="ButtonChain_Click">
+      <Image Source="avares://Fantania/Assets/icons/chain.png" Width="24" Height="24" HorizontalAlignment="Center" />
+    </Button>
+    <StackPanel Grid.Column="2" Orientation="Horizontal">
+      <TextBlock Text="Y" Margin="0 0 5 0" VerticalAlignment="Center" />
+      <NumericUpDown x:Name="nudY" Value="{Binding #Root.Y}" Minimum="{ReflectionBinding EditInfo.YMinimum}" Maximum="{ReflectionBinding EditInfo.YMaximum}" Increment="{ReflectionBinding EditInfo.Increment}" />
+    </StackPanel>
+  </Grid>
+</UserControl>

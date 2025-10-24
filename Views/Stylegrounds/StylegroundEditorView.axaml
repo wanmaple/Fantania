@@ -1,0 +1,91 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:f="using:Fantania"
+             xmlns:m="using:Fantania.Models"
+             xmlns:v="using:Fantania.Views"
+             xmlns:vm="using:Fantania.ViewModels"
+             xmlns:lang="using:Fantania.Localization"
+             mc:Ignorable="d" d:DesignWidth="1920" d:DesignHeight="1080"
+             x:Class="Fantania.Views.StylegroundEditorView"
+             x:DataType="{x:Type vm:StylegroundEditorViewModel}"
+             x:Name="Root">
+  <UserControl.Resources>
+    <f:Placement2EnabledConverter x:Key="Cvt_P2E" />
+  </UserControl.Resources>
+  <Grid ColumnDefinitions="*,auto,*,auto,*">
+    <Grid Grid.Column="0" RowDefinitions="*,auto,1.5*">
+      <Border Grid.Row="0" Classes="thin s1">
+        <Grid RowDefinitions="auto,auto,*" Margin="5">
+          <TextBlock Grid.Row="0" Classes="h2" Text="{x:Static lang:Resources.StylegroundsPanelHeader}" />
+          <StackPanel Grid.Row="1" Orientation="Horizontal">
+            <Button Content="{x:Static lang:Resources.ButtonTextAddBackground}" IsEnabled="{Binding SelectedItem, ElementName=tvPlacements, Converter={StaticResource Cvt_P2E}}" Margin="2" Command="{Binding #Root.AddBackground}" />
+            <Button Content="{x:Static lang:Resources.ButtonTextAddForeground}" IsEnabled="{Binding SelectedItem, ElementName=tvPlacements, Converter={StaticResource Cvt_P2E}}" Margin="2" Command="{Binding #Root.AddForeground}" />
+          </StackPanel>
+          <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+            <TreeView ItemsSource="{Binding StylegroundGroups}" SelectionChanged="TreeView_SelectionChanged">
+              <TreeView.ItemTemplate>
+                <TreeDataTemplate ItemsSource="{ReflectionBinding Items}">
+                  <Grid ColumnDefinitions="auto,*">
+                    <CheckBox Grid.Column="0" IsVisible="{Binding Converter={x:Static f:TypeConverters.TypeIs}, ConverterParameter={x:Type m:Styleground}}" IsChecked="{ReflectionBinding Visible}" />
+                    <TextBlock DragDrop.AllowDrop="True" DragDrop.DragEnter="Styleground_DragEnter" DragDrop.DragLeave="Styleground_DragLeave" DragDrop.Drop="Styleground_Drop" Grid.Column="1" Text="{ReflectionBinding Name}" VerticalAlignment="Center" PointerPressed="Styleground_PointerPressed" />
+                  </Grid>
+                </TreeDataTemplate>
+              </TreeView.ItemTemplate>
+            </TreeView>
+          </ScrollViewer>
+        </Grid>
+      </Border>
+      <GridSplitter Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" ResizeDirection="Rows" ResizeBehavior="PreviousAndNext" Height="1" />
+      <Border Grid.Row="2" Classes="thin s1" VerticalAlignment="Stretch">
+        <ContentControl Content="{Binding SelectedStyleground, Converter={StaticResource Cvt_Ob2PropV}}" />
+      </Border>
+    </Grid>
+    <GridSplitter Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Stretch" ResizeDirection="Columns" ResizeBehavior="PreviousAndNext" Width="1" />
+    <Grid Grid.Column="2">
+      <Grid RowDefinitions="auto,*">
+        <Border Grid.Row="0" Classes="thin s1">
+          <Grid RowDefinitions="auto,*" Margin="5" SizeChanged="PreviewArea_SizeChanged">
+            <TextBlock Grid.Row="0" Classes="h2" Text="{x:Static lang:Resources.PreviewPanelHeader}" />
+            <f:PreviewCanvas x:Name="preview" Grid.Row="1" ColorBufferWidth="960" ColorBufferHeight="540" />
+          </Grid>
+        </Border>
+        <Grid Grid.Row="1" />
+      </Grid> 
+    </Grid>
+    <GridSplitter Grid.Column="3" HorizontalAlignment="Center" VerticalAlignment="Stretch" ResizeDirection="Columns" ResizeBehavior="PreviousAndNext" Width="1" />
+    <Grid Grid.Column="4" RowDefinitions="*,auto,1.5*">
+      <Border Grid.Row="0" Classes="thin s1">
+        <Grid RowDefinitions="auto,*" Margin="5">
+          <TextBlock Grid.Row="0" Classes="h2" Text="{x:Static lang:Resources.PlacementPanelHeader}" />
+          <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Margin="0 5 0 0">
+            <TreeView x:Name="tvPlacements" ItemsSource="{Binding Placements}">
+              <TreeView.ItemTemplate>
+                <TreeDataTemplate ItemsSource="{Binding Children}">
+                  <StackPanel Orientation="Horizontal">
+                    <Image Source="{Binding IconPath, Converter={StaticResource Cvt_Path2Bitmap}}" Width="30" Height="30" VerticalAlignment="Center" />
+                    <TextBlock Classes="m" Text="{Binding Name}" Width="200" ClipToBounds="True" ToolTip.ServiceEnabled="{Binding Tooltip, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" PointerPressed="Placement_PointerPressed" VerticalAlignment="Center" Margin="5 0 0 0">
+                      <ToolTip.Tip>
+                        <TextBlock Classes="p tooltip" Text="{Binding Tooltip}" />
+                      </ToolTip.Tip>
+                    </TextBlock>
+                    <Grid>
+                      <Button IsVisible="{Binding GroupType, Converter={x:Static ObjectConverters.IsNotNull}}" VerticalAlignment="Center" Width="25" Height="25" Margin="5 0 0 0" Background="Transparent" Click="ButtonAddPlacement_Click">
+                        <Image Source="avares://Fantania/Assets/icons/add.png" Width="25" Height="25" />
+                      </Button>
+                    </Grid>
+                  </StackPanel>
+                </TreeDataTemplate>
+              </TreeView.ItemTemplate>
+            </TreeView>
+          </ScrollViewer>
+        </Grid>
+      </Border>
+      <GridSplitter Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" ResizeDirection="Rows" ResizeBehavior="PreviousAndNext" Height="1" />
+      <Border Grid.Row="2" Classes="thin s1">
+        <ContentControl Content="{Binding #tvPlacements.SelectedItem, Converter={StaticResource Cvt_Ob2PropV}}" />
+      </Border>
+    </Grid>
+  </Grid>
+</UserControl>

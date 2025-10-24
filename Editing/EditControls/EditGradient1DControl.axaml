@@ -1,0 +1,59 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:f="using:Fantania"
+             mc:Ignorable="d" d:DesignWidth="250" d:DesignHeight="150"
+             x:DataType="{x:Type f:IEditableProperty}"
+             x:Class="Fantania.EditGradient1DControl"
+             x:Name="Root">
+  <UserControl.Resources>
+    <f:Pivots2GradientStopsConverter x:Key="Cvt_Pivots2Stops" />
+    <f:GradientIndex2PositionXMultiConverter x:Key="Cvt_Idx2PosX" />
+    <f:Color2RectStrokeConverter x:Key="Cvt_Color2Stroke" />
+    <f:Pivot2RectFillConverter x:Key="Cvt_Pivot2Fill" />
+  </UserControl.Resources>
+  <Grid ColumnDefinitions="*,auto">
+    <Border x:Name="bg" Grid.Column="0" BorderThickness="0" Margin="10 0 10 0">
+      <Border.Background>
+        <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,0%" GradientStops="{Binding #Root.Pivots, Converter={StaticResource Cvt_Pivots2Stops}}" />
+      </Border.Background>
+    </Border>
+    <ItemsControl Grid.Column="0" ItemsSource="{Binding #Root.Pivots}">
+      <ItemsControl.ItemsPanel>
+        <ItemsPanelTemplate>
+          <Canvas />
+        </ItemsPanelTemplate>
+      </ItemsControl.ItemsPanel>
+      <ItemsControl.Styles>
+        <Style Selector="ContentPresenter" x:DataType="{x:Type f:GradientPivot}">
+          <Setter Property="Canvas.Left">
+            <Setter.Value>
+              <MultiBinding Converter="{StaticResource Cvt_Idx2PosX}">
+                <Binding Path="Index" />
+                <Binding Path="Bounds.Width" ElementName="bg" />
+              </MultiBinding>
+            </Setter.Value>
+          </Setter>
+          <Setter Property="Canvas.Top" Value="0" />
+        </Style>
+      </ItemsControl.Styles>
+      <ItemsControl.ItemTemplate>
+        <DataTemplate>
+          <Rectangle Width="20" Height="{Binding Bounds.Height, ElementName=bg}" Stroke="{Binding Color, Converter={StaticResource Cvt_Color2Stroke}}" StrokeThickness="1">
+            <Rectangle.RenderTransform>
+              <TranslateTransform X="-10" />
+            </Rectangle.RenderTransform>
+            <Rectangle.Fill>
+              <MultiBinding Converter="{StaticResource Cvt_Pivot2Fill}">
+                <Binding Path="." />
+                <Binding Path="#Root.SelectedIndex" />
+              </MultiBinding>
+            </Rectangle.Fill>
+          </Rectangle>
+        </DataTemplate>
+      </ItemsControl.ItemTemplate>
+    </ItemsControl>
+    <ColorPicker x:Name="colorpicker" Grid.Column="1" HorizontalAlignment="Left" ColorChanged="ColorPicker_ColorChanged" />
+  </Grid> 
+</UserControl>
