@@ -1,4 +1,4 @@
-function class(__ClassName, __Base)
+function Class(__ClassName, __Base)
     local cls = {}
     cls.__clsname = __ClassName
     cls.__index = cls
@@ -56,7 +56,7 @@ function class(__ClassName, __Base)
     return cls
 end
 
-function handler(target, selector, ...)
+function Handler(target, selector, ...)
 	local args = {...}
 	return function(...)
 		-- the varadic params here are sent by the event automatically, append our own args after them.
