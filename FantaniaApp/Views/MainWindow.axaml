@@ -1,0 +1,35 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:f="using:Fantania"
+        xmlns:m="using:Fantania.Models"
+        xmlns:vm="using:Fantania.ViewModels"
+        xmlns:lang="using:Fantania.Localization"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="Fantania.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/app_icon.ico"
+        Title="Fantania">
+    <Design.DataContext>
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+    <Window.Resources>
+        <f:Workspace2WorkspaceViewConverter x:Key="Cvt_WS2WSView" />
+    </Window.Resources>
+    <Window.KeyBindings>
+        <KeyBinding Command="{Binding NewWorkspaceCommand}" Gesture="Ctrl+N" />
+        <KeyBinding Command="{Binding OpenWorkspaceCommand}" Gesture="Ctrl+O" />
+    </Window.KeyBindings>
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="{x:Static lang:Resources.MI_File}">
+                <MenuItem Classes="m" Header="{x:Static lang:Resources.MI_File_NewWorkspace}" Command="{Binding NewWorkspaceCommand}" InputGesture="Ctrl+N" />
+                <MenuItem Classes="m" Header="{x:Static lang:Resources.MI_File_OpenWorkspace}" Command="{Binding OpenWorkspaceCommand}" InputGesture="Ctrl+O" />
+                <Separator />
+                <MenuItem Classes="m" Header="{x:Static lang:Resources.MI_File_Exit}" Command="{Binding ExitApplicationCommand}" />
+            </MenuItem>
+        </Menu>
+        <ContentControl Content="{Binding Workspace, Converter={StaticResource Cvt_WS2WSView}}" />
+    </DockPanel>
+</Window>

@@ -1,0 +1,34 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:c="using:Fantania.Controls"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="Fantania.Controls.StandardMessageBox"
+        x:DataType="{x:Type c:MessageBoxSettings}"
+        CanResize="False"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="NoChrome" SizeToContent="WidthAndHeight"
+        WindowStartupLocation="CenterScreen">
+  <Window.Resources>
+    <c:MessageBoxIcon2VisibleConverter x:Key="Cvt_Visible" />
+    <c:MessageBoxIcon2ImageSourceConverter x:Key="Cvt_ImageSrc" />
+    <c:ButtonEnum2ItemsSourceConverter x:Key="Cvt_Items" />
+  </Window.Resources>
+  <Grid RowDefinitions="*,auto" ColumnDefinitions="auto,*" Margin="20">
+    <Image Grid.Row="0" Grid.Column="0" IsVisible="{Binding Icon, Converter={StaticResource Cvt_Visible}}" Source="{Binding Icon, Converter={StaticResource Cvt_ImageSrc}}" Width="96" Height="96" Margin="10" VerticalAlignment="Center" />
+    <SelectableTextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Message}" TextWrapping="Wrap" VerticalAlignment="Center" MaxWidth="1024" />
+    <ItemsControl Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" ItemsSource="{Binding Buttons, Converter={StaticResource Cvt_Items}}" Margin="0 10 0 0">
+      <ItemsControl.ItemsPanel>
+        <ItemsPanelTemplate>
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" />
+        </ItemsPanelTemplate>
+      </ItemsControl.ItemsPanel>
+      <ItemsControl.ItemTemplate>
+        <DataTemplate>
+          <Button Content="{Binding}" Width="80" VerticalAlignment="Center" HorizontalContentAlignment="Center" Margin="10 5 10 5" Click="Button_Click" />
+        </DataTemplate>
+      </ItemsControl.ItemTemplate>
+    </ItemsControl>
+  </Grid>
+</Window>
