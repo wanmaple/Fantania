@@ -5,7 +5,7 @@ namespace FantaniaLib;
 
 public class PlacementGroup : IPlacement
 {
-    public string ClassName => nameof(PlacementGroup);
+    public string ClassName => null;
     public string Group => string.Empty;
     public string Name => _groupName;
     public string Tooltip => null;

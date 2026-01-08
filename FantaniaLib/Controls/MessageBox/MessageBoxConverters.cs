@@ -1,12 +1,9 @@
-using System;
-using System.Collections.Generic;
 using System.Globalization;
 using Avalonia;
 using Avalonia.Data.Converters;
 using Avalonia.Media.Imaging;
-using FantaniaLib;
 
-namespace Fantania.Controls;
+namespace FantaniaLib;
 
 public class MessageBoxIcon2VisibleConverter : IValueConverter
 {

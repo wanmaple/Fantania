@@ -1,6 +1,4 @@
-using System;
-
-namespace Fantania.Controls;
+namespace FantaniaLib;
 
 [Flags]
 public enum ButtonResults : uint

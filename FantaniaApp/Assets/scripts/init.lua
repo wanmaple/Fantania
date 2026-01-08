@@ -1,2 +1,2 @@
 require "functions"
-require "constants"
+require "consts"

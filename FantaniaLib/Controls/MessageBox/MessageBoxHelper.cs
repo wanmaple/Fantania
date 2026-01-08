@@ -1,7 +1,6 @@
-using System.Threading.Tasks;
 using Avalonia.Controls;
 
-namespace Fantania.Controls;
+namespace FantaniaLib;
 
 public static class MessageBoxHelper
 {

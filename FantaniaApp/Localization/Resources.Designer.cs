@@ -58,11 +58,56 @@ namespace Fantania.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Clear.
+        /// </summary>
+        public static string BT_ClearLog {
+            get {
+                return ResourceManager.GetString("BT_ClearLog", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Log.
+        /// </summary>
+        public static string H_Log {
+            get {
+                return ResourceManager.GetString("H_Log", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Placements.
+        /// </summary>
+        public static string H_Placements {
+            get {
+                return ResourceManager.GetString("H_Placements", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Properties.
+        /// </summary>
+        public static string H_Properties {
+            get {
+                return ResourceManager.GetString("H_Properties", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to FILE.
         /// </summary>
         public static string MI_File {
             get {
                 return ResourceManager.GetString("MI_File", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Close Workspace.
+        /// </summary>
+        public static string MI_File_CloseWorkspace {
+            get {
+                return ResourceManager.GetString("MI_File_CloseWorkspace", resourceCulture);
             }
         }
         
@@ -90,6 +135,24 @@ namespace Fantania.Localization {
         public static string MI_File_OpenWorkspace {
             get {
                 return ResourceManager.GetString("MI_File_OpenWorkspace", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Workspace &apos;{0}&apos; already exists, are you sure to overwrite it with a new one? All data will be eliminated..
+        /// </summary>
+        public static string WARN_Replace_Exist_Workspace {
+            get {
+                return ResourceManager.GetString("WARN_Replace_Exist_Workspace", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Filter.
+        /// </summary>
+        public static string WM_Filter {
+            get {
+                return ResourceManager.GetString("WM_Filter", resourceCulture);
             }
         }
     }

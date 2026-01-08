@@ -1,0 +1,30 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:lib="using:FantaniaLib"
+             xmlns:f="using:Fantania"
+             xmlns:vm="using:Fantania.ViewModels"
+             xmlns:lang="using:Fantania.Localization"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="Fantania.Views.EditingObjectView">
+  <Design.DataContext>
+    <vm:PlacementViewModel />
+  </Design.DataContext>
+  <UserControl.Resources>
+    <f:Object2GroupedEditFieldsConverter x:Key="Cvt_Obj2Groups" />
+  </UserControl.Resources>
+  <Grid RowDefinitions="auto,*">
+    <TextBlock Classes="h2" Grid.Row="0" Text="{x:Static lang:Resources.H_Properties}" />
+    <ItemsControl x:DataType="vm:PlacementViewModel" Grid.Row="1" ItemsSource="{Binding SelectedPlacement, Converter={StaticResource Cvt_Obj2Groups}}">
+      <ItemsControl.ItemTemplate>
+        <DataTemplate x:DataType="f:GroupedEditableFields">
+          <Grid RowDefinitions="auto,*" Margin="0 5 0 0">
+            <TextBlock Grid.Row="0" Classes="m" Text="{Binding Group, Converter={StaticResource Cvt_Localization}}" Padding="5" Background="#ff286959" IsVisible="{Binding Group, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+            <lib:EditFieldsView Grid.Row="1" DataContext="{Binding Fields}" TooltipConverter="{StaticResource Cvt_Localization}" />
+          </Grid>
+        </DataTemplate>
+      </ItemsControl.ItemTemplate>
+    </ItemsControl>
+  </Grid>
+</UserControl>

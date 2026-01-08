@@ -1,0 +1,17 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:lib="using:FantaniaLib"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="lib:IEditableField"
+             x:Class="FantaniaLib.StringBox">
+  <Grid>
+    <TextBox Text="{Binding FieldValue, Mode=TwoWay}" AcceptsReturn="False" ToolTip.ServiceEnabled="{Binding FieldValidator.Error, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+      <ToolTip.Tip>
+        <TextBlock Classes="p err" Text="{Binding FieldValidator.Error}" />
+      </ToolTip.Tip>
+    </TextBox>
+    <Border Classes="thick err" IsVisible="{Binding FieldValidator.Error, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+  </Grid>
+</UserControl>

@@ -2,18 +2,18 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:c="using:Fantania.Controls"
+        xmlns:lib="using:FantaniaLib"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-        x:Class="Fantania.Controls.StandardMessageBox"
-        x:DataType="{x:Type c:MessageBoxSettings}"
+        x:Class="FantaniaLib.StandardMessageBox"
+        x:DataType="{x:Type lib:MessageBoxSettings}"
         CanResize="False"
         ExtendClientAreaToDecorationsHint="True"
         ExtendClientAreaChromeHints="NoChrome" SizeToContent="WidthAndHeight"
         WindowStartupLocation="CenterScreen">
   <Window.Resources>
-    <c:MessageBoxIcon2VisibleConverter x:Key="Cvt_Visible" />
-    <c:MessageBoxIcon2ImageSourceConverter x:Key="Cvt_ImageSrc" />
-    <c:ButtonEnum2ItemsSourceConverter x:Key="Cvt_Items" />
+    <lib:MessageBoxIcon2VisibleConverter x:Key="Cvt_Visible" />
+    <lib:MessageBoxIcon2ImageSourceConverter x:Key="Cvt_ImageSrc" />
+    <lib:ButtonEnum2ItemsSourceConverter x:Key="Cvt_Items" />
   </Window.Resources>
   <Grid RowDefinitions="*,auto" ColumnDefinitions="auto,*" Margin="20">
     <Image Grid.Row="0" Grid.Column="0" IsVisible="{Binding Icon, Converter={StaticResource Cvt_Visible}}" Source="{Binding Icon, Converter={StaticResource Cvt_ImageSrc}}" Width="96" Height="96" Margin="10" VerticalAlignment="Center" />

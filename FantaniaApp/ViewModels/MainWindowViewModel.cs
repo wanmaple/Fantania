@@ -40,6 +40,12 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             string folder = folders[0].Path.AbsoluteUri;
             Workspace workspace = new Workspace(folder);
+            if (workspace.IsValid)
+            {
+                if (!await MessageBoxHelper.PopupMessageYesNo(AvaloniaHelper.GetTopWindow(), string.Empty))
+                    return;
+            }
+            await workspace.CreateNew();
             Workspace = workspace;
         }
     }
@@ -47,6 +53,12 @@ public partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     public async Task OpenWorkspace()
     {
+    }
+
+    [RelayCommand]
+    public async Task CloseWorkspace()
+    {
+        Workspace = null;
     }
 
     [RelayCommand]

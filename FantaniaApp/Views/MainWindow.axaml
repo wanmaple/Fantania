@@ -10,6 +10,7 @@
         x:Class="Fantania.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/app_icon.ico"
+        WindowState="Maximized"
         Title="Fantania">
     <Design.DataContext>
         <vm:MainWindowViewModel/>
@@ -26,6 +27,7 @@
             <MenuItem Header="{x:Static lang:Resources.MI_File}">
                 <MenuItem Classes="m" Header="{x:Static lang:Resources.MI_File_NewWorkspace}" Command="{Binding NewWorkspaceCommand}" InputGesture="Ctrl+N" />
                 <MenuItem Classes="m" Header="{x:Static lang:Resources.MI_File_OpenWorkspace}" Command="{Binding OpenWorkspaceCommand}" InputGesture="Ctrl+O" />
+                <MenuItem Classes="m" Header="{x:Static lang:Resources.MI_File_CloseWorkspace}" Command="{Binding CloseWorkspaceCommand}" />
                 <Separator />
                 <MenuItem Classes="m" Header="{x:Static lang:Resources.MI_File_Exit}" Command="{Binding ExitApplicationCommand}" />
             </MenuItem>

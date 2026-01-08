@@ -1,0 +1,37 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:lib="using:FantaniaLib"
+             xmlns:vm="using:Fantania.ViewModels"
+             xmlns:lang="using:Fantania.Localization"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="Fantania.Views.PlacementView">
+  <Design.DataContext>
+    <vm:PlacementViewModel />
+  </Design.DataContext>
+  <Grid RowDefinitions="auto,auto,*">
+    <TextBlock Classes="h2" Grid.Row="0" Text="{x:Static lang:Resources.H_Placements}" />
+    <TextBox Grid.Row="1" Watermark="{x:Static lang:Resources.WM_Filter}" />
+    <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+      <TreeView x:DataType="vm:PlacementViewModel" ItemsSource="{Binding Workspace.PlacementModule.LevelPlacements}" SelectionChanged="TreeView_SelectionChanged">
+        <TreeView.ItemTemplate>
+          <TreeDataTemplate x:DataType="lib:IPlacement" ItemsSource="{Binding Children}">
+            <StackPanel Orientation="Horizontal">
+              <TextBlock Classes="m" Text="{Binding Name, Converter={StaticResource Cvt_Localization}}" Width="200" ClipToBounds="True" ToolTip.ServiceEnabled="{Binding Tooltip, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" VerticalAlignment="Center" Margin="5 0 0 0">
+                <ToolTip.Tip>
+                  <TextBlock Classes="p tooltip" Text="{Binding Tooltip, Converter={StaticResource Cvt_Localization}}" />
+                </ToolTip.Tip>
+              </TextBlock>
+              <Grid>
+                <Button IsVisible="{Binding ClassName, Converter={x:Static ObjectConverters.IsNotNull}}" VerticalAlignment="Center" Width="25" Height="25" Margin="5 0 0 0" Background="Transparent" Click="ButtonAddPlacement_Click">
+                  <Image Source="avares://Fantania/Assets/icons/add.png" Width="25" Height="25" />
+                </Button>
+              </Grid>
+            </StackPanel>
+          </TreeDataTemplate>
+        </TreeView.ItemTemplate>
+      </TreeView>
+    </ScrollViewer>
+  </Grid>
+</UserControl>

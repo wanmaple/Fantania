@@ -133,4 +133,32 @@
     <value>Exit</value>
     <comment/>
   </data>
+  <data name="H_Log" xml:space="preserve">
+    <value>Log</value>
+    <comment/>
+  </data>
+  <data name="BT_ClearLog" xml:space="preserve">
+    <value>Clear</value>
+    <comment/>
+  </data>
+  <data name="H_Placements" xml:space="preserve">
+    <value>Placements</value>
+    <comment/>
+  </data>
+  <data name="WM_Filter" xml:space="preserve">
+    <value>Filter</value>
+    <comment/>
+  </data>
+  <data name="MI_File_CloseWorkspace" xml:space="preserve">
+    <value>Close Workspace</value>
+    <comment/>
+  </data>
+  <data name="WARN_Replace_Exist_Workspace" xml:space="preserve">
+    <value>Workspace '{0}' already exists, are you sure to overwrite it with a new one? All data will be eliminated.</value>
+    <comment/>
+  </data>
+  <data name="H_Properties" xml:space="preserve">
+    <value>Properties</value>
+    <comment/>
+  </data>
 </root>

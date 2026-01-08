@@ -1,0 +1,29 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:lib="using:FantaniaLib"
+             xmlns:vm="using:Fantania.ViewModels"
+             xmlns:lang="using:Fantania.Localization"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="vm:LogViewModel"
+             x:Class="Fantania.Views.LogView">
+  <Design.DataContext>
+    <vm:LogViewModel />
+  </Design.DataContext>
+  <Grid RowDefinitions="auto,*">
+    <DockPanel Grid.Row="0" x:DataType="vm:LogViewModel">
+      <TextBlock DockPanel.Dock="Left" Classes="h2" Text="{x:Static lang:Resources.H_Log}" HorizontalAlignment="Left" VerticalAlignment="Center" />
+      <Button DockPanel.Dock="Right" Classes="m" Content="{x:Static lang:Resources.BT_ClearLog}" Command="{Binding ClearLogCommand}" HorizontalAlignment="Right" VerticalAlignment="Center" />
+    </DockPanel>
+    <ScrollViewer x:Name="svLogs" Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+      <ItemsControl x:Name="icContent" ItemsSource="{Binding Workspace.LogModule.Logs}">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+            <SelectableTextBlock x:DataType="lib:LogContent" Foreground="{Binding Color}" FontSize="{Binding FontSize}" FontWeight="{Binding FontWeight}" FontStyle="{Binding FontStyle}" Text="{Binding Content}" TextWrapping="Wrap" />
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </ScrollViewer>
+  </Grid>
+</UserControl>

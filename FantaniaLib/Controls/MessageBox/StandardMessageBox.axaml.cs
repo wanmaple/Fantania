@@ -1,7 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 
-namespace Fantania.Controls;
+namespace FantaniaLib;
 
 public partial class StandardMessageBox : Window
 {

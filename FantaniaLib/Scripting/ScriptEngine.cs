@@ -71,14 +71,17 @@ public class ScriptEngine
         var member = instance.Table.Get(memberName);
         if (member.Type != DataType.Nil)
             return member;
-        member = instance.Table.MetaTable.Get(memberName);
-        if (member.Type != DataType.Nil)
-            return member;
-        var indexer = instance.Table.MetaTable.Get("__index");
-        if (indexer.Type == DataType.Table)
-            return indexer.Table.Get(memberName);
-        else if (indexer.Type == DataType.Function)
-            return _env.Call(indexer, instance, DynValue.NewString(memberName));
+        if (instance.Table.MetaTable != null)
+        {
+            member = instance.Table.MetaTable.Get(memberName);
+            if (member.Type != DataType.Nil)
+                return member;
+            var indexer = instance.Table.MetaTable.Get("__index");
+            if (indexer.Type == DataType.Table)
+                return indexer.Table.Get(memberName);
+            else if (indexer.Type == DataType.Function)
+                return _env.Call(indexer, instance, DynValue.NewString(memberName));
+        }
         return DynValue.Nil;
     }
 
@@ -95,7 +98,7 @@ public class ScriptEngine
     public void BindClassToLua(Type type, string name = null)
     {
         UserData.RegisterType(type);
-        if (type.IsAbstract || type.IsInterface) return;
+        if (type.IsAbstract || type.IsInterface || type.IsStaticClass()) return;
         if (string.IsNullOrEmpty(name))
             name = type.Name;
         var tbl = new Table(_env);
@@ -236,18 +239,18 @@ public class ScriptEngine
             float z = v.Z;
             float w = v.W;
             DynValue ret = DynValue.NewTable(env);
-            ret.Table.Set("x", DynValue.FromObject(env, x));
-            ret.Table.Set("y", DynValue.FromObject(env, y));
-            ret.Table.Set("z", DynValue.FromObject(env, z));
-            ret.Table.Set("w", DynValue.FromObject(env, w));
+            ret.Table.Set("r", DynValue.FromObject(env, x));
+            ret.Table.Set("g", DynValue.FromObject(env, y));
+            ret.Table.Set("b", DynValue.FromObject(env, z));
+            ret.Table.Set("a", DynValue.FromObject(env, w));
             return ret;
         });
         Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Table, typeof(Vector4), v =>
         {
-            float x = (float)v.Table.Get("x").Number;
-            float y = (float)v.Table.Get("y").Number;
-            float z = (float)v.Table.Get("z").Number;
-            float w = (float)v.Table.Get("w").Number;
+            float x = (float)v.Table.Get("r").Number;
+            float y = (float)v.Table.Get("g").Number;
+            float z = (float)v.Table.Get("b").Number;
+            float w = (float)v.Table.Get("a").Number;
             return new Vector4(x, y, z, w);
         });
         Script.GlobalOptions.CustomConverters.SetClrToScriptCustomConversion<Vector2Int>((env, v) =>
