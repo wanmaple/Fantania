@@ -7,7 +7,7 @@ namespace Fantania.Views;
 
 public partial class WorkspaceView : UserControl
 {
-    WorkspaceViewModel ViewModel => DataContext as WorkspaceViewModel;
+    WorkspaceViewModel? ViewModel => DataContext as WorkspaceViewModel;
 
     public WorkspaceView()
     {
@@ -18,7 +18,7 @@ public partial class WorkspaceView : UserControl
     {
         base.OnLoaded(e);
 
-        TopLevel topLevel = TopLevel.GetTopLevel(this);
+        TopLevel topLevel = TopLevel.GetTopLevel(this)!;
         topLevel.RequestAnimationFrame(OnTick);
     }
 
@@ -27,7 +27,7 @@ public partial class WorkspaceView : UserControl
         if (ViewModel != null)
             ViewModel.Workspace.Tick(dt);
             
-        TopLevel topLevel = TopLevel.GetTopLevel(this);
+        TopLevel topLevel = TopLevel.GetTopLevel(this)!;
         if (topLevel != null)
             topLevel.RequestAnimationFrame(OnTick);
     }

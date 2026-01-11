@@ -9,5 +9,12 @@
   <UserControl.Resources>
     <lib:Vector42ColorConverter x:Key="Cvt_Color" />
   </UserControl.Resources>
-  <ColorPicker Color="{Binding FieldValue, Converter={StaticResource Cvt_Color}}" HorizontalAlignment="Left" />
+  <Grid>
+    <ColorPicker Color="{Binding FieldValue, Converter={StaticResource Cvt_Color}}" ToolTip.ServiceEnabled="{Binding FieldValidator.Error, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" HorizontalAlignment="Left">
+      <ToolTip.Tip>
+        <TextBlock Classes="p err" Text="{Binding FieldValidator.Error}" />
+      </ToolTip.Tip>
+    </ColorPicker>
+    <Border Classes="thick err" IsVisible="{Binding FieldValidator.Error, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+  </Grid>
 </UserControl>

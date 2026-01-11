@@ -13,7 +13,7 @@ public static class SqliteHelper
         return conn;
     }
 
-    public static async Task<SqliteConnection> OpenDatabase(string path)
+    public static async Task<SqliteConnection?> OpenDatabase(string path)
     {
         if (!File.Exists(path))
             return null;

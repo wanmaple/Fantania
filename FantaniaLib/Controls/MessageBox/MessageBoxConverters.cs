@@ -10,7 +10,7 @@ public class MessageBoxIcon2VisibleConverter : IValueConverter
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value == null) return AvaloniaProperty.UnsetValue;
-        MessageBoxIcons icon = (MessageBoxIcons)value;
+        if (value is not MessageBoxIcons icon) return AvaloniaProperty.UnsetValue;
         return icon != MessageBoxIcons.None;
     }
 
@@ -25,14 +25,14 @@ public class MessageBoxIcon2ImageSourceConverter : IValueConverter
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value == null) return AvaloniaProperty.UnsetValue;
-        MessageBoxIcons icon = (MessageBoxIcons)value;
+        if (value is not MessageBoxIcons icon) return AvaloniaProperty.UnsetValue;
         switch (icon)
         {
             case MessageBoxIcons.Warning:
-                using (var res = AvaloniaHelper.ReadAssetStream("avares://Fantania/Assets/msgbox/warning.png"))
+                using (var res = AvaloniaHelper.ReadAssetStream("avares://Fantania/Assets/msgbox/warning.png")!)
                     return new Bitmap(res);
             case MessageBoxIcons.Error:
-                using (var res = AvaloniaHelper.ReadAssetStream("avares://Fantania/Assets/msgbox/error.png"))
+                using (var res = AvaloniaHelper.ReadAssetStream("avares://Fantania/Assets/msgbox/error.png")!)
                     return new Bitmap(res);
             default:
                 break;
@@ -51,7 +51,7 @@ public class ButtonEnum2ItemsSourceConverter : IValueConverter
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value == null) return AvaloniaProperty.UnsetValue;
-        ButtonEnums enm = (ButtonEnums)value;
+        if (value is not ButtonEnums enm) return AvaloniaProperty.UnsetValue;
         IList<ButtonResults> ret = new List<ButtonResults>();
         var rslts = Enum.GetValues<ButtonResults>();
         foreach (var rslt in rslts)

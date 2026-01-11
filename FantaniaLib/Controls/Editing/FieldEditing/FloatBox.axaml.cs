@@ -5,7 +5,7 @@ namespace FantaniaLib;
 
 public partial class FloatBox : UserControl
 {
-    public IEditableField Field => DataContext as IEditableField;
+    public IEditableField? Field => DataContext as IEditableField;
 
     public static readonly StyledProperty<float> RangeMinimumProperty = AvaloniaProperty.Register<IntegerBox, float>(nameof(RangeMinimum), defaultValue: float.MinValue);
     public float RangeMinimum

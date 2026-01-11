@@ -5,10 +5,10 @@ namespace FantaniaLib;
 
 public class PlacementGroup : IPlacement
 {
-    public string ClassName => null;
+    public string ClassName => string.Empty;
     public string Group => string.Empty;
     public string Name => _groupName;
-    public string Tooltip => null;
+    public string Tooltip => string.Empty;
     public IList<IPlacement> Children => _children;
 
     public PlacementGroup(string group)

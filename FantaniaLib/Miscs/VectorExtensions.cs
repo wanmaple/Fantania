@@ -14,4 +14,9 @@ public static class VectorExtensions
     {
         return new Vector4(self.R / 255.0f, self.G / 255.0f, self.B / 255.0f, self.A / 255.0f);
     }
+
+    public static string ToHex(this Color self)
+    {
+        return $"#{self.A:X2}{self.R:X2}{self.G:X2}{self.B:X2}";
+    }
 }

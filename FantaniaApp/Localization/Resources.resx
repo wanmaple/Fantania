@@ -118,47 +118,87 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="MI_File" xml:space="preserve">
-    <value>FILE</value>
+    <value>文件</value>
     <comment/>
   </data>
   <data name="MI_File_NewWorkspace" xml:space="preserve">
-    <value>New Workspace</value>
+    <value>新建工作区</value>
     <comment/>
   </data>
   <data name="MI_File_OpenWorkspace" xml:space="preserve">
-    <value>Open Workspace</value>
+    <value>打开工作区</value>
     <comment/>
   </data>
   <data name="MI_File_Exit" xml:space="preserve">
-    <value>Exit</value>
+    <value>退出</value>
     <comment/>
   </data>
   <data name="H_Log" xml:space="preserve">
-    <value>Log</value>
+    <value>日志</value>
     <comment/>
   </data>
   <data name="BT_ClearLog" xml:space="preserve">
-    <value>Clear</value>
+    <value>清除</value>
     <comment/>
   </data>
   <data name="H_Placements" xml:space="preserve">
-    <value>Placements</value>
+    <value>实体</value>
     <comment/>
   </data>
   <data name="WM_Filter" xml:space="preserve">
-    <value>Filter</value>
+    <value>请输入过滤文本...</value>
     <comment/>
   </data>
   <data name="MI_File_CloseWorkspace" xml:space="preserve">
-    <value>Close Workspace</value>
+    <value>关闭工作区</value>
     <comment/>
   </data>
   <data name="WARN_Replace_Exist_Workspace" xml:space="preserve">
-    <value>Workspace '{0}' already exists, are you sure to overwrite it with a new one? All data will be eliminated.</value>
+    <value>工作区'{0}'已经存在，你确定要继续吗？所有旧数据都会被清除。</value>
     <comment/>
   </data>
   <data name="H_Properties" xml:space="preserve">
-    <value>Properties</value>
+    <value>属性</value>
+    <comment/>
+  </data>
+  <data name="MI_Edit" xml:space="preserve">
+    <value>编辑</value>
+    <comment/>
+  </data>
+  <data name="MI_Edit_Cut" xml:space="preserve">
+    <value>剪切</value>
+    <comment/>
+  </data>
+  <data name="MI_Edit_Copy" xml:space="preserve">
+    <value>复制</value>
+    <comment/>
+  </data>
+  <data name="MI_Edit_Paste" xml:space="preserve">
+    <value>粘贴</value>
+    <comment/>
+  </data>
+  <data name="MI_Edit_Undo" xml:space="preserve">
+    <value>撤销</value>
+    <comment/>
+  </data>
+  <data name="MI_Edit_Redo" xml:space="preserve">
+    <value>重做</value>
+    <comment/>
+  </data>
+  <data name="MI_File_SaveWorkspace" xml:space="preserve">
+    <value>保存工作区</value>
+    <comment/>
+  </data>
+  <data name="ERR_Invalid_Workspace" xml:space="preserve">
+    <value>'{0}'不是一个有效的工作区，或者由于某些原因损坏了。</value>
+    <comment/>
+  </data>
+  <data name="MI_File_OpenRecent" xml:space="preserve">
+    <value>打开最近...</value>
+    <comment/>
+  </data>
+  <data name="ERR_NonExist_Workspace" xml:space="preserve">
+    <value>'{0}'不存在。</value>
     <comment/>
   </data>
 </root>

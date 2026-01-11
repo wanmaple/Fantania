@@ -1,16 +1,19 @@
 ﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.Input;
+using Fantania.Localization;
+using Fantania.Models;
 using FantaniaLib;
 
 namespace Fantania.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase
 {
-    private Workspace _workspace = null;
-    public Workspace Workspace
+    private Workspace? _workspace = null;
+    public Workspace? Workspace
     {
         get { return _workspace; }
         set
@@ -23,29 +26,35 @@ public partial class MainWindowViewModel : ViewModelBase
         }
     }
 
+    public RecentAccess Recents => _recents;
+
     public MainWindowViewModel()
     {
+        LoadRecentAccess();
     }
 
     [RelayCommand]
     public async Task NewWorkspace()
     {
-        var top = TopLevel.GetTopLevel(AvaloniaHelper.GetTopWindow());
+        var top = TopLevel.GetTopLevel(AvaloniaHelper.GetTopWindow())!;
         var folders = await top.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
         {
-            Title = Localization.Resources.MI_File_NewWorkspace,
+            Title = Resources.MI_File_NewWorkspace,
             AllowMultiple = false,
         });
         if (folders.Count > 0)
         {
             string folder = folders[0].Path.AbsoluteUri;
+            folder = AvaloniaHelper.ConvertAvaloniaUriToStandardUri(folder);
             Workspace workspace = new Workspace(folder);
             if (workspace.IsValid)
             {
-                if (!await MessageBoxHelper.PopupMessageYesNo(AvaloniaHelper.GetTopWindow(), string.Empty))
+                if (!await MessageBoxHelper.PopupWarningYesNo(AvaloniaHelper.GetTopWindow(), LocalizationHelper.GetLocalizedString("WARN_Replace_Exist_Workspace"), folder))
                     return;
             }
             await workspace.CreateNew();
+            _recents.Access(workspace.RootFolder);
+            SaveRecentAccess();
             Workspace = workspace;
         }
     }
@@ -53,17 +62,139 @@ public partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     public async Task OpenWorkspace()
     {
+        var top = TopLevel.GetTopLevel(AvaloniaHelper.GetTopWindow())!;
+        var folders = await top.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
+        {
+            Title = Resources.MI_File_OpenWorkspace,
+            AllowMultiple = false,
+        });
+        if (folders.Count > 0)
+        {
+            string folder = folders[0].Path.AbsoluteUri;
+            folder = AvaloniaHelper.ConvertAvaloniaUriToStandardUri(folder);
+            await OpenWorkspace(folder);
+        }
     }
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanOperateWorkspace))]
+    public async Task SaveWorkspace()
+    {
+        await Workspace!.Save();
+    }
+
+    [RelayCommand(CanExecute = nameof(CanOperateWorkspace))]
     public async Task CloseWorkspace()
     {
         Workspace = null;
     }
 
     [RelayCommand]
-    public async Task ExitApplication()
+    public async Task OpenRecentWorkspace(string folder)
+    {
+        await Task.Yield();
+        if (!Directory.Exists(folder))
+        {
+            await MessageBoxHelper.PopupErrorOkay(AvaloniaHelper.GetTopWindow(), LocalizationHelper.GetLocalizedString("ERR_NonExist_Workspace"), folder);
+            return;
+        }
+        await OpenWorkspace(folder);
+    }
+
+    bool CanOperateWorkspace()
+    {
+        return Workspace != null;
+    }
+
+    [RelayCommand]
+    public void ExitApplication()
     {
         Environment.Exit(0);
     }
+
+    [RelayCommand(CanExecute = nameof(IsUndoable))]
+    public void Undo()
+    {
+        if (Workspace != null)
+        {
+            Workspace.UndoStack.Undo();
+        }
+    }
+
+    bool IsUndoable()
+    {
+        if (Workspace != null)
+        {
+            return Workspace.UndoStack.IsUndoable;
+        }
+        return false;
+    }
+
+    [RelayCommand(CanExecute = nameof(IsRedoable))]
+    public void Redo()
+    {
+        if (Workspace != null)
+        {
+            Workspace.UndoStack.Redo();
+        }
+    }
+
+    bool IsRedoable()
+    {
+        if (Workspace != null)
+        {
+            return Workspace.UndoStack.IsRedoable;
+        }
+        return false;
+    }
+
+    async Task OpenWorkspace(string folder)
+    {
+        if (Workspace != null)
+        {
+            if (Workspace.RootFolder == folder)
+                return;
+        }
+        Workspace workspace = new Workspace(folder);
+        if (!workspace.IsValid)
+        {
+            await MessageBoxHelper.PopupErrorOkay(AvaloniaHelper.GetTopWindow(), LocalizationHelper.GetLocalizedString("ERR_Invalid_Workspace"), folder);
+            return;
+        }
+        await workspace.Open();
+        _recents.Access(workspace.RootFolder);
+        SaveRecentAccess();
+        Workspace = workspace;
+    }
+
+    void LoadRecentAccess()
+    {
+        string recentAccFile = Path.Combine(AppContext.BaseDirectory, RECENTS_FILENAME);
+        if (File.Exists(recentAccFile))
+        {
+            try
+            {
+                using (var fs = new FileStream(recentAccFile, FileMode.Open, FileAccess.Read))
+                {
+                    _recents.Deserialize(fs);
+                }
+            }
+            catch (Exception)
+            {
+                _recents.Clear();
+            }
+        }
+    }
+
+    void SaveRecentAccess()
+    {
+        string recentAccFile = Path.Combine(AppContext.BaseDirectory, RECENTS_FILENAME);
+        using (var fs = new FileStream(recentAccFile, FileMode.Create, FileAccess.Write))
+        {
+            _recents.Serialize(fs);
+        }
+    }
+
+    const string RECENTS_FILENAME = "recents";
+
+    RecentAccess _recents = new RecentAccess();
 }

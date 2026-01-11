@@ -11,19 +11,12 @@ public enum FieldTypes
     Color,
     Texture,
     Curve,
-
-    BooleanArray = Boolean + 100,
-    IntegerArray,
-    FloatArray,
-    StringArray,
-    Vector2Array,
-    ColorArray,
-    TextureArray,
-    CurveArray,
+    GroupReference,
+    TypeReference,
 }
 
 public class FieldInfo
 {
-    public string FieldName { get; set; }
-    public FieldTypes FieldType { get; set; }
+    public required string FieldName { get; set; }
+    public required FieldTypes FieldType { get; set; }
 }

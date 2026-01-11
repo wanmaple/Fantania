@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using FantaniaLib;
 
 namespace Fantania.ViewModels;
@@ -10,10 +9,10 @@ public class WorkspaceViewModel : ViewModelBase
     public PlacementViewModel PlacementViewModel => _vmPlacements;
     public LogViewModel LogViewModel => _vmLogs;
 
-    public WorkspaceViewModel([DisallowNull] Workspace workspace)
+    public WorkspaceViewModel(Workspace workspace)
     {
         _workspace = workspace;
-        _vmPlacements = new PlacementViewModel(workspace);
+        _vmPlacements = new PlacementViewModel(_workspace);
         _vmLogs = new LogViewModel(_workspace);
     }
 

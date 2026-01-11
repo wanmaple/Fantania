@@ -20,7 +20,7 @@ public class UndoStack : ObservableObject
             IUndoable lastOp = _operations[_topIndex];
             if (!_forceStopMerging && lastOp.TryMerge(op, out var merged))
             {
-                _operations[_topIndex] = merged;
+                _operations[_topIndex] = merged!;
                 return;
             }
         }

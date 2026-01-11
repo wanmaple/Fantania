@@ -4,16 +4,16 @@ using MoonSharp.Interpreter;
 
 namespace FantaniaLib;
 
-public class ScriptTemplate : IPlacement
+public class PlacementTemplate : IPlacement
 {
     private class FieldExtraData
     {
         public DynValue DefaultValue { get; set; } = DynValue.Nil;
         public string EditGroup { get; set; } = string.Empty;
         public string Tooltip { get; set; } = string.Empty;
-        public Type EditControlType { get; set; } = null;
+        public Type? EditControlType { get; set; } = null;
         public string EditParameter { get; set; } = string.Empty;
-        public Type EditValidatorType { get; set; } = null;
+        public Type? EditValidatorType { get; set; } = null;
     }
 
     public string ClassName
@@ -53,7 +53,7 @@ public class ScriptTemplate : IPlacement
 
     public IList<IPlacement> Children => _children;
 
-    public ScriptTemplate(ScriptEngine engine, DynValue obj)
+    public PlacementTemplate(ScriptEngine engine, DynValue obj)
     {
         _engine = engine;
         _obj = obj;
@@ -83,7 +83,7 @@ public class ScriptTemplate : IPlacement
                 FieldTypes fieldType = (FieldTypes)(int)_engine.GetInstanceMember(defVal, "type").Number;
                 var fieldInfo = new FieldInfo
                 {
-                    FieldName = fieldName,
+                    FieldName = fieldName.MakeFirstCharacterUpper(),
                     FieldType = fieldType,
                 };
                 _fieldDefs[i] = fieldInfo;
@@ -98,11 +98,11 @@ public class ScriptTemplate : IPlacement
                         var tooltipVal = _engine.GetInstanceMember(tbVal, "tooltip");
                         string tooltip = tooltipVal.Type == DataType.String ? tooltipVal.String : string.Empty;
                         var ctrlTypeVal = _engine.GetInstanceMember(tbVal, "control");
-                        Type ctrlType = ctrlTypeVal.IsNil() ? null : ctrlTypeVal.ToObject<Type>();
+                        Type? ctrlType = ctrlTypeVal.IsNil() ? null : ctrlTypeVal.ToObject<Type>();
                         var paramVal = _engine.GetInstanceMember(tbVal, "parameter");
                         string param = paramVal.Type == DataType.String ? paramVal.String : string.Empty;
                         var validatorVal = _engine.GetInstanceMember(tbVal, "validator");
-                        Type validatorType = validatorVal.IsNil() ? null : validatorVal.ToObject<Type>();
+                        Type? validatorType = validatorVal.IsNil() ? null : validatorVal.ToObject<Type>();
                         extra.EditGroup = group;
                         extra.Tooltip = tooltip;
                         extra.EditControlType = ctrlType;
@@ -110,18 +110,19 @@ public class ScriptTemplate : IPlacement
                         extra.EditValidatorType = validatorType;
                     }
                 }
-                _extraDataMap[fieldName] = extra;
+                _extraDataMap[fieldName.MakeFirstCharacterUpper()] = extra;
                 ++i;
             }
         }
         return _fieldDefs;
     }
 
-    public object GetDefaultValue(string fieldName)
+    public object? GetDefaultValue(string fieldName)
     {
-        FieldInfo? fieldInfo = _fieldDefs.FirstOrDefault(info => info.FieldName == fieldName);
+        GetDefinedFields();
+        FieldInfo? fieldInfo = _fieldDefs!.FirstOrDefault(info => info.FieldName == fieldName);
         if (fieldInfo == null) throw new WorkspaceException($"Non-exist field '{fieldName}'");
-        FieldExtraData extra = _extraDataMap[fieldName];
+        FieldExtraData extra = _extraDataMap![fieldName];
         DynValue defaultVal = extra.DefaultValue;
         switch (fieldInfo.FieldType)
         {
@@ -137,6 +138,8 @@ public class ScriptTemplate : IPlacement
                 return defaultVal.IsNil() ? Vector2.Zero : defaultVal.ToObject<Vector2>();
             case FieldTypes.Color:
                 return defaultVal.IsNil() ? Vector4.One : defaultVal.ToObject<Vector4>();
+            case FieldTypes.Texture:
+                return defaultVal.IsNil() ? TextureDefinition.None : defaultVal.ToObject<TextureDefinition>();
             default:
                 return null;
         }
@@ -144,7 +147,8 @@ public class ScriptTemplate : IPlacement
 
     public void FillEditingInfo(string fieldName, FieldEditInfo editInfo)
     {
-        if (!_extraDataMap.TryGetValue(fieldName, out FieldExtraData extra))
+        GetDefinedFields();
+        if (!_extraDataMap!.TryGetValue(fieldName, out FieldExtraData? extra))
             return;
         editInfo.EditControlType = extra.EditControlType;
         editInfo.Tooltip = extra.Tooltip;
@@ -152,16 +156,17 @@ public class ScriptTemplate : IPlacement
         editInfo.EditParameter = extra.EditParameter;
     }
 
-    public Type GetFieldValidatorType(string fieldName)
+    public Type? GetFieldValidatorType(string fieldName)
     {
-        if (!_extraDataMap.TryGetValue(fieldName, out FieldExtraData extra))
+        GetDefinedFields();
+        if (!_extraDataMap!.TryGetValue(fieldName, out FieldExtraData? extra))
             return null;
         return extra.EditValidatorType;
     }
 
     ScriptEngine _engine;
     DynValue _obj;
-    FieldInfo[] _fieldDefs;
-    Dictionary<string, FieldExtraData> _extraDataMap;
+    FieldInfo[]? _fieldDefs;
+    Dictionary<string, FieldExtraData>? _extraDataMap;
     ObservableCollection<IPlacement> _children = new ObservableCollection<IPlacement>();
 }

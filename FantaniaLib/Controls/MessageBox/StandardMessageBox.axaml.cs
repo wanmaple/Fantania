@@ -24,6 +24,7 @@ public partial class StandardMessageBox : Window
 
     void Button_Click(object sender, RoutedEventArgs e)
     {
-        Close((sender as Button).DataContext);
+        Button btn = (Button)sender;
+        Close(btn.DataContext);
     }
 }

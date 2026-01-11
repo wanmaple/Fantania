@@ -1,6 +1,8 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:f="using:Fantania">
+                    xmlns:f="using:Fantania"
+                    xmlns:lib="using:FantaniaLib">
+    <lib:Object2GroupedEditFieldsConverter x:Key="Cvt_Obj2Groups" />
     <f:Text2LocalizedConverter x:Key="Cvt_Localization" />
     <f:Name2PrettyFormatConverter x:Key="Cvt_PrettyName" />
 </ResourceDictionary>

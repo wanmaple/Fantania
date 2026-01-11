@@ -16,7 +16,7 @@
     <lib:ButtonEnum2ItemsSourceConverter x:Key="Cvt_Items" />
   </Window.Resources>
   <Grid RowDefinitions="*,auto" ColumnDefinitions="auto,*" Margin="20">
-    <Image Grid.Row="0" Grid.Column="0" IsVisible="{Binding Icon, Converter={StaticResource Cvt_Visible}}" Source="{Binding Icon, Converter={StaticResource Cvt_ImageSrc}}" Width="96" Height="96" Margin="10" VerticalAlignment="Center" />
+    <Image Grid.Row="0" Grid.Column="0" IsVisible="{Binding Icon, Converter={StaticResource Cvt_Visible}}" Source="{Binding Icon, Converter={StaticResource Cvt_ImageSrc}}" Width="64" Height="64" Margin="10" VerticalAlignment="Center" />
     <SelectableTextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Message}" TextWrapping="Wrap" VerticalAlignment="Center" MaxWidth="1024" />
     <ItemsControl Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" ItemsSource="{Binding Buttons, Converter={StaticResource Cvt_Items}}" Margin="0 10 0 0">
       <ItemsControl.ItemsPanel>

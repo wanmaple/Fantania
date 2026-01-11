@@ -22,7 +22,7 @@ public struct Vector2Int : IEquatable<Vector2Int>
         return this == other;
     }
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         return obj is Vector2Int && Equals((Vector2Int)obj);
     }

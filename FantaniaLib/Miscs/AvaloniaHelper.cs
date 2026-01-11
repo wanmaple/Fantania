@@ -63,7 +63,7 @@ public static class AvaloniaHelper
 
     public static ContentControl GetTopWindow()
     {
-        var desktop = Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime;
-        return desktop.MainWindow;
+        var desktop = (IClassicDesktopStyleApplicationLifetime)Application.Current!.ApplicationLifetime!;
+        return desktop.MainWindow!;
     }
 }

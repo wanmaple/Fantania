@@ -12,10 +12,11 @@ public class EditableField2EditControlConverter : IValueConverter
     {
         if (value == null) return AvaloniaProperty.UnsetValue;
         if (value is not IEditableField field) return AvaloniaProperty.UnsetValue;
-        Type controlType = field.EditInfo.EditControlType;
+        Type? controlType = field.EditInfo.EditControlType;
         if (controlType != null)
         {
-            UserControl uc = Activator.CreateInstance(controlType) as UserControl;
+            UserControl? uc = Activator.CreateInstance(controlType) as UserControl;
+            if (uc == null) return AvaloniaProperty.UnsetValue;
             uc.DataContext = field;
             return uc;
         }
@@ -23,9 +24,10 @@ public class EditableField2EditControlConverter : IValueConverter
         {
             // FieldValue must never be null, that means a default value should never be null.
             Type type = field.FieldValue.GetType();
-            if (DEFAULT_CONTROL_MAP.TryGetValue(type, out Type ctrlType))
+            if (DEFAULT_CONTROL_MAP.TryGetValue(type, out Type? ctrlType))
             {
-                UserControl uc = Activator.CreateInstance(ctrlType) as UserControl;
+                UserControl? uc = Activator.CreateInstance(ctrlType) as UserControl;
+                if (uc == null) return AvaloniaProperty.UnsetValue;
                 uc.DataContext = field;
                 return uc;
             }
@@ -46,6 +48,7 @@ public class EditableField2EditControlConverter : IValueConverter
         { typeof(string), typeof(StringBox) },
         { typeof(Vector2), typeof(Vector2Box) },
         { typeof(Vector4), typeof(ColorPicker) },
+        { typeof(TextureDefinition), typeof(TextureBox) },
     };
 }
 
@@ -59,5 +62,25 @@ public class TooltipConverter : IMultiValueConverter
         if (converter != null)
             return converter.Convert(content, typeof(string), null, culture);
         return content;
+    }
+}
+
+public class Object2GroupedEditFieldsConverter : IValueConverter
+{
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value == null) return AvaloniaProperty.UnsetValue;
+        if (value is not IEditableObject editable) return AvaloniaProperty.UnsetValue;
+        var fields = editable.EditableFields;
+        return fields.GroupBy(f => f.EditInfo.EditGroup).OrderBy(g => g.Key).Select(g => new GroupedEditableFields
+        {
+            Group = g.Key,
+            Fields = new EditableFields(g),
+        });
+    }
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        throw new NotImplementedException();
     }
 }

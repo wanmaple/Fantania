@@ -6,8 +6,8 @@ public class PlacementViewModel : ViewModelBase
 {
     public Workspace Workspace => _workspace;
     
-    private UserPlacement _selected = null;
-    public UserPlacement SelectedPlacement
+    private UserPlacement? _selected = null;
+    public UserPlacement? SelectedPlacement
     {
         get { return _selected; }
         set

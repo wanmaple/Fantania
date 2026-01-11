@@ -14,10 +14,9 @@ end
 
 function StaticImage:dataDefs()
     return {
-        -- diffuse = {
-        --     type = FieldTypes.Texture,
-        --     default = FantaniaTextures.White4x4,
-        -- },
+        diffuse = {
+            type = FieldTypes.Texture,
+        },
         -- normal = {
         --     type = FieldTypes.Texture,
         -- },
@@ -31,17 +30,19 @@ function StaticImage:dataDefs()
         },
         color = {
             type = FieldTypes.Color,
-            default = { r = 1.0, g = 0.0, b = 0.0, a = 1.0, },
+            -- default = { r = 1.0, g = 0.0, b = 0.0, a = 1.0, },
+            default = "#FF0000",
         },
     }
 end
 
 function StaticImage:editDefs()
     return {
-        -- diffuse = {
-        --     group = "SG_Appearance",
-        --     tooltip = "ST_StaticImage_Diffuse",
-        -- },
+        diffuse = {
+            group = "SG_Appearance",
+            tooltip = "ST_StaticImage_Diffuse",
+            parameter = Workspace.RootFolder,
+        },
         -- normal = {
         --     group = "SG_Appearance",
         --     tooltip = "ST_StaticImage_Normal",
@@ -58,6 +59,7 @@ function StaticImage:editDefs()
         color = {
             group = "SG_Appearance",
             tooltip = "ST_StaticImage_Color",
+            control = EditControls.ColorPicker,
         },
     }
 end

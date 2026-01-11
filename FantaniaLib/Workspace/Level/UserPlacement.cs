@@ -4,12 +4,12 @@ namespace FantaniaLib;
 
 public class UserPlacement : DatabaseObject, IPlacement
 {
-    public string ClassName => null;
-    public string Group => null;
+    public string ClassName => string.Empty;
+    public string Group => string.Empty;
 
-    public IList<IPlacement> Children => null;
+    public IList<IPlacement> Children => Array.Empty<IPlacement>();
 
-    public override string TypeName => _script.ClassName;
+    public override string TypeName => _script.ClassName.MakeFirstCharacterUpper();
     public override string GroupName => string.Empty;
     
     public override IReadOnlyList<IEditableField> EditableFields
@@ -30,9 +30,9 @@ public class UserPlacement : DatabaseObject, IPlacement
         }
     }
 
-    internal ScriptTemplate Template => _script;
+    internal PlacementTemplate Template => _script;
 
-    public UserPlacement([DisallowNull] ScriptTemplate template, int id)
+    public UserPlacement([DisallowNull] PlacementTemplate template, int id)
     : base(id)
     {
         _script = template;
@@ -68,6 +68,6 @@ public class UserPlacement : DatabaseObject, IPlacement
         base.SetFieldValue(fieldName, value);
     }
 
-    ScriptTemplate _script;
+    PlacementTemplate _script;
     Dictionary<string, object?> _fieldValues;
 }

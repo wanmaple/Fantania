@@ -1,0 +1,30 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:lib="using:FantaniaLib"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="lib:IEditableField"
+             x:Class="FantaniaLib.TextureBox"
+             x:Name="Root">
+  <UserControl.Resources>
+    <lib:EnumType2OptionsConverter x:Key="Cvt_Enum2Options" />
+    <lib:Object2MemberConverter x:Key="Cvt_FindMember" />
+    <lib:TextureDefIsSomeTypeConverter x:Key="Cvt_DefIsType" />
+  </UserControl.Resources>
+  <Grid>
+    <Grid RowDefinitions="auto,*">
+      <lib:OptionBox x:Name="obTexType" Value="{Binding FieldValue, Mode=OneWay, Converter={StaticResource Cvt_FindMember}, ConverterParameter=TextureType}" Options="{Binding Source={x:Type lib:TextureTypes}, Converter={StaticResource Cvt_Enum2Options}}" HorizontalAlignment="Left" Width="150" />
+      <Grid Grid.Row="1" RowDefinitions="*,auto" Margin="10">
+        <Grid IsVisible="{Binding FieldValue, Converter={StaticResource Cvt_DefIsType}, ConverterParameter={x:Static lib:TextureTypes.Image}}">
+          <Grid ColumnDefinitions="50,*">
+            <TextBlock Grid.Column="0" Text="Path" VerticalAlignment="Center" />
+            <lib:FileSelectBox x:Name="fsbImage" Grid.Column="1" Path="{Binding FieldValue, Mode=OneWay, Converter={StaticResource Cvt_FindMember}, ConverterParameter=TextureParameters.ImageParams.ImagePath}" Title="Pick Image" Filter="Image files (*.png, *.jpg, *.jpeg, *.bmp)|*.png;*.jpg;*.jpeg" RootFolder="{Binding #Root.RootFolder}" />
+          </Grid>
+        </Grid>
+        <TextBlock Classes="p" Grid.Row="1" Text="{Binding #Root.DisplayTexture}" Foreground="Yellow" Margin="0 5 0 0" />
+      </Grid>
+    </Grid>
+    <Border Classes="thick err" IsVisible="{Binding FieldValidator.Error, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+  </Grid>
+</UserControl>

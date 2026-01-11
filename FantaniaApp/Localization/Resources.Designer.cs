@@ -58,7 +58,7 @@ namespace Fantania.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Clear.
+        ///   Looks up a localized string similar to 清除.
         /// </summary>
         public static string BT_ClearLog {
             get {
@@ -67,7 +67,25 @@ namespace Fantania.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Log.
+        ///   Looks up a localized string similar to &apos;{0}&apos;不是一个有效的工作区，或者由于某些原因损坏了。.
+        /// </summary>
+        public static string ERR_Invalid_Workspace {
+            get {
+                return ResourceManager.GetString("ERR_Invalid_Workspace", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &apos;{0}&apos;不存在。.
+        /// </summary>
+        public static string ERR_NonExist_Workspace {
+            get {
+                return ResourceManager.GetString("ERR_NonExist_Workspace", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 日志.
         /// </summary>
         public static string H_Log {
             get {
@@ -76,7 +94,7 @@ namespace Fantania.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Placements.
+        ///   Looks up a localized string similar to 实体.
         /// </summary>
         public static string H_Placements {
             get {
@@ -85,7 +103,7 @@ namespace Fantania.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Properties.
+        ///   Looks up a localized string similar to 属性.
         /// </summary>
         public static string H_Properties {
             get {
@@ -94,7 +112,61 @@ namespace Fantania.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to FILE.
+        ///   Looks up a localized string similar to 编辑.
+        /// </summary>
+        public static string MI_Edit {
+            get {
+                return ResourceManager.GetString("MI_Edit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 复制.
+        /// </summary>
+        public static string MI_Edit_Copy {
+            get {
+                return ResourceManager.GetString("MI_Edit_Copy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 剪切.
+        /// </summary>
+        public static string MI_Edit_Cut {
+            get {
+                return ResourceManager.GetString("MI_Edit_Cut", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 粘贴.
+        /// </summary>
+        public static string MI_Edit_Paste {
+            get {
+                return ResourceManager.GetString("MI_Edit_Paste", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 重做.
+        /// </summary>
+        public static string MI_Edit_Redo {
+            get {
+                return ResourceManager.GetString("MI_Edit_Redo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 撤销.
+        /// </summary>
+        public static string MI_Edit_Undo {
+            get {
+                return ResourceManager.GetString("MI_Edit_Undo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 文件.
         /// </summary>
         public static string MI_File {
             get {
@@ -103,7 +175,7 @@ namespace Fantania.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Close Workspace.
+        ///   Looks up a localized string similar to 关闭工作区.
         /// </summary>
         public static string MI_File_CloseWorkspace {
             get {
@@ -112,7 +184,7 @@ namespace Fantania.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Exit.
+        ///   Looks up a localized string similar to 退出.
         /// </summary>
         public static string MI_File_Exit {
             get {
@@ -121,7 +193,7 @@ namespace Fantania.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to New Workspace.
+        ///   Looks up a localized string similar to 新建工作区.
         /// </summary>
         public static string MI_File_NewWorkspace {
             get {
@@ -130,7 +202,16 @@ namespace Fantania.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Open Workspace.
+        ///   Looks up a localized string similar to 打开最近....
+        /// </summary>
+        public static string MI_File_OpenRecent {
+            get {
+                return ResourceManager.GetString("MI_File_OpenRecent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 打开工作区.
         /// </summary>
         public static string MI_File_OpenWorkspace {
             get {
@@ -139,7 +220,16 @@ namespace Fantania.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Workspace &apos;{0}&apos; already exists, are you sure to overwrite it with a new one? All data will be eliminated..
+        ///   Looks up a localized string similar to 保存工作区.
+        /// </summary>
+        public static string MI_File_SaveWorkspace {
+            get {
+                return ResourceManager.GetString("MI_File_SaveWorkspace", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 工作区&apos;{0}&apos;已经存在，你确定要继续吗？所有旧数据都会被清除。.
         /// </summary>
         public static string WARN_Replace_Exist_Workspace {
             get {
@@ -148,7 +238,7 @@ namespace Fantania.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Filter.
+        ///   Looks up a localized string similar to 请输入过滤文本....
         /// </summary>
         public static string WM_Filter {
             get {

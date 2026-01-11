@@ -11,7 +11,8 @@
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/app_icon.ico"
         WindowState="Maximized"
-        Title="Fantania">
+        Title="Fantania"
+        x:Name="Root">
     <Design.DataContext>
         <vm:MainWindowViewModel/>
     </Design.DataContext>
@@ -21,15 +22,48 @@
     <Window.KeyBindings>
         <KeyBinding Command="{Binding NewWorkspaceCommand}" Gesture="Ctrl+N" />
         <KeyBinding Command="{Binding OpenWorkspaceCommand}" Gesture="Ctrl+O" />
+        <KeyBinding Command="{Binding SaveWorkspaceCommand}" Gesture="Ctrl+S" />
+        <KeyBinding Command="{Binding UndoCommand}" Gesture="Ctrl+Z" />
+        <KeyBinding Command="{Binding RedoCommand}" Gesture="Ctrl+Shift+Z" />
     </Window.KeyBindings>
     <DockPanel>
         <Menu DockPanel.Dock="Top">
-            <MenuItem Header="{x:Static lang:Resources.MI_File}">
-                <MenuItem Classes="m" Header="{x:Static lang:Resources.MI_File_NewWorkspace}" Command="{Binding NewWorkspaceCommand}" InputGesture="Ctrl+N" />
-                <MenuItem Classes="m" Header="{x:Static lang:Resources.MI_File_OpenWorkspace}" Command="{Binding OpenWorkspaceCommand}" InputGesture="Ctrl+O" />
-                <MenuItem Classes="m" Header="{x:Static lang:Resources.MI_File_CloseWorkspace}" Command="{Binding CloseWorkspaceCommand}" />
+            <MenuItem Classes="m" Header="{x:Static lang:Resources.MI_File}">
+                <MenuItem Classes="p" Header="{x:Static lang:Resources.MI_File_NewWorkspace}" Command="{Binding NewWorkspaceCommand}" InputGesture="Ctrl+N" />
+                <MenuItem Classes="p" Header="{x:Static lang:Resources.MI_File_OpenWorkspace}" Command="{Binding OpenWorkspaceCommand}" InputGesture="Ctrl+O" />
+                <MenuItem Classes="p" Header="{x:Static lang:Resources.MI_File_SaveWorkspace}" Command="{Binding SaveWorkspaceCommand}" InputGesture="Ctrl+S" />
+                <MenuItem Classes="p" Header="{x:Static lang:Resources.MI_File_CloseWorkspace}" Command="{Binding CloseWorkspaceCommand}" />
+                <MenuItem Classes="p" Header="{x:Static lang:Resources.MI_File_OpenRecent}" ItemsSource="{Binding Recents.RecentAccessList}">
+                    <MenuItem.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Classes="p" Text="{Binding}" TextWrapping="Wrap" />
+                        </DataTemplate>
+                    </MenuItem.ItemTemplate>
+                    <MenuItem.Styles>
+                        <Style Selector="MenuItem">
+                            <Setter Property="Command" Value="{Binding #Root.DataContext.OpenRecentWorkspaceCommand}" />
+                            <Setter Property="CommandParameter" Value="{Binding $self.Header}" />
+                        </Style>
+                    </MenuItem.Styles>
+                </MenuItem>
                 <Separator />
-                <MenuItem Classes="m" Header="{x:Static lang:Resources.MI_File_Exit}" Command="{Binding ExitApplicationCommand}" />
+                <MenuItem Classes="p" Header="{x:Static lang:Resources.MI_File_Exit}" Command="{Binding ExitApplicationCommand}" />
+            </MenuItem>
+            <MenuItem Classes="m" Header="{x:Static lang:Resources.MI_Edit}" IsVisible="{Binding Workspace, Converter={x:Static ObjectConverters.IsNotNull}}">
+                <MenuItem Classes="p" Header="{x:Static lang:Resources.MI_Edit_Cut}" />
+                <MenuItem Classes="p" Header="{x:Static lang:Resources.MI_Edit_Copy}" />
+                <MenuItem Classes="p" Header="{x:Static lang:Resources.MI_Edit_Paste}" />
+                <Separator />
+                <MenuItem Classes="p" Header="{x:Static lang:Resources.MI_Edit_Undo}" Command="{Binding UndoCommand}" InputGesture="Ctrl+Z" IsEnabled="{Binding Workspace.UndoStack.IsUndoable}">
+                    <MenuItem.Icon>
+                        <Image Width="24" Height="24" Source="avares://Fantania/Assets/icons/undo.png" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Classes="p" Header="{x:Static lang:Resources.MI_Edit_Redo}" Command="{Binding RedoCommand}" InputGesture="Ctrl+Shift+Z" IsEnabled="{Binding Workspace.UndoStack.IsRedoable}">
+                    <MenuItem.Icon>
+                        <Image Width="24" Height="24" Source="avares://Fantania/Assets/icons/redo.png" />
+                    </MenuItem.Icon>
+                </MenuItem>
             </MenuItem>
         </Menu>
         <ContentControl Content="{Binding Workspace, Converter={StaticResource Cvt_WS2WSView}}" />

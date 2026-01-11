@@ -1,5 +1,4 @@
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace FantaniaLib;
@@ -10,7 +9,7 @@ public class UserPlacementEditableField : ObservableObject, IEditableField
     public FieldEditInfo EditInfo => _editInfo;
     public object FieldValue 
     { 
-        get => _placement.GetFieldValue(FieldName);
+        get => _placement.GetFieldValue(FieldName)!;
         set
         {
             if (!FieldValue.Equals(value))
@@ -23,18 +22,18 @@ public class UserPlacementEditableField : ObservableObject, IEditableField
             }
         }
     }
-    public IFieldValidator FieldValidator => _validator;
+    public IFieldValidator? FieldValidator => _validator;
 
-    public UserPlacementEditableField([DisallowNull] UserPlacement placement, [DisallowNull] string fieldName)
+    public UserPlacementEditableField(UserPlacement placement, string fieldName)
     {
         _placement = placement;
         _fieldName = fieldName;
 
         _placement.Template.FillEditingInfo(_fieldName, _editInfo);
-        Type validatorType = _placement.Template.GetFieldValidatorType(_fieldName);
+        Type? validatorType = _placement.Template.GetFieldValidatorType(_fieldName);
         if (validatorType != null)
             _validator = Activator.CreateInstance(validatorType) as IFieldValidator;
-        else
+        if (_validator == null)
             _validator = EmptyFieldValidator.Empty;
 
         _placement.PropertyChanged += OnPlacementPropertyChanged;
@@ -56,5 +55,5 @@ public class UserPlacementEditableField : ObservableObject, IEditableField
     UserPlacement _placement;
     FieldEditInfo _editInfo = new FieldEditInfo();
     string _fieldName;
-    IFieldValidator _validator;
+    IFieldValidator? _validator;
 }

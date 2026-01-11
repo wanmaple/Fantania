@@ -2,23 +2,66 @@ using System.Collections.ObjectModel;
 
 namespace FantaniaLib;
 
-public class PlacementModule
+public class PlacementModule : WorkspaceModule
 {
     public IReadOnlyList<IPlacement> LevelPlacements => _levelPlacements;
+    public IReadOnlyDictionary<string, PlacementTemplate> PlacementTemplateMap => _placementTemplateMap;
+
+    public PlacementModule(IWorkspace workspace) : base(workspace)
+    {}
+
+    internal void Sync()
+    {
+        foreach (PlacementTemplate template in _placementTemplateMap.Values)
+        {
+            var objs = _workspace.DatabaseModule.GetObjectsOfType(template.ClassName);
+            foreach (UserPlacement placement in objs)
+            {
+                template.Children.Add(placement);
+                _workspace.DatabaseModule.WatchPropertyChange(placement);
+            }
+        }
+    }
     
-    public void AddLevelTemplate(ScriptTemplate template)
+    public void AddLevelTemplate(PlacementTemplate template)
     {
         string group = template.Group;
-        IPlacement placementGroup = _levelPlacements.FirstOrDefault(p => p.Name == group);
+        IPlacement? placementGroup = _levelPlacements.FirstOrDefault(p => p.Name == group);
         if (placementGroup == null)
         {
             placementGroup = new PlacementGroup(group);
             _levelPlacements.Add(placementGroup);
         }
         placementGroup.Children.Add(template);
-        _levelTemplateMap.Add(template.ClassName, template);
+        _placementTemplateMap.Add(template.ClassName, template);
     }
 
-    Dictionary<string, ScriptTemplate> _levelTemplateMap = new Dictionary<string, ScriptTemplate>(128);
+    public UserPlacement AddUserPlacement(string templateName)
+    {
+        PlacementTemplate template = _placementTemplateMap[templateName];
+        int id = template.Children.Count <= 0 ? 1 : template.Children.Max(p => ((UserPlacement)p).ID) + 1;
+        var placement = new UserPlacement(template, id);
+        placement.Name = $"SN_{template.ClassName}_{id}";
+        placement.Tooltip = $"ST_{template.ClassName}_{id}";
+        template.Children.Add(placement);
+        _workspace.DatabaseModule.AddObject(placement);
+        _workspace.DatabaseModule.WatchPropertyChange(placement);
+        _workspace.UndoStack.AddOperation(new NewDatabaseObjectOperation(_workspace, placement));
+        _workspace.UndoStack.AddOperation(new NewPlacementOperation(_workspace, template, placement));
+        return placement;
+    }
+
+    public bool RemoveUserPlacement(UserPlacement placement)
+    {
+        PlacementTemplate template = _placementTemplateMap[placement.Template.ClassName];
+        bool ret = template.Children.Remove(placement);
+        _workspace.DatabaseModule.RemoveObject(placement);
+        _workspace.DatabaseModule.UnwatchPropertyChange(placement);
+        _workspace.UndoStack.AddOperation(new DelDatabaseObjectOperation(_workspace, placement));
+        _workspace.UndoStack.AddOperation(new DelPlacementOperation(_workspace, template, placement));
+        return ret;
+    }
+
+    Dictionary<string, PlacementTemplate> _placementTemplateMap = new Dictionary<string, PlacementTemplate>(128);
     ObservableCollection<IPlacement> _levelPlacements = new ObservableCollection<IPlacement>();
 }

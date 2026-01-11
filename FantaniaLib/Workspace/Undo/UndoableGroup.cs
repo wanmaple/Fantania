@@ -31,7 +31,7 @@ public class UndoableGroup : FrameBasedOperation
             op.Redo();
     }
 
-    public override bool TryMerge(IUndoable other, out IUndoable merged)
+    public override bool TryMerge(IUndoable other, out IUndoable? merged)
     {
         if (Frame == other.Frame)
         {
@@ -44,7 +44,7 @@ public class UndoableGroup : FrameBasedOperation
             IUndoable op = _ops[i];
             if (op.TryMerge(other, out merged))
             {
-                _ops[i] = merged;
+                _ops[i] = merged!;
                 merged = this;
                 return true;
             }

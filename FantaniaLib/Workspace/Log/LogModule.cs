@@ -4,82 +4,115 @@ using Avalonia.Threading;
 
 namespace FantaniaLib;
 
-public class LogModule
+public class LogModule : WorkspaceModule
 {
     public IList<LogContent> Logs => _logs;
 
-    public LogModule(int maxLogs = 1000)
+    public LogModule(IWorkspace workspace, int maxLogs = 1000) : base(workspace)
     {
         _maxLogs = maxLogs;
     }
 
-    public async Task Log(string content)
+    public async Task LogAsync(string content)
     {
-        await Dispatcher.UIThread.InvokeAsync(() =>
-        {
-            var log = new LogContent
-            {
-                FontSize = 14,
-                FontStyle = FontStyle.Normal,
-                FontWeight = FontWeight.Light,
-                Color = Brushes.White,
-                Content = $"[{DateTime.Now.ToString("HH:mm:ss")}] {content}",
-            };
-            AddLog(log);
-        });
+        await Dispatcher.UIThread.InvokeAsync(() => AddNormalLog(content));
     }
 
-    public async Task LogOptional(string content)
+    public void Log(string content)
     {
-        await Dispatcher.UIThread.InvokeAsync(() =>
-        {
-            var log = new LogContent
-            {
-                FontSize = 14,
-                FontStyle = FontStyle.Italic,
-                FontWeight = FontWeight.Light,
-                Color = Brushes.LightGray,
-                Content = $"[{DateTime.Now.ToString("HH:mm:ss")}] {content}",
-            };
-            AddLog(log);
-        });
+        Dispatcher.UIThread.Invoke(() => AddNormalLog(content));
     }
 
-    public async Task LogWarning(string content)
+    public async Task LogOptionalAsync(string content)
     {
-        await Dispatcher.UIThread.InvokeAsync(() =>
-        {
-            var log = new LogContent
-            {
-                FontSize = 14,
-                FontStyle = FontStyle.Italic,
-                FontWeight = FontWeight.Light,
-                Color = Brushes.Yellow,
-                Content = $"[{DateTime.Now.ToString("HH:mm:ss")}] {content}",
-            };
-            AddLog(log);
-        });
+        await Dispatcher.UIThread.InvokeAsync(() => AddOptionalLog(content));
     }
 
-    public async Task LogError(string content)
+    public void LogOptional(string content)
     {
-        await Dispatcher.UIThread.InvokeAsync(() =>
-        {
-            var log = new LogContent
-            {
-                FontSize = 14,
-                FontStyle = FontStyle.Normal,
-                FontWeight = FontWeight.Medium,
-                Color = Brushes.Red,
-                Content = $"[{DateTime.Now.ToString("HH:mm:ss")}] {content}",
-            };
-            AddLog(log);
-        });
+        Dispatcher.UIThread.Invoke(() => AddOptionalLog(content));
+    }
+
+    public async Task LogWarningAsync(string content)
+    {
+        await Dispatcher.UIThread.InvokeAsync(() => AddWarningLog(content));
+    }
+
+    public void LogWarning(string content)
+    {
+        Dispatcher.UIThread.Invoke(() => AddWarningLog(content));
+    }
+
+    public async Task LogErrorAsync(string content)
+    {
+        await Dispatcher.UIThread.InvokeAsync(() => AddErrorLog(content));
+    }
+
+    public void LogError(string content)
+    {
+        Dispatcher.UIThread.Invoke(() => AddErrorLog(content));
+    }
+
+    public async Task ClearAsync()
+    {
+        await Dispatcher.UIThread.InvokeAsync(_logs.Clear);
     }
 
     public void Clear()
     {
-        _logs.Clear();
+        Dispatcher.UIThread.Invoke(_logs.Clear);
+    }
+
+    void AddNormalLog(string content)
+    {
+        var log = new LogContent
+        {
+            FontSize = 14,
+            FontStyle = FontStyle.Normal,
+            FontWeight = FontWeight.Light,
+            Color = Brushes.White,
+            Content = $"[{DateTime.Now.ToString("HH:mm:ss")}] {content}",
+        };
+        AddLog(log);
+    }
+
+    void AddOptionalLog(string content)
+    {
+        var log = new LogContent
+        {
+            FontSize = 14,
+            FontStyle = FontStyle.Italic,
+            FontWeight = FontWeight.Light,
+            Color = Brushes.LightGray,
+            Content = $"[{DateTime.Now.ToString("HH:mm:ss")}] {content}",
+        };
+        AddLog(log);
+    }
+
+    void AddWarningLog(string content)
+    {
+        var log = new LogContent
+        {
+            FontSize = 14,
+            FontStyle = FontStyle.Italic,
+            FontWeight = FontWeight.Light,
+            Color = Brushes.Yellow,
+            Content = $"[{DateTime.Now.ToString("HH:mm:ss")}] {content}",
+        };
+        AddLog(log);
+    }
+
+    void AddErrorLog(string content)
+    {
+        var log = new LogContent
+        {
+            FontSize = 14,
+            FontStyle = FontStyle.Normal,
+            FontWeight = FontWeight.Medium,
+            Color = Brushes.Red,
+            Content = $"[{DateTime.Now.ToString("HH:mm:ss")}] {content}",
+        };
+        AddLog(log);
     }
 
     void AddLog(LogContent log)

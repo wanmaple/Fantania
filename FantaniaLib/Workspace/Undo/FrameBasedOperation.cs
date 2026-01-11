@@ -12,7 +12,7 @@ public abstract class FrameBasedOperation : IUndoable
     public abstract void Undo();
     public abstract void Redo();
 
-    public virtual bool TryMerge(IUndoable other, out IUndoable merged)
+    public virtual bool TryMerge(IUndoable other, out IUndoable? merged)
     {
         if (Frame == other.Frame)
         {

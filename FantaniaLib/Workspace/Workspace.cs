@@ -2,27 +2,31 @@ using System.Text.Json;
 
 namespace FantaniaLib;
 
-public class Workspace : SyncableObject
+public class Workspace : SyncableObject, IWorkspace
 {
     public const string GENERATED_FOLDER = ".fantania";
     public const string TEXTURE_FOLDER = "textures";
     public const string SCRIPTS_FOLDER = "scripts";
 
-    public string RootFolder { get; set; }
-    public bool IsValid => _valid;
-
+    public string RootFolder { get; private set; }
+    public UndoStack UndoStack => _undoStack;
     public ulong FrameCount => _frame;
 
-    public LogModule LogModule => _logModule;
+    public bool IsValid => _valid;
+
+    public DatabaseModule DatabaseModule => _dbModule;
     public PlacementModule PlacementModule => _placeModule;
+    public LogModule LogModule => _logModule;
 
     public Workspace(string rootFolder)
     {
-        rootFolder = AvaloniaHelper.ConvertAvaloniaUriToStandardUri(rootFolder);
         if (!Directory.Exists(rootFolder))
             throw new WorkspaceException("Invalid workspace folder");
         RootFolder = rootFolder.ToStandardPath();
-        Validate();
+        _dbModule = new DatabaseModule(this);
+        _placeModule = new PlacementModule(this);
+        _logModule = new LogModule(this);
+        Validate().GetAwaiter().GetResult();
     }
 
     public string GetAbsolutePath(params string[] pathes)
@@ -40,16 +44,39 @@ public class Workspace : SyncableObject
             JsonSerializer.Serialize(fs, _solution, new JsonSerializerOptions { WriteIndented = true, });
             await fs.FlushAsync();
         }
-        string dbFilePath = GetAbsolutePath(DATABASE_FILENAME);
+        string dbFilePath = GetAbsolutePath(DatabaseModule.DATABASE_FILENAME);
         if (File.Exists(dbFilePath))
             File.Delete(dbFilePath);
-
         InitializeRequired();
+        string texFolder = GetAbsolutePath(TEXTURE_FOLDER);
+        string scriptFolder = GetAbsolutePath(SCRIPTS_FOLDER);
+        string genFolder = GetAbsolutePath(GENERATED_FOLDER);
+        if (!Directory.Exists(texFolder))
+            Directory.CreateDirectory(texFolder);
+        if (!Directory.Exists(scriptFolder))
+            Directory.CreateDirectory(scriptFolder);
+        if (!Directory.Exists(genFolder))
+            Directory.CreateDirectory(genFolder);
+    }
+
+    public async Task Open()
+    {
+        InitializeRequired();
+        await _dbModule.SyncFromDatabase();
+        _placeModule.Sync();
+    }
+
+    public async Task Save()
+    {
+        await _dbModule.SyncToDatabase();
     }
 
     public void Tick(TimeSpan dt)
     {
-        ++_frame;
+        unchecked
+        {
+            ++_frame;
+        }
     }
 
     async Task Validate()
@@ -70,24 +97,14 @@ public class Workspace : SyncableObject
                 _valid = false;
                 return;
             }
-        }
-        catch (Exception)
-        {
-            _valid = false;
-            return;
-        }
-        string dbFilePath = GetAbsolutePath(DATABASE_FILENAME);
-        if (!File.Exists(dbFilePath))
-        {
-            _valid = false;
-            return;
-        }
-        try
-        {
-            using (var conn = await SqliteHelper.OpenDatabase(dbFilePath))
+            string dbFilePath = GetAbsolutePath(DatabaseModule.DATABASE_FILENAME);
+            if (File.Exists(dbFilePath))
             {
-                await conn.CloseAsync();
+                var conn = await SqliteHelper.OpenDatabase(dbFilePath);
+                await conn!.OpenAsync();
+                await conn!.CloseAsync();
             }
+            _scriptEngine.SetGlobal("Workspace", new WorkspaceProxy(this));
         }
         catch (Exception)
         {
@@ -104,19 +121,20 @@ public class Workspace : SyncableObject
             if (scriptPath.EndsWith(".lua"))
             {
                 string script = AvaloniaHelper.ReadAssetText(scriptPath);
-                var template = new ScriptTemplate(_scriptEngine, _scriptEngine.ExecuteString(script));
+                var template = new PlacementTemplate(_scriptEngine, _scriptEngine.ExecuteString(script));
                 _placeModule.AddLevelTemplate(template);
             }
         }
     }
 
     const string SOLUTION_FILENAME = "workspace.json";
-    const string DATABASE_FILENAME = "workspace.db";
 
     bool _valid = false;
     WorkspaceSolution? _solution;
     ScriptEngine _scriptEngine = new ScriptEngine();
-    PlacementModule _placeModule = new PlacementModule();
-    LogModule _logModule = new LogModule();
+    DatabaseModule _dbModule;
+    PlacementModule _placeModule;
+    LogModule _logModule;
+    UndoStack _undoStack = new UndoStack();
     ulong _frame = 0u;
 }

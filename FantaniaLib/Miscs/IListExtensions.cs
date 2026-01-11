@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace FantaniaLib;
 
 public static class IListExtensions
@@ -24,7 +22,15 @@ public static class IListExtensions
         self.RemoveAt(self.Count - 1);
     }
 
-    public static void StableSort<T>(this IList<T> self, IComparer<T> comparer = null)
+    public static void RemoveLast<T>(this IList<T> self)
+    {
+        if (self.Count > 0)
+        {
+            self.RemoveAt(self.Count - 1);
+        }
+    }
+
+    public static void StableSort<T>(this IList<T> self, IComparer<T>? comparer = null)
     {
         if (comparer == null)
         {

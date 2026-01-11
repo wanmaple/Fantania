@@ -1,19 +1,15 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 
 namespace FantaniaLib;
 
 public sealed class FilterableObservableCollection<T> : IList<T>, INotifyCollectionChanged
 {
-    public event NotifyCollectionChangedEventHandler CollectionChanged;
+    public event NotifyCollectionChangedEventHandler? CollectionChanged;
 
     public IList<T> AllItems => _innerCollection;
 
-    public FilterableObservableCollection([DisallowNull] IList<T> innerCollection)
+    public FilterableObservableCollection(IList<T> innerCollection)
     {
         _innerCollection = innerCollection;
         _orders = new LinkedList<int>();
@@ -44,7 +40,7 @@ public sealed class FilterableObservableCollection<T> : IList<T>, INotifyCollect
         public string sortKey;
     }
 
-    public void Filter(Predicate<T> filterFunc, Func<T, string> priorityFunc)
+    public void Filter(Predicate<T>? filterFunc, Func<T, string>? priorityFunc)
     {
         _count = 0;
         _orders.Clear();
@@ -140,11 +136,11 @@ public sealed class FilterableObservableCollection<T> : IList<T>, INotifyCollect
     public void RemoveAt(int index)
     {
         VerifyIndexRange(index);
-        LinkedListNode<int> curNode = _orders.First;
+        LinkedListNode<int> curNode = _orders.First!;
         while (index > 0)
         {
             --index;
-            curNode = curNode.Next;
+            curNode = curNode.Next!;
         }
         _innerCollection.RemoveAt(curNode.Value);
         Filter(_lastFilterFunc, _lastPriorityFunc);
@@ -169,6 +165,6 @@ public sealed class FilterableObservableCollection<T> : IList<T>, INotifyCollect
     private IList<T> _innerCollection;
     private LinkedList<int> _orders;
     private int _count;
-    private Predicate<T> _lastFilterFunc;
-    private Func<T, string> _lastPriorityFunc;
+    private Predicate<T>? _lastFilterFunc;
+    private Func<T, string>? _lastPriorityFunc;
 }

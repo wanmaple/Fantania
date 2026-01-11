@@ -39,7 +39,7 @@ internal class Vector2YConverter : IValueConverter
 
 public partial class Vector2Box : UserControl
 {
-    public IEditableField Field => DataContext as IEditableField;
+    public IEditableField? Field => DataContext as IEditableField;
 
     public static readonly StyledProperty<float> RangeMinimumProperty = AvaloniaProperty.Register<IntegerBox, float>(nameof(RangeMinimum), defaultValue: float.MinValue);
     public float RangeMinimum
@@ -71,7 +71,7 @@ public partial class Vector2Box : UserControl
     {
         base.OnLoaded(e);
         
-        TopLevel topLevel = TopLevel.GetTopLevel(this);
+        TopLevel topLevel = TopLevel.GetTopLevel(this)!;
         topLevel.RequestAnimationFrame(OnTick);
     }
 
@@ -104,7 +104,7 @@ public partial class Vector2Box : UserControl
             float y = Convert.ToSingle(numY.Value);
             Field.FieldValue = new Vector2(x, y);
         }
-        TopLevel topLevel = TopLevel.GetTopLevel(this);
+        TopLevel topLevel = TopLevel.GetTopLevel(this)!;
         if (topLevel != null)
             topLevel.RequestAnimationFrame(OnTick);
     }

@@ -73,7 +73,7 @@ public abstract class DatabaseObject : SyncableObject, ISerializableData, IEdita
         _serializableFields = new List<FieldInfo>(props.Count);
         foreach (PropertyInfo prop in props)
         {
-            SerializableFieldAttribute? attr = prop.GetCustomAttribute<SerializableFieldAttribute>();
+            SerializableFieldAttribute attr = prop.GetCustomAttribute<SerializableFieldAttribute>()!;
             _serializableFields.Add(new FieldInfo
             {
                 FieldName = prop.Name,
