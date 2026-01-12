@@ -17,5 +17,9 @@ sealed class Program
         => AppBuilder.Configure<App>()
             .UsePlatformDetect()
             .WithInterFont()
-            .LogToTrace();
+            .LogToTrace()
+            .With(new Win32PlatformOptions()
+            {
+                RenderingMode = new Win32RenderingMode[] { Win32RenderingMode.Wgl, Win32RenderingMode.Software, }
+            });
 }
