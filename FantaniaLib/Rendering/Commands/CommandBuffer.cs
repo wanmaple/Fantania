@@ -35,11 +35,6 @@ public class CommandBuffer : IDisposable
         }
     }
 
-    public void ClearBuffer(Vector4 clearColor, int clearBits = GLConstants.GL_COLOR_BUFFER_BIT | GLConstants.GL_DEPTH_BUFFER_BIT)
-    {
-        AddCommand(new ClearCommand(clearColor, clearBits));
-    }
-
     public void Clear()
     {
         lock (_mutexSwap)

@@ -28,9 +28,19 @@ public class GLDevice : IRenderDevice
         _gl.ClearColor(color.X, color.Y, color.Z, color.W);
     }
 
-    public void ClearBufferBits(int mask)
+    public void ClearBufferBits(BufferBits mask)
     {
-        _gl.Clear(mask);
+        if (mask != BufferBits.None)
+        {
+            int bits = 0;
+            if (mask.HasFlag(BufferBits.Color))
+                bits |= GL_COLOR_BUFFER_BIT;
+            if (mask.HasFlag(BufferBits.Depth))
+                bits |= GL_DEPTH_BUFFER_BIT;
+            if (mask.HasFlag(BufferBits.Stencil))
+                bits |= GL_STENCIL_BUFFER_BIT;
+            _gl.Clear(bits);
+        }
     }
 
     public void Viewport(int x, int y, int width, int height)
@@ -120,8 +130,7 @@ public class GLDevice : IRenderDevice
 
     public void SetRenderTarget(int fbo)
     {
-        Dispatcher.UIThread.Invoke(()=>
-        _gl.BindFramebuffer(GL_FRAMEBUFFER, fbo));
+        _gl.BindFramebuffer(GL_FRAMEBUFFER, fbo);
     }
 
     public void DeleteTexture(int id)
@@ -176,7 +185,7 @@ public class GLDevice : IRenderDevice
         }
     }
 
-    public void UseShaderProgram(ShaderProgram program)
+    public void ApplyShaderProgram(ShaderProgram program)
     {
         _gl.UseProgram(program.ProgramID);
     }
@@ -249,7 +258,7 @@ public class GLDevice : IRenderDevice
     public void ApplyMaterial(RenderMaterial material)
     {
         ApplyRenderState(material.State);
-        UseShaderProgram(material.Shader);
+        ApplyShaderProgram(material.Shader);
         foreach (var pair in material.Uniforms)
         {
             ApplyUniform(material.Shader, pair.Key, pair.Value);
@@ -273,7 +282,7 @@ public class GLDevice : IRenderDevice
         return new VertexStream(vertDesc, vao, vbo, ibo);
     }
 
-    public void UseVertexStream(VertexStream vertStream)
+    public void ApplyVertexStream(VertexStream vertStream)
     {
         _gl.BindVertexArray(vertStream.VAO);
         _gl.BindBuffer(GL_ARRAY_BUFFER, vertStream.VBO);
@@ -282,15 +291,16 @@ public class GLDevice : IRenderDevice
 
     public void SyncVertexStream(VertexStream vertStream)
     {
-        UseVertexStream(vertStream);
+        ApplyVertexStream(vertStream);
         _gl.BufferData(GL_ARRAY_BUFFER, vertStream.UsedVertexBytes, vertStream.VertexBuffer, GL_STATIC_DRAW);
         _gl.BufferData(GL_ELEMENT_ARRAY_BUFFER, vertStream.UsedIndiceBytes, vertStream.IndiceBuffer, GL_STATIC_DRAW);
     }
 
     public void Draw(VertexStream vertStream, RenderMaterial material)
     {
-        UseVertexStream(vertStream);
+        ApplyVertexStream(vertStream);
         ApplyMaterial(material);
+        _gl.DrawElements(GL_TRIANGLES, vertStream.IndiceCount, GL_UNSIGNED_SHORT, 0);
     }
 
     public void DeleteVertexArray(int id)

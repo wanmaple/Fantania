@@ -61,6 +61,7 @@ public abstract class GLCanvas : OpenGlControlBase, ICustomHitTest
         if (!IsValid) return;
         OnRendering(_device!, fb);
         _device!.CheckError();
+        RequestNextFrameRendering();
     }
 
     protected override void OnOpenGlLost()

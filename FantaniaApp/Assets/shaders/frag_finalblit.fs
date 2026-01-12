@@ -15,7 +15,7 @@ vec3 gamma(vec3 color) {
 }
 
 void main() {
-    vec3 color = texture(uMainTexture, vUV).rgb;
+    // vec3 color = texture(uMainTexture, vUV).rgb;
     // color = gamma(color);
-    FragColor = vec4(color, 1.0);
+    FragColor = vec4(vUV, 0.0, 1.0);
 }

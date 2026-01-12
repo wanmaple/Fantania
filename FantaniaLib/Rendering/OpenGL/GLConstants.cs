@@ -13,6 +13,7 @@ public static class GLConstants
     public const int GL_FLOAT = GlConsts.GL_FLOAT;
 
     public const int GL_UNSIGNED_BYTE = GlConsts.GL_UNSIGNED_BYTE;
+    public const int GL_UNSIGNED_SHORT = GlConsts.GL_UNSIGNED_SHORT;
     public const int GL_RED = 0x1903;
     public const int GL_RGB = 0x1907;
     public const int GL_RGBA = GlConsts.GL_RGBA;
@@ -52,6 +53,7 @@ public static class GLConstants
     public const int GL_ARRAY_BUFFER = GlConsts.GL_ARRAY_BUFFER;
     public const int GL_ELEMENT_ARRAY_BUFFER = GlConsts.GL_ELEMENT_ARRAY_BUFFER;
     public const int GL_STATIC_DRAW = GlConsts.GL_STATIC_DRAW;
+    public const int GL_TRIANGLES = GlConsts.GL_TRIANGLES;
 
     public const int GL_TEXTURE_MIN_FILTER = GlConsts.GL_TEXTURE_MIN_FILTER;
     public const int GL_TEXTURE_MAG_FILTER = GlConsts.GL_TEXTURE_MAG_FILTER;

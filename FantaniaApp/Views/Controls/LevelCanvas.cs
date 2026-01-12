@@ -38,31 +38,32 @@ public class LevelCanvas : GLCanvas
             },
             Shader = device.CompileShader(vertSrc, fragSrc)!,
         };
-        StartWorkerThread(device);
+        // StartWorkerThread(device);
     }
 
     protected override void OnContextFinalizing(GLDevice device)
     {
         _buffer!.Dispose();
         _sync!.Dispose();
+        // _ctsWorker!.Cancel();
     }
 
     protected override void OnRendering(GLDevice device, int finalFbo)
     {
-        _sync!.MarkFrameCollected();
-        using (_sync!.AcquireGLContext())
-        {
-            DisplayPreviousFrame(device);
-        }
-        if (_sync.WaitForFrameRendered(0))
-        {
-            _buffer!.Swap();
-            _sync.ResetFrameRendered();
-        }
+        device.SetRenderTarget(_buffer!.CurrentBuffer.ID);
+        // device.SetRenderTarget(finalFbo);
+        device.ClearColor("#7f7f7f".ToVector4());
+        device.ClearBufferBits(BufferBits.Color | BufferBits.Depth);
+        device.Viewport(0, 0, CanvasWidth, CanvasHeight);
+        DisplayPreviousFrame(device, finalFbo);
+        // _buffer!.Swap();
     }
 
-    void DisplayPreviousFrame(GLDevice device)
+    void DisplayPreviousFrame(GLDevice device, int fbo)
     {
+        device.SetRenderTarget(fbo);
+        // device.ClearColor("#00000000".ToVector4());
+        device.ClearBufferBits(BufferBits.Color);
         var topLevel = TopLevel.GetTopLevel(this);
         double factor = topLevel!.RenderScaling;
         int exactWidth = (int)(Bounds.Width * factor);
@@ -75,13 +76,11 @@ public class LevelCanvas : GLCanvas
         {
             s = 1.0f;
             t = CanvasWidth / controlRatio / CanvasHeight;
-            // gl.BlitFramebuffer(0, 0, ColorBufferWidth, (int)(ColorBufferWidth / controlRatio), 0, 0, exactWidth, exactHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
         }
         else
         {
             s = CanvasHeight * controlRatio / CanvasWidth;
             t = 1.0f;
-            // gl.BlitFramebuffer(0, 0, (int)(ColorBufferHeight * controlRatio), ColorBufferHeight, 0, 0, exactWidth, exactHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
         }
         if (UpdateUVs(Vector2.Zero, new Vector2(s, 0.0f), new Vector2(s, t), new Vector2(0.0f, t)))
         {
@@ -89,7 +88,7 @@ public class LevelCanvas : GLCanvas
             _blitStream.TryAppend(_quad!);
             device.SyncVertexStream(_blitStream);
         }
-        _matFinalBlit!.SetTexture("uMainTexture", 0, _buffer!.BackBuffer.ColorAttachment);
+        _matFinalBlit!.SetTexture("uMainTexture", 0, _buffer!.CurrentBuffer.ColorAttachment);
         device.Draw(_blitStream!, _matFinalBlit);
     }
 
@@ -124,8 +123,6 @@ public class LevelCanvas : GLCanvas
 
                     using (_sync.AcquireGLContext())
                     {
-                        device.SetRenderTarget(_buffer!.CurrentBuffer.ID);
-                        device.ClearColor("#7f7f7f".ToVector4());
                     }
                     _sync.MarkFrameRendered();
                 }

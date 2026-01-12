@@ -13,6 +13,8 @@ public unsafe class VertexStream : IRenderResource
     public int UsedIndiceBytes => (int)((byte*)_indicePtr - (byte*)_streamIndice);
     public nint VertexBuffer => (nint)_streamVertex;
     public nint IndiceBuffer => (nint)_streamIndice;
+    public int VertexCount => UsedVertexBytes / Descriptor.SizeofVertex;
+    public int IndiceCount => UsedIndiceBytes / sizeof(ushort);
 
     public VertexStream(VertexDescriptor vertDesc, int vao, int vbo, int ibo)
     {
