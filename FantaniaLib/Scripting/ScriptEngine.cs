@@ -1,4 +1,3 @@
-using System.Numerics;
 using System.Reflection;
 using MoonSharp.Interpreter;
 
@@ -100,7 +99,7 @@ public class ScriptEngine
             {
                 if (type.IsClass || type.IsInterface)
                 {
-                    BindClassToLua(type, attrBinding.CustomName);
+                    BindClassToLua(type, attrBinding.CustomName, attrBinding.CanInstantiate);
                 }
                 else if (type.IsEnum)
                 {
@@ -110,60 +109,70 @@ public class ScriptEngine
         }
     }
 
-    public void BindClassToLua<T>(string? name = null) where T : class
+    public void BindClassToLua<T>(string? name = null, bool canInstantiate = true) where T : class
     {
-        BindClassToLua(typeof(T), name);
+        BindClassToLua(typeof(T), name, canInstantiate);
     }
 
-    public void BindClassToLua(Type type, string? name = null)
+    public void BindClassToLua(Type type, string? name = null, bool canInstantiate = true)
     {
-        UserData.RegisterType(type);
-        if (type.IsAbstract || type.IsInterface || type.IsStaticClass()) return;
         if (string.IsNullOrEmpty(name))
             name = type.Name;
-        var tbl = new Table(_env);
-        tbl["__name"] = name;
-        tbl["new"] = DynValue.NewCallback((context, args) =>
+        UserData.RegisterType(type);
+        if (type.IsStaticClass())
         {
-            try
+            SetGlobal(name, UserData.CreateStatic(type));
+        }
+        else
+        {
+            if (type.IsAbstract || type.IsInterface) return;
+            var tbl = new Table(_env);
+            tbl["__name"] = name;
+            if (canInstantiate)
             {
-                var ctors = type.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
-                object?[] clrArgs = new object[args.Count];
-                foreach (var ctor in ctors)
+                tbl["new"] = DynValue.NewCallback((context, args) =>
                 {
-                    var parameters = ctor.GetParameters();
-                    if (parameters.Length != args.Count)
-                        continue;
-                    bool match = true;
-                    for (int i = 0; i < parameters.Length; i++)
+                    try
                     {
-                        var paramType = parameters[i].ParameterType;
-                        object? arg = args[i].ToObject(paramType);
-                        if (arg == null && args[i].Type != DataType.Nil)
+                        var ctors = type.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
+                        object?[] clrArgs = new object[args.Count];
+                        foreach (var ctor in ctors)
                         {
-                            match = false;
-                            break;
+                            var parameters = ctor.GetParameters();
+                            if (parameters.Length != args.Count)
+                                continue;
+                            bool match = true;
+                            for (int i = 0; i < parameters.Length; i++)
+                            {
+                                var paramType = parameters[i].ParameterType;
+                                object? arg = args[i].ToObject(paramType);
+                                if (arg == null && args[i].Type != DataType.Nil)
+                                {
+                                    match = false;
+                                    break;
+                                }
+                                clrArgs[i] = arg;
+                            }
+                            if (match)
+                            {
+                                var instance = ctor.Invoke(clrArgs);
+                                return DynValue.FromObject(_env, instance);
+                            }
                         }
-                        clrArgs[i] = arg;
+                        throw new ScriptRuntimeException($"No matching constructor found for type '{type.FullName}'.");
                     }
-                    if (match)
+                    catch (ScriptRuntimeException)
                     {
-                        var instance = ctor.Invoke(clrArgs);
-                        return DynValue.FromObject(_env, instance);
+                        throw;
                     }
-                }
-                throw new ScriptRuntimeException($"No matching constructor found for type '{type.FullName}'.");
+                    catch (Exception ex)
+                    {
+                        throw new ScriptRuntimeException($"Error creating instance of '{type.FullName}': {ex.Message}");
+                    }
+                });
             }
-            catch (ScriptRuntimeException)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                throw new ScriptRuntimeException($"Error creating instance of '{type.FullName}': {ex.Message}");
-            }
-        });
-        SetGlobal(name, tbl);
+            SetGlobal(name, tbl);
+        }
     }
 
     public void BindEnumToLua<T>(string? name = null) where T : Enum
@@ -189,11 +198,11 @@ public class ScriptEngine
         }
         SetGlobal(name, tbl);
     }
-    
+
     void InitializeRequirements()
     {
-        ExecuteFile("avares://Fantania/Assets/scripts/init.lua");
         BindAssemblyToLua(Assembly.GetExecutingAssembly());
+        ExecuteFile("avares://Fantania/Assets/scripts/init.lua");
     }
 
     static void AutoConversions()

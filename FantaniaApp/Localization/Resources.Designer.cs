@@ -85,6 +85,15 @@ namespace Fantania.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 关卡.
+        /// </summary>
+        public static string H_Level {
+            get {
+                return ResourceManager.GetString("H_Level", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 日志.
         /// </summary>
         public static string H_Log {

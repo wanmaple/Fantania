@@ -1,3 +1,5 @@
+using System.Numerics;
+using Avalonia.Media;
 using Avalonia.Platform.Storage;
 
 namespace FantaniaLib;
@@ -17,6 +19,11 @@ public static class StringExtensions
             return char.ToUpper(self[0]).ToString() + self.Substring(1);
         }
         return self;
+    }
+
+    public static Vector4 ToVector4(this string self)
+    {
+        return Color.Parse(self).ToVector4();
     }
 
     /// <summary>

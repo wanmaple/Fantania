@@ -1,0 +1,19 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:lib="using:FantaniaLib"
+             xmlns:v="using:Fantania.Views"
+             xmlns:vm="using:Fantania.ViewModels"
+             xmlns:lang="using:Fantania.Localization"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="vm:LevelViewModel"
+             x:Class="Fantania.Views.LevelView">
+  <Design.DataContext>
+    <vm:LevelViewModel />
+  </Design.DataContext>
+  <Grid RowDefinitions="auto,*">
+    <TextBlock Classes="h2" Grid.Row="0" Text="{x:Static lang:Resources.H_Level}" />
+    <v:LevelCanvas Grid.Row="1" DataContext="{Binding Workspace}" />
+  </Grid>
+</UserControl>

@@ -1,33 +1,11 @@
 using System.Numerics;
 using Avalonia.OpenGL;
+using static FantaniaLib.GLConstants;
 
 namespace FantaniaLib;
 
-public static class OpenGLApiEx
+public static class GLApiEx
 {
-    public const int GL_TRUE = 1;
-    public const int GL_FALSE = 0;
-    public const int GL_BLEND = 0x0BE2;
-    public const int GL_SRC_ALPHA = 0x0302;
-    public const int GL_ONE_MINUS_SRC_ALPHA = 0x0303;
-    public const int GL_ZERO = 0;
-    public const int GL_ONE = 1;
-    public const int GL_TEXTURE_WRAP_S = 0x2802;
-    public const int GL_TEXTURE_WRAP_T = 0x2803;
-    public const int GL_CLAMP_TO_EDGE = 0x812F;
-    public const int GL_REPEAT = 0x2901;
-    public const int GL_TEXTURE_1D = 0x0DE0;
-    public const int GL_FRONT = 0x0404;
-    public const int GL_BACK = 0x0405;
-    public const int GL_FRONT_AND_BACK = 0x0408;
-    public const int GL_R8 = 0x8229;
-    public const int GL_SRGB8_ALPHA8 = 0x8C43;
-    public const int GL_RGB = 0x1907;
-    public const int GL_RED = 0x1903;
-    public const int GL_FRAMEBUFFER_SRGB = 0x8DB9;
-    public const int GL_UNPACK_ALIGNMENT = 0x0CF5;
-    public const int GL_PACK_ALIGNMENT = 0x0D05;
-
     public unsafe static void BlendFunc(GlInterface gl, int src, int dst)
     {
         nint ptr = gl.GetProcAddress("glBlendFunc");

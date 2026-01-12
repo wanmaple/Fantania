@@ -201,4 +201,8 @@
     <value>'{0}'不存在。</value>
     <comment/>
   </data>
+  <data name="H_Level" xml:space="preserve">
+    <value>关卡</value>
+    <comment/>
+  </data>
 </root>

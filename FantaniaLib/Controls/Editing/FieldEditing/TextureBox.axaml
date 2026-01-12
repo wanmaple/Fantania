@@ -15,7 +15,7 @@
   <Grid>
     <Grid RowDefinitions="auto,*">
       <lib:OptionBox x:Name="obTexType" Value="{Binding FieldValue, Mode=OneWay, Converter={StaticResource Cvt_FindMember}, ConverterParameter=TextureType}" Options="{Binding Source={x:Type lib:TextureTypes}, Converter={StaticResource Cvt_Enum2Options}}" HorizontalAlignment="Left" Width="150" />
-      <Grid Grid.Row="1" RowDefinitions="*,auto" Margin="10">
+      <Grid Grid.Row="1" RowDefinitions="*,auto" Margin="10 10 0 0">
         <Grid IsVisible="{Binding FieldValue, Converter={StaticResource Cvt_DefIsType}, ConverterParameter={x:Static lib:TextureTypes.Image}}">
           <Grid ColumnDefinitions="50,*">
             <TextBlock Grid.Column="0" Text="Path" VerticalAlignment="Center" />

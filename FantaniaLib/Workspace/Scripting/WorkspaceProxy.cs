@@ -1,6 +1,6 @@
 namespace FantaniaLib;
 
-[BindingScript]
+[BindingScript(CanInstantiate = false)]
 public class WorkspaceProxy
 {
     public string RootFolder => _workspace.RootFolder;

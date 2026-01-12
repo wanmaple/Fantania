@@ -4,4 +4,5 @@ namespace FantaniaLib;
 public class BindingScriptAttribute : Attribute
 {
     public string? CustomName { get; set; } = null;
+    public bool CanInstantiate { get; set; } = true;
 }

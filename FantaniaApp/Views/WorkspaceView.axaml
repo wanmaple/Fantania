@@ -3,6 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:f="using:Fantania"
+             xmlns:lib="using:FantaniaLib"
              xmlns:m="using:Fantania.Models"
              xmlns:v="using:Fantania.Views"
              xmlns:vm="using:Fantania.ViewModels"
@@ -14,6 +15,10 @@
     <vm:WorkspaceViewModel />
   </Design.DataContext>
   <Grid RowDefinitions="auto,2*,auto,*" ColumnDefinitions="2*,auto,*">
+    <Border Classes="thin s1" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2">
+      <v:LevelView DataContext="{Binding LevelViewModel}" Margin="5" />
+    </Border>
+    <GridSplitter Grid.Row="2" Grid.Column="0" ResizeDirection="Rows" ResizeBehavior="PreviousAndNext" Height="1" />
     <Border Classes="thin s1" Grid.Row="3" Grid.Column="0">
       <v:LogView DataContext="{Binding LogViewModel}" Margin="5" />
     </Border>

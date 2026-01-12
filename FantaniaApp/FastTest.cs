@@ -9,7 +9,7 @@ public static class FastTest
 {
     public static void Test()
     {
-        TestWithSKCodec();
+        
     }
 
     public static void TestWithSKCodec()
