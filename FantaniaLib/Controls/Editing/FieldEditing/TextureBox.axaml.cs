@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Globalization;
 using Avalonia;
 using Avalonia.Controls;
@@ -22,6 +23,95 @@ internal class TextureDefIsSomeTypeConverter : IValueConverter
     }
 }
 
+internal class TextureDef2TextureInfoConverter : IMultiValueConverter
+{
+    public object? Convert(IList<object?> values, Type targetType, object? parameter, CultureInfo culture)
+    {
+        object? value = _cvt.Convert(values, targetType, parameter, culture);
+        if (value != AvaloniaProperty.UnsetValue && value != null)
+            return value.ToString();
+        return AvaloniaProperty.UnsetValue;
+    }
+
+    TextureDef2Texture2DConverter _cvt = new TextureDef2Texture2DConverter();
+}
+
+internal class TextureDef2Texture2DConverter : IMultiValueConverter
+{
+    public object? Convert(IList<object?> values, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (values == null) return AvaloniaProperty.UnsetValue;
+        if (values.Count != 2) return AvaloniaProperty.UnsetValue;
+        if (values[0] is not TextureDefinition def) return AvaloniaProperty.UnsetValue;
+        if (values[1] is not string rootFolder) return AvaloniaProperty.UnsetValue;
+        return GenerateTexture2D(rootFolder, def);
+    }
+
+    ITexture2D? GenerateTexture2D(string rootFolder, TextureDefinition def)
+    {
+        switch (def.TextureType)
+        {
+            case TextureTypes.Image:
+                string imgPath = Path.Combine(rootFolder, def.TextureParameters.ImageParams.ImagePath);
+                if (File.Exists(imgPath))
+                {
+                    return new LocalTexture2D(imgPath);
+                }
+                break;
+            case TextureTypes.Atlas:
+                string atlasPath = Path.Combine(rootFolder, def.TextureParameters.AtlasParams.AtlasPath);
+                if (File.Exists(atlasPath))
+                {
+                    SpriteAtlas atlas = new SpriteAtlas(atlasPath);
+                    if (atlas.IsValid)
+                        return new AtlasTexture2D(atlas, def.TextureParameters.AtlasParams.FrameKey);
+                }
+                break;
+        }
+        return null;
+    }
+}
+
+internal class TextureDef2AtlasFramesConverter : IMultiValueConverter
+{
+    internal class FrameOptions : IEnumerable<string>
+    {
+        public required IReadOnlyCollection<string> Frames { get; set; }
+        public required string SelectedFrame { get; set; }
+
+        public IEnumerator<string> GetEnumerator()
+        {
+            return Frames.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+    }
+
+    public object? Convert(IList<object?> values, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (values == null) return AvaloniaProperty.UnsetValue;
+        if (values.Count != 2) return AvaloniaProperty.UnsetValue;
+        if (values[0] is not TextureDefinition def) return AvaloniaProperty.UnsetValue;
+        if (values[1] is not string rootFolder) return AvaloniaProperty.UnsetValue;
+        if (def.TextureType != TextureTypes.Atlas) return AvaloniaProperty.UnsetValue;
+        string atlasPath = Path.Combine(rootFolder, def.TextureParameters.AtlasParams.AtlasPath);
+        if (File.Exists(atlasPath))
+        {
+            SpriteAtlas atlas = new SpriteAtlas(atlasPath);
+            if (atlas.IsValid)
+                return new FrameOptions
+                {
+                    Frames = atlas.Keys,
+                    SelectedFrame = def.TextureParameters.AtlasParams.FrameKey,
+                };
+        }
+        return AvaloniaProperty.UnsetValue;
+    }
+}
+
 public partial class TextureBox : UserControl
 {
     IEditableField? Field => DataContext as IEditableField;
@@ -31,13 +121,6 @@ public partial class TextureBox : UserControl
     {
         get => GetValue(RootFolderProperty);
         set => SetValue(RootFolderProperty, value);
-    }
-
-    public static readonly StyledProperty<ITexture2D?> DisplayTextureProperty = AvaloniaProperty.Register<TextureBox, ITexture2D?>(nameof(DisplayTexture), defaultValue: null);
-    public ITexture2D? DisplayTexture
-    {
-        get => GetValue(DisplayTextureProperty);
-        set => SetValue(DisplayTextureProperty, value);
     }
 
     public TextureBox()
@@ -60,7 +143,6 @@ public partial class TextureBox : UserControl
         if (Field != null)
         {
             RootFolder = Field.EditInfo.EditParameter;
-            DisplayTexture = GenerateTexture2D((TextureDefinition)Field.FieldValue);
         }
     }
 
@@ -71,11 +153,7 @@ public partial class TextureBox : UserControl
             object? value = obTexType.Value;
             TextureTypes texType = (TextureTypes)value!;
             var def = BuildTextureDef(texType);
-            if (!Field.FieldValue.Equals(def))
-            {
-                Field.FieldValue = def;
-                DisplayTexture = GenerateTexture2D(def);
-            }
+            Field.FieldValue = def;
         }
         TopLevel topLevel = TopLevel.GetTopLevel(this)!;
         if (topLevel != null)
@@ -94,6 +172,11 @@ public partial class TextureBox : UserControl
                 };
                 break;
             case TextureTypes.Atlas:
+                texParams.AtlasParams = new AtlasParameter
+                {
+                    AtlasPath = fsbAtlas.Path,
+                    FrameKey = (string)cbFrameKeys.SelectedItem!,
+                };
                 break;
         }
         return new TextureDefinition
@@ -103,21 +186,14 @@ public partial class TextureBox : UserControl
         };
     }
 
-    ITexture2D? GenerateTexture2D(TextureDefinition def)
+    void AtlasSelectBox_FileSelected(object? sender, FileSelectedEventArgs e)
     {
-        switch (def.TextureType)
+        string path = Path.Combine(RootFolder, e.FilePath);
+        SpriteAtlas atlas = new SpriteAtlas(path);
+        if (atlas.IsValid)
         {
-            case TextureTypes.Image:
-                string path = Path.Combine(RootFolder, def.TextureParameters.ImageParams.ImagePath);
-                if (File.Exists(path))
-                {
-                    using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read))
-                    {
-                        return new Texture2D(fs);
-                    }
-                }
-                break;
+            // cbFrameKeys.ItemsSource = atlas.Keys;
+            cbFrameKeys.SelectedItem = atlas.Keys.First();
         }
-        return null;
     }
 }

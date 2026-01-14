@@ -8,7 +8,10 @@ public static class StringExtensions
 {
     public static string ToStandardPath(this string path)
     {
-        return path.Replace('\\', '/');
+        path = path.Replace('\\', '/');
+        if (path.EndsWith('/'))
+            path = path.Substring(0, path.Length - 1);
+        return path;
     }
 
     public static string MakeFirstCharacterUpper(this string self)

@@ -24,15 +24,15 @@ public struct ImageParameter : IEquatable<ImageParameter>
 public struct AtlasParameter : IEquatable<AtlasParameter>
 {
     public string AtlasPath { get; set; }
-    public string Key { get; set; }
+    public string FrameKey { get; set; }
 
     public bool Equals(AtlasParameter other)
     {
-        return AtlasPath == other.AtlasPath && Key == other.Key;
+        return AtlasPath == other.AtlasPath && FrameKey == other.FrameKey;
     }
 
     public override string ToString()
     {
-        return $"{AtlasPath}:{Key}";
+        return $"{AtlasPath}:{FrameKey}";
     }
 }

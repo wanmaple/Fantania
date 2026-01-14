@@ -1,6 +1,5 @@
 using System.Numerics;
 using Avalonia.OpenGL;
-using Avalonia.Threading;
 using static FantaniaLib.GLConstants;
 
 namespace FantaniaLib;
@@ -57,7 +56,8 @@ public class GLDevice : IRenderDevice
             TextureFormats.R8 => (GL_R8, GL_RED, GL_UNSIGNED_BYTE),
             TextureFormats.RGB8 => (GL_RGB8, GL_RGB, GL_UNSIGNED_BYTE),
             TextureFormats.RGBA8 => (GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE),
-            TextureFormats.SRGB8 => (GL_SRGB8_ALPHA8, GL_RGBA, GL_UNSIGNED_BYTE),
+            TextureFormats.SRGB8 => (GL_SRGB8, GL_RGB, GL_UNSIGNED_BYTE),
+            TextureFormats.SRGB8_ALPHA8 => (GL_SRGB8_ALPHA8, GL_RGBA, GL_UNSIGNED_BYTE),
             _ => (GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE),
         };
         _gl.TexImage2D(GL_TEXTURE_2D, 0, internalFormat, desc.Width, desc.Height, 0, format, type, data);
@@ -103,6 +103,7 @@ public class GLDevice : IRenderDevice
     public FrameBuffer CreateFrameBuffer(FrameBufferDescription desc)
     {
         int fbo = _gl.GenFramebuffer();
+        // _gl.GetIntegerv(GL_FRAMEBUFFER_BINDING, out int currentFbo);
         _gl.BindFramebuffer(GL_FRAMEBUFFER, fbo);
         TextureDescription colorDesc = new TextureDescription
         {
@@ -110,22 +111,28 @@ public class GLDevice : IRenderDevice
             Height = desc.Height,
             Format = desc.ColorFormat,
             GenerateMipmap = false,
-            MinFilter = TextureMinFilters.Linear,
-            MagFilter = TextureMagFilters.Linear,
+            MinFilter = TextureMinFilters.Nearest,
+            MagFilter = TextureMagFilters.Nearest,
             WrapS = TextureWraps.ClampToEdge,
             WrapT = TextureWraps.ClampToEdge,
         };
         int colorAttachmentId = CreateTexture2D(colorDesc);
         int depthAttachmentId = 0;
         _gl.FramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorAttachmentId, 0);
-        if (desc.DepthFormat != FrameBufferDepthFormat.None)
+        if (desc.DepthFormat != DepthFormats.None)
         {
             depthAttachmentId = _gl.GenRenderbuffer();
             _gl.BindRenderbuffer(GL_RENDERBUFFER, depthAttachmentId);
             _gl.RenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, desc.Width, desc.Height);
             _gl.FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthAttachmentId);
         }
-        return new FrameBuffer(fbo, colorAttachmentId, depthAttachmentId);
+        // _gl.BindFramebuffer(GL_FRAMEBUFFER, currentFbo);
+        return new FrameBuffer(desc, fbo, colorAttachmentId, depthAttachmentId);
+    }
+
+    public bool IsFrameBufferReady()
+    {
+        return _gl.CheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
     }
 
     public void SetRenderTarget(int fbo)
@@ -148,7 +155,7 @@ public class GLDevice : IRenderDevice
         _gl.DeleteFramebuffer(id);
     }
 
-    public ShaderProgram? CompileShader(string vertSrc, string fragSrc)
+    public ShaderProgram? CreateProgram(string vertSrc, string fragSrc)
     {
         int shaderVertId = _gl.CreateShader(GL_VERTEX_SHADER);
         int shaderFragId = _gl.CreateShader(GL_FRAGMENT_SHADER);
@@ -225,28 +232,28 @@ public class GLDevice : IRenderDevice
         _currentState = state;
     }
 
-    public void ApplyUniform(ShaderProgram shader, string name, RenderMaterial.MaterialUniform uniform)
+    public void ApplyUniform(ShaderProgram shader, string name, MaterialUniform uniform)
     {
         int location = _gl.GetUniformLocationString(shader.ProgramID, name);
         if (location < 0) return;
         switch (uniform.Type)
         {
-            case RenderMaterial.MaterialUniform.UniformType.Float1:
+            case MaterialUniform.UniformType.Float1:
                 _gl.Uniform1f(location, uniform.Get<float>());
                 break;
-            case RenderMaterial.MaterialUniform.UniformType.Float2:
+            case MaterialUniform.UniformType.Float2:
                 GLApiEx.Uniform2f(_gl, location, uniform.Get<Vector2>());
                 break;
-            case RenderMaterial.MaterialUniform.UniformType.Float3:
+            case MaterialUniform.UniformType.Float3:
                 GLApiEx.Uniform3f(_gl, location, uniform.Get<Vector3>());
                 break;
-            case RenderMaterial.MaterialUniform.UniformType.Float4:
+            case MaterialUniform.UniformType.Float4:
                 GLApiEx.Uniform4f(_gl, location, uniform.Get<Vector4>());
                 break;
-            case RenderMaterial.MaterialUniform.UniformType.Matrix3x3:
+            case MaterialUniform.UniformType.Matrix3x3:
                 GLApiEx.UniformMatrix3fv(_gl, location, uniform.Get<Matrix3x3>());
                 break;
-            case RenderMaterial.MaterialUniform.UniformType.Texture:
+            case MaterialUniform.UniformType.Texture:
                 (int slot, int texId) pair = uniform.Get<(int, int)>();
                 _gl.ActiveTexture(GL_TEXTURE0 + pair.slot);
                 _gl.BindTexture(GL_TEXTURE_2D, pair.texId);
@@ -265,7 +272,7 @@ public class GLDevice : IRenderDevice
         }
     }
 
-    public VertexStream CreateVertexStream(VertexDescriptor vertDesc)
+    public VertexStream CreateVertexStream(VertexDescriptor vertDesc, int maxVertBufferBytes = 160 * 1024, int maxIndiceBufferBytes = 80 * 1024)
     {
         int vao = _gl.GenVertexArray();
         int vbo = _gl.GenBuffer();
@@ -279,7 +286,7 @@ public class GLDevice : IRenderDevice
             _gl.EnableVertexAttribArray(attrib.Location);
             stride += attrib.ElementCount * sizeof(float);
         }
-        return new VertexStream(vertDesc, vao, vbo, ibo);
+        return new VertexStream(vertDesc, vao, vbo, ibo, maxVertBufferBytes, maxIndiceBufferBytes);
     }
 
     public void ApplyVertexStream(VertexStream vertStream)

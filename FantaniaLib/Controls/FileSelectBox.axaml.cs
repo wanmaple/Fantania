@@ -1,11 +1,30 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 
 namespace FantaniaLib;
 
+public class FileSelectedEventArgs : RoutedEventArgs
+{
+    public string FilePath { get; set; }
+
+    public FileSelectedEventArgs(string filePath)
+    {
+        FilePath = filePath;
+        RoutedEvent = FileSelectBox.FileSelectedEvent;
+    }
+}
+
 public partial class FileSelectBox : UserControl
 {
+    public static readonly RoutedEvent<FileSelectedEventArgs> FileSelectedEvent = RoutedEvent.Register<FileSelectBox, FileSelectedEventArgs>(nameof(FileSelected), RoutingStrategies.Bubble);
+    public event EventHandler<FileSelectedEventArgs> FileSelected
+    {
+        add => AddHandler(FileSelectedEvent, value);
+        remove => RemoveHandler(FileSelectedEvent, value);
+    }
+
     public static readonly StyledProperty<string> PathProperty = AvaloniaProperty.Register<FileSelectBox, string>(nameof(Path), defaultValue: string.Empty);
     public string Path
     {
@@ -59,9 +78,13 @@ public partial class FileSelectBox : UserControl
             }
             if (!string.IsNullOrEmpty(RootFolder))
             {
-                path = path.Substring(RootFolder.Length);
+                path = path.Substring(RootFolder.Length + (RootFolder.EndsWith('/') ? 0 : 1));
             }
-            Path = path;
+            if (Path != path)
+            {
+                RaiseEvent(new FileSelectedEventArgs(path));
+                Path = path;
+            }
         }
     }
 }

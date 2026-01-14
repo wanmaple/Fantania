@@ -1,11 +1,14 @@
 namespace FantaniaLib;
 
+[BindingScript]
 public enum TextureFormats
 {
+    Unknown,
     R8,
     RGB8,
     RGBA8,
     SRGB8,
+    SRGB8_ALPHA8,
 }
 
 public enum TextureMinFilters

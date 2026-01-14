@@ -77,8 +77,8 @@ public static class MathsConversions
         // Vector2Int
         Script.GlobalOptions.CustomConverters.SetClrToScriptCustomConversion<Vector2Int>((env, v) =>
         {
-            int x = v.x;
-            int y = v.y;
+            int x = v.X;
+            int y = v.Y;
             DynValue ret = DynValue.NewTable(env);
             ret.Table.Set("x", DynValue.FromObject(env, x));
             ret.Table.Set("y", DynValue.FromObject(env, y));

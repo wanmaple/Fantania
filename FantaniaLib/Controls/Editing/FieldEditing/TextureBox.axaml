@@ -11,18 +11,53 @@
     <lib:EnumType2OptionsConverter x:Key="Cvt_Enum2Options" />
     <lib:Object2MemberConverter x:Key="Cvt_FindMember" />
     <lib:TextureDefIsSomeTypeConverter x:Key="Cvt_DefIsType" />
+    <lib:TextureDef2Texture2DConverter x:Key="Cvt_Texture" />
+    <lib:TextureDef2TextureInfoConverter x:Key="Cvt_TexInfo" />
+    <lib:TextureDef2AtlasFramesConverter x:Key="Cvt_Frames" />
   </UserControl.Resources>
   <Grid>
     <Grid RowDefinitions="auto,*">
       <lib:OptionBox x:Name="obTexType" Value="{Binding FieldValue, Mode=OneWay, Converter={StaticResource Cvt_FindMember}, ConverterParameter=TextureType}" Options="{Binding Source={x:Type lib:TextureTypes}, Converter={StaticResource Cvt_Enum2Options}}" HorizontalAlignment="Left" Width="150" />
-      <Grid Grid.Row="1" RowDefinitions="*,auto" Margin="10 10 0 0">
-        <Grid IsVisible="{Binding FieldValue, Converter={StaticResource Cvt_DefIsType}, ConverterParameter={x:Static lib:TextureTypes.Image}}">
+      <Grid Grid.Row="1" RowDefinitions="*,auto,auto" Margin="10 10 0 0">
+        <lib:GLImagePreview Grid.Row="0" MaxWidth="320" Margin="0 0 0 10">
+          <lib:GLImagePreview.Texture>
+            <MultiBinding Converter="{StaticResource Cvt_Texture}">
+              <Binding Path="FieldValue" />
+              <Binding Path="RootFolder" ElementName="Root" />
+            </MultiBinding>
+          </lib:GLImagePreview.Texture>
+        </lib:GLImagePreview>
+        <Grid Grid.Row="1" IsVisible="{Binding FieldValue, Converter={StaticResource Cvt_DefIsType}, ConverterParameter={x:Static lib:TextureTypes.Image}}">
           <Grid ColumnDefinitions="50,*">
             <TextBlock Grid.Column="0" Text="Path" VerticalAlignment="Center" />
-            <lib:FileSelectBox x:Name="fsbImage" Grid.Column="1" Path="{Binding FieldValue, Mode=OneWay, Converter={StaticResource Cvt_FindMember}, ConverterParameter=TextureParameters.ImageParams.ImagePath}" Title="Pick Image" Filter="Image files (*.png, *.jpg, *.jpeg, *.bmp)|*.png;*.jpg;*.jpeg" RootFolder="{Binding #Root.RootFolder}" />
+            <lib:FileSelectBox x:Name="fsbImage" Grid.Column="1" Path="{Binding FieldValue, Mode=OneWay, Converter={StaticResource Cvt_FindMember}, ConverterParameter=TextureParameters.ImageParams.ImagePath}" Title="Pick Image" Filter="Image files (*.png, *.jpg, *.jpeg, *.bmp)|*.png;*.jpg;*.jpeg" RootFolder="{Binding #Root.RootFolder}" MaxWidth="300" />
           </Grid>
         </Grid>
-        <TextBlock Classes="p" Grid.Row="1" Text="{Binding #Root.DisplayTexture}" Foreground="Yellow" Margin="0 5 0 0" />
+        <Grid Grid.Row="1" RowDefinitions="*,*" IsVisible="{Binding FieldValue, Converter={StaticResource Cvt_DefIsType}, ConverterParameter={x:Static lib:TextureTypes.Atlas}}">
+          <Grid Grid.Row="0" ColumnDefinitions="50,*">
+            <TextBlock Grid.Column="0" Text="Path" VerticalAlignment="Center" />
+            <lib:FileSelectBox x:Name="fsbAtlas" Grid.Column="1" Path="{Binding FieldValue, Mode=OneWay, Converter={StaticResource Cvt_FindMember}, ConverterParameter=TextureParameters.AtlasParams.AtlasPath}" Title="Pick Atlas" Filter="Atlas files (*.json)|*.json" RootFolder="{Binding #Root.RootFolder}" MaxWidth="300" FileSelected="AtlasSelectBox_FileSelected" />
+          </Grid>
+          <Grid Grid.Row="1" ColumnDefinitions="50,*" Margin="0 5 0 0">
+            <TextBlock Grid.Column="0" Text="Key" VerticalAlignment="Center" />
+            <ComboBox x:Name="cbFrameKeys" SelectedItem="{ReflectionBinding $self.ItemsSource.SelectedFrame, Mode=OneWay}" Grid.Column="1">
+              <ComboBox.ItemsSource>
+                <MultiBinding Converter="{StaticResource Cvt_Frames}">
+                  <Binding Path="FieldValue" />
+                  <Binding Path="RootFolder" ElementName="Root" />
+                </MultiBinding>
+              </ComboBox.ItemsSource>
+            </ComboBox>
+          </Grid>
+        </Grid>
+        <TextBlock Classes="p" Grid.Row="2" Foreground="Yellow" Margin="0 5 0 0">
+          <TextBlock.Text>
+            <MultiBinding Converter="{StaticResource Cvt_TexInfo}">
+              <Binding Path="FieldValue" />
+              <Binding Path="RootFolder" ElementName="Root" />
+            </MultiBinding>
+          </TextBlock.Text>
+        </TextBlock>
       </Grid>
     </Grid>
     <Border Classes="thick err" IsVisible="{Binding FieldValidator.Error, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />

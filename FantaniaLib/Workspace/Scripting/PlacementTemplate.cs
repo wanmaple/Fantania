@@ -127,19 +127,19 @@ public class PlacementTemplate : IPlacement
         switch (fieldInfo.FieldType)
         {
             case FieldTypes.Boolean:
-                return defaultVal.IsNil() ? false : defaultVal.Boolean;
+                return defaultVal.GetBooleanOrDefault(false);
             case FieldTypes.Integer:
-                return defaultVal.IsNil() ? 0 : (int)defaultVal.Number;
+                return defaultVal.GetIntegerOrDefault(0);
             case FieldTypes.Float:
-                return defaultVal.IsNil() ? 0.0f : (float)defaultVal.Number;
+                return defaultVal.GetFloatOrDefault(0.0f);
             case FieldTypes.String:
-                return defaultVal.IsNil() ? string.Empty : defaultVal.String;
+                return defaultVal.GetStringOrDefault(string.Empty);
             case FieldTypes.Vector2:
-                return defaultVal.IsNil() ? Vector2.Zero : defaultVal.ToObject<Vector2>();
+                return defaultVal.GetObjectOrDefault(Vector2.Zero);
             case FieldTypes.Color:
-                return defaultVal.IsNil() ? Vector4.One : defaultVal.ToObject<Vector4>();
+                return defaultVal.GetObjectOrDefault(Vector4.One);
             case FieldTypes.Texture:
-                return defaultVal.IsNil() ? TextureDefinition.None : defaultVal.ToObject<TextureDefinition>();
+                return defaultVal.GetObjectOrDefault(TextureDefinition.None);
             default:
                 return null;
         }

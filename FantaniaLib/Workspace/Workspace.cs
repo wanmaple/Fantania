@@ -4,19 +4,27 @@ namespace FantaniaLib;
 
 public class Workspace : SyncableObject, IWorkspace
 {
+    public class TickData
+    {
+        public ulong Frame = 0ul;
+        public float Time = 0.0f;
+    }
+
     public const string GENERATED_FOLDER = ".fantania";
     public const string TEXTURE_FOLDER = "textures";
     public const string SCRIPTS_FOLDER = "scripts";
 
     public string RootFolder { get; private set; }
     public UndoStack UndoStack => _undoStack;
-    public ulong FrameCount => _frame;
+    public ulong FrameCount => _tickData.Frame;
+    public float Time => _tickData.Time;
 
     public bool IsValid => _valid;
 
     public DatabaseModule DatabaseModule => _dbModule;
     public PlacementModule PlacementModule => _placeModule;
     public LogModule LogModule => _logModule;
+    public ScriptingModule ScriptingModule => _scriptModule;
 
     public Workspace(string rootFolder)
     {
@@ -26,6 +34,7 @@ public class Workspace : SyncableObject, IWorkspace
         _dbModule = new DatabaseModule(this);
         _placeModule = new PlacementModule(this);
         _logModule = new LogModule(this);
+        _scriptModule = new ScriptingModule(this);
         Validate().GetAwaiter().GetResult();
     }
 
@@ -75,8 +84,9 @@ public class Workspace : SyncableObject, IWorkspace
     {
         unchecked
         {
-            ++_frame;
+            ++_tickData.Frame;
         }
+        _tickData.Time = (float)dt.TotalSeconds;
     }
 
     async Task Validate()
@@ -104,7 +114,7 @@ public class Workspace : SyncableObject, IWorkspace
                 await conn!.OpenAsync();
                 await conn!.CloseAsync();
             }
-            _scriptEngine.SetGlobal("Workspace", new WorkspaceProxy(this));
+            _scriptModule.ScriptEngine.SetGlobal("Workspace", new WorkspaceProxy(this));
         }
         catch (Exception)
         {
@@ -115,26 +125,17 @@ public class Workspace : SyncableObject, IWorkspace
 
     void InitializeRequired()
     {
-        // Load built-in scripts
-        foreach (string scriptPath in AvaloniaHelper.EnumerateAssetFolder("avares://Fantania/Assets/scripts/templates"))
-        {
-            if (scriptPath.EndsWith(".lua"))
-            {
-                string script = AvaloniaHelper.ReadAssetText(scriptPath);
-                var template = new PlacementTemplate(_scriptEngine, _scriptEngine.ExecuteString(script));
-                _placeModule.AddLevelTemplate(template);
-            }
-        }
+        _scriptModule.LoadBuiltinScripts();
     }
 
     const string SOLUTION_FILENAME = "workspace.json";
 
     bool _valid = false;
     WorkspaceSolution? _solution;
-    ScriptEngine _scriptEngine = new ScriptEngine();
     DatabaseModule _dbModule;
     PlacementModule _placeModule;
     LogModule _logModule;
+    ScriptingModule _scriptModule;
     UndoStack _undoStack = new UndoStack();
-    ulong _frame = 0u;
+    TickData _tickData = new TickData();
 }

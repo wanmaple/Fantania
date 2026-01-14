@@ -9,6 +9,7 @@ public interface IWorkspace
     DatabaseModule DatabaseModule { get; }
     PlacementModule PlacementModule { get; }
     LogModule LogModule { get; }
+    ScriptingModule ScriptingModule { get; }
 
     string GetAbsolutePath(params string[] pathes);
 }

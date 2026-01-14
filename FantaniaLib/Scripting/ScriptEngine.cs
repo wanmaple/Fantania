@@ -1,5 +1,7 @@
 using System.Reflection;
+using System.Runtime.InteropServices;
 using MoonSharp.Interpreter;
+using MoonSharp.Interpreter.Loaders;
 
 namespace FantaniaLib;
 
@@ -16,6 +18,11 @@ public class ScriptEngine
     {
         _env.Options.ScriptLoader = new FantaniaScriptLoader();
         InitializeRequirements();
+    }
+
+    public void SetCustomScriptLoader(IScriptLoader scriptLoader)
+    {
+        _env.Options.ScriptLoader = scriptLoader;
     }
 
     public DynValue ExecuteFile(string luaPath, Table? globalContext = null)
@@ -84,9 +91,18 @@ public class ScriptEngine
         return DynValue.Nil;
     }
 
-    public void SetInstanceMember(DynValue instance, string memberName, object value)
+    public void SetInstanceMember(DynValue instance, string memberName, object? value)
     {
-        instance.Table.Set(memberName, DynValue.FromObject(_env, value));
+        if (value == null)
+            instance.Table.Set(memberName, DynValue.Nil);
+        else if (!UserData.IsTypeRegistered(value.GetType()))
+        {
+            GCHandle handle = GCHandle.Alloc(value);
+            nint ptr = GCHandle.ToIntPtr(handle);
+            instance.Table.Set(memberName, DynValue.NewNumber(ptr.ToInt64()));
+        }
+        else
+            instance.Table.Set(memberName, DynValue.FromObject(_env, value));
     }
 
     public void BindAssemblyToLua(Assembly assembly)
@@ -209,6 +225,7 @@ public class ScriptEngine
     {
         CommonConversions.AutoConversions();
         MathsConversions.AutoConversions();
+        RenderingConversions.AutoConversions();
     }
 
     Script _env = new Script();

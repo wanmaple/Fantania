@@ -68,3 +68,7 @@ function Handler(target, selector, ...)
 		return selector(target, unpack(internalArgs))
 	end
 end
+
+function Scriptable()
+    return Workspace.CreateScriptableInstance()
+end

@@ -8,13 +8,16 @@ public struct Vector2Int : IEquatable<Vector2Int>
     public static readonly Vector2Int ZERO = new Vector2Int();
     public static readonly Vector2Int ONE = new Vector2Int(1, 1);
 
+    public int X;
+    public int Y;
+
     public Vector2Int() : this(0, 0)
     {}
 
     public Vector2Int(int x_, int y_)
     {
-        x = x_;
-        y = y_;
+        X = x_;
+        Y = y_;
     }
 
     public bool Equals(Vector2Int other)
@@ -29,37 +32,37 @@ public struct Vector2Int : IEquatable<Vector2Int>
 
     public override int GetHashCode()
     {
-        return (x.GetHashCode() * 397) ^ y.GetHashCode();
+        return (X.GetHashCode() * 397) ^ Y.GetHashCode();
     }
 
     public static Vector2Int operator-(Vector2Int v)
     {
-        return new Vector2Int(-v.x, -v.y);
+        return new Vector2Int(-v.X, -v.Y);
     }
 
     public static Vector2Int operator+(Vector2Int v1, Vector2Int v2)
     {
-        return new Vector2Int(v1.x + v2.x, v1.y + v2.y);
+        return new Vector2Int(v1.X + v2.X, v1.Y + v2.Y);
     }
 
     public static Vector2Int operator-(Vector2Int v1, Vector2Int v2)
     {
-        return new Vector2Int(v1.x - v2.x, v1.y - v2.y);
+        return new Vector2Int(v1.X - v2.X, v1.Y - v2.Y);
     }
 
     public static Vector2Int operator*(Vector2Int v1, Vector2Int v2)
     {
-        return new Vector2Int(v1.x * v2.x, v1.y * v2.y);
+        return new Vector2Int(v1.X * v2.X, v1.Y * v2.Y);
     }
 
     public static Vector2Int operator*(Vector2Int v, int mul)
     {
-        return new Vector2Int(v.x * mul, v.y * mul);
+        return new Vector2Int(v.X * mul, v.Y * mul);
     }
 
     public static bool operator ==(Vector2Int v1, Vector2Int v2)
     {
-        return v1.x == v2.x && v1.y == v2.y;
+        return v1.X == v2.X && v1.Y == v2.Y;
     }
 
     public static bool operator !=(Vector2Int v1, Vector2Int v2)
@@ -69,9 +72,6 @@ public struct Vector2Int : IEquatable<Vector2Int>
 
     public override string ToString()
     {
-        return $"({x}, {y})";
+        return $"({X}, {Y})";
     }
-
-    public int x;
-    public int y;
 }

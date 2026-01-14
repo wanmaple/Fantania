@@ -1,6 +1,6 @@
 namespace FantaniaLib;
 
-public class DoubleBuffer : IDisposable
+public class DoubleFrameBuffer : IDisposable
 {
     public FrameBuffer CurrentBuffer
     {
@@ -19,13 +19,13 @@ public class DoubleBuffer : IDisposable
         }
     }
 
-    public DoubleBuffer(IRenderDevice device, int width, int height)
+    public DoubleFrameBuffer(IRenderDevice device, int width, int height)
     {
         _device = device;
         var desc = new FrameBufferDescription
         {
             ColorFormat = TextureFormats.RGBA8,
-            DepthFormat = FrameBufferDepthFormat.Depth24Stencil8,
+            DepthFormat = DepthFormats.Depth24Stencil8,
             Width = width,
             Height = height,
         };

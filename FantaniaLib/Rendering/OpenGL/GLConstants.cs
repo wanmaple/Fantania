@@ -2,7 +2,6 @@ using Avalonia.OpenGL;
 
 namespace FantaniaLib;
 
-[BindingScript]
 public static class GLConstants
 {
     public const int GL_NO_ERROR = GlConsts.GL_NO_ERROR;
@@ -20,6 +19,7 @@ public static class GLConstants
     public const int GL_R8 = 0x8229;
     public const int GL_RGB8 = 0x8051;
     public const int GL_RGBA8 = GlConsts.GL_RGBA8;
+    public const int GL_SRGB8 = 0x8C41;
     public const int GL_SRGB8_ALPHA8 = 0x8C43;
 
     public const int GL_NEAREST = GlConsts.GL_NEAREST;
@@ -34,6 +34,8 @@ public static class GLConstants
     public const int GL_MIRRORED_REPEAT = 0x8370;
     public const int GL_MIRROR_CLAMP_TO_EDGE = 0x8743;
     public const int GL_FRAMEBUFFER = GlConsts.GL_FRAMEBUFFER;
+    public const int GL_FRAMEBUFFER_BINDING = GlConsts.GL_FRAMEBUFFER_BINDING;
+    public const int GL_FRAMEBUFFER_COMPLETE = GlConsts.GL_FRAMEBUFFER_COMPLETE;
     public const int GL_COLOR_ATTACHMENT0 = GlConsts.GL_COLOR_ATTACHMENT0;
     public const int GL_DEPTH_ATTACHMENT = GlConsts.GL_DEPTH_ATTACHMENT;
     public const int GL_RENDERBUFFER = GlConsts.GL_RENDERBUFFER;

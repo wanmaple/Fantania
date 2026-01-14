@@ -48,6 +48,29 @@
 		],
 		"description": "Dependency Property Define"
 	},
+	"Dependency Property(Direct)": {
+		"scope": "csharp",
+		"prefix": "propdr",
+		"body": [
+			"public static readonly DirectProperty<${3:owner_type}, ${1:type}> ${2:property}Property = AvaloniaProperty.RegisterDirect<${3:owner_type}, ${1:type}>(nameof(${2:property}), o => o.${2:property});",
+			"${1:type} ${4:field} = ${5:default_val};",
+			"public ${1:type} ${2:property} => ${4:field};",
+		],
+		"description": "Direct Dependency Property Define"
+	},
+	"Routed Event": {
+		"scope": "csharp",
+		"prefix": "evr",
+		"body": [
+			"public static readonly RoutedEvent<${2:arg_type}> ${1:event_name}Event = RoutedEvent.Register<${3:owner_type}, ${2:arg_type}>(nameof(${1:event_name}), RoutingStrategies.Bubble);",
+			"public event EventHandler<${2:arg_type}> ${1:event_name}",
+			"{",
+			"\tadd => AddHandler(${1:event_name}Event, value);",
+			"\tremove => RemoveHandler(${1:event_name}Event, value);",
+			"}",
+		],
+		"description": "Routed Event Define"
+	},
 	"Watchable Changing Property": {
 		"scope": "csharp",
 		"prefix": "propwatch",
@@ -69,36 +92,10 @@
 		],
 		"description": "Observable Property Define.",
 	},
-	"Log": {
+	"AvaloniaProperty.UnsetValue": {
 		"scope": "csharp",
-		"prefix": "log",
-		"body": [
-			"Fantania.ViewModels.WorkspaceViewModel.Current.Log(${1:content});",
-		],
-		"desciption": "Add log."
-	},
-	"Log Optional": {
-		"scope": "csharp",
-		"prefix": "logop",
-		"body": [
-			"Fantania.ViewModels.WorkspaceViewModel.Current.LogOptional(${1:content});",
-		],
-		"desciption": "Add optional log."
-	},
-	"Log Warning": {
-		"scope": "csharp",
-		"prefix": "logwarn",
-		"body": [
-			"Fantania.ViewModels.WorkspaceViewModel.Current.LogWarning(${1:content});",
-		],
-		"desciption": "Add warning log."
-	},
-	"Log Error": {
-		"scope": "csharp",
-		"prefix": "logerr",
-		"body": [
-			"Fantania.ViewModels.WorkspaceViewModel.Current.LogError(${1:content});",
-		],
-		"desciption": "Add error log."
+		"prefix": "unset",
+		"body": "AvaloniaProperty.UnsetValue",
+		"description": "Unset Value of AvaloniaProperty.",
 	},
 }

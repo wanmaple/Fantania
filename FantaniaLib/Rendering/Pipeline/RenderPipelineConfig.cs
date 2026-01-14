@@ -1,0 +1,14 @@
+namespace FantaniaLib;
+
+public class FrameBufferConfig
+{
+    public required string Name { get; set; }
+    public required FrameBufferDescription Description { get; set; }
+}
+
+public class RenderPipelineConfig
+{
+    public required Vector2Int Resolution { get; set; }
+    public required IReadOnlyList<FrameBufferConfig> FrameBuffers { get; set; }
+    public required IReadOnlyList<IPipelineStage> Stages { get; set; }
+}

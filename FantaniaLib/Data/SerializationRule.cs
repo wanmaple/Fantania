@@ -103,11 +103,31 @@ public class SerializationRule
     {
         public object? CastFrom(string casted)
         {
-            TextureTypes texType = (TextureTypes)int.Parse(casted);
-            return new TextureDefinition
+            if (string.IsNullOrEmpty(casted))
+                return TextureDefinition.None;
+            string[] ary = casted.Split(',');
+            TextureTypes texType = (TextureTypes)int.Parse(ary[0]);
+            var def = new TextureDefinition
             {
                 TextureType = texType,
             };
+            if (texType == TextureTypes.Image)
+                def.TextureParameters.ImageParams = new ImageParameter
+                {
+                    ImagePath = ary[1],
+                };
+            else if (texType == TextureTypes.Atlas)
+            {
+                int splitIdx = ary[1].LastIndexOf(':');
+                string atlasPath = ary[1].Substring(0, splitIdx);
+                string frameKey = ary[1].Substring(splitIdx + 1);
+                def.TextureParameters.AtlasParams = new AtlasParameter
+                {
+                    AtlasPath = atlasPath,
+                    FrameKey = frameKey,
+                };
+            }
+            return def;
         }
 
         public string CastTo(object? fieldVal)

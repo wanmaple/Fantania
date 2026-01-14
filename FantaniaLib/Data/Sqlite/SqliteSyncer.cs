@@ -63,6 +63,7 @@ public class SqliteSyncer
         {
             // might be deleted.
             if (!_db.ObjectsOfType(obj.TypeName).Contains(obj)) continue;
+            await SyncTableScheme(obj.TypeName, obj.SerializableFields);
             var changes = _modified[obj];
             await _db.ExecuteSql(SqlUpdateRow(obj.TypeName, obj.ID, changes, obj.SerializableFields));
         }
