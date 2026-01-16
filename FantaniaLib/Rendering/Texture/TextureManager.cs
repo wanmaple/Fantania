@@ -1,5 +1,6 @@
 namespace FantaniaLib;
 
+[BindingScript]
 public class TextureManager
 {
     public TextureManager(IRenderDevice device)

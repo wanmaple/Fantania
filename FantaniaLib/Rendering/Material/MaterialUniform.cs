@@ -1,6 +1,6 @@
 namespace FantaniaLib;
 
-public class MaterialUniform : IEquatable<MaterialUniform>
+public struct MaterialUniform : IEquatable<MaterialUniform>
 {
     public enum UniformType
     {
@@ -35,9 +35,9 @@ public class MaterialUniform : IEquatable<MaterialUniform>
         return new MaterialUniform(_type, _value);
     }
 
-    public bool Equals(MaterialUniform? other)
+    public bool Equals(MaterialUniform other)
     {
-        return other != null && _type == other._type && _value.Equals(other._value);
+        return _type == other._type && _value.Equals(other._value);
     }
 
     public override bool Equals(object? obj)

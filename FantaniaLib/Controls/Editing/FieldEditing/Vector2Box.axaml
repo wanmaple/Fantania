@@ -8,8 +8,7 @@
              x:Class="FantaniaLib.Vector2Box"
              x:Name="Root">
   <UserControl.Resources>
-    <lib:Vector2XConverter x:Key="Cvt_Vec2X" />
-    <lib:Vector2YConverter x:Key="Cvt_Vec2Y" />
+    <lib:Object2MemberConverter x:Key="Cvt_Member" />
   </UserControl.Resources>
   <Grid>
     <Grid ColumnDefinitions="auto,*,auto,*" ToolTip.ServiceEnabled="{Binding FieldValidator.Error, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
@@ -18,8 +17,8 @@
       </ToolTip.Tip>
       <TextBlock Grid.Column="0" Text="X" VerticalAlignment="Center" Margin="5 0 5 0" />
       <TextBlock Grid.Column="2" Text="Y" VerticalAlignment="Center" Margin="5 0 5 0" />
-      <NumericUpDown x:Name="numX" Grid.Column="1" Value="{Binding FieldValue, Converter={StaticResource Cvt_Vec2X}, Mode=OneWay}" Minimum="{Binding #Root.RangeMinimum}" Maximum="{Binding #Root.RangeMaximum}" Increment="{Binding #Root.RangeIncrement}" FormatString="F2" VerticalAlignment="Center" />
-      <NumericUpDown x:Name="numY" Grid.Column="3" Value="{Binding FieldValue, Converter={StaticResource Cvt_Vec2Y}, Mode=OneWay}" Minimum="{Binding #Root.RangeMinimum}" Maximum="{Binding #Root.RangeMaximum}" Increment="{Binding #Root.RangeIncrement}" FormatString="F2" VerticalAlignment="Center" />
+      <NumericUpDown x:Name="numX" Grid.Column="1" Value="{Binding FieldValue, Converter={StaticResource Cvt_Member}, ConverterParameter=X, Mode=OneWay}" Minimum="{Binding #Root.RangeMinimum}" Maximum="{Binding #Root.RangeMaximum}" Increment="{Binding #Root.RangeIncrement}" FormatString="F2" VerticalAlignment="Center" />
+      <NumericUpDown x:Name="numY" Grid.Column="3" Value="{Binding FieldValue, Converter={StaticResource Cvt_Member}, ConverterParameter=Y, Mode=OneWay}" Minimum="{Binding #Root.RangeMinimum}" Maximum="{Binding #Root.RangeMaximum}" Increment="{Binding #Root.RangeIncrement}" FormatString="F2" VerticalAlignment="Center" />
     </Grid>
     <Border Classes="thick err" IsVisible="{Binding FieldValidator.Error, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
   </Grid>

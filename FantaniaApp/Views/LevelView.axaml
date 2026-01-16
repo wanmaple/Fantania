@@ -12,8 +12,5 @@
   <Design.DataContext>
     <vm:LevelViewModel />
   </Design.DataContext>
-  <Grid RowDefinitions="auto,*">
-    <TextBlock Classes="h2" Grid.Row="0" Text="{x:Static lang:Resources.H_Level}" />
-    <v:LevelCanvas Grid.Row="1" DataContext="{Binding Workspace}" />
-  </Grid>
+  <v:LevelCanvas DataContext="{Binding Workspace}" />
 </UserControl>

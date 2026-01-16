@@ -136,6 +136,8 @@ public class PlacementTemplate : IPlacement
                 return defaultVal.GetStringOrDefault(string.Empty);
             case FieldTypes.Vector2:
                 return defaultVal.GetObjectOrDefault(Vector2.Zero);
+            case FieldTypes.Vector2Int:
+                return defaultVal.GetObjectOrDefault(Vector2Int.Zero);
             case FieldTypes.Color:
                 return defaultVal.GetObjectOrDefault(Vector4.One);
             case FieldTypes.Texture:

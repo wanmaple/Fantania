@@ -4,9 +4,29 @@ namespace FantaniaLib;
 
 public class RenderMaterial : IEquatable<RenderMaterial>
 {
-    public required RenderState State { get; set; }
     public required ShaderProgram Shader { get; set; }
     public IReadOnlyDictionary<string, MaterialUniform> Uniforms => _uniforms;
+
+    public void SetUniformVar(string name, object value)
+    {
+        if (value is float f)
+            SetUniform(name, f);
+        else if (value is Vector2 v2)
+            SetUniform(name, v2);
+        else if (value is Vector3 v3)
+            SetUniform(name, v3);
+        else if (value is Vector4 v4)
+            SetUniform(name, v4);
+        else if (value is Matrix3x3 mat)
+            SetUniform(name, mat);
+        else if (value is (int slot, int texId))
+            SetUniform(name, (slot, texId));
+    }
+
+    public void SetUniform(string name, MaterialUniform uniform)
+    {
+        _uniforms[name] = uniform;
+    }
 
     public void SetUniform(string name, float value)
     {
@@ -18,6 +38,7 @@ public class RenderMaterial : IEquatable<RenderMaterial>
         else
         {
             val.Set(value);
+            _uniforms[name ] = val;
         }
     }
 
@@ -31,6 +52,7 @@ public class RenderMaterial : IEquatable<RenderMaterial>
         else
         {
             val.Set(value);
+            _uniforms[name ] = val;
         }
     }
 
@@ -44,6 +66,7 @@ public class RenderMaterial : IEquatable<RenderMaterial>
         else
         {
             val.Set(value);
+            _uniforms[name ] = val;
         }
     }
 
@@ -57,6 +80,7 @@ public class RenderMaterial : IEquatable<RenderMaterial>
         else
         {
             val.Set(value);
+            _uniforms[name ] = val;
         }
     }
 
@@ -70,19 +94,21 @@ public class RenderMaterial : IEquatable<RenderMaterial>
         else
         {
             val.Set(value);
+            _uniforms[name ] = val;
         }
     }
 
-    public void SetTexture(string name, int slot, int texId)
+    public void SetUniform(string name, (int slot, int texId) value)
     {
         if (!_uniforms.TryGetValue(name, out var val))
         {
-            val = new MaterialUniform(MaterialUniform.UniformType.Texture, (slot, texId));
+            val = new MaterialUniform(MaterialUniform.UniformType.Texture, value);
             _uniforms.Add(name, val);
         }
         else
         {
-            val.Set((slot, texId));
+            val.Set(value);
+            _uniforms[name ] = val;
         }
     }
 
@@ -90,7 +116,6 @@ public class RenderMaterial : IEquatable<RenderMaterial>
     {
         var clone = new RenderMaterial
         {
-            State = State,
             Shader = Shader,
             _uniforms = new Dictionary<string, MaterialUniform>(_uniforms.Count),
         };
@@ -103,7 +128,7 @@ public class RenderMaterial : IEquatable<RenderMaterial>
 
     public bool Equals(RenderMaterial? other)
     {
-        return other != null && State.Equals(other.State) && Shader.Equals(other.Shader) && UniformEquals(other._uniforms);
+        return other != null && Shader.Equals(other.Shader) && UniformEquals(other._uniforms);
     }
 
     public override bool Equals(object? obj)
@@ -113,7 +138,7 @@ public class RenderMaterial : IEquatable<RenderMaterial>
 
     public override int GetHashCode()
     {
-        int hash = (State.GetHashCode() * 397) ^ Shader.GetHashCode();
+        int hash = Shader.GetHashCode();
         foreach (var pair in _uniforms)
         {
             hash = (hash * 397) ^ pair.Key.GetHashCode();

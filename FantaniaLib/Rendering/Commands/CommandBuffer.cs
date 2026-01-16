@@ -1,67 +1,50 @@
-using System.Numerics;
+using System.Collections;
+using MoonSharp.Interpreter;
 
 namespace FantaniaLib;
 
-public class CommandBuffer : IDisposable
+[BindingScript]
+public class CommandBuffer : IEnumerable<IRenderCommand>
 {
-    /// <summary>
-    /// UI线程，添加命令到Back Buffer。
-    /// </summary>
     public void AddCommand(IRenderCommand cmd)
     {
-        if (_disposed) return;
-        lock (_mutexSwap)
-        {
-            _backBuffer.Add(cmd);
-            _semNewCmd.Set();
-        }
+        _cmds.Add(cmd);
     }
 
-    /// <summary>
-    /// 渲染线程，获取命令列表。
-    /// </summary>
-    public IReadOnlyList<IRenderCommand>? WaitForCommands(int timeoutMs = -1)
+    public void SetupState(RenderState state)
     {
-        if (_disposed) return null;
-        if (!_semNewCmd.Wait(timeoutMs)) return null;
-        lock (_mutexSwap)
+        AddCommand(new SetupStateCommand(state));
+    }
+
+    public void Draw(IEnumerable<Mesh> meshes, RenderMaterial material)
+    {
+        AddCommand(new DrawCommand(meshes, material));
+    }
+
+    [MoonSharpHidden]
+    public void Execute(ConfigurableRenderPipeline pipeline)
+    {
+        foreach (IRenderCommand cmd in _cmds)
         {
-            var temp = _frontBuffer;
-            _frontBuffer = _backBuffer;
-            _backBuffer = temp;
-            _backBuffer.Clear();
-            _semNewCmd.Reset();
-            return [.. _frontBuffer];
+            cmd.Execute(pipeline);
         }
     }
 
+    [MoonSharpHidden]
     public void Clear()
     {
-        lock (_mutexSwap)
-        {
-            _frontBuffer.Clear();
-            _backBuffer.Clear();
-            _semNewCmd.Reset();
-        }
+        _cmds.Clear();
     }
 
-    public void Dispose()
+    public IEnumerator<IRenderCommand> GetEnumerator()
     {
-        if (_disposed) return;
-        _disposed = true;
-        _semNewCmd.Set();
-        _semNewCmd.Dispose();
-        lock (_mutexSwap)
-        {
-            _frontBuffer.Clear();
-            _backBuffer.Clear();
-        }
+        return _cmds.GetEnumerator();
     }
 
-    List<IRenderCommand> _frontBuffer = new List<IRenderCommand>();
-    List<IRenderCommand> _backBuffer = new List<IRenderCommand>();
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
+    }
 
-    readonly object _mutexSwap = new object();
-    readonly ManualResetEventSlim _semNewCmd = new ManualResetEventSlim(false);
-    volatile bool _disposed = false;
+    List<IRenderCommand> _cmds = new List<IRenderCommand>(0);
 }

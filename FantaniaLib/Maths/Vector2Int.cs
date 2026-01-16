@@ -5,8 +5,8 @@ namespace FantaniaLib;
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
 public struct Vector2Int : IEquatable<Vector2Int>
 {
-    public static readonly Vector2Int ZERO = new Vector2Int();
-    public static readonly Vector2Int ONE = new Vector2Int(1, 1);
+    public static readonly Vector2Int Zero = new Vector2Int();
+    public static readonly Vector2Int One = new Vector2Int(1, 1);
 
     public int X;
     public int Y;

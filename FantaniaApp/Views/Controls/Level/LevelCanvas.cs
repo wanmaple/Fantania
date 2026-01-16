@@ -1,20 +1,31 @@
-using System;
+using System.Collections.Generic;
 using System.Numerics;
-using System.Threading;
 using Avalonia.Controls;
+using Fantania.Models;
 using FantaniaLib;
 
 namespace Fantania.Views;
 
-public class LevelCanvas : GLCanvas
+public class LevelCanvas : GLCanvas, ILevelCanvas
 {
     public Workspace? Workspace => DataContext as Workspace;
+    public Camera2D? Camera => _camera;
+    public Control Control => this;
+    public Vector2 ColorSize { get; private set; } = Vector2.Zero;
+    public Vector2 ControlSize => new Vector2((float)Bounds.Width, (float)Bounds.Height);
+
+    public LevelCanvas()
+    {
+        Focusable = true;
+    }
 
     protected override void OnContextInitializing(ConfigurableRenderPipeline pipeline)
     {
         Workspace!.LogModule.LogOptional(GlVersion.ToString());
         RenderPipelineConfig rpConfig = Workspace.ScriptingModule.GetCustomRenderPipelineConfigOrDefault();
-        pipeline.Build(rpConfig);
+        pipeline.Build(rpConfig, Workspace);
+        ColorSize = rpConfig.Resolution.ToVector2();
+        _camera = new Camera2D(rpConfig.Resolution);
         IRenderDevice device = pipeline.Device;
         var vertDesc = VertexAnalyzer.GenerateDescriptor<PositionUV>();
         _blitVertStream = device.CreateVertexStream(vertDesc, vertDesc.SizeofVertex * 4, sizeof(ushort) * 6);
@@ -23,30 +34,34 @@ public class LevelCanvas : GLCanvas
         device.SyncVertexStream(_blitVertStream);
         string vertSrc = AvaloniaHelper.ReadAssetText("avares://Fantania/Assets/shaders/vert_fullscreen.vs");
         string fragSrc = AvaloniaHelper.ReadAssetText("avares://Fantania/Assets/shaders/frag_finalblit.fs");
+        _blitState = new RenderState
+        {
+            DepthTestEnabled = false,
+            DepthWriteEnabled = false,
+            BlendingEnabled = false,
+        };
         _matFinalBlit = new RenderMaterial
         {
-            State = new RenderState
-            {
-                DepthTestEnabled = false,
-                DepthWriteEnabled = false,
-                BlendingEnabled = false,
-            },
             Shader = pipeline.ShaderCache.Acquire(vertSrc, fragSrc)!,
         };
-        // StartWorkerThread();
+        pipeline.StartWorkerThread();
+        LevelEditConfig leConfig = Workspace.ScriptingModule.GetCustomLevelEditConfigOrDefault();
+        _inputs = new LevelInputs(this, leConfig);
+        _context = new LevelRenderContext(this);
     }
 
     protected override void OnContextFinalizing(ConfigurableRenderPipeline pipeline)
     {
         IRenderDevice device = pipeline.Device;
         _blitVertStream!.Dispose(device);
-        _quad!.Dispose(device);
+        _quad!.Dispose();
         pipeline.ShaderCache.Release(_matFinalBlit!.Shader);
-        // _ctsWorker!.Cancel();
+        _inputs!.Dispose();
     }
 
     protected override void OnRendering(ConfigurableRenderPipeline pipeline, int finalFbo)
     {
+        HandleCommands(pipeline);
         SetupGlobalUniforms(pipeline);
         IRenderDevice device = pipeline.Device;
         FrameBuffer fbColor = pipeline.GetFrameBuffer(ConfigurableRenderPipeline.COLOR_BUFFER)!;
@@ -56,6 +71,12 @@ public class LevelCanvas : GLCanvas
             device.ClearColor("#FF000000".ToVector4());
             device.ClearBufferBits(BufferBits.Color | BufferBits.Depth);
             device.Viewport(0, 0, fbColor.Description.Width, fbColor.Description.Height);
+            if (true /* Scene Dirty */)
+            {
+                var renderables = _context!.CollectRenderables();
+                pipeline.CollectRenderables(renderables);
+            }
+            pipeline.ExecuteCompletedBuffer();
         }
         device.SetRenderTarget(finalFbo);
         if (device.IsFrameBufferReady())
@@ -66,6 +87,8 @@ public class LevelCanvas : GLCanvas
     void SetupGlobalUniforms(ConfigurableRenderPipeline pipeline)
     {
         pipeline.SetGlobalUniform("u_Time", Workspace!.Time);
+        pipeline.SetGlobalUniform("u_View", _camera!.ViewMatrix);
+        pipeline.SetGlobalUniform("u_Resolution", new Vector4(ColorSize.X, ColorSize.Y, 1.0f / ColorSize.X, 1.0f / ColorSize.Y));
     }
 
     void BlitColorToTarget(IRenderDevice device, FrameBuffer fbColor)
@@ -96,7 +119,8 @@ public class LevelCanvas : GLCanvas
             _blitVertStream.TryAppend(_quad!);
             device.SyncVertexStream(_blitVertStream);
         }
-        _matFinalBlit!.SetTexture("u_MainTexture", 0, fbColor.ColorAttachment);
+        _matFinalBlit!.SetUniform("u_MainTexture", (0, fbColor.ColorAttachment));
+        device.ApplyRenderState(_blitState!.Value);
         device.Draw(_blitVertStream!, _matFinalBlit!);
     }
 
@@ -116,33 +140,57 @@ public class LevelCanvas : GLCanvas
         return changed;
     }
 
-    void StartWorkerThread()
+    public Vector2 CanvasToScreen(Vector2 canvasPos)
     {
-        _ctsWorker = new CancellationTokenSource();
-        _worker = new Thread(() =>
+        float canvasWidth = ControlSize.X;
+        float canvasHeight = ControlSize.Y;
+        float designRatio = (float)_camera!.Viewport.X / _camera.Viewport.Y;
+        float canvasRatio = canvasWidth / canvasHeight;
+        Vector2 screenPos = Vector2.Zero;
+        if (canvasRatio >= designRatio)
         {
-            Console.WriteLine("Rendering Thread Starts.");
-            while (!_ctsWorker.IsCancellationRequested)
-            {
-                try
-                {
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Rendering Thread Exception: {ex}");
-                }
-            }
-        })
+            screenPos.X = canvasPos.X / canvasWidth * _camera.Viewport.X;
+            float h = canvasWidth / designRatio;
+            screenPos.Y = (1.0f - (canvasHeight - canvasPos.Y) / h) * _camera.Viewport.Y;
+        }
+        else
         {
-            Name = "Rendering Thread",
-            IsBackground = true,
-        };
-        _worker.Start();
+            float w = canvasHeight * designRatio;
+            screenPos.X = canvasPos.X / w * _camera.Viewport.X;
+            screenPos.Y = canvasPos.Y / canvasHeight * _camera.Viewport.Y;
+        }
+        return screenPos;
     }
 
+    public Vector2 CanvasToWorld(Vector2 canvasPos)
+    {
+        Vector2 posToScreen = CanvasToScreen(canvasPos);
+        return _camera!.ScreenToWorld(posToScreen);
+    }
+
+    public void AddCommand(ICanvasCommand command)
+    {
+        _commands.Add(command);
+    }
+
+    void HandleCommands(ConfigurableRenderPipeline pipeline)
+    {
+        if (_commands.Count > 0)
+        {
+            foreach (var cmd in _commands)
+            {
+                cmd.Execute(_context!, pipeline);
+            }
+            _commands.Clear();
+        }
+    }
+
+    Camera2D? _camera;
     VertexStream? _blitVertStream;
     Mesh? _quad;
+    RenderState? _blitState;
     RenderMaterial? _matFinalBlit;
-    Thread? _worker;
-    CancellationTokenSource? _ctsWorker;
+    LevelInputs? _inputs;
+    LevelRenderContext? _context;
+    List<ICanvasCommand> _commands = new List<ICanvasCommand>(0);
 }

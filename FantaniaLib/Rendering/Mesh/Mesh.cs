@@ -2,7 +2,7 @@ using System.Runtime.InteropServices;
 
 namespace FantaniaLib;
 
-public unsafe class Mesh : IRenderResource
+public unsafe class Mesh : IDisposable
 {
     public MeshDescriptor Descriptor { get; private set; }
 
@@ -57,7 +57,7 @@ public unsafe class Mesh : IRenderResource
         }
     }
 
-    public void Dispose(IRenderDevice device)
+    public void Dispose()
     {
         NativeMemory.Free(_verts);
         NativeMemory.Free(_indices);

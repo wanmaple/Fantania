@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using Avalonia.Utilities;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace FantaniaLib;
@@ -36,12 +37,12 @@ public class UserPlacementEditableField : ObservableObject, IEditableField
         if (_validator == null)
             _validator = EmptyFieldValidator.Empty;
 
-        _placement.PropertyChanged += OnPlacementPropertyChanged;
+        WeakEventHandlerManager.Subscribe<UserPlacement, PropertyChangedEventArgs, UserPlacementEditableField>(_placement, nameof(PropertyChanged), OnPlacementPropertyChanged);
     }
 
     ~UserPlacementEditableField()
     {
-        _placement.PropertyChanged -= OnPlacementPropertyChanged;
+        WeakEventHandlerManager.Unsubscribe<PropertyChangedEventArgs, UserPlacementEditableField>(_placement, nameof(PropertyChanged), OnPlacementPropertyChanged);
     }
 
     void OnPlacementPropertyChanged(object? sender, PropertyChangedEventArgs e)

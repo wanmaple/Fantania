@@ -8,6 +8,7 @@ public enum FieldTypes
     Float,
     String,
     Vector2,
+    Vector2Int,
     Color,
     Texture,
     Curve,

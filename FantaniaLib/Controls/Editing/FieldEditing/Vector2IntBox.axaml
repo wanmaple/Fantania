@@ -1,0 +1,25 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:lib="using:FantaniaLib"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="lib:IEditableField"
+             x:Class="FantaniaLib.Vector2IntBox"
+             x:Name="Root">
+  <UserControl.Resources>
+    <lib:Object2MemberConverter x:Key="Cvt_Member" />
+  </UserControl.Resources>
+  <Grid>
+    <Grid ColumnDefinitions="auto,*,auto,*" ToolTip.ServiceEnabled="{Binding FieldValidator.Error, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+      <ToolTip.Tip>
+        <TextBlock Classes="p err" Text="{Binding FieldValidator.Error}" />
+      </ToolTip.Tip>
+      <TextBlock Grid.Column="0" Text="X" VerticalAlignment="Center" Margin="5 0 5 0" />
+      <TextBlock Grid.Column="2" Text="Y" VerticalAlignment="Center" Margin="5 0 5 0" />
+      <NumericUpDown x:Name="numX" Grid.Column="1" Value="{Binding FieldValue, Converter={StaticResource Cvt_Member}, ConverterParameter=X, Mode=OneWay}" Minimum="{Binding #Root.RangeMinimum}" Maximum="{Binding #Root.RangeMaximum}" Increment="{Binding #Root.RangeIncrement}" FormatString="F0" ParsingNumberStyle="Integer" VerticalAlignment="Center" />
+      <NumericUpDown x:Name="numY" Grid.Column="3" Value="{Binding FieldValue, Converter={StaticResource Cvt_Member}, ConverterParameter=Y, Mode=OneWay}" Minimum="{Binding #Root.RangeMinimum}" Maximum="{Binding #Root.RangeMaximum}" Increment="{Binding #Root.RangeIncrement}" FormatString="F0" ParsingNumberStyle="Integer" VerticalAlignment="Center" />
+    </Grid>
+    <Border Classes="thick err" IsVisible="{Binding FieldValidator.Error, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+  </Grid>
+</UserControl>

@@ -16,6 +16,7 @@ public class SerializationRule
     {
         public object? CastFrom(string casted)
         {
+            if (string.IsNullOrEmpty(casted)) return false;
             int num = int.Parse(casted);
             return num > 0;
         }
@@ -31,6 +32,7 @@ public class SerializationRule
     {
         public object? CastFrom(string casted)
         {
+            if (string.IsNullOrEmpty(casted)) return 0;
             return int.Parse(casted);
         }
 
@@ -45,6 +47,7 @@ public class SerializationRule
     {
         public object? CastFrom(string casted)
         {
+            if (string.IsNullOrEmpty(casted)) return 0.0f;
             return float.Parse(casted);
         }
 
@@ -73,6 +76,7 @@ public class SerializationRule
     {
         public object? CastFrom(string casted)
         {
+            if (string.IsNullOrEmpty(casted)) return Vector2.Zero;
             var ary = casted.Split(',');
             return new Vector2(float.Parse(ary[0]), float.Parse(ary[1]));
         }
@@ -84,10 +88,27 @@ public class SerializationRule
         }
     }
 
+    private class DefaultVector2IntCast : IFieldCastRule
+    {
+        public object? CastFrom(string casted)
+        {
+            if (string.IsNullOrEmpty(casted)) return Vector2Int.Zero;
+            var ary = casted.Split(',');
+            return new Vector2Int(int.Parse(ary[0]), int.Parse(ary[1]));
+        }
+
+        public string CastTo(object? fieldVal)
+        {
+            Vector2Int vec = (Vector2Int)fieldVal!;
+            return $"{vec.X},{vec.Y}";
+        }
+    }
+
     private class DefaultColorCast : IFieldCastRule
     {
         public object? CastFrom(string casted)
         {
+            if (string.IsNullOrEmpty(casted)) return Vector4.One;
             Color color = Color.Parse(casted);
             return color.ToVector4();
         }
@@ -103,8 +124,7 @@ public class SerializationRule
     {
         public object? CastFrom(string casted)
         {
-            if (string.IsNullOrEmpty(casted))
-                return TextureDefinition.None;
+            if (string.IsNullOrEmpty(casted)) return TextureDefinition.None;
             string[] ary = casted.Split(',');
             TextureTypes texType = (TextureTypes)int.Parse(ary[0]);
             var def = new TextureDefinition
@@ -146,6 +166,7 @@ public class SerializationRule
         SetFieldCast(FieldTypes.Float, new DefaultFloatCast());
         SetFieldCast(FieldTypes.String, new DefaultStringCast());
         SetFieldCast(FieldTypes.Vector2, new DefaultVector2Cast());
+        SetFieldCast(FieldTypes.Vector2Int, new DefaultVector2IntCast());
         SetFieldCast(FieldTypes.Color, new DefaultColorCast());
         SetFieldCast(FieldTypes.Texture, new DefaultTextureCast());
     }

@@ -7,12 +7,13 @@ public struct VertexAttribute
     public bool Normalized { get; set; }
 }
 
+[BindingScript]
 public class VertexDescriptor
 {
     public int SizeofVertex => _sumElements * sizeof(float);
     public IReadOnlyList<VertexAttribute> Attributes => _attribs;
 
-    public VertexDescriptor(IEnumerable<VertexAttribute> attribs)
+    internal VertexDescriptor(IEnumerable<VertexAttribute> attribs)
     {
         foreach (var attrib in attribs)
         {

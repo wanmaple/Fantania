@@ -44,31 +44,7 @@ internal class TextureDef2Texture2DConverter : IMultiValueConverter
         if (values.Count != 2) return AvaloniaProperty.UnsetValue;
         if (values[0] is not TextureDefinition def) return AvaloniaProperty.UnsetValue;
         if (values[1] is not string rootFolder) return AvaloniaProperty.UnsetValue;
-        return GenerateTexture2D(rootFolder, def);
-    }
-
-    ITexture2D? GenerateTexture2D(string rootFolder, TextureDefinition def)
-    {
-        switch (def.TextureType)
-        {
-            case TextureTypes.Image:
-                string imgPath = Path.Combine(rootFolder, def.TextureParameters.ImageParams.ImagePath);
-                if (File.Exists(imgPath))
-                {
-                    return new LocalTexture2D(imgPath);
-                }
-                break;
-            case TextureTypes.Atlas:
-                string atlasPath = Path.Combine(rootFolder, def.TextureParameters.AtlasParams.AtlasPath);
-                if (File.Exists(atlasPath))
-                {
-                    SpriteAtlas atlas = new SpriteAtlas(atlasPath);
-                    if (atlas.IsValid)
-                        return new AtlasTexture2D(atlas, def.TextureParameters.AtlasParams.FrameKey);
-                }
-                break;
-        }
-        return null;
+        return def.ToTexture(rootFolder);
     }
 }
 

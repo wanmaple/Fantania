@@ -224,7 +224,37 @@ public class GLDevice : IRenderDevice
             {
                 _gl.Enable(GL_BLEND);
                 if (_currentState == null || state.BlendFuncSrc != _currentState.Value.BlendFuncSrc || state.BlendFuncDst != _currentState.Value.BlendFuncDst)
-                    GLApiEx.BlendFunc(_gl, state.BlendFuncSrc, state.BlendFuncDst);
+                {
+                    int srcFunc = state.BlendFuncSrc switch
+                    {
+                        BlendFuncs.Zero => GL_ZERO,
+                        BlendFuncs.One => GL_ONE,
+                        BlendFuncs.SrcAlpha => GL_SRC_ALPHA,
+                        BlendFuncs.OneMinusSrcAlpha => GL_ONE_MINUS_SRC_ALPHA,
+                        BlendFuncs.SrcColor => GL_SRC_COLOR,
+                        BlendFuncs.OneMinusSrcColor => GL_ONE_MINUS_SRC_COLOR,
+                        BlendFuncs.DstAlpha => GL_DST_ALPHA,
+                        BlendFuncs.OneMinusDstAlpha => GL_ONE_MINUS_DST_ALPHA,
+                        BlendFuncs.DstColor => GL_DST_COLOR,
+                        BlendFuncs.OneMinusDstColor => GL_ONE_MINUS_DST_COLOR,
+                        _ => GL_SRC_ALPHA,
+                    };
+                    int dstFunc = state.BlendFuncDst switch
+                    {
+                        BlendFuncs.Zero => GL_ZERO,
+                        BlendFuncs.One => GL_ONE,
+                        BlendFuncs.SrcAlpha => GL_SRC_ALPHA,
+                        BlendFuncs.OneMinusSrcAlpha => GL_ONE_MINUS_SRC_ALPHA,
+                        BlendFuncs.SrcColor => GL_SRC_COLOR,
+                        BlendFuncs.OneMinusSrcColor => GL_ONE_MINUS_SRC_COLOR,
+                        BlendFuncs.DstAlpha => GL_DST_ALPHA,
+                        BlendFuncs.OneMinusDstAlpha => GL_ONE_MINUS_DST_ALPHA,
+                        BlendFuncs.DstColor => GL_DST_COLOR,
+                        BlendFuncs.OneMinusDstColor => GL_ONE_MINUS_DST_COLOR,
+                        _ => GL_ONE_MINUS_SRC_ALPHA,
+                    };
+                    GLApiEx.BlendFunc(_gl, srcFunc, dstFunc);
+                }
             }
             else
                 _gl.Disable(GL_BLEND);
@@ -264,7 +294,6 @@ public class GLDevice : IRenderDevice
 
     public void ApplyMaterial(RenderMaterial material)
     {
-        ApplyRenderState(material.State);
         ApplyShaderProgram(material.Shader);
         foreach (var pair in material.Uniforms)
         {

@@ -49,6 +49,12 @@ public static class GLConstants
     public const int GL_BLEND = 0x0BE2;
     public const int GL_SRC_ALPHA = 0x0302;
     public const int GL_ONE_MINUS_SRC_ALPHA = 0x0303;
+    public const int GL_SRC_COLOR = 0x0300;
+    public const int GL_ONE_MINUS_SRC_COLOR = 0x0301;
+    public const int GL_DST_ALPHA = 0x0304;
+    public const int GL_ONE_MINUS_DST_ALPHA = 0x0305;
+    public const int GL_DST_COLOR = 0x0306;
+    public const int GL_ONE_MINUS_DST_COLOR = 0x0307;
     public const int GL_ZERO = 0;
     public const int GL_ONE = 1;
 

@@ -1,5 +1,6 @@
 namespace FantaniaLib;
 
+[BindingScript]
 public class MeshDescriptor
 {
     public static readonly MeshDescriptor QuadStandard = new MeshDescriptor(4, 6, VertexAnalyzer.GenerateDescriptor<VertexStandard>());

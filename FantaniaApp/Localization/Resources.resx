@@ -201,8 +201,24 @@
     <value>'{0}'不存在。</value>
     <comment/>
   </data>
-  <data name="H_Level" xml:space="preserve">
-    <value>关卡</value>
+  <data name="H_CurrentWorkspace" xml:space="preserve">
+    <value>当前工作区</value>
+    <comment/>
+  </data>
+  <data name="WARN_ConfirmSaveWorkspace" xml:space="preserve">
+    <value>检测到当前工作区有未保存的修改，你是否要先保存再继续？</value>
+    <comment/>
+  </data>
+  <data name="MSG_WorkspaceSaved" xml:space="preserve">
+    <value>工作区已保存。</value>
+    <comment/>
+  </data>
+  <data name="WARN_ConfirmSaveWorkspaceExit" xml:space="preserve">
+    <value>检测到当前工作区有未保存的修改，是否要先保存再退出？</value>
+    <comment/>
+  </data>
+  <data name="BT_CopyLog" xml:space="preserve">
+    <value>拷贝</value>
     <comment/>
   </data>
 </root>

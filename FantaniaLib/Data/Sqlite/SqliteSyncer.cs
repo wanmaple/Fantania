@@ -6,6 +6,8 @@ namespace FantaniaLib;
 
 public class SqliteSyncer
 {
+    public bool HasChange => _added.Count > 0 || _removed.Count > 0 || _modified.Count > 0;
+
     public SqliteSyncer(SqliteDatabase db, SerializationRule rule)
     {
         _db = db;

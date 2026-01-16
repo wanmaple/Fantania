@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Reflection;
+using Avalonia.Utilities;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace FantaniaLib;
@@ -40,12 +41,12 @@ public class SingleObjectEditableField : ObservableObject, IEditableField
         if (_validator == null)
             _validator = EmptyFieldValidator.Empty;
 
-        _instance.PropertyChanged += OnInstancePropertyChanged;
+        WeakEventHandlerManager.Subscribe<ObservableObject, PropertyChangedEventArgs, SingleObjectEditableField>(_instance, nameof(PropertyChanged), OnInstancePropertyChanged);
     }
 
     ~SingleObjectEditableField()
     {
-        _instance.PropertyChanged -= OnInstancePropertyChanged;
+        WeakEventHandlerManager.Unsubscribe<PropertyChangedEventArgs, SingleObjectEditableField>(_instance, nameof(PropertyChanged), OnInstancePropertyChanged);
     }
 
     void OnInstancePropertyChanged(object? sender, PropertyChangedEventArgs e)

@@ -1,3 +1,4 @@
+
 namespace FantaniaLib;
 
 public class OpaquePipelineStage : IPipelineStage
@@ -5,15 +6,22 @@ public class OpaquePipelineStage : IPipelineStage
     public string Name => "Opaque";
     public int Order => 2000;
 
-    public void PostRender(IRenderDevice device)
+    public void PostRender(IRenderContext context)
     {
     }
 
-    public void PreRender(IRenderDevice device)
+    public void PreRender(IRenderContext context)
     {
     }
 
-    public void Render(IRenderDevice device)
+    public void Render(IRenderContext context, IEnumerable<IRenderable> renderables)
     {
     }
+
+    readonly RenderState _state = new RenderState
+    {
+        DepthTestEnabled = true,
+        DepthWriteEnabled = true,
+        BlendingEnabled = false,
+    };
 }

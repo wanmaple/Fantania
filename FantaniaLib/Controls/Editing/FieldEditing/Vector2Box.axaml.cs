@@ -1,41 +1,9 @@
-using System.Globalization;
 using System.Numerics;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Data.Converters;
 using Avalonia.Interactivity;
 
 namespace FantaniaLib;
-
-internal class Vector2XConverter : IValueConverter
-{
-    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
-    {
-        if (value == null) return AvaloniaProperty.UnsetValue;
-        if (value is not Vector2 vec) return AvaloniaProperty.UnsetValue;
-        return vec.X;
-    }
-
-    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
-    {
-        throw new NotImplementedException();
-    }
-}
-
-internal class Vector2YConverter : IValueConverter
-{
-    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
-    {
-        if (value == null) return AvaloniaProperty.UnsetValue;
-        if (value is not Vector2 vec) return AvaloniaProperty.UnsetValue;
-        return vec.Y;
-    }
-
-    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
-    {
-        throw new NotImplementedException();
-    }
-}
 
 public partial class Vector2Box : UserControl
 {
@@ -87,11 +55,10 @@ public partial class Vector2Box : UserControl
                 // "min:max:inc"
                 var ary = args.Split(':');
                 RangeMinimum = float.Parse(ary[0]);
-                RangeMaximum = float.Parse(ary[1]);
+                if (ary.Length >= 2)
+                    RangeMaximum = float.Parse(ary[1]);
                 if (ary.Length >= 3)
-                {
                     RangeIncrement = float.Parse(ary[2]);
-                }
             }
         }
     }

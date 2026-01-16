@@ -282,7 +282,7 @@ public class BoundingVolumeHierarchy<T> where T : IBVHItem
         InnerPointTest(_root, point, filter, results);
     }
 
-    public void RectTest(Rectf rect, ISet<T> results, Predicate<T>? filter = null)
+    public void RectTest(Rectf rect, IList<T> results, Predicate<T>? filter = null)
     {
         InnerRectTest(_root, rect, filter, results);
     }
@@ -301,7 +301,7 @@ public class BoundingVolumeHierarchy<T> where T : IBVHItem
         InnerPointTest(node.right, point, filter, ret);
     }
 
-    void InnerRectTest(BoundingVolumeHierarchyNode<T>? node, Rectf rect, Predicate<T>? filter, ISet<T> ret)
+    void InnerRectTest(BoundingVolumeHierarchyNode<T>? node, Rectf rect, Predicate<T>? filter, IList<T> ret)
     {
         if (node == null) return;
         if (!node.bounds.Intersects(rect)) return;

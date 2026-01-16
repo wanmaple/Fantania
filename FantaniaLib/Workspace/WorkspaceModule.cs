@@ -1,8 +1,9 @@
 using System.Diagnostics.CodeAnalysis;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace FantaniaLib;
 
-public abstract class WorkspaceModule
+public abstract class WorkspaceModule : ObservableObject
 {
     protected WorkspaceModule([DisallowNull] IWorkspace workspace)
     {

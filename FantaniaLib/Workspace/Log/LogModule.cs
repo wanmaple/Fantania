@@ -109,7 +109,7 @@ public class LogModule : WorkspaceModule
             FontSize = 14,
             FontStyle = FontStyle.Normal,
             FontWeight = FontWeight.Medium,
-            Color = Brushes.Red,
+            Color = Brushes.IndianRed,
             Content = $"[{DateTime.Now.ToString("HH:mm:ss")}] {content}",
         };
         AddLog(log);

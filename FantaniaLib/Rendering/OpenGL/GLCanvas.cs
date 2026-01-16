@@ -63,7 +63,8 @@ public abstract class GLCanvas : OpenGlControlBase, ICustomHitTest
 
     public virtual bool HitTest(Point point)
     {
-        return point.X > 0.0 && point.X < Bounds.Width && point.Y > 0.0 && point.Y < Bounds.Height;
+        if (!IsValid) return false;
+        return point.X >= 0.0 && point.X <= Bounds.Width && point.Y >= 0.0 && point.Y <= Bounds.Height;
     }
 
     ConfigurableRenderPipeline? _pipeline;

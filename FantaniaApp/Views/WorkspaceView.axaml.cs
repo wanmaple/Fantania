@@ -22,10 +22,10 @@ public partial class WorkspaceView : UserControl
         topLevel.RequestAnimationFrame(OnTick);
     }
 
-    void OnTick(TimeSpan dt)
+    void OnTick(TimeSpan elapsed)
     {
         if (ViewModel != null)
-            ViewModel.Workspace.Tick(dt);
+            ViewModel.Workspace.Tick(elapsed);
             
         TopLevel topLevel = TopLevel.GetTopLevel(this)!;
         if (topLevel != null)

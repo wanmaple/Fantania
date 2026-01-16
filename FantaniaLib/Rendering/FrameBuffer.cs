@@ -1,6 +1,6 @@
 namespace FantaniaLib;
 
-[Flags]
+[Flags, BindingScript]
 public enum BufferBits
 {
     None = 0x0,

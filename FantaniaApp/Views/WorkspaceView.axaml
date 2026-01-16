@@ -15,8 +15,11 @@
     <vm:WorkspaceViewModel />
   </Design.DataContext>
   <Grid RowDefinitions="auto,2*,auto,*" ColumnDefinitions="2*,auto,*">
-    <Border Classes="thin s1" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2">
-      <v:LevelView DataContext="{Binding LevelViewModel}" Margin="5" />
+    <Border Classes="thin s1" Grid.Row="0" Grid.Column="0">
+      <v:ToolbarView DataContext="{Binding LevelViewModel}" Margin="5" />
+    </Border>
+    <Border Classes="thin s1" Grid.Row="1" Grid.Column="0">
+      <v:LevelView DataContext="{Binding LevelViewModel}" />
     </Border>
     <GridSplitter Grid.Row="2" Grid.Column="0" ResizeDirection="Rows" ResizeBehavior="PreviousAndNext" Height="1" />
     <Border Classes="thin s1" Grid.Row="3" Grid.Column="0">

@@ -24,7 +24,7 @@ public interface IRenderDevice
     void ApplyRenderState(RenderState state);
     void ApplyUniform(ShaderProgram shader, string name, MaterialUniform uniform);
     void ApplyMaterial(RenderMaterial material);
-    VertexStream CreateVertexStream(VertexDescriptor vertDesc, int maxVertBufferBytes, int maxIndiceBufferBytes);
+    VertexStream CreateVertexStream(VertexDescriptor vertDesc, int maxVertBufferBytes = 160 * 1024, int maxIndiceBufferBytes = 80 * 1024);
     void ApplyVertexStream(VertexStream vertStream);
     void SyncVertexStream(VertexStream vertStream);
     void Draw(VertexStream vertStream, RenderMaterial material);

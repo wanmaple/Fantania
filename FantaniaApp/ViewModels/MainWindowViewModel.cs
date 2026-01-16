@@ -36,6 +36,7 @@ public partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     public async Task NewWorkspace()
     {
+        if (!await CheckAndSaveWorkspaceChanges()) return;
         var top = TopLevel.GetTopLevel(AvaloniaHelper.GetTopWindow())!;
         var folders = await top.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
         {
@@ -62,6 +63,7 @@ public partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     public async Task OpenWorkspace()
     {
+        if (!await CheckAndSaveWorkspaceChanges()) return;
         var top = TopLevel.GetTopLevel(AvaloniaHelper.GetTopWindow())!;
         var folders = await top.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
         {
@@ -80,12 +82,15 @@ public partial class MainWindowViewModel : ViewModelBase
     public async Task SaveWorkspace()
     {
         await Workspace!.Save();
+        await Workspace.LogModule.LogAsync(LocalizationHelper.GetLocalizedString("MSG_WorkspaceSaved"));
     }
 
     [RelayCommand(CanExecute = nameof(CanOperateWorkspace))]
     public async Task CloseWorkspace()
     {
+        if (!await CheckAndSaveWorkspaceChanges()) return;
         Workspace = null;
+        GC.Collect();
     }
 
     [RelayCommand]
@@ -164,6 +169,23 @@ public partial class MainWindowViewModel : ViewModelBase
         _recents.Access(workspace.RootFolder);
         SaveRecentAccess();
         Workspace = workspace;
+    }
+
+    async Task<bool> CheckAndSaveWorkspaceChanges()
+    {
+        if (Workspace != null && Workspace.IsModified)
+        {
+            var result = await MessageBoxHelper.PopupWarningYesNoCancel(AvaloniaHelper.GetTopWindow(), LocalizationHelper.GetLocalizedString("WARN_ConfirmSaveWorkspace"));
+            if (result == ButtonResults.Yes)
+            {
+                await SaveWorkspace();
+                return true;
+            }
+            else if (result == ButtonResults.No)
+                return true;
+            return false;
+        }
+        return true;
     }
 
     void LoadRecentAccess()

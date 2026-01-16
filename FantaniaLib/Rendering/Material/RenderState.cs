@@ -2,13 +2,28 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace FantaniaLib;
 
+[BindingScript]
+public enum BlendFuncs
+{
+    Zero,
+    One,
+    SrcAlpha,
+    OneMinusSrcAlpha,
+    SrcColor,
+    OneMinusSrcColor,
+    DstAlpha,
+    OneMinusDstAlpha,
+    DstColor,
+    OneMinusDstColor,
+}
+
 public struct RenderState : IEquatable<RenderState>
 {
     public bool DepthTestEnabled;
     public bool DepthWriteEnabled;
     public bool BlendingEnabled;
-    public int BlendFuncSrc;
-    public int BlendFuncDst;
+    public BlendFuncs BlendFuncSrc;
+    public BlendFuncs BlendFuncDst;
     // TODO: stencil, culling etc...
 
     public bool Equals(RenderState other)

@@ -115,7 +115,7 @@ public class ScriptEngine
             {
                 if (type.IsClass || type.IsInterface)
                 {
-                    BindClassToLua(type, attrBinding.CustomName, attrBinding.CanInstantiate);
+                    BindClassToLua(type, attrBinding);
                 }
                 else if (type.IsEnum)
                 {
@@ -125,13 +125,14 @@ public class ScriptEngine
         }
     }
 
-    public void BindClassToLua<T>(string? name = null, bool canInstantiate = true) where T : class
+    public void BindClassToLua<T>(BindingScriptAttribute attr) where T : class
     {
-        BindClassToLua(typeof(T), name, canInstantiate);
+        BindClassToLua(typeof(T), attr);
     }
 
-    public void BindClassToLua(Type type, string? name = null, bool canInstantiate = true)
+    public void BindClassToLua(Type type, BindingScriptAttribute attr)
     {
+        string? name = attr.CustomName;
         if (string.IsNullOrEmpty(name))
             name = type.Name;
         UserData.RegisterType(type);
@@ -144,7 +145,7 @@ public class ScriptEngine
             if (type.IsAbstract || type.IsInterface) return;
             var tbl = new Table(_env);
             tbl["__name"] = name;
-            if (canInstantiate)
+            if (attr.CanInstantiate)
             {
                 tbl["new"] = DynValue.NewCallback((context, args) =>
                 {
@@ -225,6 +226,7 @@ public class ScriptEngine
     {
         CommonConversions.AutoConversions();
         MathsConversions.AutoConversions();
+        WorkspaceConversions.AutoConversions();
         RenderingConversions.AutoConversions();
     }
 

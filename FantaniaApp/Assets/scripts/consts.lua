@@ -14,3 +14,8 @@ EditControls = {
     ColorPicker = "FantaniaLib.ColorPicker",
     TextureBox = "FantaniaLib.TextureBox",
 }
+
+BuiltinShaders = {
+    VS_Standard = "avares://Fantania/Assets/shaders/vert_standard.vs",
+    FS_Sample = "avares://Fantania/Assets/shaders/frag_sample.fs",
+}

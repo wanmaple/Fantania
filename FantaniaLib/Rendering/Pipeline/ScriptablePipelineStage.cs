@@ -11,18 +11,18 @@ public class ScriptablePipelineStage : ScriptableObject, IPipelineStage
     {
     }
 
-    public void PostRender(IRenderDevice device)
+    public void PostRender(IRenderContext context)
     {
-        Call("postRender", device);
+        Call("postRender", context);
     }
 
-    public void PreRender(IRenderDevice device)
+    public void PreRender(IRenderContext context)
     {
-        Call("preRender", device);
+        Call("preRender", context);
     }
 
-    public void Render(IRenderDevice device)
+    public void Render(IRenderContext context, IEnumerable<IRenderable> renderables)
     {
-        Call("render", device);
+        Call("render", context, renderables);
     }
 }

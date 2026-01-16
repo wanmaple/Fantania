@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace FantaniaLib;
 
@@ -56,6 +57,20 @@ public unsafe class VertexStream : IRenderResource
         device.DeleteBuffer(_ibo);
         NativeMemory.Free(_streamVertex);
         NativeMemory.Free(_streamIndice);
+    }
+
+    public override string ToString()
+    {
+        int totalFloats = UsedVertexBytes / sizeof(float);
+        float* ptr = (float*)_streamVertex;
+        var sb = new StringBuilder();
+        for (int i = 0; i < totalFloats; i++)
+        {
+            sb.Append(ptr[i].ToString("F2"));
+            if (i != totalFloats - 1)
+                sb.Append(',');
+        }
+        return sb.ToString();
     }
 
     void* _vertPtr;

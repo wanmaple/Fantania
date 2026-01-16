@@ -7,6 +7,7 @@ public class DatabaseModule : WorkspaceModule
     public const string DATABASE_FILENAME = "main.db";
 
     public SerializationRule SerializationRule => _rule;
+    public bool HasChange => _syncer.HasChange;
 
     public DatabaseModule(IWorkspace workspace) : base(workspace)
     {
@@ -14,11 +15,6 @@ public class DatabaseModule : WorkspaceModule
         _syncer = new SqliteSyncer(_db, _rule);
 
         _db.ExecutingNonQuery += OnDatabaseExecutingSql;
-    }
-
-    ~DatabaseModule()
-    {
-        _db.ExecutingNonQuery -= OnDatabaseExecutingSql;
     }
 
     public async Task SyncFromDatabase()

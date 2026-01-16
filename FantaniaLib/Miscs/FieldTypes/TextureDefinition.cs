@@ -22,6 +22,30 @@ public struct TextureDefinition : IEquatable<TextureDefinition>
         TextureType = TextureTypes.None;
     }
 
+    public ITexture2D? ToTexture(string rootFolder)
+    {
+        switch (TextureType)
+        {
+            case TextureTypes.Image:
+                string imgPath = Path.Combine(rootFolder, TextureParameters.ImageParams.ImagePath);
+                if (File.Exists(imgPath))
+                {
+                    return new LocalTexture2D(imgPath);
+                }
+                break;
+            case TextureTypes.Atlas:
+                string atlasPath = Path.Combine(rootFolder, TextureParameters.AtlasParams.AtlasPath);
+                if (File.Exists(atlasPath))
+                {
+                    SpriteAtlas atlas = new SpriteAtlas(atlasPath);
+                    if (atlas.IsValid)
+                        return new AtlasTexture2D(atlas, TextureParameters.AtlasParams.FrameKey);
+                }
+                break;
+        }
+        return null;
+    }
+
     public static bool operator ==(TextureDefinition lhs, TextureDefinition rhs)
     {
         if (lhs.TextureType == rhs.TextureType)

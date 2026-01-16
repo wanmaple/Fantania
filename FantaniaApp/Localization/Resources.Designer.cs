@@ -67,6 +67,15 @@ namespace Fantania.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 拷贝.
+        /// </summary>
+        public static string BT_CopyLog {
+            get {
+                return ResourceManager.GetString("BT_CopyLog", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &apos;{0}&apos;不是一个有效的工作区，或者由于某些原因损坏了。.
         /// </summary>
         public static string ERR_Invalid_Workspace {
@@ -85,11 +94,11 @@ namespace Fantania.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 关卡.
+        ///   Looks up a localized string similar to 当前工作区.
         /// </summary>
-        public static string H_Level {
+        public static string H_CurrentWorkspace {
             get {
-                return ResourceManager.GetString("H_Level", resourceCulture);
+                return ResourceManager.GetString("H_CurrentWorkspace", resourceCulture);
             }
         }
         
@@ -234,6 +243,33 @@ namespace Fantania.Localization {
         public static string MI_File_SaveWorkspace {
             get {
                 return ResourceManager.GetString("MI_File_SaveWorkspace", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 工作区已保存。.
+        /// </summary>
+        public static string MSG_WorkspaceSaved {
+            get {
+                return ResourceManager.GetString("MSG_WorkspaceSaved", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 检测到当前工作区有未保存的修改，你是否要先保存再继续？.
+        /// </summary>
+        public static string WARN_ConfirmSaveWorkspace {
+            get {
+                return ResourceManager.GetString("WARN_ConfirmSaveWorkspace", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 检测到当前工作区有未保存的修改，是否要先保存再退出？.
+        /// </summary>
+        public static string WARN_ConfirmSaveWorkspaceExit {
+            get {
+                return ResourceManager.GetString("WARN_ConfirmSaveWorkspaceExit", resourceCulture);
             }
         }
         

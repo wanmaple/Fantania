@@ -8,6 +8,7 @@ public interface IWorkspace
 
     DatabaseModule DatabaseModule { get; }
     PlacementModule PlacementModule { get; }
+    EditorModule EditorModule { get; }
     LogModule LogModule { get; }
     ScriptingModule ScriptingModule { get; }
 

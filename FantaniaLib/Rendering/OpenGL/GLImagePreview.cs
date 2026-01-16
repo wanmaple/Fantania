@@ -71,14 +71,14 @@ public class GLImagePreview : GLCanvas
         device.SyncVertexStream(_blitVertStream);
         string vertSrc = AvaloniaHelper.ReadAssetText("avares://Fantania/Assets/shaders/vert_fullscreen.vs");
         string fragSample = AvaloniaHelper.ReadAssetText("avares://Fantania/Assets/shaders/frag_sample.fs");
+        _state = new RenderState
+        {
+            DepthTestEnabled = false,
+            DepthWriteEnabled = false,
+            BlendingEnabled = false,
+        };
         _matSample = new RenderMaterial
         {
-            State = new RenderState
-            {
-                DepthTestEnabled = false,
-                DepthWriteEnabled = false,
-                BlendingEnabled = false,
-            },
             Shader = pipeline.ShaderCache.Acquire(vertSrc, fragSample)!,
         };
     }
@@ -87,7 +87,7 @@ public class GLImagePreview : GLCanvas
     {
         IRenderDevice device = pipeline.Device;
         _blitVertStream!.Dispose(device);
-        _quad!.Dispose(device);
+        _quad!.Dispose();
         pipeline.ShaderCache.Release(_matSample!.Shader);
         if (_lastTexture != null)
         {
@@ -127,7 +127,8 @@ public class GLImagePreview : GLCanvas
                     device.SyncVertexStream(_blitVertStream);
                 }
                 int texId = pipeline.TextureManager.AcquireTextureID(Texture);
-                _matSample!.SetTexture("u_Texture", 0, texId);
+                _matSample!.SetUniform("u_Texture", (0, texId));
+                device.ApplyRenderState(_state!.Value);
                 device.Draw(_blitVertStream!, _matSample);
             }
             _lastTexture = Texture;
@@ -152,6 +153,7 @@ public class GLImagePreview : GLCanvas
 
     VertexStream? _blitVertStream;
     Mesh? _quad;
+    RenderState? _state;
     RenderMaterial? _matSample;
     ITexture2D? _lastTexture;
 }

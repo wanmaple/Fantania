@@ -13,12 +13,12 @@ out vec3 vTangent;
 out vec2 vUV;
 out vec2 vUV2;
 
-uniform mat3 uView;
-uniform vec4 uResolution;   // xy is resolution, zw is 1/resolution.
+uniform mat3 u_View;
+uniform vec4 u_Resolution;   // xy is resolution, zw is 1/resolution.
 
 void main() {
-    vec3 posVS = uView * vec3(aPos.xy, 1.0);
-    vec2 posCS = posVS.xy * uResolution.zw * 2.0 - vec2(1.0);
+    vec3 posVS = u_View * vec3(aPos.xy, 1.0);
+    vec2 posCS = posVS.xy * u_Resolution.zw * 2.0 - vec2(1.0);
     gl_Position = vec4(posCS.xy, aPos.z / 10000.0, 1.0);
     vColor = aColor;
     vNormal = aNormal;

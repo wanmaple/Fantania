@@ -20,12 +20,10 @@ public partial class LogView : UserControl
         {
             double newHeight = bounds.Height;
             double delta = newHeight - _lastHeight;
-            
             if (Math.Abs(delta) > 0.1 && delta > 0) // 只处理高度增加
             {
                 AdjustScrollPosition(delta, newHeight);
             }
-            
             _lastHeight = newHeight;
         }
     
@@ -33,20 +31,16 @@ public partial class LogView : UserControl
         {
             double viewportHeight = _sv.Viewport.Height;
             double scrollOffset = _sv.Offset.Y;
-            
-            // 计算之前的到底部偏移
-            double previousBottomOffset = (newTotalHeight - heightChange) - (viewportHeight + scrollOffset);
-            
+            // 计算到底部的偏移
+            double distanceToBottom = (newTotalHeight - heightChange) - (viewportHeight + scrollOffset);
             // 如果用户在查看最新内容，自动滚动
-            if (previousBottomOffset <= 5)
+            if (distanceToBottom <= 10)
             {
                 _sv.ScrollToEnd();
             }
             else
             {
-                // 保持到底部偏移不变
-                double newScrollOffset = newTotalHeight - viewportHeight - previousBottomOffset;
-                _sv.Offset = new Vector(0, newScrollOffset);
+                // 用户在查看历史内容，保持到顶部的偏移不变
             }
         }
     

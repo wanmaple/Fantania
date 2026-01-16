@@ -42,13 +42,24 @@ public class ScriptingModule : WorkspaceModule
 
     public void LoadBuiltinScripts()
     {
-        foreach (string scriptPath in AvaloniaHelper.EnumerateAssetFolder("avares://Fantania/Assets/scripts/templates"))
+        string entityFolder = _workspace.GetAbsolutePath(Workspace.SCRIPTS_FOLDER, Workspace.ENTITIES_FOLDER);
+        if (Directory.Exists(entityFolder))
         {
-            if (scriptPath.EndsWith(".lua"))
+            var di = new DirectoryInfo(entityFolder);
+            foreach (var fi in di.GetFiles("*.lua", SearchOption.AllDirectories))
             {
-                string script = AvaloniaHelper.ReadAssetText(scriptPath);
-                var template = new PlacementTemplate(_scriptEngine, _scriptEngine.ExecuteString(script));
-                _workspace.PlacementModule.AddLevelTemplate(template);
+                string scriptPath = fi.FullName.ToStandardPath();
+                try
+                {
+                    string script = File.ReadAllText(scriptPath);
+                    var template = new PlacementTemplate(_scriptEngine, _scriptEngine.ExecuteString(script));
+                    _workspace.PlacementModule.AddLevelTemplate(template);
+                }
+                catch (Exception ex)
+                {
+                    _workspace.LogModule.LogError($"Invalid entity: {scriptPath}");
+                    _workspace.LogModule.LogError($"Detail: {ex}");
+                }
             }
         }
     }
@@ -69,7 +80,16 @@ public class ScriptingModule : WorkspaceModule
             DynValue config = _scriptEngine.ExecuteFile(pipelineSetupScriptPath);
             if (config != null && config.Type == DataType.Table)
             {
-                ret = config.ToObject<RenderPipelineConfig>();
+                try
+                {
+                    ret = config.ToObject<RenderPipelineConfig>();
+                }
+                catch (Exception ex)
+                {
+                    _workspace.LogModule.LogError("pipeline_setup.lua is corrupt.");
+                    _workspace.LogModule.LogError($"Detail: {ex}");
+                    ret = null;
+                }
             }
         }
         if (ret == null)
@@ -81,11 +101,39 @@ public class ScriptingModule : WorkspaceModule
                 Stages = [
                     BuiltinPipelineStages.Opaque,
                     BuiltinPipelineStages.Transparent,
+                    BuiltinPipelineStages.PostProcessing,
                 ],
+                Materials = [],
             };
         }
         return ret;
     }
-    
+
+    public LevelEditConfig GetCustomLevelEditConfigOrDefault()
+    {
+        LevelEditConfig? ret = null;
+        string editSetupScriptPath = _workspace.GetAbsolutePath(Workspace.SCRIPTS_FOLDER, "editor_setup.lua");
+        if (File.Exists(editSetupScriptPath))
+        {
+            DynValue config = _scriptEngine.ExecuteFile(editSetupScriptPath);
+            if (config != null && config.Type == DataType.Table)
+            {
+                try
+                {
+                    ret = config.ToObject<LevelEditConfig>();
+                }
+                catch (Exception ex)
+                {
+                    _workspace.LogModule.LogError("editor_setup.lua is corrupt.");
+                    _workspace.LogModule.LogError($"Detail: {ex}");
+                    ret = null;
+                }
+            }
+        }
+        if (ret == null)
+            ret = new LevelEditConfig();
+        return ret;
+    }
+
     ScriptEngine _scriptEngine = new ScriptEngine();
 }

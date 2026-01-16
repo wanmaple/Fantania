@@ -11,6 +11,6 @@ public struct PositionUV
 
     public override string ToString()
     {
-        return $"{Position}, {UV}";
+        return $"{Position},{UV}";
     }
 }
