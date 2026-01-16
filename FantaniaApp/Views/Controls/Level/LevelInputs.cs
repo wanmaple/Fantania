@@ -76,7 +76,7 @@ public class LevelInputs : IDisposable
             {
                 Anchor = Vector2.Zero,
                 Color = Vector4.One,
-                Depth = 0,
+                Depth = 2000,
                 Position = worldPos,
                 Rotation = 0.0f,
                 Scale = Vector2.One,

@@ -13,6 +13,7 @@ public class QuadRenderable : IRenderable
 
     public QuadRenderable(RenderInfo info, RenderMaterial material)
     {
+        _mesh = MeshBuilder.CreateStandardQuad(info.Size);
         Stage = info.Stage;
         Depth = info.Depth;
         Transform = BuildTransform(info);
@@ -36,9 +37,10 @@ public class QuadRenderable : IRenderable
     {
         // Transform矩阵可以分解成四部分，首先进行Anchor相关的平移，然后进行缩放，然后进行旋转，最后进行世界位置的平移。
         Matrix3x3 mat = Matrix3x3.Identity;
-        if (info.Anchor != Vector2.Zero)
+        Vector2 anchor = info.Anchor;
+        if (anchor != Vector2.Zero)
         {
-            mat = Matrix3x3.CreateTranslation(new Vector2(-info.Anchor.X * info.Size.X, (float)-info.Anchor.Y * info.Size.Y));
+            mat = Matrix3x3.CreateTranslation(new Vector2(-anchor.X * info.Size.X, -anchor.Y * info.Size.Y));
         }
         if (info.Scale != Vector2.One)
         {
@@ -55,7 +57,7 @@ public class QuadRenderable : IRenderable
         return mat;
     }
 
-    Mesh _mesh = MeshBuilder.CreateStandardQuad();
+    Mesh _mesh;
     RenderMaterial _material;
     Rectf _aabb;
 }

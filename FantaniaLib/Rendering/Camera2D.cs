@@ -74,8 +74,7 @@ public class Camera2D
 
     void UpdateViewMatrix()
     {
-        // OpenGL坐标系是y轴朝上。
-        _matView = Matrix3x3.CreateScale(new Vector2(Zoom, -Zoom)) * Matrix3x3.CreateTranslation(Position.FlipX());
+        _matView = Matrix3x3.CreateScale(new Vector2(Zoom, Zoom)) * Matrix3x3.CreateTranslation(-Position);
     }
 
     bool _dirty = true;

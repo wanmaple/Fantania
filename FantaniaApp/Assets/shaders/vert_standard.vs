@@ -18,11 +18,13 @@ uniform vec4 u_Resolution;   // xy is resolution, zw is 1/resolution.
 
 void main() {
     vec3 posVS = u_View * vec3(aPos.xy, 1.0);
-    vec2 posCS = posVS.xy * u_Resolution.zw * 2.0 - vec2(1.0);
-    gl_Position = vec4(posCS.xy, aPos.z / 10000.0, 1.0);
+    vec2 posNDC = posVS.xy * u_Resolution.zw;
+    posNDC.y = 1.0 - posNDC.y;
+    vec2 posCS = posNDC * 2.0 - vec2(1.0);
+    gl_Position = vec4(posCS.xy, aPos.z / 4096.0, 1.0);
     vColor = aColor;
     vNormal = aNormal;
     vTangent = aTangent;
-    vUV = aUV;
+    vUV = vec2(aUV.x, 1.0 - aUV.y);
     vUV2 = aUV2;
 }
