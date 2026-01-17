@@ -1,0 +1,27 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:lib="using:FantaniaLib"
+        xmlns:vm="using:Fantania.ViewModels"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:DataType="vm:CommonEditObjectViewModel"
+        x:Class="Fantania.Views.CommonEditObjectView"
+        x:Name="Root" WindowStartupLocation="CenterScreen" 
+        SizeToContent="WidthAndHeight" CanResize="False">
+  <Grid RowDefinitions="auto,*,auto" Margin="5">
+    <TextBlock Grid.Row="0" Classes="h2" Text="{Binding #Root.Title}" />
+    <lib:ObjectEditView x:Name="oevObj" Grid.Row="1" Margin="5">
+      <lib:ObjectEditView.EditableFields>
+        <MultiBinding Converter="{StaticResource Cvt_Obj2Groups}">
+          <Binding Path="EditingObject" />
+          <Binding Path="Workspace" />
+        </MultiBinding>
+      </lib:ObjectEditView.EditableFields>
+    </lib:ObjectEditView>
+    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
+      <Button Content="Okay" Width="100" Margin="5" Command="{Binding #Root.Confirm}" HorizontalContentAlignment="Center" />
+      <Button Content="Cancel" Width="100" Margin="5" Command="{Binding #Root.Cancel}" HorizontalContentAlignment="Center" />
+    </StackPanel>
+  </Grid>
+</Window>

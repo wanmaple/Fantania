@@ -7,6 +7,8 @@ public class WorkspaceProxy
 {
     public string RootFolder => _workspace.RootFolder;
 
+    internal IWorkspace RealWorkspace => _workspace;
+
     public WorkspaceProxy(IWorkspace workspace)
     {
         _workspace = workspace;

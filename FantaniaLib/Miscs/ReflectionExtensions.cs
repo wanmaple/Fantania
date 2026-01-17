@@ -21,4 +21,12 @@ public static class ReflectionExtensions
         }
         return prop.GetValue(self);
     }
+
+    public static bool IsGenericTypeOf(this object self, Type genericType)
+    {
+        Type type = self.GetType();
+        if (!type.IsGenericType) return false;
+        var genericTypeDef = type.GetGenericTypeDefinition();
+        return genericTypeDef == genericType;
+    }
 }

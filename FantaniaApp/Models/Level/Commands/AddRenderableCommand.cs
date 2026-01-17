@@ -1,4 +1,3 @@
-using System.Numerics;
 using Fantania.Views;
 using FantaniaLib;
 
@@ -18,21 +17,7 @@ public class AddRenderableCommand : ICanvasCommand
         RenderMaterial? material = pipeline.MaterialSet.GetMaterial(RenderInfo.MaterialKey);
         if (material != null)
         {
-            foreach (var pair in RenderInfo.Uniforms)
-            {
-                if (pair.Value is TextureDefinition def)
-                {
-                    var tex = def.ToTexture(context.Workspace.RootFolder);
-                    if (tex != null)
-                    {
-                        RenderInfo.Size = new Vector2(tex.Width, tex.Height);
-                        int texId = pipeline.TextureManager.AcquireTextureID(tex);
-                        material.SetUniform(pair.Key, (0, texId));
-                    }
-                }
-                else
-                    material.SetUniformVar(pair.Key, pair.Value);
-            }
+            material.Uniforms.ApplyDesiredUniforms(RenderInfo.Uniforms, context.Workspace, pipeline);
             context.SpaceHierarchy.AddItem(new QuadRenderable(RenderInfo, material));
         }
     }

@@ -6,7 +6,7 @@ public class EmptyFieldValidator : IFieldValidator
 
     public string Error => string.Empty;
 
-    public bool ValidateField(object fieldValue)
+    public bool ValidateField(IWorkspace workspace, object fieldValue)
     {
         return true;
     }

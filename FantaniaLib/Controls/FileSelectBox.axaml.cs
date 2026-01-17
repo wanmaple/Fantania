@@ -53,6 +53,13 @@ public partial class FileSelectBox : UserControl
         set => SetValue(RootFolderProperty, value);
     }
 
+    public static readonly StyledProperty<IWorkspace?> WorkspaceProperty = AvaloniaProperty.Register<FileSelectBox, IWorkspace?>(nameof(Workspace), defaultValue: null);
+    public IWorkspace? Workspace
+    {
+        get => GetValue(WorkspaceProperty);
+        set => SetValue(WorkspaceProperty, value);
+    }
+
     public FileSelectBox()
     {
         InitializeComponent();
@@ -73,7 +80,7 @@ public partial class FileSelectBox : UserControl
             string path = files[0].Path.AbsolutePath.ToStandardPath();
             if (!string.IsNullOrEmpty(RootFolder) && !path.StartsWith(RootFolder))
             {
-                await MessageBoxHelper.PopupErrorOkay(topLevel, $"The image must be inside '{RootFolder}'.");
+                await MessageBoxHelper.PopupErrorOkay(topLevel, string.Format(Workspace!.LocalizeString("ERR_FileInsideWorkspace"), Workspace!.RootFolder));
                 return;
             }
             if (!string.IsNullOrEmpty(RootFolder))

@@ -24,6 +24,16 @@ public static class StringExtensions
         return self;
     }
 
+    public static string MakeFirstCharacterLower(this string self)
+    {
+        if (string.IsNullOrEmpty(self)) return self;
+        if (!char.IsLower(self[0]))
+        {
+            return char.ToLower(self[0]).ToString() + self.Substring(1);
+        }
+        return self;
+    }
+
     public static Vector4 ToVector4(this string self)
     {
         return Color.Parse(self).ToVector4();

@@ -14,7 +14,7 @@
   <Grid RowDefinitions="auto,*">
     <DockPanel Grid.Row="0" HorizontalAlignment="Stretch">
       <TextBlock DockPanel.Dock="Left" Classes="p" IsVisible="{Binding Workspace.IsModified}" Text="*" Foreground="LightGreen" />
-      <TextBlock DockPanel.Dock="Left" Classes="p" Margin="5 0 0 0">
+      <TextBlock DockPanel.Dock="Left" Classes="p">
         <TextBlock.Text>
           <MultiBinding StringFormat="{}{0}: {1}">
             <Binding Source="{x:Static lang:Resources.H_CurrentWorkspace}" />

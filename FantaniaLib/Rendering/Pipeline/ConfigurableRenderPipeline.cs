@@ -1,5 +1,3 @@
-using System.Numerics;
-
 namespace FantaniaLib;
 
 public class ConfigurableRenderPipeline : IRenderContext, IDisposable
@@ -20,6 +18,7 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
     public const string COLOR_BUFFER = "Color";
 
     public IRenderDevice Device => _device;
+    public UniformSet GlobalUniforms => _globalUniforms;
     public ShaderCache ShaderCache => _cacheShaders;
     public TextureManager TextureManager => _mgrTextures;
     public MaterialSet MaterialSet => _materials;
@@ -42,71 +41,6 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
     {
         _fbs.TryGetValue(name, out var fb);
         return fb;
-    }
-
-    public void SetGlobalUniform(string name, float value)
-    {
-        if (!_globalUniforms.TryGetValue(name, out var val))
-        {
-            val = new MaterialUniform(MaterialUniform.UniformType.Float1, value);
-            _globalUniforms.Add(name, val);
-        }
-        else
-        {
-            val.Set(value);
-        }
-    }
-
-    public void SetGlobalUniform(string name, Vector2 value)
-    {
-        if (!_globalUniforms.TryGetValue(name, out var val))
-        {
-            val = new MaterialUniform(MaterialUniform.UniformType.Float2, value);
-            _globalUniforms.Add(name, val);
-        }
-        else
-        {
-            val.Set(value);
-        }
-    }
-
-    public void SetGlobalUniform(string name, Vector3 value)
-    {
-        if (!_globalUniforms.TryGetValue(name, out var val))
-        {
-            val = new MaterialUniform(MaterialUniform.UniformType.Float3, value);
-            _globalUniforms.Add(name, val);
-        }
-        else
-        {
-            val.Set(value);
-        }
-    }
-
-    public void SetGlobalUniform(string name, Vector4 value)
-    {
-        if (!_globalUniforms.TryGetValue(name, out var val))
-        {
-            val = new MaterialUniform(MaterialUniform.UniformType.Float4, value);
-            _globalUniforms.Add(name, val);
-        }
-        else
-        {
-            val.Set(value);
-        }
-    }
-
-    public void SetGlobalUniform(string name, Matrix3x3 value)
-    {
-        if (!_globalUniforms.TryGetValue(name, out var val))
-        {
-            val = new MaterialUniform(MaterialUniform.UniformType.Matrix3x3, value);
-            _globalUniforms.Add(name, val);
-        }
-        else
-        {
-            val.Set(value);
-        }
     }
 
     public void Build(RenderPipelineConfig config, IWorkspace workspace)
@@ -243,7 +177,7 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
     {
         foreach (var pair in _globalUniforms)
         {
-            material.SetUniform(pair.Key, pair.Value);
+            material.Uniforms.SetUniform(pair.Key, pair.Value);
         }
     }
 
@@ -259,7 +193,7 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
 
     IRenderDevice _device;
     Dictionary<string, FrameBuffer> _fbs = new Dictionary<string, FrameBuffer>(8);
-    Dictionary<string, MaterialUniform> _globalUniforms = new Dictionary<string, MaterialUniform>(32);
+    UniformSet _globalUniforms = new UniformSet();
 
     List<IPipelineStage> _stageList = new List<IPipelineStage>(8);
     Dictionary<string, IPipelineStage> _stageMap = new Dictionary<string, IPipelineStage>(8);

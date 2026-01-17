@@ -7,6 +7,8 @@ public class PlacementModule : WorkspaceModule
     public IReadOnlyList<IPlacement> LevelPlacements => _levelPlacements;
     public IReadOnlyDictionary<string, PlacementTemplate> PlacementTemplateMap => _placementTemplateMap;
 
+    public UserPlacement? ActivePlacement { get; set; }
+
     public PlacementModule(IWorkspace workspace) : base(workspace)
     {}
 
@@ -17,7 +19,7 @@ public class PlacementModule : WorkspaceModule
             var objs = _workspace.DatabaseModule.GetObjectsOfType(template.ClassName);
             foreach (UserPlacement placement in objs)
             {
-                template.Children.Add(placement);
+                template.Source.Add(placement);
                 _workspace.DatabaseModule.WatchPropertyChange(placement);
             }
         }
@@ -32,18 +34,18 @@ public class PlacementModule : WorkspaceModule
             placementGroup = new PlacementGroup(group);
             _levelPlacements.Add(placementGroup);
         }
-        placementGroup.Children.Add(template);
+        placementGroup.Source.Add(template);
         _placementTemplateMap.Add(template.ClassName, template);
     }
 
     public UserPlacement AddUserPlacement(string templateName)
     {
         PlacementTemplate template = _placementTemplateMap[templateName];
-        int id = template.Children.Count <= 0 ? 1 : template.Children.Max(p => ((UserPlacement)p).ID) + 1;
+        int id = template.Source.Count <= 0 ? 1 : template.Source.Max(p => ((UserPlacement)p).ID) + 1;
         var placement = new UserPlacement(template, id);
         placement.Name = $"SN_{template.ClassName}_{id}";
         placement.Tooltip = $"ST_{template.ClassName}_{id}";
-        template.Children.Add(placement);
+        template.Source.Add(placement);
         _workspace.DatabaseModule.AddObject(placement);
         _workspace.DatabaseModule.WatchPropertyChange(placement);
         _workspace.UndoStack.AddOperation(new NewDatabaseObjectOperation(_workspace, placement));
@@ -54,7 +56,7 @@ public class PlacementModule : WorkspaceModule
     public bool RemoveUserPlacement(UserPlacement placement)
     {
         PlacementTemplate template = _placementTemplateMap[placement.Template.ClassName];
-        bool ret = template.Children.Remove(placement);
+        bool ret = template.Source.Remove(placement);
         _workspace.DatabaseModule.RemoveObject(placement);
         _workspace.DatabaseModule.UnwatchPropertyChange(placement);
         _workspace.UndoStack.AddOperation(new DelDatabaseObjectOperation(_workspace, placement));

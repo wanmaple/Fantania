@@ -6,5 +6,6 @@ public interface IPlacement
     string Group { get; }
     string Name { get; }
     string Tooltip { get; }
-    IList<IPlacement> Children { get; }
+    IReadOnlyList<IPlacement> Children { get; }
+    IList<IPlacement> Source { get; }
 }

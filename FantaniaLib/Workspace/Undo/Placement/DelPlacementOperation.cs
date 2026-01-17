@@ -10,12 +10,12 @@ public class DelPlacementOperation : FrameBasedOperation
 
     public override void Redo()
     {
-        _template.Children.Remove(_placement);
+        _template.Source.Remove(_placement);
     }
 
     public override void Undo()
     {
-        _template.Children.Add(_placement);
+        _template.Source.Add(_placement);
     }
 
     PlacementTemplate _template;

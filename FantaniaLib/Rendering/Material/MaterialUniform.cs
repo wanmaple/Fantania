@@ -1,20 +1,21 @@
 namespace FantaniaLib;
 
+[BindingScript]
+public enum UniformTypes
+{
+    Float1,
+    Float2,
+    Float3,
+    Float4,
+    Matrix3x3,
+    Texture,
+}
+
 public struct MaterialUniform : IEquatable<MaterialUniform>
 {
-    public enum UniformType
-    {
-        Float1,
-        Float2,
-        Float3,
-        Float4,
-        Matrix3x3,
-        Texture,
-    }
+    public UniformTypes Type => _type;
 
-    public UniformType Type => _type;
-
-    public MaterialUniform(UniformType type, object value)
+    public MaterialUniform(UniformTypes type, object value)
     {
         _type = type;
         _value = value;
@@ -50,6 +51,6 @@ public struct MaterialUniform : IEquatable<MaterialUniform>
         return (_type.GetHashCode() * 397) ^ _value.GetHashCode();
     }
 
-    UniformType _type;
+    UniformTypes _type;
     object _value;
 }

@@ -16,7 +16,7 @@ public class SingleObjectEditableField : ObservableObject, IEditableField
         {
             if (!FieldValue.Equals(value))
             {
-                if (FieldValidator == null || FieldValidator.ValidateField(value))
+                if (FieldValidator == null || FieldValidator.ValidateField(Workspace, value))
                 {
                     _propInfo.SetValue(_instance, value);
                     OnPropertyChanged(nameof(FieldValue));
@@ -25,9 +25,11 @@ public class SingleObjectEditableField : ObservableObject, IEditableField
         } 
     }
     public IFieldValidator? FieldValidator => _validator;
+    public IWorkspace Workspace { get; private set; }
 
-    public SingleObjectEditableField(ObservableObject instance, PropertyInfo propInfo)
+    public SingleObjectEditableField(IWorkspace workspace, ObservableObject instance, PropertyInfo propInfo)
     {
+        Workspace = workspace;
         _instance = instance;
         _propInfo = propInfo;
         
@@ -40,6 +42,7 @@ public class SingleObjectEditableField : ObservableObject, IEditableField
             _validator = Activator.CreateInstance(attr.FieldValidatorType) as IFieldValidator;
         if (_validator == null)
             _validator = EmptyFieldValidator.Empty;
+        _validator.ValidateField(Workspace, FieldValue);
 
         WeakEventHandlerManager.Subscribe<ObservableObject, PropertyChangedEventArgs, SingleObjectEditableField>(_instance, nameof(PropertyChanged), OnInstancePropertyChanged);
     }

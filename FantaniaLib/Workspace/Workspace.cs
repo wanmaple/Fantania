@@ -2,7 +2,7 @@ using System.Text.Json;
 
 namespace FantaniaLib;
 
-public class Workspace : SyncableObject, IWorkspace
+public abstract class Workspace : SyncableObject, IWorkspace
 {
     public class TickData
     {
@@ -27,8 +27,10 @@ public class Workspace : SyncableObject, IWorkspace
     public const string TEXTURE_FOLDER = "textures";
     public const string SCRIPTS_FOLDER = "scripts";
     public const string ENTITIES_FOLDER = "entities";
+    public const string LEVELS_FOLDER = "levels";
 
     public string RootFolder { get; private set; }
+    public WorkspaceSolution Solution => _solution!;
     public bool IsModified { get; private set; }
     public UndoStack UndoStack => _undoStack;
     public ulong FrameCount => _tickData.Frame;
@@ -36,17 +38,19 @@ public class Workspace : SyncableObject, IWorkspace
 
     public bool IsValid => _valid;
 
+    public LevelModule LevelModule => _lvModule;
     public DatabaseModule DatabaseModule => _dbModule;
     public PlacementModule PlacementModule => _placeModule;
     public EditorModule EditorModule => _editorModule;
     public LogModule LogModule => _logModule;
     public ScriptingModule ScriptingModule => _scriptModule;
 
-    public Workspace(string rootFolder)
+    protected Workspace(string rootFolder)
     {
         if (!Directory.Exists(rootFolder))
             throw new WorkspaceException("Invalid workspace folder");
         RootFolder = rootFolder.ToStandardPath();
+        _lvModule = new LevelModule(this);
         _dbModule = new DatabaseModule(this);
         _placeModule = new PlacementModule(this);
         _editorModule = new EditorModule(this);
@@ -54,6 +58,8 @@ public class Workspace : SyncableObject, IWorkspace
         _scriptModule = new ScriptingModule(this);
         Validate().GetAwaiter().GetResult();
     }
+
+    public abstract string LocalizeString(string content);
 
     public string GetAbsolutePath(params string[] pathes)
     {
@@ -63,13 +69,8 @@ public class Workspace : SyncableObject, IWorkspace
 
     public async Task CreateNew()
     {
-        string slnFilePath = GetAbsolutePath(SOLUTION_FILENAME);
         _solution = new WorkspaceSolution();
-        using (var fs = new FileStream(slnFilePath, FileMode.Create, FileAccess.Write))
-        {
-            JsonSerializer.Serialize(fs, _solution, new JsonSerializerOptions { WriteIndented = true, });
-            await fs.FlushAsync();
-        }
+        await WriteSolution();
         string dbFilePath = GetAbsolutePath(DatabaseModule.DATABASE_FILENAME);
         if (File.Exists(dbFilePath))
             File.Delete(dbFilePath);
@@ -90,11 +91,20 @@ public class Workspace : SyncableObject, IWorkspace
         InitializeRequired();
         await _dbModule.SyncFromDatabase();
         _placeModule.Sync();
+        string lastAccess = Solution.LatestEditingLevel;
+        try
+        {
+            LevelModule.LoadLevel(lastAccess);
+        }
+        catch
+        {
+        }
     }
 
     public async Task Save()
     {
         await _dbModule.SyncToDatabase();
+        await WriteSolution();
     }
 
     public void Tick(TimeSpan elapsed)
@@ -149,6 +159,16 @@ public class Workspace : SyncableObject, IWorkspace
         }
     }
 
+    async Task WriteSolution()
+    {
+        string slnFilePath = GetAbsolutePath(SOLUTION_FILENAME);
+        using (var fs = new FileStream(slnFilePath, FileMode.Create, FileAccess.Write))
+        {
+            JsonSerializer.Serialize(fs, _solution, new JsonSerializerOptions { WriteIndented = true, });
+            await fs.FlushAsync();
+        }
+    }
+
     void InitializeRequired()
     {
         _scriptModule.LoadBuiltinScripts();
@@ -158,6 +178,7 @@ public class Workspace : SyncableObject, IWorkspace
 
     bool _valid = false;
     WorkspaceSolution? _solution;
+    LevelModule _lvModule;
     DatabaseModule _dbModule;
     PlacementModule _placeModule;
     EditorModule _editorModule;

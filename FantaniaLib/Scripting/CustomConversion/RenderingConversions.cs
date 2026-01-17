@@ -1,3 +1,4 @@
+using System.Numerics;
 using MoonSharp.Interpreter;
 
 namespace FantaniaLib;
@@ -74,6 +75,69 @@ public static class RenderingConversions
                 MaterialKey = key,
                 VertexShader = vertShader,
                 FragmentShader = fragShader,
+            };
+        });
+        Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Table, typeof(IRenderableSizer), v =>
+        {
+            SizerTypes type = v.Table.Get("type").GetEnumOrDefault(SizerTypes.None);
+            if (type == SizerTypes.Texture)
+            {
+                TextureDefinition def = v.Table.Get("texture").ToObject<TextureDefinition>();
+                return new TextureSizer(def);
+            }
+            else if (type == SizerTypes.Fixed)
+            {
+                Vector2Int size = v.Table.Get("size").GetObjectOrDefault(Vector2Int.Zero);
+                return new FixedSizer(size);
+            }
+            return FallbackSizer.Fallback;
+        });
+        Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Table, typeof(DesiredUniformMap), v =>
+        {
+            var uniforms = new DesiredUniformMap();
+            foreach (var key in v.Table.Keys)
+            {
+                if (key.Type != DataType.String) continue;
+                string name = key.String;
+                DynValue tb = v.Table.Get(name);
+                if (tb.Table.Get("type").IsNil()) continue;
+                UniformTypes type = tb.Table.Get("type").GetEnumOrDefault(UniformTypes.Float1);
+                DynValue val = tb.Table.Get("value");
+                object value = type switch
+                {
+                    UniformTypes.Float1 => val.GetFloatOrDefault(0.0f),
+                    UniformTypes.Float2 => val.GetObjectOrDefault(Vector2.Zero),
+                    UniformTypes.Float3 => val.GetObjectOrDefault(Vector3.Zero),
+                    UniformTypes.Float4 => val.GetObjectOrDefault(Vector4.Zero),
+                    UniformTypes.Matrix3x3 => val.GetObjectOrDefault(Matrix3x3.Identity),
+                    UniformTypes.Texture => TextureDefinition.None,
+                    _ => 0.0f,
+                };
+                var desiredUniform = new DesiredUniformValue
+                {
+                    Type = type,
+                    Value = value,
+                };
+                uniforms.SetUniform(name, desiredUniform);
+            }
+            return uniforms;
+        });
+        Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Table, typeof(ScriptRenderInfo), v =>
+        {
+            var stage = v.Table.Get("stage").GetStringOrDefault(string.Empty);
+            int depth = v.Table.Get("depth").GetIntegerOrDefault(0);
+            Vector4 color = v.Table.Get("color").GetObjectOrDefault(Vector4.One);
+            string matKey = v.Table.Get("materialKey").GetStringOrDefault(string.Empty);
+            DesiredUniformMap uniforms = v.Table.Get("uniforms").GetObjectOrDefault(new DesiredUniformMap());
+            IRenderableSizer sizer = v.Table.Get("sizer").GetObjectOrDefault(FallbackSizer.Fallback);
+            return new ScriptRenderInfo
+            {
+                Stage = stage,
+                Depth = depth,
+                Color = color,
+                MaterialKey = matKey,
+                Uniforms = uniforms,
+                Sizer = sizer,
             };
         });
     }

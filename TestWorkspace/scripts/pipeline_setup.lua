@@ -4,15 +4,15 @@ local RenderPipelineSetup = {
 		y = 1080,
 	},
 	frameBuffers = {
-		{
-			name = "Lighting",
-			description = {
-				width = 1920,
-				height = 1080,
-				colorFormat = TextureFormats.RGBA8,
-				depthFormat = DepthFormats.None,
-			},
-		},
+		-- {
+		-- 	name = "Lighting",
+		-- 	description = {
+		-- 		width = 1920,
+		-- 		height = 1080,
+		-- 		colorFormat = TextureFormats.RGBA8,
+		-- 		depthFormat = DepthFormats.None,
+		-- 	},
+		-- },
 	},
 	stages = {
 		BuiltinPipelineStages.Opaque,
@@ -20,9 +20,9 @@ local RenderPipelineSetup = {
 	},
 	materials = {
 		{
-			key = "SampleTexture",
+			key = "Standard",
 			vertShader = BuiltinShaders.VS_Standard,
-			fragShader = BuiltinShaders.FS_Sample,
+			fragShader = BuiltinShaders.FS_Standard,
 		},
 	},
 }

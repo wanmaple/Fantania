@@ -25,12 +25,16 @@ public class LogModule : WorkspaceModule
 
     public async Task LogOptionalAsync(string content)
     {
+#if DEBUG
         await Dispatcher.UIThread.InvokeAsync(() => AddOptionalLog(content));
+#endif
     }
 
     public void LogOptional(string content)
     {
+#if DEBUG
         Dispatcher.UIThread.Invoke(() => AddOptionalLog(content));
+#endif
     }
 
     public async Task LogWarningAsync(string content)

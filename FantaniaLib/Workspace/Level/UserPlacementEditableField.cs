@@ -15,7 +15,7 @@ public class UserPlacementEditableField : ObservableObject, IEditableField
         {
             if (!FieldValue.Equals(value))
             {
-                if (FieldValidator == null || FieldValidator.ValidateField(value))
+                if (FieldValidator == null || FieldValidator.ValidateField(Workspace, value))
                 {
                     _placement.SetFieldValue(FieldName, value);
                     OnPropertyChanged(nameof(FieldValue));
@@ -24,9 +24,11 @@ public class UserPlacementEditableField : ObservableObject, IEditableField
         }
     }
     public IFieldValidator? FieldValidator => _validator;
+    public IWorkspace Workspace { get; private set; }
 
-    public UserPlacementEditableField(UserPlacement placement, string fieldName)
+    public UserPlacementEditableField(IWorkspace workspace, UserPlacement placement, string fieldName)
     {
+        Workspace = workspace;
         _placement = placement;
         _fieldName = fieldName;
 
@@ -36,6 +38,7 @@ public class UserPlacementEditableField : ObservableObject, IEditableField
             _validator = Activator.CreateInstance(validatorType) as IFieldValidator;
         if (_validator == null)
             _validator = EmptyFieldValidator.Empty;
+        _validator.ValidateField(Workspace, FieldValue);
 
         WeakEventHandlerManager.Subscribe<UserPlacement, PropertyChangedEventArgs, UserPlacementEditableField>(_placement, nameof(PropertyChanged), OnPlacementPropertyChanged);
     }

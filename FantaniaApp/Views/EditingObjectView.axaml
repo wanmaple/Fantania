@@ -15,7 +15,14 @@
   <Grid RowDefinitions="auto,*">
     <TextBlock Classes="h2" Grid.Row="0" Text="{x:Static lang:Resources.H_Properties}" />
     <ScrollViewer Grid.Row="1">
-      <lib:ObjectEditView EditableFields="{Binding SelectedPlacement, Converter={StaticResource Cvt_Obj2Groups}}" />
+      <lib:ObjectEditView>
+        <lib:ObjectEditView.EditableFields>
+          <MultiBinding Converter="{StaticResource Cvt_Obj2Groups}">
+            <Binding Path="SelectedPlacement" />
+            <Binding Path="Workspace" />
+          </MultiBinding>
+        </lib:ObjectEditView.EditableFields>
+      </lib:ObjectEditView>
     </ScrollViewer>
   </Grid>
 </UserControl>

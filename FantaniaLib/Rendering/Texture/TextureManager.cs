@@ -1,12 +1,22 @@
 namespace FantaniaLib;
 
 [BindingScript]
-public class TextureManager
+public class TextureManager : IDisposable
 {
-    public TextureManager(IRenderDevice device)
+    public int FallbackTextureID => _fallbackTextureId;
+
+    public unsafe TextureManager(IRenderDevice device)
     {
         _cacheSingleImage = new LocalTextureCache(device);
         _cacheAtlas = new LocalTextureCache(device);
+        var fallback = new LocalTexture2D("avares://Fantania/Assets/textures/white4x4.png");
+        if (fallback.TryDecode(out var desc, out var data))
+        {
+            fixed (void* ptr = data)
+            {
+                _fallbackTextureId = device.CreateTexture2D(desc, (nint)ptr);
+            }
+        }
     }
 
     public int AcquireTextureID(ITexture2D texture)
@@ -26,6 +36,12 @@ public class TextureManager
             _cacheAtlas.Release(texture);
     }
 
+    public void Dispose()
+    {
+        throw new NotImplementedException();
+    }
+
     LocalTextureCache _cacheSingleImage;
     LocalTextureCache _cacheAtlas;
+    int _fallbackTextureId = 0;
 }

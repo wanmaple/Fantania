@@ -7,28 +7,11 @@ public class UserPlacement : DatabaseObject, IPlacement
     public string ClassName => string.Empty;
     public string Group => string.Empty;
 
-    public IList<IPlacement> Children => Array.Empty<IPlacement>();
+    public IReadOnlyList<IPlacement> Children => Array.Empty<IPlacement>();
+    public IList<IPlacement> Source => Array.Empty<IPlacement>();
 
     public override string TypeName => _script.ClassName.MakeFirstCharacterUpper();
     public override string GroupName => string.Empty;
-    
-    public override IReadOnlyList<IEditableField> EditableFields
-    {
-        get
-        {
-            var defFields = _script.GetDefinedFields();
-            var editableFields = new List<IEditableField>(defFields.Count);
-            foreach (FieldInfo info in defFields)
-            {
-                string fieldName = info.FieldName;
-                var editableField = new UserPlacementEditableField(this, fieldName);
-                editableFields.Add(editableField);
-            }
-            editableFields.AddRange(base.EditableFields);
-            editableFields.Sort((f1, f2) => f1.FieldName.CompareTo(f2.FieldName));
-            return editableFields;
-        }
-    }
 
     internal PlacementTemplate Template => _script;
 
@@ -66,6 +49,21 @@ public class UserPlacement : DatabaseObject, IPlacement
             return;
         }
         base.SetFieldValue(fieldName, value);
+    }
+
+    public override IReadOnlyList<IEditableField> GetEditableFields(IWorkspace workspace)
+    {
+        var defFields = _script.GetDefinedFields();
+        var editableFields = new List<IEditableField>(defFields.Count);
+        foreach (FieldInfo info in defFields)
+        {
+            string fieldName = info.FieldName;
+            var editableField = new UserPlacementEditableField(workspace, this, fieldName);
+            editableFields.Add(editableField);
+        }
+        editableFields.AddRange(base.GetEditableFields(workspace));
+        editableFields.Sort((f1, f2) => f1.FieldName.CompareTo(f2.FieldName));
+        return editableFields;
     }
 
     PlacementTemplate _script;

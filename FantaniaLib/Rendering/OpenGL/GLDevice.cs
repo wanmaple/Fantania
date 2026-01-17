@@ -268,22 +268,22 @@ public class GLDevice : IRenderDevice
         if (location < 0) return;
         switch (uniform.Type)
         {
-            case MaterialUniform.UniformType.Float1:
+            case UniformTypes.Float1:
                 _gl.Uniform1f(location, uniform.Get<float>());
                 break;
-            case MaterialUniform.UniformType.Float2:
+            case UniformTypes.Float2:
                 GLApiEx.Uniform2f(_gl, location, uniform.Get<Vector2>());
                 break;
-            case MaterialUniform.UniformType.Float3:
+            case UniformTypes.Float3:
                 GLApiEx.Uniform3f(_gl, location, uniform.Get<Vector3>());
                 break;
-            case MaterialUniform.UniformType.Float4:
+            case UniformTypes.Float4:
                 GLApiEx.Uniform4f(_gl, location, uniform.Get<Vector4>());
                 break;
-            case MaterialUniform.UniformType.Matrix3x3:
+            case UniformTypes.Matrix3x3:
                 GLApiEx.UniformMatrix3fv(_gl, location, uniform.Get<Matrix3x3>());
                 break;
-            case MaterialUniform.UniformType.Texture:
+            case UniformTypes.Texture:
                 (int slot, int texId) pair = uniform.Get<(int, int)>();
                 _gl.ActiveTexture(GL_TEXTURE0 + pair.slot);
                 _gl.BindTexture(GL_TEXTURE_2D, pair.texId);

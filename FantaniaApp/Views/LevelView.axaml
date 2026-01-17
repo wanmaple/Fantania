@@ -12,5 +12,8 @@
   <Design.DataContext>
     <vm:LevelViewModel />
   </Design.DataContext>
-  <v:LevelCanvas DataContext="{Binding Workspace}" />
+  <Grid>
+    <v:LevelCanvas DataContext="{Binding Workspace}" IsVisible="{Binding LevelModule.CurrentLevel, Converter={x:Static ObjectConverters.IsNotNull}}" />
+    <Button Background="Transparent" Content="{x:Static lang:Resources.BT_CreateLevel}" IsVisible="{Binding Workspace.LevelModule.CurrentLevel, Converter={x:Static ObjectConverters.IsNull}}" Command="{Binding CreateNewLevelCommand}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontSize="40" FontWeight="Bold" />
+  </Grid>
 </UserControl>

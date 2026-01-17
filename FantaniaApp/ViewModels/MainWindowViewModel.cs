@@ -47,7 +47,7 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             string folder = folders[0].Path.AbsoluteUri;
             folder = AvaloniaHelper.ConvertAvaloniaUriToStandardUri(folder);
-            Workspace workspace = new Workspace(folder);
+            Workspace workspace = new FantaniaWorkspace(folder);
             if (workspace.IsValid)
             {
                 if (!await MessageBoxHelper.PopupWarningYesNo(AvaloniaHelper.GetTopWindow(), LocalizationHelper.GetLocalizedString("WARN_Replace_Exist_Workspace"), folder))
@@ -159,7 +159,7 @@ public partial class MainWindowViewModel : ViewModelBase
             if (Workspace.RootFolder == folder)
                 return;
         }
-        Workspace workspace = new Workspace(folder);
+        Workspace workspace = new FantaniaWorkspace(folder);
         if (!workspace.IsValid)
         {
             await MessageBoxHelper.PopupErrorOkay(AvaloniaHelper.GetTopWindow(), LocalizationHelper.GetLocalizedString("ERR_Invalid_Workspace"), folder);

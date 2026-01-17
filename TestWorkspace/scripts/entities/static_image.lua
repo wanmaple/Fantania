@@ -1,90 +1,90 @@
 local StaticImage = Class("StaticImage")
 
-function StaticImage:group()
-    return "SG_Decoration"
-end
+StaticImage.group = "SG_Decoration"
+StaticImage.name = "SN_StaticImage"
+StaticImage.tooltip = "ST_StaticImage"
+StaticImage.dataDefs = {
+    diffuse = {
+        type = FieldTypes.Texture,
+    },
+    -- normal = {
+    --     type = FieldTypes.Texture,
+    -- },
+    lit = {
+        type = FieldTypes.Boolean,
+        default = false,
+    },
+    number = {
+        type = FieldTypes.Vector2,
+        default = { x = 1.0, y = 0.0, },
+    },
+    veci = {
+        type = FieldTypes.Vector2Int,
+        default = { x = 3, y = -2, },
+    },
+    color = {
+        type = FieldTypes.Color,
+        -- default = { r = 1.0, g = 0.0, b = 0.0, a = 1.0, },
+        default = "#FF0000",
+    },
+}
+StaticImage.editDefs = {
+    diffuse = {
+        group = "SG_Appearance",
+        tooltip = "ST_StaticImage_Diffuse",
+    },
+    -- normal = {
+    --     group = "SG_Appearance",
+    --     tooltip = "ST_StaticImage_Normal",
+    -- },
+    lit = {
+        group = "SG_Appearance",
+        tooltip = "ST_StaticImage_Lit",
+    },
+    number = {
+        group = "SG_Appearance",
+        tooltip = "ST_StaticImage_Num",
+        parameter = "-2.0:2.0:0.2",
+    },
+    veci = {
+        group = "SG_Appearance",
+        tooltip = "ST_StaticImage_Veci",
+        parameter = "-100:100",
+    },
+    color = {
+        group = "SG_Appearance",
+        tooltip = "ST_StaticImage_Color",
+        control = EditControls.ColorPicker,
+    },
+}
 
-function StaticImage:name()
-    return "SN_StaticImage"
-end
+StaticImage.defaultAnchor = { x = 0.5, y = 1.0, }
+StaticImage.defaultLayer = 0
+StaticImage.nodeOptions = {
+    min = 0,
+    max = 0,
+    defaultOffset = { x = 100, y = 0, },
+}
 
-function StaticImage:tooltip()
-    return "ST_StaticImage"
-end
-
-function StaticImage:dataDefs()
-    return {
-        diffuse = {
-            type = FieldTypes.Texture,
+function StaticImage:renderables(entity)
+    local ret = {}
+    table.insert(ret, {
+        stage = BuiltinStages.Transparent,
+        depth = 0,
+        color = entity.color,
+        materialKey = "Standard",
+        uniforms = {
+            u_Texture = {
+                type = UniformTypes.Texture,
+                value = entity.data.diffuse,
+            },
         },
-        -- normal = {
-        --     type = FieldTypes.Texture,
-        -- },
-        lit = {
-            type = FieldTypes.Boolean,
-            default = false,
+        sizer = {
+            type = SizerTypes.Texture,
+            texture = entity.data.diffuse,
         },
-        number = {
-            type = FieldTypes.Vector2,
-            default = { x = 1.0, y = 0.0, },
-        },
-        veci = {
-            type = FieldTypes.Vector2Int,
-            default = { x = 3, y = -2, },
-        },
-        color = {
-            type = FieldTypes.Color,
-            -- default = { r = 1.0, g = 0.0, b = 0.0, a = 1.0, },
-            default = "#FF0000",
-        },
-    }
-end
-
-function StaticImage:editDefs()
-    return {
-        diffuse = {
-            group = "SG_Appearance",
-            tooltip = "ST_StaticImage_Diffuse",
-            parameter = Workspace.RootFolder,
-        },
-        -- normal = {
-        --     group = "SG_Appearance",
-        --     tooltip = "ST_StaticImage_Normal",
-        -- },
-        lit = {
-            group = "SG_Appearance",
-            tooltip = "ST_StaticImage_Lit",
-        },
-        number = {
-            group = "SG_Appearance",
-            tooltip = "ST_StaticImage_Num",
-            parameter = "-2.0:2.0:0.2",
-        },
-        veci = {
-            group = "SG_Appearance",
-            tooltip = "ST_StaticImage_Veci",
-            parameter = "-100:100",
-        },
-        color = {
-            group = "SG_Appearance",
-            tooltip = "ST_StaticImage_Color",
-            control = EditControls.ColorPicker,
-        },
-    }
-end
-
-function StaticImage:nodeOptions()
-    return {
-        min = 0,
-        max = 0,
-    }
-end
-
-function StaticImage:renderNodes(entity)
-    entity:addRenderNode({
-        stage = RenderStages.Transparency,
-        -- material = 
     })
+    return ret
 end
 
 return StaticImage

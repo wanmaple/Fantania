@@ -9,20 +9,20 @@
              x:Name="Root">
   <UserControl.Resources>
     <lib:EditableField2EditControlConverter x:Key="Cvt_EditCtrl" />
-    <lib:TooltipConverter x:Key="Cvt_Tooltip" />
+    <lib:Text2LocalizedConverter x:Key="Cvt_Localized" />
   </UserControl.Resources>
   <DataGrid ItemsSource="{Binding Fields}" GridLinesVisibility="All" BorderThickness="1" CanUserResizeColumns="True" CanUserReorderColumns="False" HeadersVisibility="None">
     <DataGrid.Columns>
-      <DataGridTemplateColumn Header="Property Name">
+      <DataGridTemplateColumn Header="Property Name" MinWidth="120">
         <DataGridTemplateColumn.CellTemplate>
           <DataTemplate x:DataType="lib:IEditableField">
             <TextBlock Classes="p" Text="{Binding FieldName, Converter={StaticResource Cvt_PrettyName}}" ToolTip.ServiceEnabled="{Binding EditInfo.Tooltip, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" ToolTip.Placement="LeftEdgeAlignedTop" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5">
               <ToolTip.Tip>
                 <TextBlock Classes="p tooltip">
                   <TextBlock.Text>
-                    <MultiBinding Converter="{StaticResource Cvt_Tooltip}">
+                    <MultiBinding Converter="{StaticResource Cvt_Localized}">
                       <Binding Path="EditInfo.Tooltip" />
-                      <Binding Path="#Root.TooltipConverter" />
+                      <Binding Path="Workspace" />
                     </MultiBinding>
                   </TextBlock.Text>
                 </TextBlock>

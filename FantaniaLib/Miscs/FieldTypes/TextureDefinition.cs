@@ -1,6 +1,7 @@
 
 namespace FantaniaLib;
 
+[BindingScript]
 public enum TextureTypes
 {
     None,

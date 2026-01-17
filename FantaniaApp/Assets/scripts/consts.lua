@@ -15,7 +15,13 @@ EditControls = {
     TextureBox = "FantaniaLib.TextureBox",
 }
 
+BuiltinStages = {
+    Opaque = "Opaque",
+    Transparent = "Transparent",
+    PostProcessing = "Post Processing",
+}
+
 BuiltinShaders = {
     VS_Standard = "avares://Fantania/Assets/shaders/vert_standard.vs",
-    FS_Sample = "avares://Fantania/Assets/shaders/frag_sample.fs",
+    FS_Standard = "avares://Fantania/Assets/shaders/frag_standard.fs",
 }

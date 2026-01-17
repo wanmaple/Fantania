@@ -9,6 +9,10 @@ public abstract class GLCanvas : OpenGlControlBase, ICustomHitTest
 {
     public bool IsValid => _pipeline != null;
 
+    protected virtual void OnContextCreateFailed()
+    {
+    }
+
     protected virtual void OnContextInitializing(ConfigurableRenderPipeline pipeline)
     {
     }
@@ -29,7 +33,11 @@ public abstract class GLCanvas : OpenGlControlBase, ICustomHitTest
         {
             valid = true;
         }
-        if (!valid) return;
+        if (!valid) 
+        {
+            OnContextCreateFailed();
+            return;
+        }
         var device = new GLDevice(gl);
         _pipeline = new ConfigurableRenderPipeline(device);
         OnContextInitializing(_pipeline);

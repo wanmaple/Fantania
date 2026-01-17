@@ -5,8 +5,7 @@
              xmlns:lib="using:FantaniaLib"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="lib:IEditableField"
-             x:Class="FantaniaLib.TextureBox"
-             x:Name="Root">
+             x:Class="FantaniaLib.TextureBox">
   <UserControl.Resources>
     <lib:EnumType2OptionsConverter x:Key="Cvt_Enum2Options" />
     <lib:Object2MemberConverter x:Key="Cvt_FindMember" />
@@ -23,20 +22,20 @@
           <lib:GLImagePreview.Texture>
             <MultiBinding Converter="{StaticResource Cvt_Texture}">
               <Binding Path="FieldValue" />
-              <Binding Path="RootFolder" ElementName="Root" />
+              <Binding Path="Workspace.RootFolder" />
             </MultiBinding>
           </lib:GLImagePreview.Texture>
         </lib:GLImagePreview>
         <Grid Grid.Row="1" IsVisible="{Binding FieldValue, Converter={StaticResource Cvt_DefIsType}, ConverterParameter={x:Static lib:TextureTypes.Image}}">
           <Grid ColumnDefinitions="50,*">
             <TextBlock Grid.Column="0" Text="Path" VerticalAlignment="Center" />
-            <lib:FileSelectBox x:Name="fsbImage" Grid.Column="1" Path="{Binding FieldValue, Mode=OneWay, Converter={StaticResource Cvt_FindMember}, ConverterParameter=TextureParameters.ImageParams.ImagePath}" Title="Pick Image" Filter="Image files (*.png, *.jpg, *.jpeg, *.bmp)|*.png;*.jpg;*.jpeg" RootFolder="{Binding #Root.RootFolder}" MaxWidth="300" />
+            <lib:FileSelectBox x:Name="fsbImage" Grid.Column="1" Workspace="{Binding Workspace}" Path="{Binding FieldValue, Mode=OneWay, Converter={StaticResource Cvt_FindMember}, ConverterParameter=TextureParameters.ImageParams.ImagePath}" Title="Pick Image" Filter="Image files (*.png, *.jpg, *.jpeg, *.bmp)|*.png;*.jpg;*.jpeg" RootFolder="{Binding Workspace.RootFolder}" MaxWidth="300" />
           </Grid>
         </Grid>
         <Grid Grid.Row="1" RowDefinitions="*,*" IsVisible="{Binding FieldValue, Converter={StaticResource Cvt_DefIsType}, ConverterParameter={x:Static lib:TextureTypes.Atlas}}">
           <Grid Grid.Row="0" ColumnDefinitions="50,*">
             <TextBlock Grid.Column="0" Text="Path" VerticalAlignment="Center" />
-            <lib:FileSelectBox x:Name="fsbAtlas" Grid.Column="1" Path="{Binding FieldValue, Mode=OneWay, Converter={StaticResource Cvt_FindMember}, ConverterParameter=TextureParameters.AtlasParams.AtlasPath}" Title="Pick Atlas" Filter="Atlas files (*.json)|*.json" RootFolder="{Binding #Root.RootFolder}" MaxWidth="300" FileSelected="AtlasSelectBox_FileSelected" />
+            <lib:FileSelectBox x:Name="fsbAtlas" Grid.Column="1" Workspace="{Binding Workspace}" Path="{Binding FieldValue, Mode=OneWay, Converter={StaticResource Cvt_FindMember}, ConverterParameter=TextureParameters.AtlasParams.AtlasPath}" Title="Pick Atlas" Filter="Atlas files (*.json)|*.json" RootFolder="{Binding Workspace.RootFolder}" MaxWidth="300" FileSelected="AtlasSelectBox_FileSelected" />
           </Grid>
           <Grid Grid.Row="1" ColumnDefinitions="50,*" Margin="0 5 0 0">
             <TextBlock Grid.Column="0" Text="Key" VerticalAlignment="Center" />
@@ -44,7 +43,7 @@
               <ComboBox.ItemsSource>
                 <MultiBinding Converter="{StaticResource Cvt_Frames}">
                   <Binding Path="FieldValue" />
-                  <Binding Path="RootFolder" ElementName="Root" />
+                  <Binding Path="Workspace.RootFolder" />
                 </MultiBinding>
               </ComboBox.ItemsSource>
             </ComboBox>
@@ -54,7 +53,7 @@
           <TextBlock.Text>
             <MultiBinding Converter="{StaticResource Cvt_TexInfo}">
               <Binding Path="FieldValue" />
-              <Binding Path="RootFolder" ElementName="Root" />
+              <Binding Path="Workspace.RootFolder" />
             </MultiBinding>
           </TextBlock.Text>
         </TextBlock>

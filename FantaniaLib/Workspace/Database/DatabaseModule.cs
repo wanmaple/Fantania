@@ -37,6 +37,16 @@ public class DatabaseModule : WorkspaceModule
         return _db.ObjectsOfType(type);
     }
 
+    public T? GetGroupedObject<T>(string group, int id) where T : DatabaseObject
+    {
+        return GetObjectsOfGroup(group).FirstOrDefault(o => o.ID == id) as T;
+    }
+
+    public T? GetTypedObject<T>(string type, int id) where T : DatabaseObject
+    {
+        return GetObjectsOfType(type).FirstOrDefault(o => o.ID == id) as T;
+    }
+
     public void AddObject(DatabaseObject obj)
     {
         _syncer.AddObject(obj);

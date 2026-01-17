@@ -13,5 +13,5 @@ public class RenderInfo
     public required Vector2 Scale { get; set; }
     public required Vector4 Color { get; set; }
     public required string MaterialKey { get; set; }
-    public required IReadOnlyDictionary<string, object> Uniforms { get; set; }
+    public required DesiredUniformMap Uniforms { get; set; }
 }

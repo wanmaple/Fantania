@@ -1,23 +1,21 @@
 using System.Collections;
 using System.Collections.Specialized;
+using System.ComponentModel;
 
 namespace FantaniaLib;
 
-public sealed class FilterableObservableCollection<T> : IList<T>, INotifyCollectionChanged
+public sealed class FilterableObservableCollection<T> : IList<T>, IReadOnlyList<T>, INotifyCollectionChanged, INotifyPropertyChanged
 {
-    public event NotifyCollectionChangedEventHandler? CollectionChanged;
-
-    public IList<T> AllItems => _innerCollection;
-
-    public FilterableObservableCollection(IList<T> innerCollection)
+    struct SortData
     {
-        _innerCollection = innerCollection;
-        _orders = new LinkedList<int>();
-        Filter(null, null);
+        public int index;
+        public string sortKey;
     }
 
+    public event NotifyCollectionChangedEventHandler? CollectionChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
+    
     public int Count => _count;
-
     public bool IsReadOnly => false;
 
     public T this[int index]
@@ -25,22 +23,24 @@ public sealed class FilterableObservableCollection<T> : IList<T>, INotifyCollect
         get
         {
             VerifyIndexRange(index);
-            return _innerCollection[_orders.ElementAt(index)];
+            return _innerCollection[_orders[index]];
         }
         set
         {
             VerifyIndexRange(index);
-            _innerCollection[_orders.ElementAt(index)] = value;
+            _innerCollection[_orders[index]] = value;
+            Filter(_lastFilterFunc, _lastSortFunc);
         }
     }
 
-    private struct SortData
+    public FilterableObservableCollection(IList<T> innerCollection)
     {
-        public int index;
-        public string sortKey;
+        _innerCollection = innerCollection;
+        _orders = new List<int>();
+        Filter(null, null);
     }
 
-    public void Filter(Predicate<T>? filterFunc, Func<T, string>? priorityFunc)
+    public void Filter(Predicate<T>? filterFunc, Func<T, string>? sortFunc)
     {
         _count = 0;
         _orders.Clear();
@@ -50,27 +50,27 @@ public sealed class FilterableObservableCollection<T> : IList<T>, INotifyCollect
         {
             if (filterFunc == null || filterFunc(item))
             {
-                string sortKey = priorityFunc == null ? string.Empty : priorityFunc(item);
+                string sortKey = sortFunc == null ? string.Empty : sortFunc(item);
                 priorities.Add(new SortData { index = idx, sortKey = sortKey });
             }
             ++idx;
         }
-        priorities = priorities.OrderBy(item => item.sortKey).ToList();
+        priorities.Sort((lhs, rhs) => lhs.sortKey.CompareTo(rhs.sortKey));
         foreach (var data in priorities)
         {
-            _orders.AddLast(data.index);
+            _orders.Add(data.index);
             ++_count;
         }
         _lastFilterFunc = filterFunc;
-        _lastPriorityFunc = priorityFunc;
+        _lastSortFunc = sortFunc;
 
-        RaiseCollectionChanged();
+        OnCollectionChanged();
     }
 
     public void Add(T item)
     {
         _innerCollection.Add(item);
-        Filter(_lastFilterFunc, _lastPriorityFunc);
+        Filter(_lastFilterFunc, _lastSortFunc);
     }
 
     public void Clear()
@@ -78,8 +78,7 @@ public sealed class FilterableObservableCollection<T> : IList<T>, INotifyCollect
         _count = 0;
         _orders.Clear();
         _innerCollection.Clear();
-
-        RaiseCollectionChanged();
+        OnCollectionChanged();
     }
 
     public bool Contains(T item)
@@ -91,7 +90,7 @@ public sealed class FilterableObservableCollection<T> : IList<T>, INotifyCollect
     {
         for (int i = 0; i < _count; i++)
         {
-            int idx = _orders.ElementAt(i);
+            int idx = _orders[i];
             array[arrayIndex + i] = _innerCollection[idx];
         }
     }
@@ -101,7 +100,7 @@ public sealed class FilterableObservableCollection<T> : IList<T>, INotifyCollect
         bool removed = _innerCollection.Remove(item);
         if (removed)
         {
-            Filter(_lastFilterFunc, _lastPriorityFunc);
+            Filter(_lastFilterFunc, _lastSortFunc);
         }
         return removed;
     }
@@ -110,7 +109,7 @@ public sealed class FilterableObservableCollection<T> : IList<T>, INotifyCollect
     {
         for (int i = 0; i < _count; i++)
         {
-            int index = _orders.ElementAt(i);
+            int index = _orders[i];
             yield return _innerCollection[index];
         }
     }
@@ -129,32 +128,27 @@ public sealed class FilterableObservableCollection<T> : IList<T>, INotifyCollect
     {
         VerifyIndexRange(index);
         _innerCollection.Insert(index, item);
-        Filter(_lastFilterFunc, _lastPriorityFunc);
-        RaiseCollectionChanged();
+        Filter(_lastFilterFunc, _lastSortFunc);
     }
 
     public void RemoveAt(int index)
     {
         VerifyIndexRange(index);
-        LinkedListNode<int> curNode = _orders.First!;
-        while (index > 0)
-        {
-            --index;
-            curNode = curNode.Next!;
-        }
-        _innerCollection.RemoveAt(curNode.Value);
-        Filter(_lastFilterFunc, _lastPriorityFunc);
+        _innerCollection.RemoveAt(_orders[index]);
+        Filter(_lastFilterFunc, _lastSortFunc);
     }
 
-    private void RaiseCollectionChanged()
+    void OnCollectionChanged()
     {
-        if (CollectionChanged != null)
-        {
-            CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-        }
+        CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
     }
 
-    private void VerifyIndexRange(Int32 index)
+    void OnPropertyChanged(string propertyName)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    void VerifyIndexRange(int index)
     {
         if (index < 0 || index >= _count)
         {
@@ -162,9 +156,9 @@ public sealed class FilterableObservableCollection<T> : IList<T>, INotifyCollect
         }
     }
 
-    private IList<T> _innerCollection;
-    private LinkedList<int> _orders;
-    private int _count;
-    private Predicate<T>? _lastFilterFunc;
-    private Func<T, string>? _lastPriorityFunc;
+    IList<T> _innerCollection;
+    List<int> _orders;
+    int _count;
+    Predicate<T>? _lastFilterFunc;
+    Func<T, string>? _lastSortFunc;
 }

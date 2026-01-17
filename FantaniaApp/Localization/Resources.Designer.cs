@@ -76,6 +76,42 @@ namespace Fantania.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 创建一个关卡.
+        /// </summary>
+        public static string BT_CreateLevel {
+            get {
+                return ResourceManager.GetString("BT_CreateLevel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 创建关卡失败，详情：{0}.
+        /// </summary>
+        public static string ERR_CreateLevelFailure {
+            get {
+                return ResourceManager.GetString("ERR_CreateLevelFailure", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 文件必须在工作区目录&apos;{0}&apos;内。.
+        /// </summary>
+        public static string ERR_FileInsideWorkspace {
+            get {
+                return ResourceManager.GetString("ERR_FileInsideWorkspace", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 加载OpenGL Desktop失败，确保其版本为3.3及以上。.
+        /// </summary>
+        public static string ERR_GLContextFailure {
+            get {
+                return ResourceManager.GetString("ERR_GLContextFailure", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &apos;{0}&apos;不是一个有效的工作区，或者由于某些原因损坏了。.
         /// </summary>
         public static string ERR_Invalid_Workspace {
@@ -85,11 +121,47 @@ namespace Fantania.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 属性&apos;{0}&apos;的值不合法。.
+        /// </summary>
+        public static string ERR_InvalidFieldValue {
+            get {
+                return ResourceManager.GetString("ERR_InvalidFieldValue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 关卡&apos;{0}&apos;不存在或者已损坏，无法加载。.
+        /// </summary>
+        public static string ERR_InvalidLevel {
+            get {
+                return ResourceManager.GetString("ERR_InvalidLevel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 无效的关卡名，只能由字母、数字或下划线构成，且首字符不能为数字。.
+        /// </summary>
+        public static string ERR_InvalidLevelName {
+            get {
+                return ResourceManager.GetString("ERR_InvalidLevelName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &apos;{0}&apos;不存在。.
         /// </summary>
         public static string ERR_NonExist_Workspace {
             get {
                 return ResourceManager.GetString("ERR_NonExist_Workspace", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 创建关卡.
+        /// </summary>
+        public static string H_CreateLevel {
+            get {
+                return ResourceManager.GetString("H_CreateLevel", resourceCulture);
             }
         }
         

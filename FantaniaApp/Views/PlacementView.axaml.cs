@@ -33,7 +33,8 @@ public partial class PlacementView : UserControl
     {
         Button btn = (Button)sender!;
         PlacementTemplate template = (PlacementTemplate)btn.DataContext!;
-        ViewModel!.Workspace.PlacementModule.AddUserPlacement(template.ClassName);
+        var placement = ViewModel!.Workspace.PlacementModule.AddUserPlacement(template.ClassName);
+        tvPlacements.SelectedItem = placement;
     }
 
     void UserPlacement_PointerPressed(object? sender, PointerPressedEventArgs e)
@@ -47,5 +48,16 @@ public partial class PlacementView : UserControl
                 ViewModel!.Workspace.PlacementModule.RemoveUserPlacement(placement);
             }
         }
+    }
+
+    void FilterBox_TextChanged(object? sender, TextChangedEventArgs e)
+    {
+        var selected = tvPlacements.SelectedItem;
+        string filterContent = txtFilter.Text!.Trim();
+        ViewModel!.FilterPlacements(p => string.IsNullOrEmpty(filterContent) || p.Name.Contains(filterContent, System.StringComparison.OrdinalIgnoreCase));
+        if (selected is UserPlacement placement && !string.IsNullOrEmpty(filterContent) && !placement.Name.Contains(filterContent, System.StringComparison.OrdinalIgnoreCase))
+            tvPlacements.SelectedItem = null;
+        else
+            tvPlacements.SelectedItem = selected;
     }
 }

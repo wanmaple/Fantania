@@ -6,12 +6,22 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="FantaniaLib.ObjectEditView"
              x:Name="Root">
+  <UserControl.Resources>
+    <lib:Text2LocalizedConverter x:Key="Cvt_Localization" />
+  </UserControl.Resources>
   <ItemsControl Grid.Row="1" ItemsSource="{Binding #Root.EditableFields}" Margin="0 10 0 0">
     <ItemsControl.ItemTemplate>
       <DataTemplate x:DataType="lib:GroupedEditableFields">
         <Grid RowDefinitions="auto,*" Margin="0 5 0 0">
-          <TextBlock Grid.Row="0" Classes="m" Text="{Binding Group, Converter={StaticResource Cvt_Localization}}" Padding="5" Background="#ff286959" IsVisible="{Binding Group, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
-          <lib:EditFieldsView Grid.Row="1" DataContext="{Binding Fields}" TooltipConverter="{StaticResource Cvt_Localization}" />
+          <TextBlock Grid.Row="0" Classes="m" IsVisible="{Binding Group, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" Padding="5" Background="#ff286959">
+            <TextBlock.Text>
+              <MultiBinding Converter="{StaticResource Cvt_Localization}">
+                <Binding Path="Group" />
+                <Binding Path="Workspace" />
+              </MultiBinding>
+            </TextBlock.Text>
+          </TextBlock>
+          <lib:EditFieldsView Grid.Row="1" DataContext="{Binding Fields}" />
         </Grid>
       </DataTemplate>
     </ItemsControl.ItemTemplate>

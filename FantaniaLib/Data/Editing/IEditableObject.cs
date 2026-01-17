@@ -2,5 +2,5 @@ namespace FantaniaLib;
 
 public interface IEditableObject
 {
-    IReadOnlyList<IEditableField> EditableFields { get; }
+    IReadOnlyList<IEditableField> GetEditableFields(IWorkspace workspace);
 }

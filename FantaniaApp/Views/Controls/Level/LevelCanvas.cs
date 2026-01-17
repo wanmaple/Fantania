@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Numerics;
 using Avalonia.Controls;
+using Fantania.Localization;
 using Fantania.Models;
 using FantaniaLib;
 
@@ -61,7 +62,7 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
 
     protected override void OnRendering(ConfigurableRenderPipeline pipeline, int finalFbo)
     {
-        HandleCommands(pipeline);
+        HandleCanvasCommands(pipeline);
         SetupGlobalUniforms(pipeline);
         IRenderDevice device = pipeline.Device;
         FrameBuffer fbColor = pipeline.GetFrameBuffer(ConfigurableRenderPipeline.COLOR_BUFFER)!;
@@ -84,11 +85,16 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
         RequestNextFrameRendering();
     }
 
+    protected override void OnContextCreateFailed()
+    {
+        Workspace!.LogModule.LogError(LocalizationHelper.GetLocalizedString("ERR_GLContextFailure"));
+    }
+
     void SetupGlobalUniforms(ConfigurableRenderPipeline pipeline)
     {
-        pipeline.SetGlobalUniform("u_Time", Workspace!.Time);
-        pipeline.SetGlobalUniform("u_View", _camera!.ViewMatrix);
-        pipeline.SetGlobalUniform("u_Resolution", new Vector4(ColorSize.X, ColorSize.Y, 1.0f / ColorSize.X, 1.0f / ColorSize.Y));
+        pipeline.GlobalUniforms.SetUniform("u_Time", Workspace!.Time);
+        pipeline.GlobalUniforms.SetUniform("u_View", _camera!.ViewMatrix);
+        pipeline.GlobalUniforms.SetUniform("u_Resolution", new Vector4(ColorSize.X, ColorSize.Y, 1.0f / ColorSize.X, 1.0f / ColorSize.Y));
     }
 
     void BlitColorToTarget(IRenderDevice device, FrameBuffer fbColor)
@@ -119,7 +125,7 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
             _blitVertStream.TryAppend(_quad!);
             device.SyncVertexStream(_blitVertStream);
         }
-        _matFinalBlit!.SetUniform("u_MainTexture", (0, fbColor.ColorAttachment));
+        _matFinalBlit!.Uniforms.SetUniform("u_MainTexture", (0, fbColor.ColorAttachment));
         device.ApplyRenderState(_blitState!.Value);
         device.Draw(_blitVertStream!, _matFinalBlit!);
     }
@@ -173,7 +179,7 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
         _commands.Add(command);
     }
 
-    void HandleCommands(ConfigurableRenderPipeline pipeline)
+    void HandleCanvasCommands(ConfigurableRenderPipeline pipeline)
     {
         if (_commands.Count > 0)
         {

@@ -48,8 +48,7 @@ public class Camera2D
 
     public Camera2D(Vector2Int viewport, float minZoom = 0.1f, float maxZoom = 10.0f)
     {
-        MinZoom = MathF.Max(minZoom, 0.1f);
-        MaxZoom = MathF.Min(maxZoom, 10.0f);
+        SetZoomRange(minZoom, maxZoom);
         Viewport = viewport;
     }
 
@@ -60,11 +59,19 @@ public class Camera2D
 
     public void ZoomAt(float amount, Vector2 centerInWorld)
     {
+        float zoomFactor = amount > 0.0f ? MathF.Pow(1.1f, amount) : 1.0f / MathF.Pow(1.1f, -amount);
         float oldZoom = _zoom;
-        Zoom = MathHelper.Clamp(Zoom + amount, MinZoom, MaxZoom);
-        float zoomFactor = Zoom / oldZoom;
+        Zoom = MathHelper.Clamp(oldZoom * zoomFactor, MinZoom, MaxZoom);
+        zoomFactor = Zoom / oldZoom;
         Vector2 offset = (centerInWorld - Position) * (1.0f - 1.0f / zoomFactor);
         Position += offset;
+    }
+
+    public void SetZoomRange(float zoomMin, float zoomMax)
+    {
+        MinZoom = MathF.Max(zoomMin, 0.1f);
+        MaxZoom = MathF.Min(zoomMax, 10.0f);
+        Zoom = MathHelper.Clamp(Zoom, MinZoom, MaxZoom);
     }
 
     public Vector2 ScreenToWorld(Vector2 screenPos)

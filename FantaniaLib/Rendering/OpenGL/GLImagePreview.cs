@@ -127,7 +127,7 @@ public class GLImagePreview : GLCanvas
                     device.SyncVertexStream(_blitVertStream);
                 }
                 int texId = pipeline.TextureManager.AcquireTextureID(Texture);
-                _matSample!.SetUniform("u_Texture", (0, texId));
+                _matSample!.Uniforms.SetUniform("u_Texture", (0, texId));
                 device.ApplyRenderState(_state!.Value);
                 device.Draw(_blitVertStream!, _matSample);
             }

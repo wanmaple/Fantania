@@ -4,171 +4,30 @@ using MoonSharp.Interpreter;
 
 namespace FantaniaLib;
 
-public class PlacementTemplate : IPlacement
+public class PlacementTemplate : ScriptTemplate, IPlacement
 {
-    private class FieldExtraData
+    public IReadOnlyList<IPlacement> Children => _filtered;
+    public IList<IPlacement> Source => _source;
+
+    public Vector2 DefaultAnchor => GetOrCallMember("defaultAnchor").GetObjectOrDefault(new Vector2(0.5f, 1.0f));
+    public int DefaultLayer => GetOrCallMember("defaultLayer").GetIntegerOrDefault(0);
+    public NodeOptions NodeOptions => GetOrCallMember("nodeOptions").GetObjectOrDefault(new NodeOptions
     {
-        public DynValue DefaultValue { get; set; } = DynValue.Nil;
-        public string EditGroup { get; set; } = string.Empty;
-        public string Tooltip { get; set; } = string.Empty;
-        public Type? EditControlType { get; set; } = null;
-        public string EditParameter { get; set; } = string.Empty;
-        public Type? EditValidatorType { get; set; } = null;
+        Minimum = 0,
+        Maximum = 0,
+        DefaultOffset = new Vector2Int(32, 0),
+    });
+
+    public PlacementTemplate(ScriptEngine engine, DynValue obj) : base(engine, obj)
+    {
+        _filtered = new FilterableBindingSource<IPlacement>(_source);
     }
 
-    public string ClassName
+    public IReadOnlyList<ScriptRenderInfo> GetRenderables(LevelEntity entity)
     {
-        get
-        {
-            return _engine.GetInstanceMember(_obj, "__clsname").String;
-        }
+        return GetOrCallMember("renderables", entity).ToObject<List<ScriptRenderInfo>>();
     }
 
-    public string Group
-    {
-        get
-        {
-            _engine.CallInstanceFunction(_obj, "group", out DynValue val);
-            return val.String;
-        }
-    }
-
-    public string Name
-    {
-        get
-        {
-            _engine.CallInstanceFunction(_obj, "name", out DynValue val);
-            return val.String;
-        }
-    }
-
-    public string Tooltip
-    {
-        get
-        {
-            _engine.CallInstanceFunction(_obj, "tooltip", out DynValue val);
-            return val.String;
-        }
-    }
-
-    public IList<IPlacement> Children => _children;
-
-    public PlacementTemplate(ScriptEngine engine, DynValue obj)
-    {
-        _engine = engine;
-        _obj = obj;
-    }
-
-    public IReadOnlyList<FieldInfo> GetDefinedFields()
-    {
-        if (_fieldDefs == null)
-        {
-            if (!_engine.CallInstanceFunction(_obj, "dataDefs", out DynValue val))
-            {
-                _fieldDefs = Array.Empty<FieldInfo>();
-            }
-            if (val.Type != DataType.Table)
-            {
-                _fieldDefs = Array.Empty<FieldInfo>();
-            }
-            _fieldDefs = new FieldInfo[val.Table.Keys.Count()];
-            _engine.CallInstanceFunction(_obj, "editDefs", out DynValue editVal);
-            _extraDataMap = new Dictionary<string, FieldExtraData>(_fieldDefs.Length);
-            int i = 0;
-            foreach (DynValue fieldKey in val.Table.Keys)
-            {
-                string fieldName = fieldKey.String;
-                DynValue defVal = val.Table.Get(fieldKey);
-                if (defVal.Type != DataType.Table) continue;
-                FieldTypes fieldType = (FieldTypes)(int)_engine.GetInstanceMember(defVal, "type").Number;
-                var fieldInfo = new FieldInfo
-                {
-                    FieldName = fieldName.MakeFirstCharacterUpper(),
-                    FieldType = fieldType,
-                };
-                _fieldDefs[i] = fieldInfo;
-                var extra = new FieldExtraData { DefaultValue = _engine.GetInstanceMember(defVal, "default"), };
-                if (editVal.Type == DataType.Table)
-                {
-                    DynValue tbVal = _engine.GetInstanceMember(editVal, fieldName);
-                    if (!tbVal.IsNil())
-                    {
-                        var groupVal = _engine.GetInstanceMember(tbVal, "group");
-                        string group = groupVal.Type == DataType.String ? groupVal.String : string.Empty;
-                        var tooltipVal = _engine.GetInstanceMember(tbVal, "tooltip");
-                        string tooltip = tooltipVal.Type == DataType.String ? tooltipVal.String : string.Empty;
-                        var ctrlTypeVal = _engine.GetInstanceMember(tbVal, "control");
-                        Type? ctrlType = ctrlTypeVal.IsNil() ? null : ctrlTypeVal.ToObject<Type>();
-                        var paramVal = _engine.GetInstanceMember(tbVal, "parameter");
-                        string param = paramVal.Type == DataType.String ? paramVal.String : string.Empty;
-                        var validatorVal = _engine.GetInstanceMember(tbVal, "validator");
-                        Type? validatorType = validatorVal.IsNil() ? null : validatorVal.ToObject<Type>();
-                        extra.EditGroup = group;
-                        extra.Tooltip = tooltip;
-                        extra.EditControlType = ctrlType;
-                        extra.EditParameter = param;
-                        extra.EditValidatorType = validatorType;
-                    }
-                }
-                _extraDataMap[fieldName.MakeFirstCharacterUpper()] = extra;
-                ++i;
-            }
-        }
-        return _fieldDefs;
-    }
-
-    public object? GetDefaultValue(string fieldName)
-    {
-        GetDefinedFields();
-        FieldInfo? fieldInfo = _fieldDefs!.FirstOrDefault(info => info.FieldName == fieldName);
-        if (fieldInfo == null) throw new WorkspaceException($"Non-exist field '{fieldName}'");
-        FieldExtraData extra = _extraDataMap![fieldName];
-        DynValue defaultVal = extra.DefaultValue;
-        switch (fieldInfo.FieldType)
-        {
-            case FieldTypes.Boolean:
-                return defaultVal.GetBooleanOrDefault(false);
-            case FieldTypes.Integer:
-                return defaultVal.GetIntegerOrDefault(0);
-            case FieldTypes.Float:
-                return defaultVal.GetFloatOrDefault(0.0f);
-            case FieldTypes.String:
-                return defaultVal.GetStringOrDefault(string.Empty);
-            case FieldTypes.Vector2:
-                return defaultVal.GetObjectOrDefault(Vector2.Zero);
-            case FieldTypes.Vector2Int:
-                return defaultVal.GetObjectOrDefault(Vector2Int.Zero);
-            case FieldTypes.Color:
-                return defaultVal.GetObjectOrDefault(Vector4.One);
-            case FieldTypes.Texture:
-                return defaultVal.GetObjectOrDefault(TextureDefinition.None);
-            default:
-                return null;
-        }
-    }
-
-    public void FillEditingInfo(string fieldName, FieldEditInfo editInfo)
-    {
-        GetDefinedFields();
-        if (!_extraDataMap!.TryGetValue(fieldName, out FieldExtraData? extra))
-            return;
-        editInfo.EditControlType = extra.EditControlType;
-        editInfo.Tooltip = extra.Tooltip;
-        editInfo.EditGroup = extra.EditGroup;
-        editInfo.EditParameter = extra.EditParameter;
-    }
-
-    public Type? GetFieldValidatorType(string fieldName)
-    {
-        GetDefinedFields();
-        if (!_extraDataMap!.TryGetValue(fieldName, out FieldExtraData? extra))
-            return null;
-        return extra.EditValidatorType;
-    }
-
-    ScriptEngine _engine;
-    DynValue _obj;
-    FieldInfo[]? _fieldDefs;
-    Dictionary<string, FieldExtraData>? _extraDataMap;
-    ObservableCollection<IPlacement> _children = new ObservableCollection<IPlacement>();
+    ObservableCollection<IPlacement> _source = new ObservableCollection<IPlacement>();
+    FilterableBindingSource<IPlacement> _filtered;
 }

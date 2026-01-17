@@ -53,35 +53,20 @@ public class EditableField2EditControlConverter : IValueConverter
     };
 }
 
-public class TooltipConverter : IMultiValueConverter
+public class Object2GroupedEditFieldsConverter : IMultiValueConverter
 {
     public object? Convert(IList<object?> values, Type targetType, object? parameter, CultureInfo culture)
     {
         if (values == null) return AvaloniaProperty.UnsetValue;
         if (values.Count != 2) return AvaloniaProperty.UnsetValue;
-        if (values[0] is not string content || values[1] is not IValueConverter converter) return AvaloniaProperty.UnsetValue;
-        if (converter != null)
-            return converter.Convert(content, typeof(string), null, culture);
-        return content;
-    }
-}
-
-public class Object2GroupedEditFieldsConverter : IValueConverter
-{
-    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
-    {
-        if (value == null) return AvaloniaProperty.UnsetValue;
-        if (value is not IEditableObject editable) return AvaloniaProperty.UnsetValue;
-        var fields = editable.EditableFields;
+        if (values[0] is not IEditableObject editable) return AvaloniaProperty.UnsetValue;
+        if (values[1] is not IWorkspace workspace) return AvaloniaProperty.UnsetValue;
+        var fields = editable.GetEditableFields(workspace);
         return fields.GroupBy(f => f.EditInfo.EditGroup).OrderBy(g => g.Key).Select(g => new GroupedEditableFields
         {
+            Workspace = workspace,
             Group = g.Key,
-            Fields = new EditableFields(g),
+            Fields = new EditableFields(workspace, g),
         });
-    }
-
-    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
-    {
-        throw new NotImplementedException();
     }
 }

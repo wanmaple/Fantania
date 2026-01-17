@@ -8,6 +8,7 @@ public class LevelRenderContext
 {
     public BoundingVolumeHierarchy<IRenderable> SpaceHierarchy => _bvh;
     public Workspace Workspace => _canvas.Workspace!;
+    public LevelEntity? GhostEntity { get; set; }
 
     public LevelRenderContext(ILevelCanvas canvas)
     {

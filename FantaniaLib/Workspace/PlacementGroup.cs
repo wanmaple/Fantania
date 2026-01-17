@@ -9,7 +9,8 @@ public class PlacementGroup : IPlacement
     public string Group => string.Empty;
     public string Name => _groupName;
     public string Tooltip => string.Empty;
-    public IList<IPlacement> Children => _children;
+    public IReadOnlyList<IPlacement> Children => _source;
+    public IList<IPlacement> Source => _source;
 
     public PlacementGroup(string group)
     {
@@ -17,5 +18,5 @@ public class PlacementGroup : IPlacement
     }
 
     string _groupName;
-    ObservableCollection<IPlacement> _children = new ObservableCollection<IPlacement>();
+    ObservableCollection<IPlacement> _source = new ObservableCollection<IPlacement>();
 }

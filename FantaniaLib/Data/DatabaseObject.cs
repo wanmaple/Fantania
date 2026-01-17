@@ -49,22 +49,6 @@ public abstract class DatabaseObject : SyncableObject, ISerializableData, IEdita
         }
     }
 
-    public virtual IReadOnlyList<IEditableField> EditableFields
-    {
-        get
-        {
-            var editableFields = new List<IEditableField>();
-            var props = GetPropertiesWithAttribute<EditableFieldAttribute>();
-            foreach (PropertyInfo prop in props)
-            {
-                var editableField = new SingleObjectEditableField(this, prop);
-                editableFields.Add(editableField);
-            }
-            editableFields.Sort((f1, f2) => f1.FieldName.CompareTo(f2.FieldName));
-            return editableFields;
-        }
-    }
-
     protected DatabaseObject(int id)
     {
         ID = id;
@@ -99,6 +83,19 @@ public abstract class DatabaseObject : SyncableObject, ISerializableData, IEdita
         {
             prop.SetValue(this, value);
         }
+    }
+
+    public virtual IReadOnlyList<IEditableField> GetEditableFields(IWorkspace workspace)
+    {
+        var editableFields = new List<IEditableField>();
+        var props = GetPropertiesWithAttribute<EditableFieldAttribute>();
+        foreach (PropertyInfo prop in props)
+        {
+            var editableField = new SingleObjectEditableField(workspace, this, prop);
+            editableFields.Add(editableField);
+        }
+        editableFields.Sort((f1, f2) => f1.FieldName.CompareTo(f2.FieldName));
+        return editableFields;
     }
 
     protected List<FieldInfo> _serializableFields;

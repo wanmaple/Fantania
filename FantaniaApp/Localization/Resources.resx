@@ -221,4 +221,36 @@
     <value>拷贝</value>
     <comment/>
   </data>
+  <data name="BT_CreateLevel" xml:space="preserve">
+    <value>创建一个关卡</value>
+    <comment/>
+  </data>
+  <data name="ERR_GLContextFailure" xml:space="preserve">
+    <value>加载OpenGL Desktop失败，确保其版本为3.3及以上。</value>
+    <comment/>
+  </data>
+  <data name="ERR_InvalidLevel" xml:space="preserve">
+    <value>关卡'{0}'不存在或者已损坏，无法加载。</value>
+    <comment/>
+  </data>
+  <data name="ERR_InvalidLevelName" xml:space="preserve">
+    <value>无效的关卡名，只能由字母、数字或下划线构成，且首字符不能为数字。</value>
+    <comment/>
+  </data>
+  <data name="ERR_FileInsideWorkspace" xml:space="preserve">
+    <value>文件必须在工作区目录'{0}'内。</value>
+    <comment/>
+  </data>
+  <data name="H_CreateLevel" xml:space="preserve">
+    <value>创建关卡</value>
+    <comment/>
+  </data>
+  <data name="ERR_InvalidFieldValue" xml:space="preserve">
+    <value>属性'{0}'的值不合法。</value>
+    <comment/>
+  </data>
+  <data name="ERR_CreateLevelFailure" xml:space="preserve">
+    <value>创建关卡失败，详情：{0}</value>
+    <comment/>
+  </data>
 </root>

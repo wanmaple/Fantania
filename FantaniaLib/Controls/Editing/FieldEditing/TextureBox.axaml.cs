@@ -92,13 +92,6 @@ public partial class TextureBox : UserControl
 {
     IEditableField? Field => DataContext as IEditableField;
 
-    public static readonly StyledProperty<string> RootFolderProperty = AvaloniaProperty.Register<TextureBox, string>(nameof(RootFolder), defaultValue: string.Empty);
-    public string RootFolder
-    {
-        get => GetValue(RootFolderProperty);
-        set => SetValue(RootFolderProperty, value);
-    }
-
     public TextureBox()
     {
         InitializeComponent();
@@ -110,16 +103,6 @@ public partial class TextureBox : UserControl
 
         TopLevel topLevel = TopLevel.GetTopLevel(this)!;
         topLevel.RequestAnimationFrame(OnTick);
-    }
-
-    protected override void OnDataContextChanged(EventArgs e)
-    {
-        base.OnDataContextChanged(e);
-
-        if (Field != null)
-        {
-            RootFolder = Field.EditInfo.EditParameter;
-        }
     }
 
     void OnTick(TimeSpan dt)
@@ -164,11 +147,10 @@ public partial class TextureBox : UserControl
 
     void AtlasSelectBox_FileSelected(object? sender, FileSelectedEventArgs e)
     {
-        string path = Path.Combine(RootFolder, e.FilePath);
+        string path = Field!.Workspace.GetAbsolutePath(e.FilePath);
         SpriteAtlas atlas = new SpriteAtlas(path);
         if (atlas.IsValid)
         {
-            // cbFrameKeys.ItemsSource = atlas.Keys;
             cbFrameKeys.SelectedItem = atlas.Keys.First();
         }
     }
