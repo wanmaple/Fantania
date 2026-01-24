@@ -1,6 +1,6 @@
 namespace FantaniaLib;
 
-public class LocalTextureCache
+public class LocalTextureCache : IDisposable
 {
     public LocalTextureCache(IRenderDevice device)
     {
@@ -39,6 +39,14 @@ public class LocalTextureCache
                 _device.DeleteTexture(counter.Item);
                 _texIdMap.Remove(texture.Identifier);
             }
+        }
+    }
+
+    public void Dispose()
+    {
+        foreach (var counter in _texIdMap.Values)
+        {
+            _device.DeleteTexture(counter.Item);
         }
     }
 

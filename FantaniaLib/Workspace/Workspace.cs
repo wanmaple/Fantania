@@ -31,6 +31,15 @@ public abstract class Workspace : SyncableObject, IWorkspace
 
     public string RootFolder { get; private set; }
     public WorkspaceSolution Solution => _solution!;
+    public UserTemporary UserTemporary
+    {
+        get
+        {
+            if (_userTemp == null)
+                _userTemp = new UserTemporary();
+            return _userTemp;
+        }
+    }
     public bool IsModified { get; private set; }
     public UndoStack UndoStack => _undoStack;
     public ulong FrameCount => _tickData.Frame;
@@ -76,14 +85,18 @@ public abstract class Workspace : SyncableObject, IWorkspace
             File.Delete(dbFilePath);
         InitializeRequired();
         string texFolder = GetAbsolutePath(TEXTURE_FOLDER);
+        string lvFolder = GetAbsolutePath(LEVELS_FOLDER);
         string scriptFolder = GetAbsolutePath(SCRIPTS_FOLDER);
         string genFolder = GetAbsolutePath(GENERATED_FOLDER);
         if (!Directory.Exists(texFolder))
             Directory.CreateDirectory(texFolder);
+        if (!Directory.Exists(lvFolder))
+            Directory.CreateDirectory(lvFolder);
         if (!Directory.Exists(scriptFolder))
             Directory.CreateDirectory(scriptFolder);
         if (!Directory.Exists(genFolder))
             Directory.CreateDirectory(genFolder);
+        _lvModule.DeleteAllLevels();
     }
 
     public async Task Open()
@@ -91,13 +104,16 @@ public abstract class Workspace : SyncableObject, IWorkspace
         InitializeRequired();
         await _dbModule.SyncFromDatabase();
         _placeModule.Sync();
-        string lastAccess = Solution.LatestEditingLevel;
-        try
+        if (_userTemp != null)
         {
-            LevelModule.LoadLevel(lastAccess);
-        }
-        catch
-        {
+            string lastAccess = _userTemp.LatestEditingLevel;
+            try
+            {
+                LevelModule.LoadLevel(lastAccess);
+            }
+            catch
+            {
+            }
         }
     }
 
@@ -105,6 +121,7 @@ public abstract class Workspace : SyncableObject, IWorkspace
     {
         await _dbModule.SyncToDatabase();
         await WriteSolution();
+        await WriteUserTemp();
     }
 
     public void Tick(TimeSpan elapsed)
@@ -133,6 +150,22 @@ public abstract class Workspace : SyncableObject, IWorkspace
         {
             _valid = false;
             return;
+        }
+        try
+        {
+            string userTempPath = GetAbsolutePath(GENERATED_FOLDER, USER_TEMP_FILENAME);
+            if (File.Exists(userTempPath))
+            {
+                string userTempJson = File.ReadAllText(userTempPath);
+                _userTemp = JsonSerializer.Deserialize<UserTemporary>(userTempJson, new JsonSerializerOptions
+                {
+                    Converters = { new Vector2JsonConverter(), },
+                });
+            }
+        }
+        catch (Exception)
+        {
+            _userTemp = null;
         }
         try
         {
@@ -169,15 +202,32 @@ public abstract class Workspace : SyncableObject, IWorkspace
         }
     }
 
+    async Task WriteUserTemp()
+    {
+        string userTempPath = GetAbsolutePath(GENERATED_FOLDER, USER_TEMP_FILENAME);
+        using (var fs = new FileStream(userTempPath, FileMode.Create, FileAccess.Write))
+        {
+            JsonSerializer.Serialize(fs, UserTemporary, new JsonSerializerOptions
+            {
+                Converters = { new Vector2JsonConverter(), },
+                WriteIndented = true,
+            });
+            await fs.FlushAsync();
+        }
+    }
+
     void InitializeRequired()
     {
         _scriptModule.LoadBuiltinScripts();
     }
 
     const string SOLUTION_FILENAME = "workspace.json";
+    const string USER_TEMP_FILENAME = "usertemp.json";
 
     bool _valid = false;
     WorkspaceSolution? _solution;
+    UserTemporary? _userTemp;
+
     LevelModule _lvModule;
     DatabaseModule _dbModule;
     PlacementModule _placeModule;

@@ -44,7 +44,7 @@
     <Setter Property="Foreground" Value="Yellow" />
   </Style>
   <Style Selector=":is(TextBlock).err">
-    <Setter Property="Foreground" Value="Red" />
+    <Setter Property="Foreground" Value="IndianRed" />
   </Style>
   <Style Selector=":is(TextBlock).header">
     <Setter Property="Foreground" Value="LightSlateGray" />
@@ -66,5 +66,18 @@
   </Style>
   <Style Selector="Border.err">
     <Setter Property="BorderBrush" Value="Red" />
+  </Style>
+  <Style Selector="ToggleButton.toolbar">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Width" Value="32" />
+    <Setter Property="Height" Value="32" />
+  </Style>
+  <Style Selector="Image.toolbar">
+    <Setter Property="Width" Value="24" />
+    <Setter Property="Height" Value="24" />
+  </Style>
+  <Style Selector="Separator.toolbar">
+    <Setter Property="Width" Value="1" />
+    <Setter Property="Height" Value="32" />
   </Style>
 </Styles>

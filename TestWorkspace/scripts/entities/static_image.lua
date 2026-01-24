@@ -12,7 +12,6 @@ StaticImage.dataDefs = {
     -- },
     lit = {
         type = FieldTypes.Boolean,
-        default = false,
     },
     number = {
         type = FieldTypes.Vector2,
@@ -66,22 +65,22 @@ StaticImage.nodeOptions = {
     defaultOffset = { x = 100, y = 0, },
 }
 
-function StaticImage:renderables(entity)
+local dump = require "dump"
+
+function StaticImage:renderInfo(info, nodes)
     local ret = {}
     table.insert(ret, {
         stage = BuiltinStages.Transparent,
-        depth = 0,
-        color = entity.color,
         materialKey = "Standard",
         uniforms = {
             u_Texture = {
                 type = UniformTypes.Texture,
-                value = entity.data.diffuse,
+                value = info.diffuse,
             },
         },
         sizer = {
             type = SizerTypes.Texture,
-            texture = entity.data.diffuse,
+            texture = info.diffuse,
         },
     })
     return ret

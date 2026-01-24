@@ -94,6 +94,15 @@ namespace Fantania.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 关卡&apos;{0}&apos;已存在，请换一个名称。.
+        /// </summary>
+        public static string ERR_DuplicatedLevelName {
+            get {
+                return ResourceManager.GetString("ERR_DuplicatedLevelName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 文件必须在工作区目录&apos;{0}&apos;内。.
         /// </summary>
         public static string ERR_FileInsideWorkspace {
@@ -324,6 +333,33 @@ namespace Fantania.Localization {
         public static string MSG_WorkspaceSaved {
             get {
                 return ResourceManager.GetString("MSG_WorkspaceSaved", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 矩形放置模式.
+        /// </summary>
+        public static string TT_DrawRectMode {
+            get {
+                return ResourceManager.GetString("TT_DrawRectMode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 默认放置模式.
+        /// </summary>
+        public static string TT_PlaceMode {
+            get {
+                return ResourceManager.GetString("TT_PlaceMode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 场景选中模式.
+        /// </summary>
+        public static string TT_SelectMode {
+            get {
+                return ResourceManager.GetString("TT_SelectMode", resourceCulture);
             }
         }
         

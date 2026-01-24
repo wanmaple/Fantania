@@ -5,4 +5,5 @@
     <lib:Object2GroupedEditFieldsConverter x:Key="Cvt_Obj2Groups" />
     <f:Name2PrettyFormatConverter x:Key="Cvt_PrettyName" />
     <lib:Text2LocalizedConverter x:Key="Cvt_Localized" />
+    <f:Path2ImageConverter x:Key="Cvt_Path2Image" />
 </ResourceDictionary>

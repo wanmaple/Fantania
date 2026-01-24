@@ -41,7 +41,6 @@ public abstract class GLCanvas : OpenGlControlBase, ICustomHitTest
         var device = new GLDevice(gl);
         _pipeline = new ConfigurableRenderPipeline(device);
         OnContextInitializing(_pipeline);
-        _pipeline.Device.CheckError();
     }
 
     protected override void OnOpenGlDeinit(GlInterface gl)
@@ -56,7 +55,6 @@ public abstract class GLCanvas : OpenGlControlBase, ICustomHitTest
     {
         if (!IsValid) return;
         OnRendering(_pipeline!, fb);
-        _pipeline!.Device.CheckError();
     }
 
     protected override void OnOpenGlLost()

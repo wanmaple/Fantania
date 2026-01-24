@@ -1,0 +1,51 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:lib="using:FantaniaLib"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="FantaniaLib.ToggleButtonGroup"
+             x:Name="Root">
+  <UserControl.Resources>
+    <lib:SelectedValue2CheckedConverter x:Key="Cvt_Val2Checked" />
+  </UserControl.Resources>
+  <ItemsControl x:Name="icToggles" ItemsSource="{Binding #Root.ItemsSource}">
+    <ItemsControl.ItemsPanel>
+      <ItemsPanelTemplate>
+        <StackPanel Orientation="Horizontal" Spacing="2" />
+      </ItemsPanelTemplate>
+    </ItemsControl.ItemsPanel>
+    <ItemsControl.ItemTemplate>
+      <DataTemplate>
+        <lib:RadioToggle x:DataType="lib:RadioToggleInformation" Classes="toolbar" ToolTip.ServiceEnabled="{Binding Tooltip, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" Command="{Binding Command}" CommandParameter="{Binding Value}" IsCheckedChanged="RadioToggle_IsCheckedChanged">
+          <ToolTip.Tip>
+            <TextBlock Classes="tooltip">
+              <TextBlock.Text>
+                <MultiBinding Converter="{StaticResource Cvt_Localized}">
+                  <Binding Path="Tooltip" />
+                  <Binding Path="Workspace" />
+                </MultiBinding>
+              </TextBlock.Text>
+            </TextBlock>
+          </ToolTip.Tip>
+          <lib:RadioToggle.Content>
+            <Image Classes="toolbar">
+              <Image.Source>
+                <MultiBinding Converter="{StaticResource Cvt_Path2Image}">
+                  <Binding Path="IconPath" />
+                  <Binding Path="Workspace" />
+                </MultiBinding>
+              </Image.Source>
+            </Image>
+          </lib:RadioToggle.Content>
+          <lib:RadioToggle.IsChecked>
+            <MultiBinding Converter="{StaticResource Cvt_Val2Checked}">
+              <Binding Path="#Root.SelectedValue" />
+              <Binding />
+            </MultiBinding>
+          </lib:RadioToggle.IsChecked>
+        </lib:RadioToggle>
+      </DataTemplate>
+    </ItemsControl.ItemTemplate>
+  </ItemsControl>
+</UserControl>

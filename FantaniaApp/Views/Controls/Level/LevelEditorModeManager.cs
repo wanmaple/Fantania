@@ -1,3 +1,5 @@
+using FantaniaLib;
+
 namespace Fantania.Views;
 
 public enum LevelEditorModes
@@ -20,11 +22,14 @@ public class LevelEditorModeManager
         _currentMode = GetEditorMode(LevelEditorModes.None);
     }
 
-    public void SetEditorMode(LevelEditorModes mode, LevelEditorContext context)
+    public void SetEditorMode(LevelEditorModes mode, LevelEditorContext context, ControlInputEventArgs e)
     {
-        _currentMode.OnExit(context);
-        _currentMode = GetEditorMode(mode);
-        _currentMode.OnEnter(context);
+        if (_currentMode != _allModes[(int)mode])
+        {
+            _currentMode.OnExit(context, e);
+            _currentMode = GetEditorMode(mode);
+            _currentMode.OnEnter(context, e);
+        }
     }
 
     ILevelEditorMode GetEditorMode(LevelEditorModes mode)

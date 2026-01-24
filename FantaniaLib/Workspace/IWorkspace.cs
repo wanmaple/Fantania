@@ -4,6 +4,7 @@ public interface IWorkspace
 {
     string RootFolder { get; }
     WorkspaceSolution Solution { get; }
+    UserTemporary UserTemporary { get; }
     UndoStack UndoStack { get; }
     ulong FrameCount { get; }
 

@@ -25,6 +25,7 @@ public class GLDevice : IRenderDevice
     public void ClearColor(Vector4 color)
     {
         _gl.ClearColor(color.X, color.Y, color.Z, color.W);
+        DebugError();
     }
 
     public void ClearBufferBits(BufferBits mask)
@@ -40,11 +41,22 @@ public class GLDevice : IRenderDevice
                 bits |= GL_STENCIL_BUFFER_BIT;
             _gl.Clear(bits);
         }
+        DebugError();
     }
 
     public void Viewport(int x, int y, int width, int height)
     {
         _gl.Viewport(x, y, width, height);
+        DebugError();
+    }
+
+    public void SetupFrameBufferSRGB(bool enabled)
+    {
+        if (enabled)
+            _gl.Enable(GL_FRAMEBUFFER_SRGB);
+        else
+            _gl.Disable(GL_FRAMEBUFFER_SRGB);
+        DebugError();
     }
 
     public int CreateTexture2D(TextureDescription desc, nint data = 0)
@@ -97,6 +109,7 @@ public class GLDevice : IRenderDevice
         });
         if (desc.GenerateMipmap)
             GLApiEx.GenerateMipmap(_gl, GL_TEXTURE_2D);
+        DebugError();
         return id;
     }
 
@@ -127,32 +140,39 @@ public class GLDevice : IRenderDevice
             _gl.FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthAttachmentId);
         }
         // _gl.BindFramebuffer(GL_FRAMEBUFFER, currentFbo);
+        DebugError();
         return new FrameBuffer(desc, fbo, colorAttachmentId, depthAttachmentId);
     }
 
     public bool IsFrameBufferReady()
     {
-        return _gl.CheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
+        bool ret = _gl.CheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
+        DebugError();
+        return ret;
     }
 
     public void SetRenderTarget(int fbo)
     {
         _gl.BindFramebuffer(GL_FRAMEBUFFER, fbo);
+        DebugError();
     }
 
     public void DeleteTexture(int id)
     {
         _gl.DeleteTexture(id);
+        DebugError();
     }
 
     public void DeleteRenderBuffer(int id)
     {
         _gl.DeleteRenderbuffer(id);
+        DebugError();
     }
 
     public void DeleteFrameBuffer(int id)
     {
         _gl.DeleteFramebuffer(id);
+        DebugError();
     }
 
     public ShaderProgram? CreateProgram(string vertSrc, string fragSrc)
@@ -189,17 +209,20 @@ public class GLDevice : IRenderDevice
         {
             _gl.DeleteShader(shaderVertId);
             _gl.DeleteShader(shaderFragId);
+            DebugError();
         }
     }
 
     public void ApplyShaderProgram(ShaderProgram program)
     {
         _gl.UseProgram(program.ProgramID);
+        DebugError();
     }
 
     public void DeleteProgram(int id)
     {
         _gl.DeleteProgram(id);
+        DebugError();
     }
 
     public void ApplyRenderState(RenderState state)
@@ -259,6 +282,7 @@ public class GLDevice : IRenderDevice
             else
                 _gl.Disable(GL_BLEND);
         }
+        DebugError();
         _currentState = state;
     }
 
@@ -284,12 +308,13 @@ public class GLDevice : IRenderDevice
                 GLApiEx.UniformMatrix3fv(_gl, location, uniform.Get<Matrix3x3>());
                 break;
             case UniformTypes.Texture:
-                (int slot, int texId) pair = uniform.Get<(int, int)>();
-                _gl.ActiveTexture(GL_TEXTURE0 + pair.slot);
-                _gl.BindTexture(GL_TEXTURE_2D, pair.texId);
-                GLApiEx.Uniform1i(_gl, location, pair.slot);
+                var info = uniform.Get<UniformSet.TextureInformation>();
+                _gl.ActiveTexture(GL_TEXTURE0 + info.TextureSlot);
+                _gl.BindTexture(GL_TEXTURE_2D, info.TextureID);
+                GLApiEx.Uniform1i(_gl, location, info.TextureSlot);
                 break;
         }
+        DebugError();
     }
 
     public void ApplyMaterial(RenderMaterial material)
@@ -299,6 +324,7 @@ public class GLDevice : IRenderDevice
         {
             ApplyUniform(material.Shader, pair.Key, pair.Value);
         }
+        DebugError();
     }
 
     public VertexStream CreateVertexStream(VertexDescriptor vertDesc, int maxVertBufferBytes = 160 * 1024, int maxIndiceBufferBytes = 80 * 1024)
@@ -315,6 +341,7 @@ public class GLDevice : IRenderDevice
             _gl.EnableVertexAttribArray(attrib.Location);
             stride += attrib.ElementCount * sizeof(float);
         }
+        DebugError();
         return new VertexStream(vertDesc, vao, vbo, ibo, maxVertBufferBytes, maxIndiceBufferBytes);
     }
 
@@ -323,6 +350,7 @@ public class GLDevice : IRenderDevice
         _gl.BindVertexArray(vertStream.VAO);
         _gl.BindBuffer(GL_ARRAY_BUFFER, vertStream.VBO);
         _gl.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, vertStream.IBO);
+        DebugError();
     }
 
     public void SyncVertexStream(VertexStream vertStream)
@@ -330,6 +358,7 @@ public class GLDevice : IRenderDevice
         ApplyVertexStream(vertStream);
         _gl.BufferData(GL_ARRAY_BUFFER, vertStream.UsedVertexBytes, vertStream.VertexBuffer, GL_STATIC_DRAW);
         _gl.BufferData(GL_ELEMENT_ARRAY_BUFFER, vertStream.UsedIndiceBytes, vertStream.IndiceBuffer, GL_STATIC_DRAW);
+        DebugError();
     }
 
     public void Draw(VertexStream vertStream, RenderMaterial material)
@@ -337,21 +366,32 @@ public class GLDevice : IRenderDevice
         ApplyVertexStream(vertStream);
         ApplyMaterial(material);
         _gl.DrawElements(GL_TRIANGLES, vertStream.IndiceCount, GL_UNSIGNED_SHORT, 0);
+        DebugError();
     }
 
     public void DeleteVertexArray(int id)
     {
         _gl.DeleteVertexArray(id);
+        DebugError();
     }
 
     public void DeleteBuffer(int id)
     {
         _gl.DeleteBuffer(id);
+        DebugError();
     }
 
     public void DeleteResource(IRenderResource res)
     {
         res.Dispose(this);
+        DebugError();
+    }
+
+    void DebugError()
+    {
+#if DEBUG
+        CheckError();
+#endif
     }
 
     GlInterface _gl;

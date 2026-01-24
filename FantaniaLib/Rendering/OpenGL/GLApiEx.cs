@@ -103,4 +103,11 @@ public static class GLApiEx
         var func = (delegate*<int, bool>)ptr;
         return func(id);
     }
+
+    public unsafe static bool IsTexture(GlInterface gl, int id)
+    {
+        nint ptr = gl.GetProcAddress("glIsTexture");
+        var func = (delegate*<int, bool>)ptr;
+        return func(id);
+    }
 }

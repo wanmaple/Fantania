@@ -172,4 +172,40 @@ public static class MathHelper
         }
         return result;
     }
+
+    public static Matrix3x3 BuildTransform(Vector2 anchor, Vector2 size, Vector2 pos, float rot, Vector2 scale)
+    {
+        // Transform矩阵可以分解成四部分，首先进行Anchor相关的平移，然后进行缩放，然后进行旋转，最后进行世界位置的平移。
+        Matrix3x3 mat = Matrix3x3.Identity;
+        if (anchor != Vector2.Zero)
+        {
+            mat = Matrix3x3.CreateTranslation(new Vector2(-anchor.X * size.X, -anchor.Y * size.Y));
+        }
+        if (scale != Vector2.One)
+        {
+            mat = Matrix3x3.CreateScale(scale) * mat;
+        }
+        if (rot != 0.0f)
+        {
+            mat = Matrix3x3.CreateRotation(rot) * mat;
+        }
+        if (pos != Vector2.Zero)
+        {
+            mat = Matrix3x3.CreateTranslation(pos) * mat;
+        }
+        return mat;
+    }
+
+    public static Rectf BuildBound(Matrix3x3 transform, Vector2 size)
+    {
+        Vector2 pt1 = transform * Vector2.Zero;
+        Vector2 pt2 = transform * new Vector2(size.X, 0.0f);
+        Vector2 pt3 = transform * size;
+        Vector2 pt4 = transform * new Vector2(0.0f, size.Y);
+        float minX = MathF.Min(pt1.X, MathF.Min(pt2.X, MathF.Min(pt3.X, pt4.X)));
+        float maxX = MathF.Max(pt1.X, MathF.Max(pt2.X, MathF.Max(pt3.X, pt4.X)));
+        float minY = MathF.Min(pt1.Y, MathF.Min(pt2.Y, MathF.Min(pt3.Y, pt4.Y)));
+        float maxY = MathF.Max(pt1.Y, MathF.Max(pt2.Y, MathF.Max(pt3.Y, pt4.Y)));
+        return new Rectf(minX, minY, maxX - minX, maxY - minY);
+    }
 }

@@ -3,13 +3,12 @@ using FantaniaLib;
 
 namespace Fantania.Models;
 
-public class SetupGhostEntityCommand : ICanvasCommand
+public class SetupGhostEntityCommand : LevelEntityCommand
 {
     public enum GhostSetups
     {
         Add,
         Remove,
-        Confirm,
     }
 
     public GhostSetups SetupType { get; private set; }
@@ -19,18 +18,24 @@ public class SetupGhostEntityCommand : ICanvasCommand
         SetupType = setupType;
     }
 
-    public void Execute(LevelRenderContext context, ConfigurableRenderPipeline pipeline)
+    public override void Execute(LevelSpaceContext context, ConfigurableRenderPipeline pipeline)
     {
         UserPlacement placement = context.Workspace.PlacementModule.ActivePlacement!;
-        Level level = context.Workspace.LevelModule.CurrentLevel!;
         switch (SetupType)
         {
             case GhostSetups.Add:
-                context.GhostEntity = LevelEntity.BuildFromPlacement(placement);
-                context.GhostEntity.GetRenderables(context.Workspace);
+                {
+                    context.GhostEntity = LevelEntity.BuildFromPlacement(placement);
+                    context.Workspace.LogModule.LogOptional("Add Ghost");
+                    AddEntity(context.GhostEntity, context, pipeline);
+                }
                 break;
             case GhostSetups.Remove:
-                context.GhostEntity = null;
+                {
+                    RemoveEntity(context.GhostEntity!, context);
+                    context.GhostEntity = null;
+                    context.Workspace.LogModule.LogOptional("Remove Ghost");
+                }
                 break;
         }
     }

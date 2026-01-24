@@ -16,7 +16,7 @@
   </UserControl.Resources>
   <Grid>
     <Grid RowDefinitions="auto,*">
-      <lib:OptionBox x:Name="obTexType" Value="{Binding FieldValue, Mode=OneWay, Converter={StaticResource Cvt_FindMember}, ConverterParameter=TextureType}" Options="{Binding Source={x:Type lib:TextureTypes}, Converter={StaticResource Cvt_Enum2Options}}" HorizontalAlignment="Left" Width="150" />
+      <lib:OptionBox x:Name="obTexType" Value="{Binding FieldValue, Mode=OneWay, Converter={StaticResource Cvt_FindMember}, ConverterParameter=TextureType}" Options="{Binding Source={x:Type lib:TextureTypes}, Converter={StaticResource Cvt_Enum2Options}, ConverterParameter=Gpu}" HorizontalAlignment="Left" Width="150" />
       <Grid Grid.Row="1" RowDefinitions="*,auto,auto" Margin="10 10 0 0">
         <lib:GLImagePreview Grid.Row="0" MaxWidth="320" MaxHeight="320" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0 0 0 10">
           <lib:GLImagePreview.Texture>

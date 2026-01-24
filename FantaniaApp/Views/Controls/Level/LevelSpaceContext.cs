@@ -4,13 +4,14 @@ using FantaniaLib;
 
 namespace Fantania.Views;
 
-public class LevelRenderContext
+public class LevelSpaceContext
 {
     public BoundingVolumeHierarchy<IRenderable> SpaceHierarchy => _bvh;
     public Workspace Workspace => _canvas.Workspace!;
+    public EntityRenderableManager EntityManager => _entityMgr;
     public LevelEntity? GhostEntity { get; set; }
 
-    public LevelRenderContext(ILevelCanvas canvas)
+    public LevelSpaceContext(ILevelCanvas canvas)
     {
         _canvas = canvas;
     }
@@ -22,10 +23,15 @@ public class LevelRenderContext
         Rectf visibleRect = new Rectf(tl, br - tl);
         _collector.Clear();
         _bvh.RectTest(visibleRect, _collector);
+        if (GhostEntity != null)
+        {
+        }
         return _collector;
     }
 
     ILevelCanvas _canvas;
     BoundingVolumeHierarchy<IRenderable> _bvh = new BoundingVolumeHierarchy<IRenderable>();
     List<IRenderable> _collector = new List<IRenderable>(256);
+    List<IRenderable> _ghostRenderables = new List<IRenderable>(0);
+    EntityRenderableManager _entityMgr = new EntityRenderableManager();
 }

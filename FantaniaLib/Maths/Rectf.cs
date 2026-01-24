@@ -30,6 +30,7 @@ public struct Rectf : IEquatable<Rectf>
     public Vector2 BottomRight => new Vector2(Right, Bottom);
 
     public float Area => Width * Height;
+    public bool IsZero => Width == 0.0f || Height == 0.0f;
 
     public Rectf() : this(0.0f, 0.0f, 0.0f, 0.0f)
     { }
@@ -49,6 +50,8 @@ public struct Rectf : IEquatable<Rectf>
 
     public static Rectf Merge(Rectf a, Rectf b)
     {
+        if (a.IsZero) return b;
+        if (b.IsZero) return a;
         float left = Math.Min(a.Left, b.Left);
         float top = Math.Min(a.Top, b.Top);
         float right = Math.Max(a.Right, b.Right);

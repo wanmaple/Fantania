@@ -13,7 +13,7 @@ public class LevelModule : WorkspaceModule
             if (_curLv != value)
             {
                 _curLv = value;
-                _workspace.Solution.LatestEditingLevel = _curLv != null ? _curLv.Name : string.Empty;
+                _workspace.UserTemporary.LatestEditingLevel = _curLv != null ? _curLv.Name : string.Empty;
                 OnPropertyChanged(nameof(CurrentLevel));
             }
         }
@@ -46,6 +46,16 @@ public class LevelModule : WorkspaceModule
         string lvPath = _workspace.GetAbsolutePath(Workspace.LEVELS_FOLDER, lvName + ".lv");
         var lv = Level.OpenExist(lvPath);
         CurrentLevel = lv;
+    }
+
+    public void DeleteAllLevels()
+    {
+        _lvDescs.Clear();
+        foreach (var desc in _lvDescs)
+        {
+            string path = _workspace.GetAbsolutePath(Workspace.LEVELS_FOLDER, desc.Name + ".lv");
+            File.Delete(path);
+        }
     }
 
     void LoadExistingLevels()

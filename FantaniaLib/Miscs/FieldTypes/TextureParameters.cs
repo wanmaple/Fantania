@@ -4,6 +4,7 @@ public struct TextureParameterUnion
 {
     public ImageParameter ImageParams { get; set; }
     public AtlasParameter AtlasParams { get; set; }
+    public GpuParameter GpuParams { get; set; }
 }
 
 public struct ImageParameter : IEquatable<ImageParameter>
@@ -34,5 +35,20 @@ public struct AtlasParameter : IEquatable<AtlasParameter>
     public override string ToString()
     {
         return $"{AtlasPath}:{FrameKey}";
+    }
+}
+
+public struct GpuParameter : IEquatable<GpuParameter>
+{
+    public int TextureID { get; set; }
+
+    public bool Equals(GpuParameter other)
+    {
+        return TextureID == other.TextureID;
+    }
+
+    public override string ToString()
+    {
+        return $"{TextureID}";
     }
 }

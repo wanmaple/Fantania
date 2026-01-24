@@ -5,5 +5,5 @@ namespace Fantania.Models;
 
 public interface ICanvasCommand
 {
-    void Execute(LevelRenderContext context, ConfigurableRenderPipeline pipeline);
+    void Execute(LevelSpaceContext context, ConfigurableRenderPipeline pipeline);
 }

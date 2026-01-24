@@ -4,66 +4,72 @@ namespace FantaniaLib;
 
 public class QuadRenderable : IRenderable
 {
-    public string Stage { get; private set; }
-    public Matrix3x3 Transform { get; private set; }
-    public int Depth { get; private set; }
+    public string Stage { get; private set; } = string.Empty;
+    private Matrix3x3 _transform = Matrix3x3.Identity;
+    public Matrix3x3 Transform
+    {
+        get { return _transform; }
+        set
+        {
+            if (_transform != value)
+            {
+                _transform = value;
+                UpdateVertices();
+                CalculateBounds(Transform);
+            }
+        }
+    }
+    public int Depth { get; set; }
     public Mesh Mesh => _mesh;
     public RenderMaterial Material => _material;
     public Rectf BoundingBox => _aabb;
+
+    public Vector2 Size { get; private set; } = Vector2.Zero;
+    public Vector4 VertexColor { get; private set; } = Vector4.One;
 
     public QuadRenderable(RenderInfo info, RenderMaterial material)
     {
         _mesh = MeshBuilder.CreateStandardQuad(info.Size);
         Stage = info.Stage;
         Depth = info.Depth;
-        Transform = BuildTransform(info);
+        Size = info.Size;
+        VertexColor = info.Color;
         _material = material;
-        UpdateVertices(info);
-        CalculateBounds(Transform, info.Size);
+        _transform = info.Transform;
+        UpdateVertices();
+        CalculateBounds(Transform);
     }
 
-    void UpdateVertices(RenderInfo info)
+    private QuadRenderable(QuadRenderable other)
+    {
+        Stage = other.Stage;
+        _transform = other._transform;
+        Depth = other.Depth;
+        Size = other.Size;
+        VertexColor = other.VertexColor;
+        _material = other._material.Clone();
+        _mesh = other._mesh;
+        _aabb = other._aabb;
+        _exactVerts = other._exactVerts;
+    }
+
+    void UpdateVertices()
     {
         for (int i = 0; i < 4; i++)
         {
             VertexStandard vert = _mesh.GetVerticeAt<VertexStandard>(i);
-            vert.Position = new Vector3(Transform * vert.Position.XY(), Depth);
-            vert.Color = info.Color;
+            vert.Position = new Vector3(Transform * (QUAD_VERTICES[i] * Size), Depth);
+            vert.Color = VertexColor;
             _mesh.SetVerticeAt(i, vert);
         }
     }
 
-    protected Matrix3x3 BuildTransform(RenderInfo info)
+    protected void CalculateBounds(Matrix3x3 transform)
     {
-        // Transform矩阵可以分解成四部分，首先进行Anchor相关的平移，然后进行缩放，然后进行旋转，最后进行世界位置的平移。
-        Matrix3x3 mat = Matrix3x3.Identity;
-        Vector2 anchor = info.Anchor;
-        if (anchor != Vector2.Zero)
-        {
-            mat = Matrix3x3.CreateTranslation(new Vector2(-anchor.X * info.Size.X, -anchor.Y * info.Size.Y));
-        }
-        if (info.Scale != Vector2.One)
-        {
-            mat = Matrix3x3.CreateScale(info.Scale) * mat;
-        }
-        if (info.Rotation != 0.0f)
-        {
-            mat = Matrix3x3.CreateRotation(info.Rotation) * mat;
-        }
-        if (info.Position != Vector2.Zero)
-        {
-            mat = Matrix3x3.CreateTranslation(info.Position) * mat;
-        }
-        return mat;
-    }
-
-    protected void CalculateBounds(Matrix3x3 transform, Vector2 size)
-    {
-        // 顺便把BVH用的包围盒也一起更新了，为了方便就用OpenGL坐标系下的包围盒。
         Vector2 pt1 = transform * Vector2.Zero;
-        Vector2 pt2 = transform * new Vector2(size.X, 0.0f);
-        Vector2 pt3 = transform * size;
-        Vector2 pt4 = transform * new Vector2(0.0f, size.Y);
+        Vector2 pt2 = transform * new Vector2(Size.X, 0.0f);
+        Vector2 pt3 = transform * Size;
+        Vector2 pt4 = transform * new Vector2(0.0f, Size.Y);
         float minX = MathF.Min(pt1.X, MathF.Min(pt2.X, MathF.Min(pt3.X, pt4.X)));
         float maxX = MathF.Max(pt1.X, MathF.Max(pt2.X, MathF.Max(pt3.X, pt4.X)));
         float minY = MathF.Min(pt1.Y, MathF.Min(pt2.Y, MathF.Min(pt3.Y, pt4.Y)));
@@ -80,8 +86,20 @@ public class QuadRenderable : IRenderable
         return MathHelper.IsPointInsideConvexQuadrilateral(pt, _exactVerts);
     }
 
+    public IRenderable Clone()
+    {
+        return new QuadRenderable(this);
+    }
+
     Mesh _mesh;
     RenderMaterial _material;
     Rectf _aabb;
     Vector2[] _exactVerts = new Vector2[4];
+
+    static readonly Vector2[] QUAD_VERTICES = [
+        Vector2.Zero,
+        Vector2.UnitX,
+        Vector2.One,
+        Vector2.UnitY,
+    ];
 }

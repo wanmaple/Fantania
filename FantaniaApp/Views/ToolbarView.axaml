@@ -11,7 +11,7 @@
   <Design.DataContext>
     <vm:LevelViewModel />
   </Design.DataContext>
-  <Grid RowDefinitions="auto,*">
+  <Grid RowDefinitions="auto,auto,*">
     <DockPanel Grid.Row="0" HorizontalAlignment="Stretch">
       <TextBlock DockPanel.Dock="Left" Classes="p" IsVisible="{Binding Workspace.IsModified}" Text="*" Foreground="LightGreen" />
       <TextBlock DockPanel.Dock="Left" Classes="p">
@@ -24,6 +24,10 @@
       </TextBlock>
       <TextBlock DockPanel.Dock="Right" Classes="p" Text="{Binding Workspace.EditorModule.FPS, StringFormat={}FPS: {0}}" HorizontalAlignment="Right" VerticalAlignment="Center" />
     </DockPanel>
-    <TextBlock Grid.Row="1" Classes="p" Text="{Binding Workspace.EditorModule.MouseWorldPosition}" />
+    <StackPanel Grid.Row="1" Orientation="Horizontal">
+      <lib:ToggleButtonGroup ItemsSource="{Binding PlacementModesDefinitions}" SelectedValue="{Binding Workspace.EditorModule.CurrentPlacementMode}" />
+      <Separator Classes="toolbar" />
+    </StackPanel>
+    <TextBlock Grid.Row="2" Classes="p" Text="{Binding Workspace.EditorModule.MouseWorldPosition}" />
   </Grid>
 </UserControl>

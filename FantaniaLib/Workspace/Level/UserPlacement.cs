@@ -1,5 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
-
 namespace FantaniaLib;
 
 public class UserPlacement : DatabaseObject, IPlacement
@@ -14,8 +12,9 @@ public class UserPlacement : DatabaseObject, IPlacement
     public override string GroupName => string.Empty;
 
     internal PlacementTemplate Template => _script;
+    internal bool FieldDirty => _fieldDirty;
 
-    public UserPlacement([DisallowNull] PlacementTemplate template, int id)
+    public UserPlacement(PlacementTemplate template, int id)
     : base(id)
     {
         _script = template;
@@ -45,6 +44,7 @@ public class UserPlacement : DatabaseObject, IPlacement
                 OnPropertyChanging(fieldName);
                 _fieldValues[fieldName] = value;
                 OnPropertyChanged(fieldName);
+                _fieldDirty = true;
             }
             return;
         }
@@ -66,6 +66,14 @@ public class UserPlacement : DatabaseObject, IPlacement
         return editableFields;
     }
 
+    public IReadOnlyList<LocalRenderInfo> GetRenderInfo(IReadOnlyList<Vector2Int> nodes)
+    {
+        var ret = Template.GetRenderInfo(this, nodes);
+        _fieldDirty = false;
+        return ret;
+    }
+
     PlacementTemplate _script;
     Dictionary<string, object?> _fieldValues;
+    bool _fieldDirty = true;
 }

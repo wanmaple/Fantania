@@ -23,9 +23,16 @@ public class PlacementTemplate : ScriptTemplate, IPlacement
         _filtered = new FilterableBindingSource<IPlacement>(_source);
     }
 
-    public IReadOnlyList<ScriptRenderInfo> GetRenderables(LevelEntity entity)
+    public IReadOnlyList<LocalRenderInfo> GetRenderInfo(UserPlacement placement, IReadOnlyList<Vector2Int> nodes)
     {
-        return GetOrCallMember("renderables", entity).ToObject<List<ScriptRenderInfo>>();
+        try
+        {
+            return GetOrCallMember("renderInfo", placement, nodes).ToObject<List<LocalRenderInfo>>();
+        }
+        catch
+        {
+            return Array.Empty<LocalRenderInfo>();
+        }
     }
 
     ObservableCollection<IPlacement> _source = new ObservableCollection<IPlacement>();

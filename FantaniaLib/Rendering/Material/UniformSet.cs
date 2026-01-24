@@ -5,46 +5,19 @@ namespace FantaniaLib;
 
 public class UniformSet : IEquatable<UniformSet>, IEnumerable<KeyValuePair<string, MaterialUniform>>
 {
-    public void ApplyDesiredUniforms(DesiredUniformMap map, IWorkspace workspace, IRenderContext context)
+    public struct TextureInformation
     {
-        int texSlot = 0;
-        foreach (var pair in map)
-        {
-            string name = pair.Key;
-            DesiredUniformValue def = pair.Value;
-            switch (def.Type)
-            {
-                case UniformTypes.Float1:
-                    SetUniform(name, (float)def.Value);
-                    break;
-                case UniformTypes.Float2:
-                    SetUniform(name, (Vector2)def.Value);
-                    break;
-                case UniformTypes.Float3:
-                    SetUniform(name, (Vector3)def.Value);
-                    break;
-                case UniformTypes.Float4:
-                    SetUniform(name, (Vector4)def.Value);
-                    break;
-                case UniformTypes.Matrix3x3:
-                    SetUniform(name, (Matrix3x3)def.Value);
-                    break;
-                case UniformTypes.Texture:
-                    var texDef = (TextureDefinition)def.Value;
-                    ITexture2D? texture = texDef.ToTexture(workspace.RootFolder);
-                    if (texture != null)
-                    {
-                        int texId = context.TextureManager.AcquireTextureID(texture);
-                        SetUniform(name, (texSlot, texId));
-                    }
-                    else
-                    {
-                        SetUniform(name, (texSlot, context.TextureManager.FallbackTextureID));
-                    }
-                    texSlot++;
-                    break;
-            }
-        }
+        public int TextureSlot;
+        public int TextureID;    // 惰性初始化，在BVH生命周期内才会赋值。
+        public TextureDefinition TextureDef;
+    }
+
+    public IReadOnlyCollection<string> Names => _uniforms.Keys;
+
+    public MaterialUniform this[string name]
+    {
+        get => _uniforms[name];
+        set => _uniforms[name] = value;
     }
 
     public void SetUniform(string name, MaterialUniform uniform)
@@ -122,16 +95,23 @@ public class UniformSet : IEquatable<UniformSet>, IEnumerable<KeyValuePair<strin
         }
     }
 
-    public void SetUniform(string name, (int slot, int texId) value)
+    public void SetUniform(string name, TextureDefinition value, int slot)
     {
+        var info = new TextureInformation
+        {
+            TextureSlot = slot,
+            TextureID = value.TextureType == TextureTypes.Gpu ? value.TextureParameters.GpuParams.TextureID : 0,
+            TextureDef = value,
+        };
+        var uniform = new MaterialUniform(UniformTypes.Texture, info);
         if (!_uniforms.TryGetValue(name, out var val))
         {
-            val = new MaterialUniform(UniformTypes.Texture, value);
+            val = uniform;
             _uniforms.Add(name, val);
         }
         else
         {
-            val.Set(value);
+            val.Set(info);
             _uniforms[name] = val;
         }
     }
@@ -144,6 +124,11 @@ public class UniformSet : IEquatable<UniformSet>, IEnumerable<KeyValuePair<strin
             clone.SetUniform(pair.Key, pair.Value);
         }
         return clone;
+    }
+
+    internal void Clear()
+    {
+        _uniforms.Clear();
     }
 
     public bool Equals(UniformSet? other)

@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Numerics;
 using Avalonia.Input;
 using Fantania.Models;
@@ -26,30 +25,28 @@ public class LevelInputs : IDisposable
 
     void OnMouseEntered(object? sender, ControlInputEventArgs e)
     {
-        UserPlacement? active = _context.Workspace.PlacementModule.ActivePlacement;
-        if (active != null)
-            _manager.SetEditorMode(LevelEditorModes.Place, _context);
-        else
-            _manager.SetEditorMode(LevelEditorModes.View, _context);
+        ChangeModeDependsOnPlacementMode(e);
     }
 
     void OnMouseExited(object? sender, ControlInputEventArgs e)
     {
-        _manager.SetEditorMode(LevelEditorModes.None, _context);
+        _manager.SetEditorMode(LevelEditorModes.None, _context, e);
     }
 
     void OnMouseCaptureLost(object? sender, ControlInputEventArgs e)
     {
-        _manager.SetEditorMode(LevelEditorModes.None, _context);
+        _manager.SetEditorMode(LevelEditorModes.None, _context, e);
     }
 
     void OnMousePressed(object? sender, ControlInputEventArgs e)
     {
+        ChangeModeDependsOnPlacementMode(e);
         _manager.CurrentMode.OnMousePressed(_context, e);
     }
 
     void OnMouseReleased(object? sender, ControlInputEventArgs e)
     {
+        ChangeModeDependsOnPlacementMode(e);
         _manager.CurrentMode.OnMouseReleased(_context, e);
     }
 
@@ -58,6 +55,7 @@ public class LevelInputs : IDisposable
         Vector2 posToCanvas = e.MouseState.Position.ToVector2();
         Vector2 posToWorld = _context.CanvasToWorld(posToCanvas);
         _context.Workspace.EditorModule.MouseWorldPosition = posToWorld.ToGridSpace(_context.EditConfig.GridAlign);
+        ChangeModeDependsOnPlacementMode(e);
         _manager.CurrentMode.OnMouseMoved(_context, e);
     }
 
@@ -65,51 +63,36 @@ public class LevelInputs : IDisposable
     {
         Vector2 mouseWorldPos = _context.CanvasToWorld(e.MouseState.Position.ToVector2());
         _context.Camera.ZoomAt((float)e.MouseState.WheelDelta.Y * _context.EditConfig.ZoomSensitivity, mouseWorldPos);
+        _context.Workspace.UserTemporary.CameraZoom = _context.Camera.Zoom;
+        ChangeModeDependsOnPlacementMode(e);
         _manager.CurrentMode.OnMouseWheelChanged(_context, e);
     }
 
     void OnKeyDown(object? sender, ControlInputEventArgs e)
     {
+        ChangeModeDependsOnPlacementMode(e);
         _manager.CurrentMode.OnKeyDown(_context, e);
     }
 
     void OnKeyUp(object? sender, ControlInputEventArgs e)
     {
+        ChangeModeDependsOnPlacementMode(e);
         _manager.CurrentMode.OnKeyUp(_context, e);
-        if (e.KeyState.JustReleased == Key.F)
+    }
+
+    void ChangeModeDependsOnPlacementMode(ControlInputEventArgs e)
+    {
+        switch (_context.Workspace.EditorModule.CurrentPlacementMode)
         {
-            Vector2 worldPos = _context.CanvasToWorld(e.MouseState.Position.ToVector2());
-            // Workspace.LogModule.Log(worldPos.ToGridSpace(GridAlign).ToString());
-            var texDef = new TextureDefinition
-            {
-                TextureType = TextureTypes.Image,
-                TextureParameters = new TextureParameterUnion
-                {
-                    ImageParams = new ImageParameter
-                    {
-                        ImagePath = "textures/scene/trees/tree_1.png",
-                    },
-                },
-            };
-            var uniforms = new DesiredUniformMap();
-            uniforms.SetUniform("u_Texture", new DesiredUniformValue
-            {
-                Type = UniformTypes.Texture,
-                Value = texDef,
-            });
-            _context.AddCommand(new AddRenderableCommand(new RenderInfo
-            {
-                Anchor = Vector2.Zero,
-                Color = Vector4.One,
-                Depth = 2000,
-                Position = worldPos,
-                Rotation = 0.0f,
-                Scale = Vector2.One,
-                Stage = "Transparent",
-                MaterialKey = "Standard",
-                Size = Vector2.One * 512,
-                Uniforms = uniforms,
-            }));
+            case EntityPlacementModes.Select:
+                _manager.SetEditorMode(LevelEditorModes.View, _context, e);
+                break;
+            case EntityPlacementModes.Place:
+                _manager.SetEditorMode(LevelEditorModes.Place, _context, e);
+                break;
+            case EntityPlacementModes.DrawRect:
+                _manager.SetEditorMode(LevelEditorModes.View, _context, e);
+                break;
         }
     }
 

@@ -5,6 +5,13 @@ namespace FantaniaLib;
 
 public class LevelEntity : SyncableObject, ISerializableData, IEditableObject
 {
+    public const int LAYER_RANGE = 100;
+    public const int DEFAULT_RELATIVE_DEPTH = LAYER_RANGE / 2 - 1;
+    public const int MIN_RELATIVE_DEPTH = 0;
+    public const int MAX_RELATIVE_DEPTH = LAYER_RANGE - 1;
+    public const string MIN_RELATIVE_DEPTH_STR = "0";
+    public const string MAX_RELATIVE_DEPTH_STR = "99";
+
     public string GUID { get; internal set; } = string.Empty;
 
     private Vector2 _anchor = Vector2.Zero;
@@ -87,8 +94,8 @@ public class LevelEntity : SyncableObject, ISerializableData, IEditableObject
         }
     }
 
-    private int _depth = 49;
-    [SerializableField(FieldTypes.Integer), EditableField(EditGroup = "G_Transform", TooltipKey = "TT_RelativeDepth", EditParameter = "0:99:1")]
+    private int _depth = DEFAULT_RELATIVE_DEPTH;
+    [SerializableField(FieldTypes.Integer), EditableField(EditGroup = "G_Transform", TooltipKey = "TT_RelativeDepth", EditParameter = $"{MIN_RELATIVE_DEPTH_STR}:{MAX_RELATIVE_DEPTH_STR}:1")]
     public int RelativeDepth
     {
         get { return _depth; }
@@ -103,7 +110,7 @@ public class LevelEntity : SyncableObject, ISerializableData, IEditableObject
         }
     }
 
-    public int RealDepth => Layer * 100 + RelativeDepth;
+    public int RealDepth => Layer * LAYER_RANGE + RelativeDepth;
 
     private Vector4 _color = Vector4.One;
     [SerializableField(FieldTypes.Color), EditableField(EditGroup = "G_Appearance", TooltipKey = "TT_Color")]
@@ -137,7 +144,7 @@ public class LevelEntity : SyncableObject, ISerializableData, IEditableObject
     }
 
     public IReadOnlyList<Vector2Int> Nodes => _nodes;
-
+    
     public IReadOnlyList<FieldInfo> SerializableFields => _serializableFields;
 
     public static LevelEntity BuildFromPlacement(UserPlacement placement)
@@ -164,18 +171,26 @@ public class LevelEntity : SyncableObject, ISerializableData, IEditableObject
         }
     }
 
-    internal UserPlacement? GetReferencedPlacement(IWorkspace workspace)
+    public UserPlacement? GetReferencedPlacement(IWorkspace workspace)
     {
         return workspace.DatabaseModule.GetTypedObject<UserPlacement>(PlacementReference.ReferenceType, PlacementReference.ReferenceID);
     }
 
-    public void GetRenderables(IWorkspace workspace)
+    public bool GetLocalRenderInfo(IWorkspace workspace, out IReadOnlyList<LocalRenderInfo> locals)
     {
+        bool ret = false;
         UserPlacement? placement = GetReferencedPlacement(workspace);
         if (placement != null)
         {
-            IReadOnlyList<ScriptRenderInfo> rs = placement.Template.GetRenderables(this);
+            ret = _nodesDirty || placement.FieldDirty;
+            if (ret)
+            {
+                _cacheRenderInfo = placement.GetRenderInfo(Nodes);
+                _nodesDirty = false;
+            }
         }
+        locals = _cacheRenderInfo;
+        return ret;
     }
 
     public object? GetFieldValue(string fieldName)
@@ -212,4 +227,6 @@ public class LevelEntity : SyncableObject, ISerializableData, IEditableObject
 
     List<FieldInfo> _serializableFields;
     List<Vector2Int> _nodes = new List<Vector2Int>(0);
+    bool _nodesDirty = true;
+    IReadOnlyList<LocalRenderInfo> _cacheRenderInfo = Array.Empty<LocalRenderInfo>();
 }

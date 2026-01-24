@@ -25,9 +25,9 @@ public class BoundingVolumeHierarchyNode<T> where T : IBVHItem
 
 public class BoundingVolumeHierarchy<T> where T : IBVHItem
 {
-    public Action<BoundingVolumeHierarchy<T>>? ItemChanged;
     public Action<T>? ItemAdded;
     public Action<T>? ItemRemoved;
+    public Action<T>? ItemChanged;
 
     public int ItemCount => _num;
     public Rectf Bounds => _root == null ? Rectf.Zero : _root.bounds;
@@ -43,7 +43,6 @@ public class BoundingVolumeHierarchy<T> where T : IBVHItem
     {
         InnerAddItem(item);
         ItemAdded?.Invoke(item);
-        ItemChanged?.Invoke(this);
     }
 
     public bool RemoveItem(T item)
@@ -51,7 +50,6 @@ public class BoundingVolumeHierarchy<T> where T : IBVHItem
         if (InnerRemoveItem(item))
         {
             ItemRemoved?.Invoke(item);
-            ItemChanged?.Invoke(this);
             return true;
         }
         return false;
@@ -62,16 +60,22 @@ public class BoundingVolumeHierarchy<T> where T : IBVHItem
         if (InnerRemoveItem(item))
         {
             InnerAddItem(item);
-            ItemChanged?.Invoke(this);
+            ItemChanged?.Invoke(item);
         }
     }
 
     public void Clear()
     {
         _root = null;
+        if (ItemRemoved != null)
+        {
+            foreach (var item in Enumerate())
+            {
+                ItemRemoved.Invoke(item);
+            }
+        }
         _item2node.Clear();
         _num = 0;
-        ItemChanged?.Invoke(this);
     }
 
     public IEnumerable<T> Enumerate()

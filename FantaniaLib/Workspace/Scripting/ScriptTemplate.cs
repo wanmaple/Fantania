@@ -54,7 +54,7 @@ public class ScriptTemplate
                 FieldTypes fieldType = (FieldTypes)(int)_engine.GetInstanceMember(defVal, "type").Number;
                 var fieldInfo = new FieldInfo
                 {
-                    FieldName = fieldName.MakeFirstCharacterUpper(),
+                    FieldName = fieldName,
                     FieldType = fieldType,
                 };
                 _fieldDefs[i] = fieldInfo;
@@ -81,7 +81,7 @@ public class ScriptTemplate
                         extra.EditValidatorType = validatorType;
                     }
                 }
-                _extraDataMap[fieldName.MakeFirstCharacterUpper()] = extra;
+                _extraDataMap[fieldName] = extra;
                 ++i;
             }
         }

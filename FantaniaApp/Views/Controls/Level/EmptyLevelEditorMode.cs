@@ -4,11 +4,11 @@ namespace Fantania.Views;
 
 public class EmptyLevelEditorMode : ILevelEditorMode
 {
-    public void OnEnter(LevelEditorContext context)
+    public void OnEnter(LevelEditorContext context, ControlInputEventArgs e)
     {
     }
 
-    public void OnExit(LevelEditorContext context)
+    public void OnExit(LevelEditorContext context, ControlInputEventArgs e)
     {
     }
 

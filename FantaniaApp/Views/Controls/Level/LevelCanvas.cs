@@ -3,13 +3,15 @@ using System.Numerics;
 using Avalonia.Controls;
 using Fantania.Localization;
 using Fantania.Models;
+using Fantania.ViewModels;
 using FantaniaLib;
 
 namespace Fantania.Views;
 
 public class LevelCanvas : GLCanvas, ILevelCanvas
 {
-    public Workspace? Workspace => DataContext as Workspace;
+    public LevelViewModel ViewModel => (LevelViewModel)DataContext!;
+    public Workspace? Workspace => ViewModel.Workspace;
     public Camera2D? Camera => _camera;
     public Control Control => this;
     public Vector2 ColorSize { get; private set; } = Vector2.Zero;
@@ -27,6 +29,8 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
         pipeline.Build(rpConfig, Workspace);
         ColorSize = rpConfig.Resolution.ToVector2();
         _camera = new Camera2D(rpConfig.Resolution);
+        _camera.Position = Workspace.UserTemporary.CameraPosition;
+        _camera.Zoom = Workspace.UserTemporary.CameraZoom;
         IRenderDevice device = pipeline.Device;
         var vertDesc = VertexAnalyzer.GenerateDescriptor<PositionUV>();
         _blitVertStream = device.CreateVertexStream(vertDesc, vertDesc.SizeofVertex * 4, sizeof(ushort) * 6);
@@ -48,11 +52,14 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
         pipeline.StartWorkerThread();
         LevelEditConfig leConfig = Workspace.ScriptingModule.GetCustomLevelEditConfigOrDefault();
         _inputs = new LevelInputs(this, leConfig);
-        _context = new LevelRenderContext(this);
+        _context = new LevelSpaceContext(this);
+        _lifeOfRenderables = new RenderableLifePeriod(Workspace, pipeline);
+        _lifeOfRenderables.Register(_context.SpaceHierarchy);
     }
 
     protected override void OnContextFinalizing(ConfigurableRenderPipeline pipeline)
     {
+        _lifeOfRenderables!.Unregister(_context!.SpaceHierarchy);
         IRenderDevice device = pipeline.Device;
         _blitVertStream!.Dispose(device);
         _quad!.Dispose();
@@ -69,14 +76,14 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
         device.SetRenderTarget(fbColor.ID);
         if (device.IsFrameBufferReady())
         {
-            device.ClearColor("#FF000000".ToVector4());
-            device.ClearBufferBits(BufferBits.Color | BufferBits.Depth);
-            device.Viewport(0, 0, fbColor.Description.Width, fbColor.Description.Height);
             if (true /* Scene Dirty */)
             {
                 var renderables = _context!.CollectRenderables();
-                pipeline.CollectRenderables(renderables);
+                pipeline.ReceiveRenderables(renderables);
             }
+            device.ClearColor("#FF000000".ToVector4());
+            device.ClearBufferBits(BufferBits.Color | BufferBits.Depth);
+            device.Viewport(0, 0, fbColor.Description.Width, fbColor.Description.Height);
             pipeline.ExecuteCompletedBuffer();
         }
         device.SetRenderTarget(finalFbo);
@@ -125,9 +132,11 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
             _blitVertStream.TryAppend(_quad!);
             device.SyncVertexStream(_blitVertStream);
         }
-        _matFinalBlit!.Uniforms.SetUniform("u_MainTexture", (0, fbColor.ColorAttachment));
+        _matFinalBlit!.Uniforms.SetUniform("u_MainTexture", TextureDefinition.CreateGpuDefinition(fbColor.ColorAttachment), 0);
         device.ApplyRenderState(_blitState!.Value);
+        // device.SetupFrameBufferSRGB(true);
         device.Draw(_blitVertStream!, _matFinalBlit!);
+        // device.SetupFrameBufferSRGB(false);
     }
 
     bool UpdateUVs(params Vector2[] uvs)
@@ -197,6 +206,7 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
     RenderState? _blitState;
     RenderMaterial? _matFinalBlit;
     LevelInputs? _inputs;
-    LevelRenderContext? _context;
+    LevelSpaceContext? _context;
     List<ICanvasCommand> _commands = new List<ICanvasCommand>(0);
+    RenderableLifePeriod? _lifeOfRenderables;
 }

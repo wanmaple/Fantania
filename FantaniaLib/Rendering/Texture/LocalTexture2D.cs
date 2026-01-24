@@ -29,13 +29,16 @@ public class LocalTexture2D : ITexture2D
 
     void LoadFromStream(Stream stream)
     {
-        IsValid = CodecAnalysis.AnalysisStream(stream, out var result);
+        IsValid = ImageAnalysis.AnalysisStream(stream, out var result);
         if (IsValid)
         {
             Width = result.Width;
             Height = result.Height;
             ColorSpace = result.ColorSpace;
-            Format = result.ChannelCount == 4 ? TextureFormats.RGBA8 : TextureFormats.RGB8;
+            if (result.IsSrgb)
+                Format = result.HasAlpha ? TextureFormats.SRGB8_ALPHA8 : TextureFormats.SRGB8;
+            else
+                Format = result.HasAlpha ? TextureFormats.RGBA8 : TextureFormats.RGB8;
             TextureRect = new Recti(0, 0, Width, Height);
         }
     }
@@ -54,7 +57,7 @@ public class LocalTexture2D : ITexture2D
         {
             using (stream)
             {
-                data = CodecAnalysis.DecodeBytes(stream, Format);
+                data = ImageAnalysis.DecodeBytes(stream);
                 if (data != null)
                 {
                     desc.Width = Width;

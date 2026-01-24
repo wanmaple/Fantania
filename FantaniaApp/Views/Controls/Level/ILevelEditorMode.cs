@@ -11,6 +11,6 @@ public interface ILevelEditorMode
     void OnKeyDown(LevelEditorContext context, ControlInputEventArgs e);
     void OnKeyUp(LevelEditorContext context, ControlInputEventArgs e);
 
-    void OnEnter(LevelEditorContext context);
-    void OnExit(LevelEditorContext context);
+    void OnEnter(LevelEditorContext context, ControlInputEventArgs e);
+    void OnExit(LevelEditorContext context, ControlInputEventArgs e);
 }

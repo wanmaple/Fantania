@@ -1,9 +1,21 @@
-using System.Numerics;
-
 namespace FantaniaLib;
 
 public class EditorModule : WorkspaceModule
 {
+    private EntityPlacementModes _curPlaceMode = EntityPlacementModes.Select;
+    public EntityPlacementModes CurrentPlacementMode
+    {
+        get { return _curPlaceMode; }
+        set
+        {
+            if (_curPlaceMode != value)
+            {
+                _curPlaceMode = value;
+                OnPropertyChanged(nameof(CurrentPlacementMode));
+            }
+        }
+    }
+
     private Vector2Int _mouseWorldPos = Vector2Int.Zero;
     public Vector2Int MouseWorldPosition
     {

@@ -31,12 +31,15 @@ public class AtlasTexture2D : ITexture2D
             stream = AvaloniaHelper.ReadAssetStream(atlasPath);
         else if (File.Exists(atlasPath))
             stream = File.OpenRead(atlasPath);
-        if (stream != null && CodecAnalysis.AnalysisStream(stream, out var result))
+        if (stream != null && ImageAnalysis.AnalysisStream(stream, out var result))
         {
             Width = result.Width;
             Height = result.Height;
             ColorSpace = result.ColorSpace;
-            Format = result.ChannelCount == 4 ? TextureFormats.RGBA8 : TextureFormats.RGB8;
+            if (result.IsSrgb)
+                Format = result.HasAlpha ? TextureFormats.SRGB8_ALPHA8 : TextureFormats.SRGB8;
+            else
+                Format = result.HasAlpha ? TextureFormats.RGBA8 : TextureFormats.RGB8;
             TextureRect = _atlas.GetFrame(_frameKey);
             if (TextureRect != Recti.Zero)
                 IsValid = true;
@@ -57,7 +60,7 @@ public class AtlasTexture2D : ITexture2D
         {
             using (stream)
             {
-                data = CodecAnalysis.DecodeBytes(stream, Format);
+                data = ImageAnalysis.DecodeBytes(stream);
                 if (data != null)
                 {
                     desc.Width = Width;

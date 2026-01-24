@@ -110,7 +110,7 @@ public static class RenderingConversions
                     UniformTypes.Float3 => val.GetObjectOrDefault(Vector3.Zero),
                     UniformTypes.Float4 => val.GetObjectOrDefault(Vector4.Zero),
                     UniformTypes.Matrix3x3 => val.GetObjectOrDefault(Matrix3x3.Identity),
-                    UniformTypes.Texture => TextureDefinition.None,
+                    UniformTypes.Texture => val.GetObjectOrDefault(TextureDefinition.None),
                     _ => 0.0f,
                 };
                 var desiredUniform = new DesiredUniformValue
@@ -122,19 +122,27 @@ public static class RenderingConversions
             }
             return uniforms;
         });
-        Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Table, typeof(ScriptRenderInfo), v =>
+        Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Table, typeof(LocalRenderInfo), v =>
         {
-            var stage = v.Table.Get("stage").GetStringOrDefault(string.Empty);
-            int depth = v.Table.Get("depth").GetIntegerOrDefault(0);
+            string stage = v.Table.Get("stage").GetStringOrDefault(string.Empty);
+            Vector2 anchor = v.Table.Get("anchor").GetObjectOrDefault(Vector2.Zero);
+            Vector2 pos = v.Table.Get("position").GetObjectOrDefault(Vector2.Zero);
+            float rot = v.Table.Get("rotation").GetFloatOrDefault(0.0f);
+            Vector2 scale = v.Table.Get("scale").GetObjectOrDefault(Vector2.One);
             Vector4 color = v.Table.Get("color").GetObjectOrDefault(Vector4.One);
+            ColorOperators colorOp = v.Table.Get("colorOp").GetEnumOrDefault(ColorOperators.Multiple);
             string matKey = v.Table.Get("materialKey").GetStringOrDefault(string.Empty);
             DesiredUniformMap uniforms = v.Table.Get("uniforms").GetObjectOrDefault(new DesiredUniformMap());
             IRenderableSizer sizer = v.Table.Get("sizer").GetObjectOrDefault(FallbackSizer.Fallback);
-            return new ScriptRenderInfo
+            return new LocalRenderInfo
             {
                 Stage = stage,
-                Depth = depth,
+                Anchor = anchor,
+                Position = pos,
+                Rotation = rot,
+                Scale = scale,
                 Color = color,
+                ColorOperator = colorOp,
                 MaterialKey = matKey,
                 Uniforms = uniforms,
                 Sizer = sizer,

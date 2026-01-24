@@ -1,16 +1,14 @@
 using System.Collections;
+using System.Numerics;
 
 namespace FantaniaLib;
 
 public struct DesiredUniformValue
 {
     public UniformTypes Type;
-    public object Value;       // 如果Type为UniformTypes.Texture，这个时候由于缺失上下文，Value存储的应该是TextureDefinition。
+    public object Value;       // 如果Type为UniformTypes.Texture，Value存储的是TextureDefinition。
 }
 
-/// <summary>
-/// 用于记录uniform的字面量，这个期间一般没有渲染上下文，所以与渲染有关的信息无法得知。
-/// </summary>
 public class DesiredUniformMap : IEnumerable<KeyValuePair<string, DesiredUniformValue>>
 {
     public DesiredUniformMap()
@@ -20,6 +18,40 @@ public class DesiredUniformMap : IEnumerable<KeyValuePair<string, DesiredUniform
     public void SetUniform(string key, DesiredUniformValue value)
     {
         _uniforms[key] = value;
+    }
+
+    public void ApplyToUniformSet(UniformSet set)
+    {
+        set.Clear();
+        int texSlot = 0;
+        foreach (var pair in _uniforms)
+        {
+            string name = pair.Key;
+            DesiredUniformValue def = pair.Value;
+            switch (def.Type)
+            {
+                case UniformTypes.Float1:
+                    set.SetUniform(name, (float)def.Value);
+                    break;
+                case UniformTypes.Float2:
+                    set.SetUniform(name, (Vector2)def.Value);
+                    break;
+                case UniformTypes.Float3:
+                    set.SetUniform(name, (Vector3)def.Value);
+                    break;
+                case UniformTypes.Float4:
+                    set.SetUniform(name, (Vector4)def.Value);
+                    break;
+                case UniformTypes.Matrix3x3:
+                    set.SetUniform(name, (Matrix3x3)def.Value);
+                    break;
+                case UniformTypes.Texture:
+                    var texDef = (TextureDefinition)def.Value;
+                    set.SetUniform(name, texDef, texSlot);
+                    texSlot++;
+                    break;
+            }
+        }
     }
 
     public IEnumerator<KeyValuePair<string, DesiredUniformValue>> GetEnumerator()

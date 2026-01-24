@@ -46,7 +46,7 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
     public void Build(RenderPipelineConfig config, IWorkspace workspace)
     {
         if (_built) return;
-        // Color is the required one.
+        // Color is required.
         AddFrameBuffer(new FrameBufferConfig
         {
             Name = COLOR_BUFFER,
@@ -104,8 +104,8 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
     public void StartWorkerThread()
     {
         _ctsWorker = new CancellationTokenSource();
-        _evTaskStart = new ManualResetEventSlim(false);
-        _evTaskComplete = new ManualResetEventSlim(true);
+        _evTaskStart = new AutoResetEvent(false);
+        _evTaskComplete = new AutoResetEvent(true);
         for (int i = 0; i < _cmdBuffers.Length; i++)
         {
             _cmdBuffers[i] = new CommandBuffer();
@@ -116,8 +116,7 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
             {
                 try
                 {
-                    if (!_evTaskStart.Wait(0)) continue;
-                    _evTaskStart.Reset();
+                    if (!_evTaskStart.WaitOne(0)) continue;
                     var groups = _renderables.GroupBy(r => r.Stage);
                     foreach (var stage in _stageList)
                     {
@@ -135,6 +134,7 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Pipeline Worker Thread Exception: {ex}");
+                    _evTaskComplete.Set();
                 }
             }
             _evTaskStart?.Dispose();
@@ -156,13 +156,15 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
         }
     }
 
-    public void CollectRenderables(IEnumerable<IRenderable> renderables)
+    public void ReceiveRenderables(IEnumerable<IRenderable> renderables)
     {
-        if (_evTaskComplete!.Wait(-1))
+        if (_evTaskComplete!.WaitOne(-1))
         {
-            _evTaskComplete.Reset();
             _renderables.Clear();
-            _renderables.AddRange(renderables);
+            foreach (var renderable in renderables)
+            {
+                _renderables.Add(renderable.Clone());
+            }
             _evTaskStart!.Set();
         }
     }
@@ -184,6 +186,7 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
     public void Dispose()
     {
         _cacheShaders.Dispose();
+        _mgrTextures.Dispose();
         foreach (var fb in _fbs.Values)
         {
             fb.Dispose(_device);
@@ -206,8 +209,8 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
 
     CancellationTokenSource? _ctsWorker;
     Thread? _worker;
-    ManualResetEventSlim? _evTaskStart;
-    ManualResetEventSlim? _evTaskComplete;
+    AutoResetEvent? _evTaskStart;
+    AutoResetEvent? _evTaskComplete;
     List<IRenderable> _renderables = new List<IRenderable>(0);
     object _mutexBuffers = new object();
     CommandBuffer[] _cmdBuffers = new CommandBuffer[2];

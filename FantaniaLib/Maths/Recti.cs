@@ -24,6 +24,7 @@ public struct Recti : IEquatable<Recti>
     public Vector2Int BottomRight => new Vector2Int(Right, Bottom);
 
     public int Area => Width * Height;
+    public bool IsZero => Width == 0 || Height == 0;
 
     public Recti() : this(0, 0, 0, 0)
     { }
@@ -43,6 +44,8 @@ public struct Recti : IEquatable<Recti>
 
     public static Recti Merge(Recti a, Recti b)
     {
+        if (a.IsZero) return b;
+        if (b.IsZero) return a;
         int left = Math.Min(a.Left, b.Left);
         int top = Math.Min(a.Top, b.Top);
         int right = Math.Max(a.Right, b.Right);

@@ -35,29 +35,12 @@ public static class WorkspaceConversions
                 DefaultOffset = defOffset,
             };
         });
-        Script.GlobalOptions.CustomConverters.SetClrToScriptCustomConversion<LevelEntity>((env, v) =>
+        Script.GlobalOptions.CustomConverters.SetClrToScriptCustomConversion<UserPlacement>((env, v) =>
         {
             var ret = DynValue.NewTable(env);
-            ret.Table.Set("anchor", DynValue.FromObject(env, v.Anchor));
-            ret.Table.Set("position", DynValue.FromObject(env, v.Position));
-            ret.Table.Set("rotation", DynValue.FromObject(env, v.Rotation));
-            ret.Table.Set("scale", DynValue.FromObject(env, v.Scale));
-            ret.Table.Set("depth", DynValue.FromObject(env, v.RealDepth));
-            ret.Table.Set("color", DynValue.FromObject(env, v.Color));
-            ret.Table.Set("placementRef", DynValue.FromObject(env, v.PlacementReference));
-            var data = DynValue.NewTable(env);
-            ret.Table.Set("data", data);
-            IWorkspace workspace = ((WorkspaceProxy)env.Globals["Workspace"]).RealWorkspace;
-            UserPlacement placement = v.GetReferencedPlacement(workspace)!;
-            foreach (var field in placement.SerializableFields)
+            foreach (var field in v.SerializableFields)
             {
-                data.Table.Set(field.FieldName.MakeFirstCharacterLower(), DynValue.FromObject(env, placement.GetFieldValue(field.FieldName)));
-            }
-            var nodes = DynValue.NewTable(env);
-            ret.Table.Set("nodes", nodes);
-            foreach (var node in v.Nodes)
-            {
-                nodes.Table.Append(DynValue.FromObject(env, node));
+                ret.Table.Set(field.FieldName, DynValue.FromObject(env, v.GetFieldValue(field.FieldName)));
             }
             return ret;
         });

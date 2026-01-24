@@ -38,7 +38,8 @@ public class TextureManager : IDisposable
 
     public void Dispose()
     {
-        throw new NotImplementedException();
+        _cacheSingleImage.Dispose();
+        _cacheAtlas.Dispose();
     }
 
     LocalTextureCache _cacheSingleImage;

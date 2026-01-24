@@ -35,6 +35,7 @@ public partial class PlacementView : UserControl
         PlacementTemplate template = (PlacementTemplate)btn.DataContext!;
         var placement = ViewModel!.Workspace.PlacementModule.AddUserPlacement(template.ClassName);
         tvPlacements.SelectedItem = placement;
+        e.Handled = true;
     }
 
     void UserPlacement_PointerPressed(object? sender, PointerPressedEventArgs e)

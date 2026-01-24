@@ -10,6 +10,7 @@ public interface IRenderDevice
     void ClearColor(Vector4 color);
     void ClearBufferBits(BufferBits mask);
     void Viewport(int x, int y, int width, int height);
+    void SetupFrameBufferSRGB(bool enabled);
 
     int CreateTexture2D(TextureDescription desc, nint data);
     void DeleteTexture(int id);
