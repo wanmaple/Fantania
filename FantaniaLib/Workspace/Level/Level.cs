@@ -2,26 +2,18 @@ using System.Collections.ObjectModel;
 
 namespace FantaniaLib;
 
-public class Level
+public class Level : IReadonlyLevel
 {
     public const int SERIALIZATION_VERSION = 1;
 
     public string Name { get; private set; }
+    public IReadOnlyList<LevelEntity> Entities => _entities;
 
-    public static async Task<Level> CreateNew(LevelCreateConfig config, string path)
+    internal IList<LevelEntity> WritableEntities => _entities;
+
+    public static Level CreateNew(LevelCreateConfig config)
     {
         var lv = new Level(config.Name);
-        await Task.Run(async () =>
-        {
-            using (var fs = new FileStream(path, FileMode.Create, FileAccess.Write))
-            {
-                using (var bw = new BinaryWriter(fs))
-                {
-                    bw.Write(SERIALIZATION_VERSION);
-                    await fs.FlushAsync();
-                }
-            }
-        });
         return lv;
     }
 
@@ -47,12 +39,6 @@ public class Level
                 break;
         } while (true);
         return guid;
-    }
-
-    internal void Serialize(BinaryWriter writer)
-    {
-        writer.Write(SERIALIZATION_VERSION);
-        writer.Write(_entities.Count);
     }
 
     ObservableCollection<LevelEntity> _entities = new ObservableCollection<LevelEntity>();

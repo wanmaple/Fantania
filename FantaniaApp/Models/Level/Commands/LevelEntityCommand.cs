@@ -88,6 +88,7 @@ public abstract class LevelEntityCommand : ICanvasCommand
                 Size = local.LocalSize,
                 MaterialKey = local.MaterialKey,
                 Uniforms = local.Uniforms,
+                NodeIndex = local.NodeIndex,
             };
             RenderMaterial? material = context.MaterialSet.GetMaterial(info.MaterialKey);
             if (material != null)

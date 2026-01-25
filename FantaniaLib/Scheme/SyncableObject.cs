@@ -3,8 +3,11 @@ using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace FantaniaLib;
 
-public class SyncableObject : ObservableObject
+public abstract class SyncableObject : ObservableObject
 {
+    protected SyncableObject()
+    {}
+
     protected IReadOnlyList<PropertyInfo> GetPropertiesWithAttribute<T>() where T : Attribute
     {
         var props = GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public);

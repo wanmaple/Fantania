@@ -36,6 +36,9 @@ public struct ControlMouseState
     public bool IsLeftButtonPressed { get; set; }
     public bool IsRightButtonPressed { get; set; }
     public bool IsMiddleButtonPressed { get; set; }
+    public bool IsLeftButtonJustReleased { get; set; }
+    public bool IsRightButtonJustReleased { get; set; }
+    public bool IsMiddleButtonJustReleased { get; set; }
     public Vector WheelDelta { get; set; }
 }
 
@@ -75,6 +78,9 @@ public class ControlInputTracker : IDisposable
     public bool IsLeftButtonPressed { get; private set; }
     public bool IsRightButtonPressed { get; private set; }
     public bool IsMiddleButtonPressed { get; private set; }
+    public bool IsLeftButtonJustReleased { get; private set; }
+    public bool IsRightButtonJustReleased { get; private set; }
+    public bool IsMiddleButtonJustReleased { get; private set; }
     public Vector WheelDelta { get; private set; }
     public KeyModifiers KeyModifiers { get; private set; }
     public KeySet KeySet { get; private set; } = new KeySet();
@@ -184,9 +190,15 @@ public class ControlInputTracker : IDisposable
     void UpdateButtonStates(PointerEventArgs e)
     {
         var properties = e.GetCurrentPoint(_targetControl).Properties;
+        bool oldLeftPressed = IsLeftButtonPressed;
+        bool oldRightPressed = IsRightButtonPressed;
+        bool oldMiddlePressed = IsMiddleButtonPressed;
         IsLeftButtonPressed = properties.IsLeftButtonPressed;
         IsRightButtonPressed = properties.IsRightButtonPressed;
         IsMiddleButtonPressed = properties.IsMiddleButtonPressed;
+        IsLeftButtonJustReleased = oldLeftPressed && !IsLeftButtonPressed;
+        IsRightButtonJustReleased = oldRightPressed && !IsRightButtonPressed;
+        IsMiddleButtonJustReleased = oldMiddlePressed && !IsMiddleButtonPressed;
     }
 
     void ClearInputStates()
@@ -209,6 +221,9 @@ public class ControlInputTracker : IDisposable
                 IsLeftButtonPressed = IsLeftButtonPressed,
                 IsRightButtonPressed = IsRightButtonPressed,
                 IsMiddleButtonPressed = IsMiddleButtonPressed,
+                IsLeftButtonJustReleased = IsLeftButtonJustReleased,
+                IsRightButtonJustReleased = IsRightButtonJustReleased,
+                IsMiddleButtonJustReleased = IsMiddleButtonJustReleased,
                 WheelDelta = WheelDelta,
             },
             KeyState = new ControlKeyState

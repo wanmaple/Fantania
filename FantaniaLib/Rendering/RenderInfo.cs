@@ -11,4 +11,5 @@ public class RenderInfo
     public required Vector4 Color { get; set; }
     public required string MaterialKey { get; set; }
     public required DesiredUniformMap Uniforms { get; set; }
+    public required int NodeIndex { get; set; }
 }

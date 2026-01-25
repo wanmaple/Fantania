@@ -29,4 +29,9 @@ public static class AvaloniaConverters
     {
         return $"#{self.A:X2}{self.R:X2}{self.G:X2}{self.B:X2}";
     }
+
+    public static Color WithAlpha(this Color self, byte alpha)
+    {
+        return new Color(alpha, self.R, self.G, self.B);
+    }
 }

@@ -9,11 +9,14 @@ public class LevelSpaceContext
     public BoundingVolumeHierarchy<IRenderable> SpaceHierarchy => _bvh;
     public Workspace Workspace => _canvas.Workspace!;
     public EntityRenderableManager EntityManager => _entityMgr;
+
     public LevelEntity? GhostEntity { get; set; }
+    public SelectionContext SelectionContext { get; private set; }
 
     public LevelSpaceContext(ILevelCanvas canvas)
     {
         _canvas = canvas;
+        SelectionContext = new SelectionContext(Workspace);
     }
 
     public IEnumerable<IRenderable> CollectRenderables()

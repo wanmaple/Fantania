@@ -41,4 +41,9 @@ public struct TypeReference : IEquatable<TypeReference>
     {
         return (ReferenceType.GetHashCode() * 397) ^ ReferenceID.GetHashCode();
     }
+
+    public override string ToString()
+    {
+        return $"{ReferenceType},{ReferenceID}";
+    }
 }

@@ -1,9 +1,8 @@
 using System.Numerics;
-using System.Reflection;
 
 namespace FantaniaLib;
 
-public class LevelEntity : SyncableObject, ISerializableData, IEditableObject
+public class LevelEntity : BinaryObject
 {
     public const int LAYER_RANGE = 100;
     public const int DEFAULT_RELATIVE_DEPTH = LAYER_RANGE / 2 - 1;
@@ -12,6 +11,7 @@ public class LevelEntity : SyncableObject, ISerializableData, IEditableObject
     public const string MIN_RELATIVE_DEPTH_STR = "0";
     public const string MAX_RELATIVE_DEPTH_STR = "99";
 
+    [SerializableField(FieldTypes.String)]
     public string GUID { get; internal set; } = string.Empty;
 
     private Vector2 _anchor = Vector2.Zero;
@@ -129,6 +129,7 @@ public class LevelEntity : SyncableObject, ISerializableData, IEditableObject
     }
 
     private TypeReference _refPlacement = TypeReference.None;
+    [SerializableField(FieldTypes.TypeReference)]
     public TypeReference PlacementReference
     {
         get { return _refPlacement; }
@@ -143,9 +144,7 @@ public class LevelEntity : SyncableObject, ISerializableData, IEditableObject
         }
     }
 
-    public IReadOnlyList<Vector2Int> Nodes => _nodes;
-    
-    public IReadOnlyList<FieldInfo> SerializableFields => _serializableFields;
+    public IReadOnlyList<Vector2Int> Nodes { get; set; } = new List<Vector2Int>(0);
 
     public static LevelEntity BuildFromPlacement(UserPlacement placement)
     {
@@ -158,17 +157,6 @@ public class LevelEntity : SyncableObject, ISerializableData, IEditableObject
 
     internal LevelEntity()
     {
-        var props = GetPropertiesWithAttribute<SerializableFieldAttribute>();
-        _serializableFields = new List<FieldInfo>(props.Count);
-        foreach (PropertyInfo prop in props)
-        {
-            SerializableFieldAttribute attr = prop.GetCustomAttribute<SerializableFieldAttribute>()!;
-            _serializableFields.Add(new FieldInfo
-            {
-                FieldName = prop.Name,
-                FieldType = attr.FieldType,
-            });
-        }
     }
 
     public UserPlacement? GetReferencedPlacement(IWorkspace workspace)
@@ -193,40 +181,6 @@ public class LevelEntity : SyncableObject, ISerializableData, IEditableObject
         return ret;
     }
 
-    public object? GetFieldValue(string fieldName)
-    {
-        var prop = GetType().GetProperty(fieldName);
-        if (prop != null)
-        {
-            return prop.GetValue(this);
-        }
-        return null;
-    }
-
-    public void SetFieldValue(string fieldName, object? value)
-    {
-        var prop = GetType().GetProperty(fieldName);
-        if (prop != null)
-        {
-            prop.SetValue(this, value);
-        }
-    }
-
-    public IReadOnlyList<IEditableField> GetEditableFields(IWorkspace workspace)
-    {
-        var editableFields = new List<IEditableField>();
-        var props = GetPropertiesWithAttribute<EditableFieldAttribute>();
-        foreach (PropertyInfo prop in props)
-        {
-            var editableField = new SingleObjectEditableField(workspace, this, prop);
-            editableFields.Add(editableField);
-        }
-        editableFields.Sort((f1, f2) => f1.FieldName.CompareTo(f2.FieldName));
-        return editableFields;
-    }
-
-    List<FieldInfo> _serializableFields;
-    List<Vector2Int> _nodes = new List<Vector2Int>(0);
     bool _nodesDirty = true;
     IReadOnlyList<LocalRenderInfo> _cacheRenderInfo = Array.Empty<LocalRenderInfo>();
 }

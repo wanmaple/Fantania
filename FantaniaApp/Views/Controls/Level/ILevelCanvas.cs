@@ -16,5 +16,7 @@ public interface ILevelCanvas
     void AddCommand(ICanvasCommand command);
 
     Vector2 CanvasToScreen(Vector2 canvasPos);
+    Vector2 ScreenToCanvas(Vector2 screenPos);
     Vector2 CanvasToWorld(Vector2 canvasPos);
+    Vector2 WorldToCanvas(Vector2 worldPos);
 }

@@ -6,4 +6,5 @@
     <f:Name2PrettyFormatConverter x:Key="Cvt_PrettyName" />
     <lib:Text2LocalizedConverter x:Key="Cvt_Localized" />
     <f:Path2ImageConverter x:Key="Cvt_Path2Image" />
+    <f:SelectionBox2RectConverter x:Key="Cvt_Sel2Rect" />
 </ResourceDictionary>

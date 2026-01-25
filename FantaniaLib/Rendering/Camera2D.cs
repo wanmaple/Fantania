@@ -79,6 +79,11 @@ public class Camera2D
         return screenPos / Zoom + Position;
     }
 
+    public Vector2 WorldToScreen(Vector2 worldPos)
+    {
+        return (worldPos - Position) * Zoom;
+    }
+
     void UpdateViewMatrix()
     {
         _matView = Matrix3x3.CreateScale(new Vector2(Zoom, Zoom)) * Matrix3x3.CreateTranslation(-Position);

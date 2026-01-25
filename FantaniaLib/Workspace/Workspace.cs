@@ -109,7 +109,7 @@ public abstract class Workspace : SyncableObject, IWorkspace
             string lastAccess = _userTemp.LatestEditingLevel;
             try
             {
-                LevelModule.LoadLevel(lastAccess);
+                await LevelModule.LoadLevel(lastAccess);
             }
             catch
             {
@@ -120,6 +120,7 @@ public abstract class Workspace : SyncableObject, IWorkspace
     public async Task Save()
     {
         await _dbModule.SyncToDatabase();
+        await _lvModule.SyncCurrentLevel();
         await WriteSolution();
         await WriteUserTemp();
     }
@@ -134,7 +135,7 @@ public abstract class Workspace : SyncableObject, IWorkspace
         _tickData.Enqueue(1.0f / dt);
         EditorModule.FPS = _tickData.FPS;
         _tickData.Time = (float)elapsed.TotalSeconds;
-        bool modified = _dbModule.HasChange;
+        bool modified = _dbModule.HasChange || _lvModule.HasChange;
         if (modified != IsModified)
         {
             IsModified = modified;

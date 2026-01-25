@@ -9,6 +9,8 @@ public class LevelEditorContext
     public Workspace Workspace => _canvas.Workspace!;
     public Camera2D Camera => _canvas.Camera!;
     public LevelEditConfig EditConfig { get; private set; }
+    
+    public bool FixCamera { get; set; } = false;
 
     public LevelEditorContext(ILevelCanvas canvas, LevelEditConfig config)
     {

@@ -8,12 +8,49 @@
              xmlns:lang="using:Fantania.Localization"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="vm:LevelViewModel"
-             x:Class="Fantania.Views.LevelView">
+             x:Class="Fantania.Views.LevelView"
+             x:Name="Root">
   <Design.DataContext>
     <vm:LevelViewModel />
   </Design.DataContext>
+  <UserControl.Resources>
+    <v:BoundingBox2CanvasRectConverter x:Key="Cvt_BB2Rect" />
+    <v:NodeIndex2ColorConverter x:Key="Cvt_NdIdx2Color" />
+  </UserControl.Resources>
   <Grid>
-    <v:LevelCanvas IsVisible="{Binding Workspace.LevelModule.CurrentLevel, Converter={x:Static ObjectConverters.IsNotNull}}" />
+    <v:LevelCanvas x:Name="lvCanvas" IsVisible="{Binding Workspace.LevelModule.CurrentLevel, Converter={x:Static ObjectConverters.IsNotNull}}" />
+    <ItemsControl ItemsSource="{Binding Workspace.EditorModule.SelectedObjects}">
+      <ItemsControl.ItemsPanel>
+        <ItemsPanelTemplate>
+          <Canvas IsHitTestVisible="False" />
+        </ItemsPanelTemplate>
+      </ItemsControl.ItemsPanel>
+      <ItemsControl.ItemTemplate>
+        <DataTemplate>
+          <lib:SelectionOverlay SelectionColor="{Binding NodeIndex, Converter={StaticResource Cvt_NdIdx2Color}}" IsAnimated="False">
+            <lib:SelectionOverlay.SelectionBounds>
+              <MultiBinding Converter="{StaticResource Cvt_BB2Rect}">
+                <Binding Path="BoundingBox" />
+                <Binding Path="#lvCanvas" />
+                <Binding Path="#Root.DataContext.Workspace.EditorModule.NotifyFlag" />
+              </MultiBinding>
+            </lib:SelectionOverlay.SelectionBounds>
+          </lib:SelectionOverlay>
+        </DataTemplate>
+      </ItemsControl.ItemTemplate>
+    </ItemsControl>
+    <Canvas IsHitTestVisible="False" IsVisible="{Binding Workspace.LevelModule.CurrentLevel, Converter={x:Static ObjectConverters.IsNotNull}}">
+      <lib:SelectionOverlay SelectionColor="#408245" IsAnimated="True">
+        <lib:SelectionOverlay.SelectionBounds>
+          <MultiBinding Converter="{StaticResource Cvt_Sel2Rect}">
+            <Binding Path="Workspace.EditorModule.Selection.Left" />
+            <Binding Path="Workspace.EditorModule.Selection.Top" />
+            <Binding Path="Workspace.EditorModule.Selection.Right" />
+            <Binding Path="Workspace.EditorModule.Selection.Bottom" />
+          </MultiBinding>
+        </lib:SelectionOverlay.SelectionBounds>
+      </lib:SelectionOverlay>
+    </Canvas>
     <Button Background="Transparent" Content="{x:Static lang:Resources.BT_CreateLevel}" IsVisible="{Binding Workspace.LevelModule.CurrentLevel, Converter={x:Static ObjectConverters.IsNull}}" Command="{Binding CreateNewLevelCommand}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontSize="40" FontWeight="Bold" />
   </Grid>
 </UserControl>

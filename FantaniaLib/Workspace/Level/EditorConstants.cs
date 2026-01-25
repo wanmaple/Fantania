@@ -4,5 +4,4 @@ public enum EntityPlacementModes
 {
     Select,
     Place,
-    DrawRect,
 }

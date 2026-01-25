@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Numerics;
 using Avalonia.Controls;
 using Fantania.Localization;
@@ -24,8 +25,8 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
 
     protected override void OnContextInitializing(ConfigurableRenderPipeline pipeline)
     {
-        Workspace!.LogModule.LogOptional(GlVersion.ToString());
-        RenderPipelineConfig rpConfig = Workspace.ScriptingModule.GetCustomRenderPipelineConfigOrDefault();
+        Workspace!.LogOptional(GlVersion.ToString());
+        RenderPipelineConfig rpConfig = Workspace!.ScriptingModule.GetCustomRenderPipelineConfigOrDefault();
         pipeline.Build(rpConfig, Workspace);
         ColorSize = rpConfig.Resolution.ToVector2();
         _camera = new Camera2D(rpConfig.Resolution);
@@ -55,10 +56,18 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
         _context = new LevelSpaceContext(this);
         _lifeOfRenderables = new RenderableLifePeriod(Workspace, pipeline);
         _lifeOfRenderables.Register(_context.SpaceHierarchy);
+        if (Workspace.LevelModule.CurrentLevel != null)
+            InitializeLevel(Workspace.LevelModule.CurrentLevel);
+        Workspace.LevelModule.EntityAdded += OnEntityAdded;
+        Workspace.LevelModule.EntityRemoved += OnEntityRemoved;
+        Workspace.LevelModule.PropertyChanged += OnLevelChanged;
     }
 
     protected override void OnContextFinalizing(ConfigurableRenderPipeline pipeline)
     {
+        Workspace!.LevelModule.EntityAdded -= OnEntityAdded;
+        Workspace.LevelModule.EntityRemoved -= OnEntityRemoved;
+        Workspace.LevelModule.PropertyChanged -= OnLevelChanged;
         _lifeOfRenderables!.Unregister(_context!.SpaceHierarchy);
         IRenderDevice device = pipeline.Device;
         _blitVertStream!.Dispose(device);
@@ -94,7 +103,44 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
 
     protected override void OnContextCreateFailed()
     {
-        Workspace!.LogModule.LogError(LocalizationHelper.GetLocalizedString("ERR_GLContextFailure"));
+        Workspace!.LogError(LocalizationHelper.GetLocalizedString("ERR_GLContextFailure"));
+    }
+
+    void OnEntityAdded(LevelEntity entity)
+    {
+        if (!_context!.EntityManager.HasEntity(entity))
+        {
+            AddCommand(new SetupLevelEntityCommand(entity, EntitySetups.Add));
+        }
+    }
+
+    void OnEntityRemoved(LevelEntity entity)
+    {
+        if (_context!.EntityManager.HasEntity(entity))
+        {
+            AddCommand(new SetupLevelEntityCommand(entity, EntitySetups.Remove));
+        }
+    }
+
+    void OnLevelChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(LevelModule.CurrentLevel))
+        {
+            LevelModule module = (LevelModule)sender!;
+            InitializeLevel(module.CurrentLevel);
+        }
+    }
+
+    void InitializeLevel(IReadonlyLevel? lv)
+    {
+        _context!.SpaceHierarchy.Clear();
+        if (lv != null)
+        {
+            foreach (var entity in lv.Entities)
+            {
+                AddCommand(new SetupLevelEntityCommand(entity, EntitySetups.Add));
+            }
+        }
     }
 
     void SetupGlobalUniforms(ConfigurableRenderPipeline pipeline)
@@ -177,10 +223,38 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
         return screenPos;
     }
 
+    public Vector2 ScreenToCanvas(Vector2 screenPos)
+    {
+        float canvasWidth = ControlSize.X;
+        float canvasHeight = ControlSize.Y;
+        float designRatio = (float)_camera!.Viewport.X / _camera.Viewport.Y;
+        float canvasRatio = canvasWidth / canvasHeight;
+        Vector2 canvasPos = Vector2.Zero;
+        if (canvasRatio >= designRatio)
+        {
+            canvasPos.X = screenPos.X / _camera.Viewport.X * canvasWidth;
+            float h = canvasWidth / designRatio;
+            canvasPos.Y = canvasHeight - (_camera.Viewport.Y - screenPos.Y) / _camera.Viewport.Y * h;
+        }
+        else
+        {
+            float w = canvasHeight * designRatio;
+            canvasPos.X = screenPos.X / _camera.Viewport.X * w;
+            canvasPos.Y = screenPos.Y / _camera.Viewport.Y * canvasHeight;
+        }
+        return canvasPos;
+    }
+
     public Vector2 CanvasToWorld(Vector2 canvasPos)
     {
         Vector2 posToScreen = CanvasToScreen(canvasPos);
         return _camera!.ScreenToWorld(posToScreen);
+    }
+
+    public Vector2 WorldToCanvas(Vector2 worldPos)
+    {
+        Vector2 posToScreen = _camera!.WorldToScreen(worldPos);
+        return ScreenToCanvas(posToScreen);
     }
 
     public void AddCommand(ICanvasCommand command)

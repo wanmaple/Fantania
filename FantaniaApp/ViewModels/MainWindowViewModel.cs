@@ -82,7 +82,7 @@ public partial class MainWindowViewModel : ViewModelBase
     public async Task SaveWorkspace()
     {
         await Workspace!.Save();
-        await Workspace.LogModule.LogAsync(LocalizationHelper.GetLocalizedString("MSG_WorkspaceSaved"));
+        await Workspace.LogAsync(LocalizationHelper.GetLocalizedString("MSG_WorkspaceSaved"));
     }
 
     [RelayCommand(CanExecute = nameof(CanOperateWorkspace))]

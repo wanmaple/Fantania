@@ -26,22 +26,22 @@ public class WorkspaceProxy
 
     public void Log(string content)
     {
-        _workspace.LogModule.Log(content);
+        _workspace.Log(content);
     }
 
     public void LogOptional(string content)
     {
-        _workspace.LogModule.LogOptional(content);
+        _workspace.LogOptional(content);
     }
 
     public void LogWarning(string content)
     {
-        _workspace.LogModule.LogWarning(content);
+        _workspace.LogWarning(content);
     }
 
     public void LogError(string content)
     {
-        _workspace.LogModule.LogError(content);
+        _workspace.LogError(content);
     }
 
     IWorkspace _workspace;

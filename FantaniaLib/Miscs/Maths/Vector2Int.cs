@@ -2,7 +2,7 @@ using System.Runtime.InteropServices;
 
 namespace FantaniaLib;
 
-[StructLayout(LayoutKind.Sequential, Pack = 4)]
+[StructLayout(LayoutKind.Sequential)]
 public struct Vector2Int : IEquatable<Vector2Int>
 {
     public static readonly Vector2Int Zero = new Vector2Int();

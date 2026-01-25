@@ -22,6 +22,7 @@ public class QuadRenderable : IRenderable
     public int Depth { get; set; }
     public Mesh Mesh => _mesh;
     public RenderMaterial Material => _material;
+    public int NodeIndex { get; private set; }
     public Rectf BoundingBox => _aabb;
 
     public Vector2 Size { get; private set; } = Vector2.Zero;
@@ -34,6 +35,7 @@ public class QuadRenderable : IRenderable
         Depth = info.Depth;
         Size = info.Size;
         VertexColor = info.Color;
+        NodeIndex = info.NodeIndex;
         _material = material;
         _transform = info.Transform;
         UpdateVertices();

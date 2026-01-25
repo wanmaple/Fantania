@@ -1,7 +1,5 @@
 using System;
 using System.Numerics;
-using Avalonia.Input;
-using Fantania.Models;
 using FantaniaLib;
 
 namespace Fantania.Views;
@@ -26,44 +24,67 @@ public class LevelInputs : IDisposable
     void OnMouseEntered(object? sender, ControlInputEventArgs e)
     {
         ChangeModeDependsOnPlacementMode(e);
+        _inArea = true;
     }
 
     void OnMouseExited(object? sender, ControlInputEventArgs e)
     {
         _manager.SetEditorMode(LevelEditorModes.None, _context, e);
+        _inArea = false;
     }
 
     void OnMouseCaptureLost(object? sender, ControlInputEventArgs e)
     {
         _manager.SetEditorMode(LevelEditorModes.None, _context, e);
+        _inArea = false;
     }
 
     void OnMousePressed(object? sender, ControlInputEventArgs e)
     {
+        if (!_inArea) return;
         ChangeModeDependsOnPlacementMode(e);
         _manager.CurrentMode.OnMousePressed(_context, e);
     }
 
     void OnMouseReleased(object? sender, ControlInputEventArgs e)
     {
+        if (!_inArea) return;
         ChangeModeDependsOnPlacementMode(e);
         _manager.CurrentMode.OnMouseReleased(_context, e);
     }
 
     void OnMouseMoved(object? sender, ControlInputEventArgs e)
     {
+        if (!_inArea) return;
         Vector2 posToCanvas = e.MouseState.Position.ToVector2();
         Vector2 posToWorld = _context.CanvasToWorld(posToCanvas);
         _context.Workspace.EditorModule.MouseWorldPosition = posToWorld.ToGridSpace(_context.EditConfig.GridAlign);
+        if (e.MouseState.IsMiddleButtonPressed && !_context.FixCamera)
+        {
+            Vector2 movement = e.MouseState.Movement.ToVector2();
+            Vector2 newPos = e.MouseState.Position.ToVector2();
+            Vector2 oldPos = newPos - movement;
+            Vector2 newWorldPos = _context.CanvasToWorld(newPos);
+            Vector2 oldWorldPos = _context.CanvasToWorld(oldPos);
+            Vector2 movementWorld = newWorldPos - oldWorldPos;
+            _context.Camera.Translate(-movementWorld);
+            _context.Workspace.EditorModule.Notify();
+            _context.Workspace.UserTemporary.CameraPosition = _context.Camera.Position;
+        }
         ChangeModeDependsOnPlacementMode(e);
         _manager.CurrentMode.OnMouseMoved(_context, e);
     }
 
     void OnMouseWheelChanged(object? sender, ControlInputEventArgs e)
     {
-        Vector2 mouseWorldPos = _context.CanvasToWorld(e.MouseState.Position.ToVector2());
-        _context.Camera.ZoomAt((float)e.MouseState.WheelDelta.Y * _context.EditConfig.ZoomSensitivity, mouseWorldPos);
-        _context.Workspace.UserTemporary.CameraZoom = _context.Camera.Zoom;
+        if (!_inArea) return;
+        if (!_context.FixCamera)
+        {
+            Vector2 mouseWorldPos = _context.CanvasToWorld(e.MouseState.Position.ToVector2());
+            _context.Camera.ZoomAt((float)e.MouseState.WheelDelta.Y * _context.EditConfig.ZoomSensitivity, mouseWorldPos);
+            _context.Workspace.EditorModule.Notify();
+            _context.Workspace.UserTemporary.CameraZoom = _context.Camera.Zoom;
+        }
         ChangeModeDependsOnPlacementMode(e);
         _manager.CurrentMode.OnMouseWheelChanged(_context, e);
     }
@@ -90,9 +111,6 @@ public class LevelInputs : IDisposable
             case EntityPlacementModes.Place:
                 _manager.SetEditorMode(LevelEditorModes.Place, _context, e);
                 break;
-            case EntityPlacementModes.DrawRect:
-                _manager.SetEditorMode(LevelEditorModes.View, _context, e);
-                break;
         }
     }
 
@@ -104,4 +122,5 @@ public class LevelInputs : IDisposable
     ControlInputTracker _inputTracker;
     LevelEditorContext _context;
     LevelEditorModeManager _manager = new LevelEditorModeManager();
+    bool _inArea = false;
 }

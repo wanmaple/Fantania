@@ -8,6 +8,11 @@ public struct EntityLocalInfo
 
 public class EntityRenderableManager
 {
+    public bool HasEntity(LevelEntity entity)
+    {
+        return _entity2renderables.ContainsKey(entity);
+    }
+
     public IReadOnlyList<IRenderable> GetRenderables(LevelEntity entity)
     {
         return _entity2renderables[entity];

@@ -157,7 +157,49 @@ public class SerializationRule
         }
     }
 
-    public static readonly SerializationRule DEFAULT = new SerializationRule();
+    private class DefaultGroupReferenceCast : IFieldCastRule
+    {
+        public object? CastFrom(string casted)
+        {
+            string[] ary = casted.Split(',');
+            string group = ary[0];
+            int id = int.Parse(ary[1]);
+            return new GroupReference
+            {
+                ReferenceGroup = group,
+                ReferenceID = id,
+            };
+        }
+
+        public string CastTo(object? fieldVal)
+        {
+            var groupRef = (GroupReference)fieldVal!;
+            return groupRef.ToString();
+        }
+    }
+
+    private class DefaultTypeReferenceCast : IFieldCastRule
+    {
+        public object? CastFrom(string casted)
+        {
+            string[] ary = casted.Split(',');
+            string type = ary[0];
+            int id = int.Parse(ary[1]);
+            return new TypeReference
+            {
+                ReferenceType = type,
+                ReferenceID = id,
+            };
+        }
+
+        public string CastTo(object? fieldVal)
+        {
+            var typeRef = (TypeReference)fieldVal!;
+            return typeRef.ToString();
+        }
+    }
+
+    public static readonly SerializationRule Default = new SerializationRule();
 
     public SerializationRule()
     {
@@ -169,6 +211,8 @@ public class SerializationRule
         SetFieldCast(FieldTypes.Vector2Int, new DefaultVector2IntCast());
         SetFieldCast(FieldTypes.Color, new DefaultColorCast());
         SetFieldCast(FieldTypes.Texture, new DefaultTextureCast());
+        SetFieldCast(FieldTypes.GroupReference, new DefaultGroupReferenceCast());
+        SetFieldCast(FieldTypes.TypeReference, new DefaultTypeReferenceCast());
     }
 
     public string CastTo(FieldTypes fieldType, object? fieldValue)

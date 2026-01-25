@@ -5,15 +5,9 @@ namespace Fantania.Models;
 
 public class SetupGhostEntityCommand : LevelEntityCommand
 {
-    public enum GhostSetups
-    {
-        Add,
-        Remove,
-    }
+    public EntitySetups SetupType { get; private set; }
 
-    public GhostSetups SetupType { get; private set; }
-
-    public SetupGhostEntityCommand(GhostSetups setupType)
+    public SetupGhostEntityCommand(EntitySetups setupType)
     {
         SetupType = setupType;
     }
@@ -23,18 +17,17 @@ public class SetupGhostEntityCommand : LevelEntityCommand
         UserPlacement placement = context.Workspace.PlacementModule.ActivePlacement!;
         switch (SetupType)
         {
-            case GhostSetups.Add:
+            case EntitySetups.Add:
                 {
                     context.GhostEntity = LevelEntity.BuildFromPlacement(placement);
-                    context.Workspace.LogModule.LogOptional("Add Ghost");
+                    context.GhostEntity.Position = context.Workspace.EditorModule.MouseWorldPosition;
                     AddEntity(context.GhostEntity, context, pipeline);
                 }
                 break;
-            case GhostSetups.Remove:
+            case EntitySetups.Remove:
                 {
                     RemoveEntity(context.GhostEntity!, context);
                     context.GhostEntity = null;
-                    context.Workspace.LogModule.LogOptional("Remove Ghost");
                 }
                 break;
         }

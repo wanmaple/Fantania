@@ -70,7 +70,7 @@ public partial class LevelViewModel : ViewModelBase
             }
             catch (Exception ex)
             {
-                await Workspace.LogModule.LogErrorAsync(string.Format(LocalizationHelper.GetLocalizedString("ERR_CreateLevelFailure"), ex));
+                await Workspace.LogErrorAsync(string.Format(LocalizationHelper.GetLocalizedString("ERR_CreateLevelFailure"), ex));
             }
         }
     }

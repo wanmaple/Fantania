@@ -286,7 +286,17 @@ public class BoundingVolumeHierarchy<T> where T : IBVHItem
         InnerPointTest(_root, point, filter, results);
     }
 
+    public void PointTest(Vector2 point, ISet<T> results, Predicate<T>? filter = null)
+    {
+        InnerPointTest(_root, point, filter, results);
+    }
+
     public void RectTest(Rectf rect, IList<T> results, Predicate<T>? filter = null)
+    {
+        InnerRectTest(_root, rect, filter, results);
+    }
+
+    public void RectTest(Rectf rect, ISet<T> results, Predicate<T>? filter = null)
     {
         InnerRectTest(_root, rect, filter, results);
     }
@@ -305,7 +315,35 @@ public class BoundingVolumeHierarchy<T> where T : IBVHItem
         InnerPointTest(node.right, point, filter, ret);
     }
 
+    void InnerPointTest(BoundingVolumeHierarchyNode<T>? node, Vector2 point, Predicate<T>? filter, ISet<T> ret)
+    {
+        if (node == null) return;
+        if (!node.bounds.Contains(point)) return;
+        if (node.IsLeaf)
+        {
+            if (filter == null || filter.Invoke(node.item!))
+                ret.Add(node.item!);
+            return;
+        }
+        InnerPointTest(node.left, point, filter, ret);
+        InnerPointTest(node.right, point, filter, ret);
+    }
+
     void InnerRectTest(BoundingVolumeHierarchyNode<T>? node, Rectf rect, Predicate<T>? filter, IList<T> ret)
+    {
+        if (node == null) return;
+        if (!node.bounds.Intersects(rect)) return;
+        if (node.IsLeaf)
+        {
+            if (filter == null || filter.Invoke(node.item!))
+                ret.Add(node.item!);
+            return;
+        }
+        InnerRectTest(node.left, rect, filter, ret);
+        InnerRectTest(node.right, rect, filter, ret);
+    }
+
+    void InnerRectTest(BoundingVolumeHierarchyNode<T>? node, Rectf rect, Predicate<T>? filter, ISet<T> ret)
     {
         if (node == null) return;
         if (!node.bounds.Intersects(rect)) return;

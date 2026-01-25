@@ -57,8 +57,8 @@ public class ScriptingModule : WorkspaceModule
                 }
                 catch (Exception ex)
                 {
-                    _workspace.LogModule.LogError($"Invalid entity: {scriptPath}");
-                    _workspace.LogModule.LogError($"Detail: {ex}");
+                    _workspace.LogError($"Invalid entity: {scriptPath}");
+                    _workspace.LogError($"Detail: {ex}");
                 }
             }
         }
@@ -86,8 +86,8 @@ public class ScriptingModule : WorkspaceModule
                 }
                 catch (Exception ex)
                 {
-                    _workspace.LogModule.LogError("pipeline_setup.lua is corrupt.");
-                    _workspace.LogModule.LogError($"Detail: {ex}");
+                    _workspace.LogError("pipeline_setup.lua is corrupt.");
+                    _workspace.LogError($"Detail: {ex}");
                     ret = null;
                 }
             }
@@ -124,8 +124,8 @@ public class ScriptingModule : WorkspaceModule
                 }
                 catch (Exception ex)
                 {
-                    _workspace.LogModule.LogError("editor_setup.lua is corrupt.");
-                    _workspace.LogModule.LogError($"Detail: {ex}");
+                    _workspace.LogError("editor_setup.lua is corrupt.");
+                    _workspace.LogError($"Detail: {ex}");
                     ret = null;
                 }
             }

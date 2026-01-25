@@ -35,4 +35,9 @@ public struct GroupReference : IEquatable<GroupReference>
     {
         return (ReferenceGroup.GetHashCode() * 397) ^ ReferenceID.GetHashCode();
     }
+
+    public override string ToString()
+    {
+        return $"{ReferenceGroup},{ReferenceID}";
+    }
 }

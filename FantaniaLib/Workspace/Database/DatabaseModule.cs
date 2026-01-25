@@ -92,17 +92,18 @@ public class DatabaseModule : WorkspaceModule
             _tempChange!.NewValue = _rule.CastTo(fieldInfo.FieldType, obj.GetFieldValue(fieldInfo.FieldName));
             var op = new ModifyDatabaseObjectOperation(_workspace, obj, _tempChange);
             _workspace.UndoStack.AddOperation(op);
+            _tempChange = null;
         }
     }
 
     void OnDatabaseExecutingSql(string sql)
     {
-        _workspace.LogModule.LogOptional($"Executing '{sql}'");
+        _workspace.LogOptional($"Executing '{sql}'");
     }
 
     SqliteDatabase _db;
     SqliteSyncer _syncer;
-    SerializationRule _rule = SerializationRule.DEFAULT;
+    SerializationRule _rule = SerializationRule.Default;
 
     PropertyChangeInfo? _tempChange;
 }
