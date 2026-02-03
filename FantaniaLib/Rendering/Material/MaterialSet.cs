@@ -5,17 +5,21 @@ public class MaterialSet
 {
     public IEnumerable<RenderMaterial> AllMaterials => _materials.Values;
 
-    public MaterialSet()
+    public MaterialSet(ShaderProgram fallback)
     {
+        _fallback = new RenderMaterial
+        {
+            Shader = fallback,
+        };
     }
 
-    public RenderMaterial? GetMaterial(string key)
+    public RenderMaterial GetMaterial(string key)
     {
         if (_materials.TryGetValue(key, out var mat))
         {
             return mat.Clone();
         }
-        return null;
+        return _fallback.Clone();
     }
 
     public void AddMaterial(string key, RenderMaterial material)
@@ -24,4 +28,5 @@ public class MaterialSet
     }
 
     Dictionary<string, RenderMaterial> _materials = new Dictionary<string, RenderMaterial>(16);
+    RenderMaterial _fallback;
 }

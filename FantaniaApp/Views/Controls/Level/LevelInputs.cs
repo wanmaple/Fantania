@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Numerics;
 using FantaniaLib;
 
@@ -6,6 +7,8 @@ namespace Fantania.Views;
 
 public class LevelInputs : IDisposable
 {
+    public LevelEditConfig EditConfig => _context.EditConfig;
+
     public LevelInputs(ILevelCanvas canvas, LevelEditConfig config)
     {
         _inputTracker = new ControlInputTracker(canvas.Control);
@@ -19,6 +22,8 @@ public class LevelInputs : IDisposable
         _inputTracker.KeyDown += OnKeyDown;
         _inputTracker.KeyUp += OnKeyUp;
         _context = new LevelEditorContext(canvas, config);
+
+        _context.Workspace.EditorModule.PropertyChanged += OnEditorModulePropertyChanged;
     }
 
     void OnMouseEntered(object? sender, ControlInputEventArgs e)
@@ -111,6 +116,16 @@ public class LevelInputs : IDisposable
             case EntityPlacementModes.Place:
                 _manager.SetEditorMode(LevelEditorModes.Place, _context, e);
                 break;
+        }
+    }
+
+    void OnEditorModulePropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(EditorModule.CurrentPlacementMode))
+        {
+            ChangeModeDependsOnPlacementMode(_inputTracker.CreateInputEventArgs());
+            if (_context.Workspace.EditorModule.CurrentPlacementMode != EntityPlacementModes.Select)
+                _context.Workspace.EditorModule.CancelSelection();
         }
     }
 

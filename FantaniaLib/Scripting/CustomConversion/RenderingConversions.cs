@@ -134,7 +134,6 @@ public static class RenderingConversions
             string matKey = v.Table.Get("materialKey").GetStringOrDefault(string.Empty);
             DesiredUniformMap uniforms = v.Table.Get("uniforms").GetObjectOrDefault(new DesiredUniformMap());
             IRenderableSizer sizer = v.Table.Get("sizer").GetObjectOrDefault(FallbackSizer.Fallback);
-            int ndIdx = v.Table.Get("nodeIndex").GetIntegerOrDefault(-1);
             return new LocalRenderInfo
             {
                 Stage = stage,
@@ -147,7 +146,6 @@ public static class RenderingConversions
                 MaterialKey = matKey,
                 Uniforms = uniforms,
                 Sizer = sizer,
-                NodeIndex = ndIdx,
             };
         });
     }

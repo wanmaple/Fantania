@@ -44,6 +44,19 @@ public partial class ToolbarView : UserControl
             window.KeyBindings.Add(binding);
             _keyBindings.Add(binding);
         }
+        var transDefs = ViewModel.TransformModesDefinitions;
+        Key[] transKeys = [Key.Q, Key.W, Key.E, Key.R,];
+        for (int i = 0; i < transDefs.Count; i++)
+        {
+            var binding = new KeyBinding
+            {
+                Command = transDefs[i].Command!,
+                CommandParameter = transDefs[i].Value,
+                Gesture = new KeyGesture(transKeys[i]),
+            };
+            window.KeyBindings.Add(binding);
+            _keyBindings.Add(binding);
+        }
     }
 
     void FinalizeShortcutKeys()

@@ -30,7 +30,7 @@ public class LevelModule : WorkspaceModule
         {
             Name = lv.Name,
         });
-        _syncer = new BinaryDataSyncer<LevelEntity>(lv.WritableEntities, SerializationRule.Default);
+        _syncer = new BinaryDataSyncer<LevelEntity>(lv.MutableEntities, SerializationRule.Default);
         await _syncer.SyncToFile(lvPath);
         SetCurrentLevel(lv);
     }
@@ -40,7 +40,7 @@ public class LevelModule : WorkspaceModule
         if (!_lvDescs.Any(lv => lv.Name == lvName)) return;
         string lvPath = GetLevelFilePath(lvName);
         var lv = Level.OpenExist(lvPath);
-        _syncer = new BinaryDataSyncer<LevelEntity>(lv.WritableEntities, SerializationRule.Default);
+        _syncer = new BinaryDataSyncer<LevelEntity>(lv.MutableEntities, SerializationRule.Default);
         await _syncer.SyncFromFile(lvPath);
         SetCurrentLevel(lv);
     }
@@ -109,7 +109,6 @@ public class LevelModule : WorkspaceModule
     public void PlaceEntity(LevelEntity entity)
     {
         AddEntity(entity);
-        WatchPropertyChange(entity);
         var op = new NewLevelEntityOperation(_workspace, entity);
         _workspace.UndoStack.AddOperation(op);
     }
@@ -117,7 +116,6 @@ public class LevelModule : WorkspaceModule
     public void DeleteEntity(LevelEntity entity)
     {
         RemoveEntity(entity);
-        UnwatchPropertyChange(entity);
         var op = new DelLevelEntityOperation(_workspace, entity);
         _workspace.UndoStack.AddOperation(op);
     }
@@ -127,7 +125,9 @@ public class LevelModule : WorkspaceModule
         if (_curLv != null)
         {
             _syncer!.AddObject(entity);
+            entity.OnEnter(_workspace);
             EntityAdded?.Invoke(entity);
+            WatchPropertyChange(entity);
         }
     }
 
@@ -135,6 +135,8 @@ public class LevelModule : WorkspaceModule
     {
         if (_curLv != null)
         {
+            UnwatchPropertyChange(entity);
+            entity.OnExit(_workspace);
             _syncer!.RemoveObject(entity);
             EntityRemoved?.Invoke(entity);
         }

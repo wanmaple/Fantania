@@ -35,6 +35,20 @@ public class EditorModule : WorkspaceModule
         }
     }
 
+    private TransformGizmoTypes _curTransMode = TransformGizmoTypes.None;
+    public TransformGizmoTypes CurrentTransformMode
+    {
+        get { return _curTransMode; }
+        set
+        {
+            if (_curTransMode != value)
+            {
+                _curTransMode = value;
+                OnPropertyChanged(nameof(CurrentTransformMode));
+            }
+        }
+    }
+
     private Vector2Int _mouseWorldPos = Vector2Int.Zero;
     public Vector2Int MouseWorldPosition
     {
@@ -63,8 +77,8 @@ public class EditorModule : WorkspaceModule
         }
     }
 
-    private ObservableCollection<IRenderable> _selectedObjs = new ObservableCollection<IRenderable>();
-    public IList<IRenderable> SelectedObjects => _selectedObjs;
+    private ObservableCollection<ISelectableItem> _selectedObjs = new ObservableCollection<ISelectableItem>();
+    public IList<ISelectableItem> SelectedObjects => _selectedObjs;
 
     private int _fps = 0;
     public int FPS
@@ -82,6 +96,11 @@ public class EditorModule : WorkspaceModule
 
     public EditorModule(IWorkspace workspace) : base(workspace)
     {}
+
+    public void CancelSelection()
+    {
+        _selectedObjs.Clear();
+    }
 
     public void Notify()
     {

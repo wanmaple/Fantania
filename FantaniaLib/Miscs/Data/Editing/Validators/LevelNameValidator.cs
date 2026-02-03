@@ -1,24 +1,8 @@
-using CommunityToolkit.Mvvm.ComponentModel;
-
 namespace FantaniaLib;
 
-public class LevelNameValidator : ObservableObject, IFieldValidator
+public class LevelNameValidator : FieldValidatorBase
 {
-    private string _err = string.Empty;
-    public string Error
-    {
-        get { return _err; }
-        set
-        {
-            if (_err != value)
-            {
-                _err = value;
-                OnPropertyChanged(nameof(Error));
-            }
-        }
-    }
-
-    public bool ValidateField(IWorkspace workspace, object fieldValue)
+    public override bool ValidateField(IWorkspace workspace, object fieldValue)
     {
         if (_nameValidator.ValidateField(workspace, fieldValue))
         {

@@ -14,6 +14,7 @@ public class PlaceGhostEntityCommand : LevelEntityCommand
             UserPlacement placement = context.Workspace.PlacementModule.ActivePlacement!;
             context.GhostEntity = LevelEntity.BuildFromPlacement(placement);
             context.GhostEntity.Position = context.Workspace.EditorModule.MouseWorldPosition;
+            context.GhostEntity.Order = context.Workspace.LevelModule.CurrentLevel!.NewOrder();
             AddEntity(context.GhostEntity, context, pipeline);
         }
     }

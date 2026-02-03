@@ -4,6 +4,7 @@ namespace FantaniaLib;
 
 public class PlacementModule : WorkspaceModule
 {
+    public PlacementTemplate? FallbackTemplate { get; internal set; }
     public IReadOnlyList<IPlacement> LevelPlacements => _levelPlacements;
     public IReadOnlyDictionary<string, PlacementTemplate> PlacementTemplateMap => _placementTemplateMap;
 

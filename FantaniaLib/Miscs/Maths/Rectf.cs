@@ -106,4 +106,9 @@ public struct Rectf : IEquatable<Rectf>
         hash = (hash * 397) ^ Height.GetHashCode();
         return hash;
     }
+
+    public override string ToString()
+    {
+        return $"{TopLeft} -> {BottomRight}";
+    }
 }

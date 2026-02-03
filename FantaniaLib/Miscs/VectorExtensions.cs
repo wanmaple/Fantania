@@ -9,6 +9,16 @@ public static class VectorExtensions
         return self.X * other.Y - self.Y * other.X;
     }
 
+    public static Vector2 WithX(this Vector2 self)
+    {
+        return new Vector2(self.X, 0.0f);
+    }
+
+    public static Vector2 WithY(this Vector2 self)
+    {
+        return new Vector2(0.0f, self.Y);
+    }
+
     public static Vector2 FlipX(this Vector2 self)
     {
         return new Vector2(-self.X, self.Y);
@@ -22,6 +32,11 @@ public static class VectorExtensions
     public static Vector2 ToVector2(this Vector2Int self)
     {
         return new Vector2(self.X, self.Y);
+    }
+
+    public static Vector2Int ToVector2i(this Vector2 self)
+    {
+        return new Vector2Int((int)self.X, (int)self.Y);
     }
 
     public static Vector2Int ToGridSpace(this Vector2 self, int gridSize)

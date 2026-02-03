@@ -11,6 +11,8 @@ public struct Vector2Int : IEquatable<Vector2Int>
     public int X;
     public int Y;
 
+    public bool IsZero => X == 0 && Y == 0;
+
     public Vector2Int() : this(0, 0)
     {}
 
@@ -18,6 +20,16 @@ public struct Vector2Int : IEquatable<Vector2Int>
     {
         X = x_;
         Y = y_;
+    }
+
+    public Vector2Int WithX()
+    {
+        return new Vector2Int(X, 0);
+    }
+
+    public Vector2Int WithY()
+    {
+        return new Vector2Int(0, Y);
     }
 
     public bool Equals(Vector2Int other)

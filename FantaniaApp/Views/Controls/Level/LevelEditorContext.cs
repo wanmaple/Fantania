@@ -21,12 +21,12 @@ public class LevelEditorContext
 
     public Vector2 CanvasToScreen(Vector2 canvasPos)
     {
-        return _canvas.CanvasToScreen(canvasPos);
+        return _canvas.CanvasPositionToScreenPosition(canvasPos);
     }
 
     public Vector2 CanvasToWorld(Vector2 canvasPos)
     {
-        return _canvas.CanvasToWorld(canvasPos);
+        return _canvas.CanvasPositionToWorldPosition(canvasPos);
     }
 
     public void AddCommand(ICanvasCommand command)

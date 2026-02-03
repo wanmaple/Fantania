@@ -18,6 +18,8 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
     public Vector2 ColorSize { get; private set; } = Vector2.Zero;
     public Vector2 ControlSize => new Vector2((float)Bounds.Width, (float)Bounds.Height);
 
+    public LevelEditConfig EditConfig => _inputs!.EditConfig;
+
     public LevelCanvas()
     {
         Focusable = true;
@@ -55,7 +57,7 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
         _inputs = new LevelInputs(this, leConfig);
         _context = new LevelSpaceContext(this);
         _lifeOfRenderables = new RenderableLifePeriod(Workspace, pipeline);
-        _lifeOfRenderables.Register(_context.SpaceHierarchy);
+        _lifeOfRenderables.Register(_context.RenderableHierarchy);
         if (Workspace.LevelModule.CurrentLevel != null)
             InitializeLevel(Workspace.LevelModule.CurrentLevel);
         Workspace.LevelModule.EntityAdded += OnEntityAdded;
@@ -68,7 +70,7 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
         Workspace!.LevelModule.EntityAdded -= OnEntityAdded;
         Workspace.LevelModule.EntityRemoved -= OnEntityRemoved;
         Workspace.LevelModule.PropertyChanged -= OnLevelChanged;
-        _lifeOfRenderables!.Unregister(_context!.SpaceHierarchy);
+        _lifeOfRenderables!.Unregister(_context!.RenderableHierarchy);
         IRenderDevice device = pipeline.Device;
         _blitVertStream!.Dispose(device);
         _quad!.Dispose();
@@ -133,7 +135,7 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
 
     void InitializeLevel(IReadonlyLevel? lv)
     {
-        _context!.SpaceHierarchy.Clear();
+        _context!.RenderableHierarchy.Clear();
         if (lv != null)
         {
             foreach (var entity in lv.Entities)
@@ -201,7 +203,7 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
         return changed;
     }
 
-    public Vector2 CanvasToScreen(Vector2 canvasPos)
+    public Vector2 CanvasPositionToScreenPosition(Vector2 canvasPos)
     {
         float canvasWidth = ControlSize.X;
         float canvasHeight = ControlSize.Y;
@@ -223,7 +225,7 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
         return screenPos;
     }
 
-    public Vector2 ScreenToCanvas(Vector2 screenPos)
+    public Vector2 ScreenPositionToCanvasPosition(Vector2 screenPos)
     {
         float canvasWidth = ControlSize.X;
         float canvasHeight = ControlSize.Y;
@@ -245,16 +247,54 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
         return canvasPos;
     }
 
-    public Vector2 CanvasToWorld(Vector2 canvasPos)
+    public Vector2 CanvasPositionToWorldPosition(Vector2 canvasPos)
     {
-        Vector2 posToScreen = CanvasToScreen(canvasPos);
-        return _camera!.ScreenToWorld(posToScreen);
+        Vector2 posToScreen = CanvasPositionToScreenPosition(canvasPos);
+        return _camera!.ScreenPositionToWorldPosition(posToScreen);
     }
 
-    public Vector2 WorldToCanvas(Vector2 worldPos)
+    public Vector2 WorldPositionToCanvasPosition(Vector2 worldPos)
     {
-        Vector2 posToScreen = _camera!.WorldToScreen(worldPos);
-        return ScreenToCanvas(posToScreen);
+        Vector2 posToScreen = _camera!.WorldPositionToScreenPosition(worldPos);
+        return ScreenPositionToCanvasPosition(posToScreen);
+    }
+
+    public Vector2 CanvasMovementToScreenMovement(Vector2 canvasVec)
+    {
+        float canvasWidth = ControlSize.X;
+        float canvasHeight = ControlSize.Y;
+        float designRatio = (float)_camera!.Viewport.X / _camera.Viewport.Y;
+        float canvasRatio = canvasWidth / canvasHeight;
+        if (canvasRatio >= designRatio)
+        {
+            float x = canvasVec.X / canvasWidth * _camera!.Viewport.X;
+            float h = canvasWidth / designRatio;
+            float y = canvasVec.Y / h * _camera!.Viewport.Y;
+            return new Vector2(x, y);
+        }
+        else
+        {
+            float w = canvasHeight * designRatio;
+            float x = canvasVec.X / w * _camera!.Viewport.X;
+            float y = canvasVec.Y / canvasHeight * _camera!.Viewport.Y;
+            return new Vector2(x, y);
+        }
+    }
+
+    public Vector2 ScreenMovementToCanvasMovement(Vector2 screenVec)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public Vector2 CanvasMovementToWorldMovement(Vector2 canvasVec)
+    {
+        Vector2 screenVec = CanvasMovementToScreenMovement(canvasVec);
+        return _camera!.ScreenMovementToWorldMovement(screenVec);
+    }
+
+    public Vector2 WorldMovementToCanvasMovement(Vector2 worldVec)
+    {
+        return Vector2.Zero;
     }
 
     public void AddCommand(ICanvasCommand command)

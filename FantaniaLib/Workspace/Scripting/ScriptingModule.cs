@@ -42,6 +42,9 @@ public class ScriptingModule : WorkspaceModule
 
     public void LoadBuiltinScripts()
     {
+        string fallbackScript = AvaloniaHelper.ReadAssetText("avares://Fantania/Assets/scripts/placement_fallback.lua");
+        DynValue fallbackTable = _scriptEngine.ExecuteString(fallbackScript);
+        _workspace.PlacementModule.FallbackTemplate = new PlacementTemplate(_scriptEngine, fallbackTable);
         string entityFolder = _workspace.GetAbsolutePath(Workspace.SCRIPTS_FOLDER, Workspace.ENTITIES_FOLDER);
         if (Directory.Exists(entityFolder))
         {
@@ -52,7 +55,13 @@ public class ScriptingModule : WorkspaceModule
                 try
                 {
                     string script = File.ReadAllText(scriptPath);
-                    var template = new PlacementTemplate(_scriptEngine, _scriptEngine.ExecuteString(script));
+                    DynValue table = _scriptEngine.ExecuteString(script);
+                    if (table.IsNil())
+                    {
+                        _workspace.LogError($"Entity '{scriptPath}' returns nil.");
+                        continue;
+                    }
+                    var template = new PlacementTemplate(_scriptEngine, table);
                     _workspace.PlacementModule.AddLevelTemplate(template);
                 }
                 catch (Exception ex)

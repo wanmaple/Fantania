@@ -11,6 +11,11 @@ public class FantaniaWorkspace : Workspace
 
     public override string LocalizeString(string content)
     {
-        return LocalizationHelper.GetLocalizedString(content);
+        if (!LocalizationHelper.TryGetLocalizedString(content, out var result))
+        {
+            if (!string.IsNullOrEmpty(content))
+                this.LogWarning(string.Format(LocalizationHelper.GetLocalizedString("WARN_LocalizationNotFound"), content));
+        }
+        return result;
     }
 }

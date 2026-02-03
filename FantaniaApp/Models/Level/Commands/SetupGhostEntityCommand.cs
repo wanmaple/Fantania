@@ -21,6 +21,7 @@ public class SetupGhostEntityCommand : LevelEntityCommand
                 {
                     context.GhostEntity = LevelEntity.BuildFromPlacement(placement);
                     context.GhostEntity.Position = context.Workspace.EditorModule.MouseWorldPosition;
+                    context.GhostEntity.Order = context.Workspace.LevelModule.CurrentLevel!.NewOrder();
                     AddEntity(context.GhostEntity, context, pipeline);
                 }
                 break;

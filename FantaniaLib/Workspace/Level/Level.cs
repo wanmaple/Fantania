@@ -9,7 +9,7 @@ public class Level : IReadonlyLevel
     public string Name { get; private set; }
     public IReadOnlyList<LevelEntity> Entities => _entities;
 
-    internal IList<LevelEntity> WritableEntities => _entities;
+    internal IList<LevelEntity> MutableEntities => _entities;
 
     public static Level CreateNew(LevelCreateConfig config)
     {
@@ -39,6 +39,11 @@ public class Level : IReadonlyLevel
                 break;
         } while (true);
         return guid;
+    }
+
+    public int NewOrder()
+    {
+        return _entities.Count > 0 ? _entities.Max(e => e.Order) + 1 : 0;
     }
 
     ObservableCollection<LevelEntity> _entities = new ObservableCollection<LevelEntity>();

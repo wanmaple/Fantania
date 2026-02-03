@@ -2,8 +2,10 @@ using System.Numerics;
 
 namespace FantaniaLib;
 
-public class LevelEntity : BinaryObject
+public abstract class LevelEntity : BinaryObject
 {
+    public event Action<LevelEntity>? RenderingDirty;
+
     public const int LAYER_RANGE = 100;
     public const int DEFAULT_RELATIVE_DEPTH = LAYER_RANGE / 2 - 1;
     public const int MIN_RELATIVE_DEPTH = 0;
@@ -11,25 +13,13 @@ public class LevelEntity : BinaryObject
     public const string MIN_RELATIVE_DEPTH_STR = "0";
     public const string MAX_RELATIVE_DEPTH_STR = "99";
 
+    public abstract int NodeCount { get; }
+
+    public bool PlacementDirty { get; protected set; }
+
     [SerializableField(FieldTypes.String)]
     public string GUID { get; internal set; } = string.Empty;
 
-    private Vector2 _anchor = Vector2.Zero;
-    [SerializableField(FieldTypes.Vector2), EditableField(EditGroup = "G_Transform", TooltipKey = "TT_Anchor")]
-    public Vector2 Anchor
-    {
-        get { return _anchor; }
-        set
-        {
-            if (_anchor != value)
-            {
-                OnPropertyChanging(nameof(Anchor));
-                _anchor = value;
-                OnPropertyChanged(nameof(Anchor));
-            }
-        }
-    }
-    
     private Vector2Int _position = Vector2Int.Zero;
     [SerializableField(FieldTypes.Vector2Int), EditableField(EditGroup = "G_Transform", TooltipKey = "TT_Position")]
     public Vector2Int Position
@@ -42,6 +32,7 @@ public class LevelEntity : BinaryObject
                 OnPropertyChanging(nameof(Position));
                 _position = value;
                 OnPropertyChanged(nameof(Position));
+                RaiseRenderingDirty();
             }
         }
     }
@@ -58,6 +49,7 @@ public class LevelEntity : BinaryObject
                 OnPropertyChanging(nameof(Rotation));
                 _rotation = value;
                 OnPropertyChanged(nameof(Rotation));
+                RaiseRenderingDirty();
             }
         }
     }
@@ -74,6 +66,7 @@ public class LevelEntity : BinaryObject
                 OnPropertyChanging(nameof(Scale));
                 _scale = value;
                 OnPropertyChanged(nameof(Scale));
+                RaiseRenderingDirty();
             }
         }
     }
@@ -90,6 +83,7 @@ public class LevelEntity : BinaryObject
                 OnPropertyChanging(nameof(Layer));
                 _layer = value;
                 OnPropertyChanged(nameof(Layer));
+                RaiseRenderingDirty();
             }
         }
     }
@@ -106,6 +100,7 @@ public class LevelEntity : BinaryObject
                 OnPropertyChanging(nameof(RelativeDepth));
                 _depth = value;
                 OnPropertyChanged(nameof(RelativeDepth));
+                RaiseRenderingDirty();
             }
         }
     }
@@ -124,6 +119,7 @@ public class LevelEntity : BinaryObject
                 OnPropertyChanging(nameof(Color));
                 _color = value;
                 OnPropertyChanged(nameof(Color));
+                RaiseRenderingDirty();
             }
         }
     }
@@ -144,43 +140,73 @@ public class LevelEntity : BinaryObject
         }
     }
 
-    public IReadOnlyList<Vector2Int> Nodes { get; set; } = new List<Vector2Int>(0);
+    private int _order = 0;
+    [SerializableField(FieldTypes.Integer)]
+    public int Order
+    {
+        get { return _order; }
+        set
+        {
+            if (_order != value)
+            {
+                OnPropertyChanging(nameof(Order));
+                _order = value;
+                OnPropertyChanged(nameof(Order));
+                RaiseRenderingDirty();
+            }
+        }
+    }
 
     public static LevelEntity BuildFromPlacement(UserPlacement placement)
     {
-        var entity = new LevelEntity();
+        LevelEntity? entity;
+        if (placement.Template.SupportMultiNodes)
+            entity = new MultiNodesEntity(placement.Template.NodeOptions.Minimum);
+        else
+            entity = new SingleNodeEntity();
         entity.PlacementReference = new TypeReference(placement.TypeName, placement.ID);
-        entity.Anchor = placement.Template.DefaultAnchor;
         entity.Layer = placement.Template.DefaultLayer;
         return entity;
     }
 
-    internal LevelEntity()
+    protected LevelEntity()
     {
     }
 
-    public UserPlacement? GetReferencedPlacement(IWorkspace workspace)
+    public virtual void OnEnter(IWorkspace workspace)
     {
-        return workspace.DatabaseModule.GetTypedObject<UserPlacement>(PlacementReference.ReferenceType, PlacementReference.ReferenceID);
+        GetReferencedPlacement(workspace).FieldChanged += OnPlacementChanged;
     }
 
-    public bool GetLocalRenderInfo(IWorkspace workspace, out IReadOnlyList<LocalRenderInfo> locals)
+    public virtual void OnExit(IWorkspace workspace)
     {
-        bool ret = false;
-        UserPlacement? placement = GetReferencedPlacement(workspace);
-        if (placement != null)
-        {
-            ret = _nodesDirty || placement.FieldDirty;
-            if (ret)
-            {
-                _cacheRenderInfo = placement.GetRenderInfo(Nodes);
-                _nodesDirty = false;
-            }
-        }
-        locals = _cacheRenderInfo;
-        return ret;
+        GetReferencedPlacement(workspace).FieldChanged -= OnPlacementChanged;
     }
 
-    bool _nodesDirty = true;
-    IReadOnlyList<LocalRenderInfo> _cacheRenderInfo = Array.Empty<LocalRenderInfo>();
+    void OnPlacementChanged()
+    {
+        PlacementDirty = true;
+        RaiseRenderingDirty();
+    }
+
+    void RaiseRenderingDirty()
+    {
+        RenderingDirty?.Invoke(this);
+    }
+
+    public UserPlacement GetReferencedPlacement(IWorkspace workspace)
+    {
+        var placement = workspace.DatabaseModule.GetTypedObject<UserPlacement>(PlacementReference.ReferenceType, PlacementReference.ReferenceID);
+        if (placement == null)
+            placement = new UserPlacement(workspace.PlacementModule.FallbackTemplate!, -1);
+        return placement;
+    }
+
+    public abstract void GetLocalNodeAt(IWorkspace workspace, int index, out IReadOnlyList<LocalRenderInfo> locals);
+    public abstract void OnAddSelectables(BoundingVolumeHierarchy<ISelectableItem> bvh, int index, Rectf bound);
+    public abstract void OnRemoveSelectables(BoundingVolumeHierarchy<ISelectableItem> bvh, int index);
+    public abstract void OnUpdateSelectables(BoundingVolumeHierarchy<ISelectableItem> bvh, int index);
+
+    public virtual void TryAppendNode()
+    {}
 }

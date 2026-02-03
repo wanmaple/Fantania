@@ -9,53 +9,63 @@ namespace Fantania.Models;
 public class ClickSelectionCommand : ICanvasCommand
 {
     public Vector2 Point { get; private set; }
-    public bool KeepOld { get; private set; }
+    public SelectionModes Mode { get; set; }
 
-    public ClickSelectionCommand(Vector2 pt, bool keepOld)
+    public ClickSelectionCommand(Vector2 pt, SelectionModes mode)
     {
         Point = pt;
-        KeepOld = keepOld;
+        Mode = mode;
     }
 
     public void Execute(LevelSpaceContext context, ConfigurableRenderPipeline pipeline)
     {
-        var bvh = context.SpaceHierarchy;
-        _cacheResults.Clear();
-        bvh.PointTest(Point, _cacheResults);
-        _cacheResults.StableSort(RenderableDepthComparer.Instance);
-        if (KeepOld)
+        var bvh = context.SelectableHierarchy;
+        bvh.PointTest(Point, _cache);
+        if (Mode == SelectionModes.Add)
         {
             // 复数选中的话，就默认多选取第一个当前未被选中的对象
-            var target = _cacheResults.FirstOrDefault(r => !context.Workspace.EditorModule.SelectedObjects.Contains(r));
+            var target = _cache.FirstOrDefault(r => !context.Workspace.EditorModule.SelectedObjects.Contains(r));
             if (target != null)
             {
-                _cacheResults.Clear();
-                _cacheResults.Add(target);
+                _cache.Clear();
+                _cache.Add(target);
             }
         }
-        else if (_cacheResults.Count > 1)
+        else if (Mode == SelectionModes.Remove)
+        {
+            // 取消选中第一个已经选中的对象
+            var target = _cache.FirstOrDefault(r => context.Workspace.EditorModule.SelectedObjects.Contains(r));
+            if (target != null)
+            {
+                _cache.Clear();
+                _cache.Add(target);
+            }
+        }
+        else if (_cache.Count > 1)
         {
             var curSelections = context.Workspace.EditorModule.SelectedObjects;
-            if (curSelections.Count(o => _cacheResults.Contains(o)) > 1 || curSelections.All(o => !_cacheResults.Contains(o)))
+            if (curSelections.Count(o => _cache.Contains(o)) > 1 || curSelections.All(o => !_cache.Contains(o)))
             {
                 // 多个包含或者全部不包含，那么就默认选中第一个。
-                var first = _cacheResults[0];
-                _cacheResults.Clear();
-                _cacheResults.Add(first);
+                var first = _cache.First();
+                _cache.Clear();
+                _cache.Add(first);
             }
             else 
             {
                 // 只有单个包含，就选取之后的那个
-                var sel = (IRenderable)curSelections[0];
-                int index = _cacheResults.IndexOf(sel);
-                index = (index + 1) % _cacheResults.Count;
-                var next = _cacheResults[index];
-                _cacheResults.Clear();
-                _cacheResults.Add(next);
+                var sel = curSelections[0];
+                var list = _cache.ToList();
+                int index = list.IndexOf(sel);
+                index = (index + 1) % list.Count;
+                var next = list[index];
+                _cache.Clear();
+                _cache.Add(next);
             }
         }
-        context.SelectionContext.UpdateSelectedObjects(_cacheResults, KeepOld);
+        context.SelectionContext.UpdateSelectedObjects(_cache, Mode);
+        _cache.Clear();
     }
 
-    static List<IRenderable> _cacheResults = new List<IRenderable>(0);
+    static SortedSet<ISelectableItem> _cache = new SortedSet<ISelectableItem>(SelectableOrderComparer.Instance);
 }

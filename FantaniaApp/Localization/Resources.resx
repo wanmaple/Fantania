@@ -254,19 +254,35 @@
     <comment/>
   </data>
   <data name="TT_SelectMode" xml:space="preserve">
-    <value>场景选中模式</value>
+    <value>场景选中模式(快捷键: 1)</value>
     <comment/>
   </data>
   <data name="TT_PlaceMode" xml:space="preserve">
-    <value>默认放置模式</value>
-    <comment/>
-  </data>
-  <data name="TT_DrawRectMode" xml:space="preserve">
-    <value>矩形放置模式</value>
+    <value>默认放置模式(快捷键: 2)</value>
     <comment/>
   </data>
   <data name="ERR_DuplicatedLevelName" xml:space="preserve">
     <value>关卡'{0}'已存在，请换一个名称。</value>
+    <comment/>
+  </data>
+  <data name="WARN_LocalizationNotFound" xml:space="preserve">
+    <value>词条'{0}'未翻译！</value>
+    <comment/>
+  </data>
+  <data name="TT_CursorMode" xml:space="preserve">
+    <value>无变换(快捷键: Q)</value>
+    <comment/>
+  </data>
+  <data name="TT_TranslateMode" xml:space="preserve">
+    <value>平移(快捷键: W)</value>
+    <comment/>
+  </data>
+  <data name="TT_RotateMode" xml:space="preserve">
+    <value>旋转(快捷键: E)</value>
+    <comment/>
+  </data>
+  <data name="TT_ScaleMode" xml:space="preserve">
+    <value>缩放(快捷键: R)</value>
     <comment/>
   </data>
 </root>

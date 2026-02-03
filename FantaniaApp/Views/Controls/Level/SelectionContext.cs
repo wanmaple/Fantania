@@ -1,8 +1,14 @@
 using System.Collections.Generic;
-using System.Linq;
 using FantaniaLib;
 
 namespace Fantania.Views;
+
+public enum SelectionModes
+{
+    Replace,
+    Add,
+    Remove,
+}
 
 public class SelectionContext
 {
@@ -25,43 +31,63 @@ public class SelectionContext
         _oldSelections.Clear();
     }
 
-    public void UpdateSelectedObjects(IEnumerable<IRenderable> selected, bool keepOld)
+    public void UpdateSelectedObjects(IReadOnlySet<ISelectableItem> sels, SelectionModes mode)
     {
         var selections = _workspace.EditorModule.SelectedObjects;
-        if (keepOld)
+        if (mode == SelectionModes.Add)
         {
-            for (int i = 0; i < selections.Count;)
+            // 最终结果为并集
+            for (int i = 0; i < selections.Count; )
             {
-                var s = selections[i];
-                if (!_oldSelections.Contains(s) && !selected.Contains(s))
+                var sel = selections[i];
+                if (!_oldSelections.Contains(sel) && !sels.Contains(sel))
                     selections.RemoveAtFast(i);
                 else
                     i++;
             }
-            foreach (var r in selected)
+            foreach (var sel in sels)
             {
-                if (!selections.Contains(r))
-                    selections.Add(r);
+                if (!selections.Contains(sel))
+                    selections.Add(sel);
             }
         }
-        else
+        else if (mode == SelectionModes.Remove)
         {
-            for (int i = 0; i < selections.Count;)
+            // 最终结果为差集
+            for (int i = 0; i < selections.Count; )
             {
-                var s = selections[i];
-                if (!selected.Contains(s))
+                var sel = selections[i];
+                if (sels.Contains(sel))
                     selections.RemoveAtFast(i);
                 else
                     i++;
             }
-            foreach (var r in selected)
+            foreach (var sel in _oldSelections)
             {
-                if (!selections.Contains(r))
-                    selections.Add(r);
+                if (!sels.Contains(sel) && !selections.Contains(sel))
+                    selections.Add(sel);
             }
         }
+        else if (mode == SelectionModes.Replace)
+        {
+            // 最终结果直接替换
+            for (int i = 0; i < selections.Count; )
+            {
+                var sel = selections[i];
+                if (!sels.Contains(sel))
+                    selections.RemoveAtFast(i);
+                else
+                    i++;
+            }
+            foreach (var sel in sels)
+            {
+                if (!selections.Contains(sel))
+                    selections.Add(sel);
+            }
+        }
+        _workspace.EditorModule.Notify();
     }
 
     IWorkspace _workspace;
-    HashSet<IBVHItem> _oldSelections = new HashSet<IBVHItem>(0);
+    HashSet<ISelectableItem> _oldSelections = new HashSet<ISelectableItem>(0);
 }

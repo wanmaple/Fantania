@@ -18,6 +18,10 @@ StaticImage.dataDefs = {
         -- default = { r = 1.0, g = 0.0, b = 0.0, a = 1.0, },
         default = "#ffffff",
     },
+    anchor = {
+        type = FieldTypes.Vector2,
+        default = { x = 0.5, y = 1.0, },
+    },
 }
 StaticImage.editDefs = {
     diffuse = {
@@ -35,22 +39,26 @@ StaticImage.editDefs = {
     color = {
         group = "SG_Appearance",
         tooltip = "ST_StaticImage_Color",
-        control = EditControls.ColorPicker,
+    },
+    anchor = {
+        group = "SG_Transform",
+        tooltip = "ST_StaticImage_Anchor",
     },
 }
 
-StaticImage.defaultAnchor = { x = 0.5, y = 1.0, }
 StaticImage.defaultLayer = 0
+StaticImage.multiNodes = false
 StaticImage.nodeOptions = {
     min = 0,
     max = 0,
     defaultOffset = { x = 100, y = 0, },
 }
 
-function StaticImage:renderInfo(info, nodes)
+function StaticImage:nodeAt(info, index)
     local ret = {}
     table.insert(ret, {
         stage = BuiltinStages.Transparent,
+        anchor = info.anchor,
         materialKey = "Standard",
         color = info.color,
         uniforms = {
@@ -63,7 +71,6 @@ function StaticImage:renderInfo(info, nodes)
             type = SizerTypes.Texture,
             texture = info.diffuse,
         },
-        nodeIndex = 0,
     })
     return ret
 end

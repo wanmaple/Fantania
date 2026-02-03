@@ -27,6 +27,7 @@
     <StackPanel Grid.Row="1" Orientation="Horizontal">
       <lib:ToggleButtonGroup ItemsSource="{Binding PlacementModesDefinitions}" SelectedValue="{Binding Workspace.EditorModule.CurrentPlacementMode}" />
       <Separator Classes="toolbar" />
+      <lib:ToggleButtonGroup ItemsSource="{Binding TransformModesDefinitions}" SelectedValue="{Binding Workspace.EditorModule.CurrentTransformMode}" />
     </StackPanel>
     <TextBlock Grid.Row="2" Classes="p" Text="{Binding Workspace.EditorModule.MouseWorldPosition}" />
   </Grid>

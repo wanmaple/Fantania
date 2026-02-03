@@ -20,8 +20,7 @@ public class LocalRenderInfo
     public required ColorOperators ColorOperator { get; set; }
     public required string MaterialKey { get; set; }
     public required DesiredUniformMap Uniforms { get; set; }
-    public required IRenderableSizer Sizer { get; set; } 
-    public required int NodeIndex { get; set; }
+    public required IRenderableSizer Sizer { get; set; }
 
     public Matrix3x3 LocalTransform { get; set; } = Matrix3x3.Identity;
     public Vector2 LocalSize { get; set; } = Vector2.Zero;

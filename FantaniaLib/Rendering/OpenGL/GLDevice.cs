@@ -13,13 +13,11 @@ public class GLDevice : IRenderDevice
 
     public void CheckError()
     {
-#if DEBUG
         int err;
         while ((err = _gl.GetError()) != GL_NO_ERROR)
         {
             Console.WriteLine($"OpenGL Error: {err}");
         }
-#endif
     }
 
     public void ClearColor(Vector4 color)

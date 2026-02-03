@@ -3,6 +3,8 @@ namespace FantaniaLib;
 [BindingScript]
 public class ShaderCache : IDisposable
 {
+    internal ShaderProgram Fallback => _fallback;
+
     public ShaderCache(IRenderDevice device)
     {
         _device = device;

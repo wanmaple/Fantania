@@ -2,6 +2,8 @@ namespace FantaniaLib;
 
 public class UserPlacement : DatabaseObject, IPlacement
 {
+    public event Action? FieldChanged;
+
     public string ClassName => string.Empty;
     public string Group => string.Empty;
 
@@ -45,6 +47,7 @@ public class UserPlacement : DatabaseObject, IPlacement
                 _fieldValues[fieldName] = value;
                 OnPropertyChanged(fieldName);
                 _fieldDirty = true;
+                FieldChanged?.Invoke();
             }
             return;
         }
@@ -66,14 +69,18 @@ public class UserPlacement : DatabaseObject, IPlacement
         return editableFields;
     }
 
-    public IReadOnlyList<LocalRenderInfo> GetRenderInfo(IReadOnlyList<Vector2Int> nodes)
+    public IReadOnlyList<LocalRenderInfo> GetLocalNodeAt(int index)
     {
-        var ret = Template.GetRenderInfo(this, nodes);
-        _fieldDirty = false;
-        return ret;
+        if (_fieldDirty)
+        {
+            _cache = Template.GetLocalNodeAt(this, index);
+            _fieldDirty = false;
+        }
+        return _cache;
     }
 
     PlacementTemplate _script;
     Dictionary<string, object?> _fieldValues;
     bool _fieldDirty = true;
+    IReadOnlyList<LocalRenderInfo> _cache = Array.Empty<LocalRenderInfo>();
 }

@@ -33,7 +33,7 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
         _device = device;
         _cacheShaders = new ShaderCache(device);
         _mgrTextures = new TextureManager(device);
-        _materials = new MaterialSet();
+        _materials = new MaterialSet(_cacheShaders.Fallback);
         _cacheVertStreams = new VertexStreamCache(device);
     }
 

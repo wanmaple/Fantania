@@ -59,6 +59,7 @@ public class ControlInputEventArgs : EventArgs
     public ControlMouseState MouseState { get; set; }
     public ControlKeyState KeyState { get; set; }
     public bool IsValid { get; set; }
+    public bool Handled { get; set; }
 }
 
 public class ControlInputTracker : IDisposable
@@ -106,14 +107,18 @@ public class ControlInputTracker : IDisposable
         UpdatePosition(e);
         UpdateButtonStates(e);
         KeyModifiers = e.KeyModifiers;
-        MouseEntered?.Invoke(_targetControl, CreateInputEventArgs());
+        var args = CreateInputEventArgs();
+        MouseEntered?.Invoke(_targetControl, args);
+        e.Handled = args.Handled;
     }
 
     void OnPointerExited(object? sender, PointerEventArgs e)
     {
         if (_isDisposed) return;
         ClearInputStates();
-        MouseExited?.Invoke(_targetControl, ControlInputEventArgs.Invalid);
+        var args = CreateInputEventArgs();
+        MouseExited?.Invoke(_targetControl, args);
+        e.Handled = args.Handled;
     }
 
     void OnPointerMoved(object? sender, PointerEventArgs e)
@@ -123,7 +128,9 @@ public class ControlInputTracker : IDisposable
         UpdatePosition(e);
         UpdateButtonStates(e);
         KeyModifiers = e.KeyModifiers;
-        MouseMoved?.Invoke(_targetControl, CreateInputEventArgs());
+        var args = CreateInputEventArgs();
+        MouseMoved?.Invoke(_targetControl, args);
+        e.Handled = args.Handled;
     }
 
     void OnPointerPressed(object? sender, PointerPressedEventArgs e)
@@ -132,7 +139,9 @@ public class ControlInputTracker : IDisposable
         UpdatePosition(e);
         UpdateButtonStates(e);
         KeyModifiers = e.KeyModifiers;
-        MousePressed?.Invoke(_targetControl, CreateInputEventArgs());
+        var args = CreateInputEventArgs();
+        MousePressed?.Invoke(_targetControl, args);
+        e.Handled = args.Handled;
     }
 
     void OnPointerReleased(object? sender, PointerReleasedEventArgs e)
@@ -141,7 +150,9 @@ public class ControlInputTracker : IDisposable
         UpdatePosition(e);
         UpdateButtonStates(e);
         KeyModifiers = e.KeyModifiers;
-        MouseReleased?.Invoke(_targetControl, CreateInputEventArgs());
+        var args = CreateInputEventArgs();
+        MouseReleased?.Invoke(_targetControl, args);
+        e.Handled = args.Handled;
     }
 
     void OnPointerWheelChanged(object? sender, PointerWheelEventArgs e)
@@ -150,14 +161,18 @@ public class ControlInputTracker : IDisposable
         WheelDelta = e.Delta;
         UpdatePosition(e);
         KeyModifiers = e.KeyModifiers;
-        MouseWheelChanged?.Invoke(_targetControl, CreateInputEventArgs());
+        var args = CreateInputEventArgs();
+        MouseWheelChanged?.Invoke(_targetControl, args);
+        e.Handled = args.Handled;
     }
 
     void OnPointerCaptureLost(object? sender, PointerCaptureLostEventArgs e)
     {
         if (!_isDisposed) return;
         ClearInputStates();
-        MouseCaptureLost?.Invoke(_targetControl, ControlInputEventArgs.Invalid);
+        var args = CreateInputEventArgs();
+        MouseCaptureLost?.Invoke(_targetControl, args);
+        e.Handled = args.Handled;
     }
 
     void OnKeyDown(object? sender, KeyEventArgs e)
@@ -165,7 +180,9 @@ public class ControlInputTracker : IDisposable
         if (_isDisposed || !_targetControl.IsFocused) return;
         KeyModifiers = e.KeyModifiers;
         KeySet.Add(e.Key);
-        KeyDown?.Invoke(_targetControl, CreateInputEventArgs());
+        var args = CreateInputEventArgs();
+        KeyDown?.Invoke(_targetControl, args);
+        e.Handled = args.Handled;
     }
 
     void OnKeyUp(object? sender, KeyEventArgs e)
@@ -174,7 +191,9 @@ public class ControlInputTracker : IDisposable
         KeyModifiers = e.KeyModifiers;
         JustReleased = e.Key;
         KeySet.Remove(e.Key);
-        KeyUp?.Invoke(_targetControl, CreateInputEventArgs());
+        var args = CreateInputEventArgs();
+        KeyUp?.Invoke(_targetControl, args);
+        e.Handled = args.Handled;
     }
 
     void UpdatePosition(PointerEventArgs e)
@@ -206,10 +225,11 @@ public class ControlInputTracker : IDisposable
         Position = new Point(double.NaN, double.NaN);
         Movement = Vector.Zero;
         IsLeftButtonPressed = IsRightButtonPressed = IsMiddleButtonPressed = false;
+        IsLeftButtonJustReleased = IsRightButtonJustReleased = IsMiddleButtonJustReleased = false;
         WheelDelta = Vector.Zero;
     }
 
-    ControlInputEventArgs CreateInputEventArgs()
+    public ControlInputEventArgs CreateInputEventArgs()
     {
         return new ControlInputEventArgs
         {

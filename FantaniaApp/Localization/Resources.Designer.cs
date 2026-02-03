@@ -337,16 +337,16 @@ namespace Fantania.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 矩形放置模式.
+        ///   Looks up a localized string similar to 无变换(快捷键: Q).
         /// </summary>
-        public static string TT_DrawRectMode {
+        public static string TT_CursorMode {
             get {
-                return ResourceManager.GetString("TT_DrawRectMode", resourceCulture);
+                return ResourceManager.GetString("TT_CursorMode", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 默认放置模式.
+        ///   Looks up a localized string similar to 默认放置模式(快捷键: 2).
         /// </summary>
         public static string TT_PlaceMode {
             get {
@@ -355,11 +355,38 @@ namespace Fantania.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 场景选中模式.
+        ///   Looks up a localized string similar to 旋转(快捷键: E).
+        /// </summary>
+        public static string TT_RotateMode {
+            get {
+                return ResourceManager.GetString("TT_RotateMode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 缩放(快捷键: R).
+        /// </summary>
+        public static string TT_ScaleMode {
+            get {
+                return ResourceManager.GetString("TT_ScaleMode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 场景选中模式(快捷键: 1).
         /// </summary>
         public static string TT_SelectMode {
             get {
                 return ResourceManager.GetString("TT_SelectMode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 平移(快捷键: W).
+        /// </summary>
+        public static string TT_TranslateMode {
+            get {
+                return ResourceManager.GetString("TT_TranslateMode", resourceCulture);
             }
         }
         
@@ -378,6 +405,15 @@ namespace Fantania.Localization {
         public static string WARN_ConfirmSaveWorkspaceExit {
             get {
                 return ResourceManager.GetString("WARN_ConfirmSaveWorkspaceExit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 词条&apos;{0}&apos;未翻译！.
+        /// </summary>
+        public static string WARN_LocalizationNotFound {
+            get {
+                return ResourceManager.GetString("WARN_LocalizationNotFound", resourceCulture);
             }
         }
         

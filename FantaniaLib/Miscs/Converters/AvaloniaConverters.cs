@@ -4,7 +4,7 @@ using Avalonia.Data.Converters;
 
 namespace FantaniaLib;
 
-public static class RectConverters
+public static class AvaloniaConverters
 {
     public static IValueConverter Rectf2AvaRect = new Rectf2RectConverter();
 }

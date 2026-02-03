@@ -1,8 +1,9 @@
 using System.Numerics;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace FantaniaLib;
 
-public class QuadRenderable : IRenderable
+public class QuadRenderable : ObservableObject, IRenderable
 {
     public string Stage { get; private set; } = string.Empty;
     private Matrix3x3 _transform = Matrix3x3.Identity;
@@ -20,11 +21,13 @@ public class QuadRenderable : IRenderable
         }
     }
     public int Depth { get; set; }
+    public int EntityOrder { get; set; }
+    public int LocalOrder { get; set; }
+    public int NodeIndex { get; set; } = -1;
     public Mesh Mesh => _mesh;
     public RenderMaterial Material => _material;
-    public int NodeIndex { get; private set; }
     public Rectf BoundingBox => _aabb;
-
+    public Vector2 Anchor { get; private set; } = Vector2.Zero;
     public Vector2 Size { get; private set; } = Vector2.Zero;
     public Vector4 VertexColor { get; private set; } = Vector4.One;
 
@@ -33,9 +36,11 @@ public class QuadRenderable : IRenderable
         _mesh = MeshBuilder.CreateStandardQuad(info.Size);
         Stage = info.Stage;
         Depth = info.Depth;
+        EntityOrder = info.EntityOrder;
+        LocalOrder = info.LocalOrder;
+        Anchor = info.Anchor;
         Size = info.Size;
         VertexColor = info.Color;
-        NodeIndex = info.NodeIndex;
         _material = material;
         _transform = info.Transform;
         UpdateVertices();
@@ -47,6 +52,9 @@ public class QuadRenderable : IRenderable
         Stage = other.Stage;
         _transform = other._transform;
         Depth = other.Depth;
+        EntityOrder = other.EntityOrder;
+        LocalOrder = other.LocalOrder;
+        Anchor = other.Anchor;
         Size = other.Size;
         VertexColor = other.VertexColor;
         _material = other._material.Clone();
@@ -77,15 +85,7 @@ public class QuadRenderable : IRenderable
         float minY = MathF.Min(pt1.Y, MathF.Min(pt2.Y, MathF.Min(pt3.Y, pt4.Y)));
         float maxY = MathF.Max(pt1.Y, MathF.Max(pt2.Y, MathF.Max(pt3.Y, pt4.Y)));
         _aabb = new Rectf(minX, minY, maxX - minX, maxY - minY);
-        _exactVerts[0] = pt1;
-        _exactVerts[1] = pt2;
-        _exactVerts[2] = pt3;
-        _exactVerts[3] = pt4;
-    }
-
-    public bool PointTest(Vector2 pt)
-    {
-        return MathHelper.IsPointInsideConvexQuadrilateral(pt, _exactVerts);
+        OnPropertyChanged(nameof(BoundingBox));
     }
 
     public IRenderable Clone()

@@ -42,7 +42,9 @@ public class RenderableLifePeriod
                 {
                     ITexture2D? tex = def.ToTexture(_workspace.RootFolder);
                     if (tex != null)
+                    {
                         texId = _context.TextureManager.AcquireTextureID(tex);
+                    }
                 }
                 info.TextureID = texId;
                 uniform.Set(info);

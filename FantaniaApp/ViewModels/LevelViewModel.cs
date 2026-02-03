@@ -14,6 +14,7 @@ public partial class LevelViewModel : ViewModelBase
     public Workspace Workspace => _workspace;
 
     public IReadOnlyList<RadioToggleInformation> PlacementModesDefinitions => _groupPlaceModes;
+    public IReadOnlyList<RadioToggleInformation> TransformModesDefinitions => _groupTransformModes;
 
     public LevelViewModel(Workspace workspace)
     {
@@ -47,11 +48,47 @@ public partial class LevelViewModel : ViewModelBase
             //     Tooltip = "TT_DrawRectMode",
             // },
         ]);
+        _transModeCmd = new RelayCommand<object>(ToggleTransformMode);
+        _groupTransformModes.AddRange([
+            new RadioToggleInformation{
+                Workspace = _workspace,
+                Value = TransformGizmoTypes.None,
+                Command = _transModeCmd,
+                IconPath = "avares://Fantania/Assets/icons/cursor.png",
+                Tooltip = "TT_CursorMode",
+            },
+            new RadioToggleInformation{
+                Workspace = _workspace,
+                Value = TransformGizmoTypes.Translation,
+                Command = _transModeCmd,
+                IconPath = "avares://Fantania/Assets/icons/move.png",
+                Tooltip = "TT_TranslateMode",
+            },
+            new RadioToggleInformation{
+                Workspace = _workspace,
+                Value = TransformGizmoTypes.Rotation,
+                Command = _transModeCmd,
+                IconPath = "avares://Fantania/Assets/icons/rotate.png",
+                Tooltip = "TT_RotateMode",
+            },
+            new RadioToggleInformation{
+                Workspace = _workspace,
+                Value = TransformGizmoTypes.Scale,
+                Command = _transModeCmd,
+                IconPath = "avares://Fantania/Assets/icons/scale.png",
+                Tooltip = "TT_ScaleMode",
+            },
+        ]);
     }
 
     void TogglePlacementMode(object? value)
     {
         Workspace.EditorModule.CurrentPlacementMode = (EntityPlacementModes)value!;
+    }
+
+    void ToggleTransformMode(object? value)
+    {
+        Workspace.EditorModule.CurrentTransformMode = (TransformGizmoTypes)value!;
     }
 
     [RelayCommand]
@@ -77,5 +114,6 @@ public partial class LevelViewModel : ViewModelBase
 
     Workspace _workspace;
     List<RadioToggleInformation> _groupPlaceModes = new List<RadioToggleInformation>(3);
-    ICommand? _placeModeCmd;
+    List<RadioToggleInformation> _groupTransformModes = new List<RadioToggleInformation>(4);
+    ICommand? _placeModeCmd, _transModeCmd;
 }

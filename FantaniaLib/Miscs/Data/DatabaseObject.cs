@@ -7,11 +7,11 @@ public abstract class DatabaseObject : SyncableObject, ISerializableData, IEdita
     public virtual IReadOnlyList<FieldInfo> SerializableFields => _serializableFields;
 
     /// <summary>
-    /// Refers to the name of table in database.
+    /// 自身所属类型，也代表数据库中的表名。
     /// </summary>
     public abstract string TypeName { get; }
     /// <summary>
-    /// Objects with different types but the same group will be ID-distinct.
+    /// 不同类型但是相同分组的对象必须是各自ID唯一的，并且存在分组的对象会在数据库中构建一张xxxGroup的表用于检索自身所属类型。
     /// </summary>
     public abstract string GroupName { get; }
 

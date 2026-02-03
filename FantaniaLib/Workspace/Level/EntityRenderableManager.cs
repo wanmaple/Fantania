@@ -3,7 +3,7 @@ namespace FantaniaLib;
 public struct EntityLocalInfo
 {
     public IReadOnlyList<LocalRenderInfo> Locals;
-    public Rectf LocalBound;
+    public Action<LevelEntity>? OnChange;
 }
 
 public class EntityRenderableManager
@@ -32,6 +32,8 @@ public class EntityRenderableManager
     {
         _entity2renderables.Add(entity, renderables);
         _entity2locals.Add(entity, localInfo);
+        if (localInfo.OnChange != null)
+            entity.RenderingDirty += localInfo.OnChange;
         foreach (IRenderable renderable in renderables)
         {
             _renderable2entity.Add(renderable, entity);
@@ -45,6 +47,9 @@ public class EntityRenderableManager
             _renderable2entity.Remove(renderable);
         }
         _entity2renderables.Remove(entity);
+        var localInfo = _entity2locals[entity];
+        if (localInfo.OnChange != null)
+            entity.RenderingDirty -= localInfo.OnChange;
         _entity2locals.Remove(entity);
     }
 

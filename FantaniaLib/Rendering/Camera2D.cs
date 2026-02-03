@@ -74,14 +74,24 @@ public class Camera2D
         Zoom = MathHelper.Clamp(Zoom, MinZoom, MaxZoom);
     }
 
-    public Vector2 ScreenToWorld(Vector2 screenPos)
+    public Vector2 ScreenPositionToWorldPosition(Vector2 screenPos)
     {
         return screenPos / Zoom + Position;
     }
 
-    public Vector2 WorldToScreen(Vector2 worldPos)
+    public Vector2 WorldPositionToScreenPosition(Vector2 worldPos)
     {
         return (worldPos - Position) * Zoom;
+    }
+
+    public Vector2 ScreenMovementToWorldMovement(Vector2 screenVec)
+    {
+        return screenVec / Zoom;
+    }
+
+    public Vector2 WorldMovementToScreenMovement(Vector2 worldVec)
+    {
+        return worldVec * Zoom;
     }
 
     void UpdateViewMatrix()

@@ -1,4 +1,5 @@
 using System.Numerics;
+using Avalonia.Input;
 using Fantania.Models;
 using FantaniaLib;
 
@@ -21,6 +22,17 @@ public class ViewEditorMode : ILevelEditorMode
 
     public void OnKeyUp(LevelEditorContext context, ControlInputEventArgs e)
     {
+        if (e.KeyState.JustReleased == Key.Back || e.KeyState.JustReleased == Key.Delete)
+        {
+            var selections = context.Workspace.EditorModule.SelectedObjects;
+            while (selections.Count > 0)
+            {
+                var s = selections[0];
+                s.OnDelete(context.Workspace);
+                selections.RemoveAtFast(0);
+            }
+            context.Workspace.EditorModule.Notify();
+        }
     }
 
     public void OnMouseMoved(LevelEditorContext context, ControlInputEventArgs e)
@@ -34,8 +46,9 @@ public class ViewEditorMode : ILevelEditorMode
                 Vector2 origWorld = context.CanvasToWorld(new Vector2(selection.Left, selection.Top));
                 Vector2 curWorld = context.CanvasToWorld(new Vector2(selection.Right, selection.Bottom));
                 Rectf range = new Rectf(origWorld, curWorld - origWorld);
-                context.AddCommand(new RangeSelectionCommand(range, e.KeyState.KeyModifiers.HasFlag(Avalonia.Input.KeyModifiers.Control)));
+                context.AddCommand(new RangeSelectionCommand(range, SelectionModeFromKeyModifiers(e.KeyState.KeyModifiers)));
             }
+            e.Handled = true;
         }
     }
 
@@ -49,6 +62,7 @@ public class ViewEditorMode : ILevelEditorMode
             _selecting = true;
             context.FixCamera = true;
             context.AddCommand(new SetupSelectionCommand(SelectionSetups.Begin));
+            e.Handled = true;
         }
     }
 
@@ -60,9 +74,10 @@ public class ViewEditorMode : ILevelEditorMode
             if (selection.IsZero)
             {
                 Vector2 worldPos = context.CanvasToWorld(e.MouseState.Position.ToVector2());
-                context.AddCommand(new ClickSelectionCommand(worldPos, e.KeyState.KeyModifiers.HasFlag(Avalonia.Input.KeyModifiers.Control)));
+                context.AddCommand(new ClickSelectionCommand(worldPos, SelectionModeFromKeyModifiers(e.KeyState.KeyModifiers)));
             }
             ResetSelectionStates(context);
+            e.Handled = true;
         }
     }
 
@@ -80,6 +95,15 @@ public class ViewEditorMode : ILevelEditorMode
             context.FixCamera = false;
             context.AddCommand(new SetupSelectionCommand(SelectionSetups.End));
         }
+    }
+
+    SelectionModes SelectionModeFromKeyModifiers(KeyModifiers modifiers)
+    {
+        if (modifiers.HasFlag(KeyModifiers.Control) && modifiers.HasFlag(KeyModifiers.Shift))
+            return SelectionModes.Remove;
+        if (modifiers.HasFlag(KeyModifiers.Control))
+            return SelectionModes.Add;
+        return SelectionModes.Replace;
     }
 
     bool _selecting = false;

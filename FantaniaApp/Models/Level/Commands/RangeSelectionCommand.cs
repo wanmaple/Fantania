@@ -7,21 +7,21 @@ namespace Fantania.Models;
 public class RangeSelectionCommand : ICanvasCommand
 {
     public Rectf Range { get; private set; }
-    public bool KeepOld { get; private set; }
+    public SelectionModes Mode { get; set; }
 
-    public RangeSelectionCommand(Rectf range, bool keepOld)
+    public RangeSelectionCommand(Rectf range, SelectionModes mode)
     {
         Range = range;
-        KeepOld = keepOld;
+        Mode = mode;
     }
 
     public void Execute(LevelSpaceContext context, ConfigurableRenderPipeline pipeline)
     {
-        var bvh = context.SpaceHierarchy;
-        _cacheResults.Clear();
-        bvh.RectTest(Range, _cacheResults);
-        context.SelectionContext.UpdateSelectedObjects(_cacheResults, KeepOld);
+        var bvh = context.SelectableHierarchy;
+        bvh.RectTest(Range, _cache);
+        context.SelectionContext.UpdateSelectedObjects(_cache, Mode);
+        _cache.Clear();
     }
 
-    static List<IRenderable> _cacheResults = new List<IRenderable>(0);
+    static SortedSet<ISelectableItem> _cache = new SortedSet<ISelectableItem>(SelectableOrderComparer.Instance);
 }

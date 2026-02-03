@@ -15,9 +15,11 @@
   </Design.DataContext>
   <UserControl.Resources>
     <v:BoundingBox2CanvasRectConverter x:Key="Cvt_BB2Rect" />
-    <v:NodeIndex2ColorConverter x:Key="Cvt_NdIdx2Color" />
+    <v:Selections2CenterXConverter x:Key="Cvt_Sel2CtX" />
+    <v:Selections2CenterYConverter x:Key="Cvt_Sel2CtY" />
+    <v:Selections2VisibleConverter x:Key="Cvt_Sel2V" />
   </UserControl.Resources>
-  <Grid>
+  <Grid IsHitTestVisible="True" PointerMoved="Grid_PointerMoved">
     <v:LevelCanvas x:Name="lvCanvas" IsVisible="{Binding Workspace.LevelModule.CurrentLevel, Converter={x:Static ObjectConverters.IsNotNull}}" />
     <ItemsControl ItemsSource="{Binding Workspace.EditorModule.SelectedObjects}">
       <ItemsControl.ItemsPanel>
@@ -27,7 +29,7 @@
       </ItemsControl.ItemsPanel>
       <ItemsControl.ItemTemplate>
         <DataTemplate>
-          <lib:SelectionOverlay SelectionColor="{Binding NodeIndex, Converter={StaticResource Cvt_NdIdx2Color}}" IsAnimated="False">
+          <lib:SelectionOverlay ShowAnchor="True" Anchor="{Binding Anchor}" SelectionColor="{Binding SelectionColor}" IsAnimated="False">
             <lib:SelectionOverlay.SelectionBounds>
               <MultiBinding Converter="{StaticResource Cvt_BB2Rect}">
                 <Binding Path="BoundingBox" />
@@ -39,7 +41,7 @@
         </DataTemplate>
       </ItemsControl.ItemTemplate>
     </ItemsControl>
-    <Canvas IsHitTestVisible="False" IsVisible="{Binding Workspace.LevelModule.CurrentLevel, Converter={x:Static ObjectConverters.IsNotNull}}">
+    <Canvas x:Name="overlay" IsHitTestVisible="False" IsVisible="{Binding Workspace.LevelModule.CurrentLevel, Converter={x:Static ObjectConverters.IsNotNull}}">
       <lib:SelectionOverlay SelectionColor="#408245" IsAnimated="True">
         <lib:SelectionOverlay.SelectionBounds>
           <MultiBinding Converter="{StaticResource Cvt_Sel2Rect}">
@@ -50,6 +52,30 @@
           </MultiBinding>
         </lib:SelectionOverlay.SelectionBounds>
       </lib:SelectionOverlay>
+      <lib:TransformGizmoOverlay x:Name="gizmo" GizmoType="{Binding Workspace.EditorModule.CurrentTransformMode}" TranslationStart="TransformGizmoOverlay_TranslationStart" Translating="TransformGizmoOverlay_Translating" TranslationEnd="TransformGizmoOverlay_TranslationEnd">
+        <Canvas.Left>
+          <MultiBinding Converter="{StaticResource Cvt_Sel2CtX}">
+            <Binding Path="Workspace.EditorModule.SelectedObjects" />
+            <Binding Path="#lvCanvas" />
+            <Binding Path="Workspace.EditorModule.NotifyFlag" />
+          </MultiBinding>
+        </Canvas.Left>
+        <Canvas.Top>
+          <MultiBinding Converter="{StaticResource Cvt_Sel2CtY}">
+            <Binding Path="Workspace.EditorModule.SelectedObjects" />
+            <Binding Path="#lvCanvas" />
+            <Binding Path="Workspace.EditorModule.NotifyFlag" />
+          </MultiBinding>
+        </Canvas.Top>
+        <lib:TransformGizmoOverlay.IsVisible>
+          <MultiBinding Converter="{StaticResource Cvt_Sel2V}">
+            <Binding Path="Workspace.EditorModule.SelectedObjects" />
+            <Binding Path="Workspace.EditorModule.CurrentTransformMode" /> 
+            <Binding Path="Workspace" /> 
+            <Binding Path="Workspace.EditorModule.NotifyFlag" />
+          </MultiBinding>
+        </lib:TransformGizmoOverlay.IsVisible>
+      </lib:TransformGizmoOverlay>
     </Canvas>
     <Button Background="Transparent" Content="{x:Static lang:Resources.BT_CreateLevel}" IsVisible="{Binding Workspace.LevelModule.CurrentLevel, Converter={x:Static ObjectConverters.IsNull}}" Command="{Binding CreateNewLevelCommand}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontSize="40" FontWeight="Bold" />
   </Grid>
