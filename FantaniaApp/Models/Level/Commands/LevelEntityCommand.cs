@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using Avalonia.Threading;
 using Fantania.Views;
 using FantaniaLib;
 
@@ -31,11 +32,7 @@ public abstract class LevelEntityCommand : ICanvasCommand
         context.EntityManager.Register(entity, allRenderables, new EntityLocalInfo
         {
             Locals = allLocals,
-            OnChange = e =>
-            {
-                UpdateEntity(e, context, pipeline);
-                context.Workspace.EditorModule.Notify();
-            },
+            OnChange = null,
         });
     }
 

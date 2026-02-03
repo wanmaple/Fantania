@@ -81,4 +81,5 @@ public static class GLConstants
     public const int GL_UNPACK_ALIGNMENT = 0x0CF5;
     public const int GL_PACK_ALIGNMENT = 0x0D05;
     public const int GL_VERSION = GlConsts.GL_VERSION;
+    public const int GL_VENDOR = GlConsts.GL_VENDOR;
 }

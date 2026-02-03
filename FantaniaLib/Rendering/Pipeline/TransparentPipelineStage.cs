@@ -17,7 +17,9 @@ public class TransparentPipelineStage : IPipelineStage
 
     public void Render(IRenderContext context, IEnumerable<IRenderable> renderables)
     {
-        var groups = renderables.GroupBy(r => (r.Mesh.Descriptor.VertexDescriptor, r.Material));
+        var list = renderables.ToList();
+        list.StableSort(RenderableDepthComparer.Instance);
+        var groups = list.GroupBy(r => (r.Mesh.Descriptor.VertexDescriptor, r.Material));
         foreach (var group in groups)
         {
             var vertDesc = group.Key.VertexDescriptor;

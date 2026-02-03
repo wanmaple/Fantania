@@ -28,6 +28,7 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
     protected override void OnContextInitializing(ConfigurableRenderPipeline pipeline)
     {
         Workspace!.LogOptional(GlVersion.ToString());
+        Workspace!.LogOptional($"{pipeline.Device.GetString(GLConstants.GL_VENDOR)} ({pipeline.Device.GetString(GLConstants.GL_VERSION)})");
         RenderPipelineConfig rpConfig = Workspace!.ScriptingModule.GetCustomRenderPipelineConfigOrDefault();
         pipeline.Build(rpConfig, Workspace);
         ColorSize = rpConfig.Resolution.ToVector2();
@@ -110,18 +111,27 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
 
     void OnEntityAdded(LevelEntity entity)
     {
+        // 如果是通过GhostEntity放置的话，就没必要再设置一遍，但是如果用Undo来添加的话就需要，因此需要检查一下是否存在
         if (!_context!.EntityManager.HasEntity(entity))
         {
             AddCommand(new SetupLevelEntityCommand(entity, EntitySetups.Add));
         }
+        entity.RenderingDirty += OnEntityUpdated;
     }
 
     void OnEntityRemoved(LevelEntity entity)
     {
+        // 和OnEntityAdded的逻辑累类似
         if (_context!.EntityManager.HasEntity(entity))
         {
             AddCommand(new SetupLevelEntityCommand(entity, EntitySetups.Remove));
         }
+        entity.RenderingDirty -= OnEntityUpdated;
+    }
+
+    void OnEntityUpdated(LevelEntity entity)
+    {
+        AddCommand(new UpdateLevelEntityCommand(entity));
     }
 
     void OnLevelChanged(object? sender, PropertyChangedEventArgs e)
