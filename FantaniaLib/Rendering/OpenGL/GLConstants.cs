@@ -80,4 +80,5 @@ public static class GLConstants
     public const int GL_FRAMEBUFFER_SRGB = 0x8DB9;
     public const int GL_UNPACK_ALIGNMENT = 0x0CF5;
     public const int GL_PACK_ALIGNMENT = 0x0D05;
+    public const int GL_VERSION = GlConsts.GL_VERSION;
 }

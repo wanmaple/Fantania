@@ -20,6 +20,13 @@ public class GLDevice : IRenderDevice
         }
     }
 
+    public string GetString(int target)
+    {
+        string? str = _gl.GetString(target);
+        DebugError();
+        return str ?? string.Empty;
+    }
+
     public void ClearColor(Vector4 color)
     {
         _gl.ClearColor(color.X, color.Y, color.Z, color.W);

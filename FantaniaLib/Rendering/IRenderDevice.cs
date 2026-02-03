@@ -7,6 +7,7 @@ public interface IRenderDevice
 {
     void CheckError();
 
+    string GetString(int target);
     void ClearColor(Vector4 color);
     void ClearBufferBits(BufferBits mask);
     void Viewport(int x, int y, int width, int height);
