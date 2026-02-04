@@ -14,6 +14,8 @@ public enum FieldTypes
     Curve,
     GroupReference,
     TypeReference,
+
+    Custom = 2000,
 }
 
 public class FieldInfo

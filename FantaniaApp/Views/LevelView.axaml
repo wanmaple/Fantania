@@ -29,7 +29,7 @@
       </ItemsControl.ItemsPanel>
       <ItemsControl.ItemTemplate>
         <DataTemplate>
-          <lib:SelectionOverlay ShowAnchor="True" Anchor="{Binding Anchor}" SelectionColor="{Binding SelectionColor}" IsAnimated="False">
+          <lib:SelectionOverlay ShowAnchor="True" Anchor="{Binding Anchor}" AnchorColor="{Binding SelectionColor}" SelectionColor="{Binding SelectionColor}" IsAnimated="False">
             <lib:SelectionOverlay.SelectionBounds>
               <MultiBinding Converter="{StaticResource Cvt_BB2Rect}">
                 <Binding Path="BoundingBox" />
@@ -41,6 +41,7 @@
         </DataTemplate>
       </ItemsControl.ItemTemplate>
     </ItemsControl>
+    <Canvas x:Name="connectionOverlay" IsHitTestVisible="False" IsVisible="{Binding Workspace.LevelModule.CurrentLevel, Converter={x:Static ObjectConverters.IsNotNull}}" />
     <Canvas x:Name="overlay" IsHitTestVisible="False" IsVisible="{Binding Workspace.LevelModule.CurrentLevel, Converter={x:Static ObjectConverters.IsNotNull}}">
       <lib:SelectionOverlay SelectionColor="#408245" IsAnimated="True">
         <lib:SelectionOverlay.SelectionBounds>

@@ -183,6 +183,11 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
         }
     }
 
+    public void Tick()
+    {
+        _mgrTextures.Tick();
+    }
+
     public void Dispose()
     {
         _cacheShaders.Dispose();

@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using System.Numerics;
 using Avalonia.Input;
+using Fantania.Localization;
 using Fantania.Models;
 using FantaniaLib;
 
@@ -25,13 +27,20 @@ public class ViewEditorMode : ILevelEditorMode
         if (e.KeyState.JustReleased == Key.Back || e.KeyState.JustReleased == Key.Delete)
         {
             var selections = context.Workspace.EditorModule.SelectedObjects;
-            while (selections.Count > 0)
+            DeleteSelections(selections, context);
+        }
+        else if (e.KeyState.JustReleased == Key.N)
+        {
+            var selections = context.Workspace.EditorModule.SelectedObjects;
+            var multiNodeEntities = new HashSet<IMultiNodeContainer>(8);
+            foreach (var sel in selections)
             {
-                var s = selections[0];
-                s.OnDelete(context.Workspace);
-                selections.RemoveAtFast(0);
+                if (sel is LevelEntityNode node)
+                {
+                    if (multiNodeEntities.Add(node.Owner))
+                        node.Owner.AppendNode(context.Workspace, context.Workspace.EditorModule.MouseWorldPosition.ToVector2());
+                }
             }
-            context.Workspace.EditorModule.Notify();
         }
     }
 
@@ -104,6 +113,41 @@ public class ViewEditorMode : ILevelEditorMode
         if (modifiers.HasFlag(KeyModifiers.Control))
             return SelectionModes.Add;
         return SelectionModes.Replace;
+    }
+
+    void DeleteSelections(IList<ISelectableItem> selections, LevelEditorContext context)
+    {
+        var groups = SelectionHelper.GroupSelections(selections);
+        var entitiesToDelete = new HashSet<LevelEntity>(16);
+        var nodesDelFailed = new List<ISelectableItem>(8);
+        foreach (var entity in groups.FullySelectedEntities)
+        {
+            entitiesToDelete.Add(entity);
+        }
+        foreach (var sel in groups.OtherSelectables)
+        {
+            if (sel is LevelEntity entity)
+                entitiesToDelete.Add(entity);
+        }
+        foreach (var entity in entitiesToDelete)
+        {
+            context.Workspace.LevelModule.DeleteEntity(entity);
+        }
+        bool hasDeletionFailure = false;
+        foreach (var (container, nodesToRemove) in groups.PartiallySelectedNodes)
+        {
+            var snapshot = new EntityNodesSnapshot(nodesToRemove);
+            if (!container.RemoveNodes(context.Workspace, snapshot))
+            {
+                hasDeletionFailure = true;
+                nodesDelFailed.AddRange(snapshot.Nodes);
+            }
+        }
+        if (hasDeletionFailure)
+        {
+            context.Workspace.LogWarning(LocalizationHelper.GetLocalizedString("Warn_DeleteNodesFailed"));
+        }
+        context.Workspace.EditorModule.Notify();
     }
 
     bool _selecting = false;

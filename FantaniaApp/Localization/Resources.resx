@@ -285,4 +285,8 @@
     <value>缩放(快捷键: R)</value>
     <comment/>
   </data>
+  <data name="Warn_DeleteNodesFailed" xml:space="preserve">
+    <value>节点数无法被删除至最小值以下。</value>
+    <comment/>
+  </data>
 </root>

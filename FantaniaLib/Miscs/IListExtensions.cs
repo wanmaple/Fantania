@@ -2,6 +2,16 @@ namespace FantaniaLib;
 
 public static class IListExtensions
 {
+    public static int IndexOf<T>(this IReadOnlyList<T> self, T item)
+    {
+        for (int i = 0; i < self.Count; i++)
+        {
+            if (self[i]!.Equals(item))
+                return i;
+        }
+        return -1;
+    }
+
     public static bool RemoveFast<T>(this IList<T> self, T item)
     {
         int index = self.IndexOf(item);

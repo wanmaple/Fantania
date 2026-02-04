@@ -1,9 +1,9 @@
-local StaticImage = Class("StaticImage")
+local Sprite = Class("Sprite")
 
-StaticImage.group = "SG_Decoration"
-StaticImage.name = "SN_StaticImage"
-StaticImage.tooltip = "ST_StaticImage"
-StaticImage.dataDefs = {
+Sprite.group = "SG_Decoration"
+Sprite.name = "SN_Sprite"
+Sprite.tooltip = "ST_Sprite"
+Sprite.dataDefs = {
     diffuse = {
         type = FieldTypes.Texture,
     },
@@ -23,38 +23,38 @@ StaticImage.dataDefs = {
         default = { x = 0.5, y = 1.0, },
     },
 }
-StaticImage.editDefs = {
+Sprite.editDefs = {
     diffuse = {
         group = "SG_Appearance",
-        tooltip = "ST_StaticImage_Diffuse",
+        tooltip = "ST_Sprite_Diffuse",
     },
     normal = {
         group = "SG_Appearance",
-        tooltip = "ST_StaticImage_Normal",
+        tooltip = "ST_Sprite_Normal",
     },
     lit = {
         group = "SG_Appearance",
-        tooltip = "ST_StaticImage_Lit",
+        tooltip = "ST_Sprite_Lit",
     },
     color = {
         group = "SG_Appearance",
-        tooltip = "ST_StaticImage_Color",
+        tooltip = "ST_Sprite_Color",
     },
     anchor = {
         group = "SG_Transform",
-        tooltip = "ST_StaticImage_Anchor",
+        tooltip = "ST_Sprite_Anchor",
     },
 }
 
-StaticImage.defaultLayer = 0
-StaticImage.multiNodes = false
-StaticImage.nodeOptions = {
+Sprite.defaultLayer = 0
+Sprite.placementType = PlacementTypes.Single
+Sprite.nodeOptions = {
     min = 0,
     max = 0,
     defaultOffset = { x = 100, y = 0, },
 }
 
-function StaticImage:nodeAt(info, index)
+function Sprite:nodeAt(info, index)
     local ret = {}
     table.insert(ret, {
         stage = BuiltinStages.Transparent,
@@ -75,4 +75,4 @@ function StaticImage:nodeAt(info, index)
     return ret
 end
 
-return StaticImage
+return Sprite

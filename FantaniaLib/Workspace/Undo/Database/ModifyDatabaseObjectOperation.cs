@@ -12,7 +12,7 @@ public class ModifyDatabaseObjectOperation : FrameBasedOperation
     public override void Redo()
     {
         FieldInfo field = _modifyObj.SerializableFields.First(f => f.FieldName == _change.PropertyName);
-        object? newVal = _workspace.DatabaseModule.SerializationRule.CastFrom(field.FieldType, _change.NewValue);
+        object? newVal = _workspace.DatabaseModule.SerializationRule.CastFrom(field.FieldType, _change.NewValue, _modifyObj);
         _workspace.DatabaseModule.UnwatchPropertyChange(_modifyObj);
         _modifyObj.SetFieldValue(_change.PropertyName, newVal);
         _workspace.DatabaseModule.WatchPropertyChange(_modifyObj);
@@ -21,7 +21,7 @@ public class ModifyDatabaseObjectOperation : FrameBasedOperation
     public override void Undo()
     {
         FieldInfo field = _modifyObj.SerializableFields.First(f => f.FieldName == _change.PropertyName);
-        object? oldVal = _workspace.DatabaseModule.SerializationRule.CastFrom(field.FieldType, _change.OldValue);
+        object? oldVal = _workspace.DatabaseModule.SerializationRule.CastFrom(field.FieldType, _change.OldValue, _modifyObj);
         _workspace.DatabaseModule.UnwatchPropertyChange(_modifyObj);
         _modifyObj.SetFieldValue(_change.PropertyName, oldVal);
         _workspace.DatabaseModule.WatchPropertyChange(_modifyObj);

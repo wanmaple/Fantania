@@ -36,6 +36,13 @@ public class TextureManager : IDisposable
             _cacheAtlas.Release(texture);
     }
 
+    public void Tick()
+    {
+        // 之所以不在ReleaseTexture时直接删除，是因为Canvas可能还在绘制上一帧的数据，而上一帧的数据可能还用到了这些纹理。
+        _cacheSingleImage.CleanFreedTextures();
+        _cacheAtlas.CleanFreedTextures();
+    }
+
     public void Dispose()
     {
         _cacheSingleImage.Dispose();

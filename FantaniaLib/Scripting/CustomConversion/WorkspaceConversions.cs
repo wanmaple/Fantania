@@ -24,9 +24,8 @@ public static class WorkspaceConversions
         {
             int min = v.Table.Get("min").GetIntegerOrDefault(0);
             int max = v.Table.Get("max").GetIntegerOrDefault(0);
-            if (min < 0) min = 0;
-            if (max < 0) max = 0;
-            if (min > max) min = max;
+            if (min < 1) min = 1;
+            if (max > 0 && min > max) max = min;
             Vector2Int defOffset = v.Table.Get("defaultOffset").GetObjectOrDefault(new Vector2Int(32, 0));
             return new NodeOptions
             {

@@ -8,14 +8,9 @@ public class PlacementTemplate : ScriptTemplate, IPlacement
     public IReadOnlyList<IPlacement> Children => _filtered;
     public IList<IPlacement> Source => _source;
 
-    public bool SupportMultiNodes => GetOrCallMember("multiNodes").GetBooleanOrDefault(false);
+    public PlacementTypes PlacementType => GetOrCallMember("placementType").GetEnumOrDefault(PlacementTypes.Single);
     public int DefaultLayer => GetOrCallMember("defaultLayer").GetIntegerOrDefault(0);
-    public NodeOptions NodeOptions => GetOrCallMember("nodeOptions").GetObjectOrDefault(new NodeOptions
-    {
-        Minimum = 0,
-        Maximum = 0,
-        DefaultOffset = new Vector2Int(32, 0),
-    });
+    public NodeOptions NodeOptions => GetOrCallMember("nodeOptions").GetObjectOrDefault(NodeOptions.Default);
 
     public PlacementTemplate(ScriptEngine engine, DynValue obj) : base(engine, obj)
     {

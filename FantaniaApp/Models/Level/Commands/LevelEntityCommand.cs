@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
-using Avalonia.Threading;
 using Fantania.Views;
 using FantaniaLib;
 
@@ -19,6 +18,12 @@ public abstract class LevelEntityCommand : ICanvasCommand
         for (int i = 0; i < entity.NodeCount; i++)
         {
             entity.GetLocalNodeAt(context.Workspace, i, out var locals);
+            if (entity is IMultiNodeContainer container)
+            {
+                int nodeId = container.AllNodes[i].NodeId;
+                foreach (var local in locals)
+                    local.NodeId = nodeId;
+            }
             var renderables = BuildRenderables(entity, locals, localOrderStart, context.Workspace, pipeline, out var localBound);
             entity.OnAddSelectables(context.SelectableHierarchy, i, localBound);
             foreach (var renderable in renderables)
@@ -38,10 +43,7 @@ public abstract class LevelEntityCommand : ICanvasCommand
 
     protected void RemoveEntity(LevelEntity entity, LevelSpaceContext context)
     {
-        for (int i = entity.NodeCount; i >= 0; i--)
-        {
-            entity.OnRemoveSelectables(context.SelectableHierarchy, i);
-        }
+        entity.OnRemoveSelectables(context.SelectableHierarchy);
         var renderables = context.EntityManager.GetRenderables(entity);
         foreach (var renderable in renderables)
         {
@@ -56,6 +58,7 @@ public abstract class LevelEntityCommand : ICanvasCommand
         {
             RemoveEntity(entity, context);
             AddEntity(entity, context, pipeline);
+            entity.PlacementDirty = false;
         }
         else
         {
@@ -65,10 +68,11 @@ public abstract class LevelEntityCommand : ICanvasCommand
             {
                 entity.OnUpdateSelectables(context.SelectableHierarchy, i);
             }
-            Matrix3x3 worldMat = MathHelper.BuildTransform(Vector2.Zero, Vector2.Zero, entity.Position.ToVector2(), entity.Rotation, entity.Scale);
             for (int i = 0; i < renderables.Count; i++)
             {
                 var renderable = renderables[i];
+                int currentIndex = entity.GetIndexByNodeId(localInfo.Locals[i].NodeId);
+                Matrix3x3 worldMat = entity.TransformAt(currentIndex);
                 renderable.Transform = worldMat * localInfo.Locals[i].LocalTransform;
                 renderable.Depth = entity.RealDepth;
                 renderable.EntityOrder = entity.Order;
@@ -92,10 +96,11 @@ public abstract class LevelEntityCommand : ICanvasCommand
             local.LocalTransform = mat;
             local.LocalSize = size;
         }
-        Matrix3x3 worldMat = MathHelper.BuildTransform(Vector2.Zero, Vector2.Zero, entity.Position.ToVector2(), entity.Rotation, entity.Scale);
         for (int i = 0; i < locals.Count; i++)
         {
             var local = locals[i];
+            int currentIndex = entity.GetIndexByNodeId(local.NodeId);
+            Matrix3x3 worldMat = entity.TransformAt(currentIndex);
             RenderInfo info = new RenderInfo
             {
                 Stage = local.Stage,

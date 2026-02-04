@@ -42,6 +42,13 @@ public class SelectionOverlay : Control, IObserver<Rect>, IObserver<double>
         set => SetValue(AnchorProperty, value);
     }
 
+    public static readonly StyledProperty<Color> AnchorColorProperty = AvaloniaProperty.Register<SelectionOverlay, Color>(nameof(AnchorColor), defaultValue: Colors.IndianRed);
+    public Color AnchorColor
+    {
+        get => GetValue(AnchorColorProperty);
+        set => SetValue(AnchorColorProperty, value);
+    }
+
     public static readonly StyledProperty<bool> IsAnimatedProperty = AvaloniaProperty.Register<SelectionOverlay, bool>(nameof(IsAnimated), defaultValue: true);
     public bool IsAnimated
     {
@@ -111,7 +118,7 @@ public class SelectionOverlay : Control, IObserver<Rect>, IObserver<double>
         DrawCornerHandles(context, bounds, color, pulse);
         Point anchorPos = bounds.TopLeft + new Point(Anchor.X * bounds.Width, Anchor.Y * bounds.Height);
         if (ShowAnchor)
-            DrawAnchor(context, anchorPos, Colors.White);
+            DrawAnchor(context, anchorPos, AnchorColor);
     }
 
     void DrawCornerHandles(DrawingContext context, Rect bounds, Color color, double pulse)

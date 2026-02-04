@@ -78,7 +78,7 @@ public class DatabaseModule : WorkspaceModule
             _tempChange = new PropertyChangeInfo
             {
                 PropertyName = fieldInfo.FieldName,
-                OldValue = _rule.CastTo(fieldInfo.FieldType, obj.GetFieldValue(fieldInfo.FieldName)),
+                OldValue = _rule.CastTo(fieldInfo.FieldType, obj.GetFieldValue(fieldInfo.FieldName), obj),
             };
         }
     }
@@ -89,7 +89,7 @@ public class DatabaseModule : WorkspaceModule
         FieldInfo? fieldInfo = obj.SerializableFields.FirstOrDefault(f => f.FieldName == e.PropertyName);
         if (fieldInfo != null)
         {
-            _tempChange!.NewValue = _rule.CastTo(fieldInfo.FieldType, obj.GetFieldValue(fieldInfo.FieldName));
+            _tempChange!.NewValue = _rule.CastTo(fieldInfo.FieldType, obj.GetFieldValue(fieldInfo.FieldName), obj);
             var op = new ModifyDatabaseObjectOperation(_workspace, obj, _tempChange);
             _workspace.UndoStack.AddOperation(op);
             _tempChange = null;

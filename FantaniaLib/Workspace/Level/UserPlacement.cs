@@ -73,14 +73,24 @@ public class UserPlacement : DatabaseObject, IPlacement
     {
         if (_fieldDirty)
         {
-            _cache = Template.GetLocalNodeAt(this, index);
+            _cache.Clear();
             _fieldDirty = false;
         }
-        return _cache;
+        if (!_cache.TryGetValue(index, out var nodes))
+        {
+            nodes = Template.GetLocalNodeAt(this, index);
+            _cache.Add(index, nodes);
+        }
+        return nodes;
+    }
+
+    internal void MarkFieldDirty()
+    {
+        _fieldDirty = true;
     }
 
     PlacementTemplate _script;
     Dictionary<string, object?> _fieldValues;
     bool _fieldDirty = true;
-    IReadOnlyList<LocalRenderInfo> _cache = Array.Empty<LocalRenderInfo>();
+    Dictionary<int, IReadOnlyList<LocalRenderInfo>> _cache = new Dictionary<int, IReadOnlyList<LocalRenderInfo>>(16);
 }

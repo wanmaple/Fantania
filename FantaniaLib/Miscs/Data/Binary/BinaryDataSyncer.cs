@@ -86,7 +86,7 @@ public class BinaryDataSyncer<T> : IDisposable where T : BinaryObject
                         foreach (var field in clsInfo.Fields)
                         {
                             string data = br.ReadString();
-                            object? val = _rule.CastFrom(field.FieldType, data);
+                            object? val = _rule.CastFrom(field.FieldType, data, obj);
                             obj.SetFieldValue(field.FieldName, val);
                         }
                         _source.Add(obj);
@@ -132,7 +132,7 @@ public class BinaryDataSyncer<T> : IDisposable where T : BinaryObject
                 foreach (var field in serInfo.Fields)
                 {
                     var val = item.GetFieldValue(field.FieldName);
-                    string toWrite = _rule.CastTo(field.FieldType, val);
+                    string toWrite = _rule.CastTo(field.FieldType, val, item);
                     bw.Write(toWrite);
                 }
             }
@@ -223,7 +223,7 @@ public class BinaryDataSyncer<T> : IDisposable where T : BinaryObject
                 changes.Add(new PropertyChangeInfo
                 {
                     PropertyName = fieldInfo.FieldName,
-                    OldValue = _rule.CastTo(fieldInfo.FieldType, obj.GetFieldValue(fieldInfo.FieldName)),
+                    OldValue = _rule.CastTo(fieldInfo.FieldType, obj.GetFieldValue(fieldInfo.FieldName), obj),
                 });
             }
         }
@@ -237,7 +237,7 @@ public class BinaryDataSyncer<T> : IDisposable where T : BinaryObject
         {
             IList<PropertyChangeInfo> changes = _modified[obj];
             var change = changes.First(c => c.PropertyName == e.PropertyName);
-            string newVal = _rule.CastTo(fieldInfo.FieldType, obj.GetFieldValue(fieldInfo.FieldName));
+            string newVal = _rule.CastTo(fieldInfo.FieldType, obj.GetFieldValue(fieldInfo.FieldName), obj);
             if (newVal == change.OldValue)
             {
                 changes.RemoveFast(change);

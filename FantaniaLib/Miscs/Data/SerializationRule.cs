@@ -6,22 +6,22 @@ namespace FantaniaLib;
 
 public interface IFieldCastRule
 {
-    string CastTo(object? fieldVal);
-    object? CastFrom(string casted);
+    string CastTo(object? fieldVal, object instance);
+    object? CastFrom(string casted, object instance);
 }
 
 public class SerializationRule
 {
     private class DefaultBooleanCast : IFieldCastRule
     {
-        public object? CastFrom(string casted)
+        public object? CastFrom(string casted, object instance)
         {
             if (string.IsNullOrEmpty(casted)) return false;
             int num = int.Parse(casted);
             return num > 0;
         }
 
-        public string CastTo(object? fieldVal)
+        public string CastTo(object? fieldVal, object instance)
         {
             bool b = (bool)fieldVal!;
             return b ? "1" : "0";
@@ -30,13 +30,13 @@ public class SerializationRule
 
     private class DefaultIntegerCast : IFieldCastRule
     {
-        public object? CastFrom(string casted)
+        public object? CastFrom(string casted, object instance)
         {
             if (string.IsNullOrEmpty(casted)) return 0;
             return int.Parse(casted);
         }
 
-        public string CastTo(object? fieldVal)
+        public string CastTo(object? fieldVal, object instance)
         {
             int num = (int)fieldVal!;
             return num.ToString();
@@ -45,13 +45,13 @@ public class SerializationRule
 
     private class DefaultFloatCast : IFieldCastRule
     {
-        public object? CastFrom(string casted)
+        public object? CastFrom(string casted, object instance)
         {
             if (string.IsNullOrEmpty(casted)) return 0.0f;
             return float.Parse(casted);
         }
 
-        public string CastTo(object? fieldVal)
+        public string CastTo(object? fieldVal, object instance)
         {
             float num = (float)fieldVal!;
             return num.ToString("F2");
@@ -60,12 +60,12 @@ public class SerializationRule
 
     private class DefaultStringCast : IFieldCastRule
     {
-        public object? CastFrom(string casted)
+        public object? CastFrom(string casted, object instance)
         {
             return casted;
         }
 
-        public string CastTo(object? fieldVal)
+        public string CastTo(object? fieldVal, object instance)
         {
             string str = (string)fieldVal!;
             return str;
@@ -74,14 +74,14 @@ public class SerializationRule
 
     private class DefaultVector2Cast : IFieldCastRule
     {
-        public object? CastFrom(string casted)
+        public object? CastFrom(string casted, object instance)
         {
             if (string.IsNullOrEmpty(casted)) return Vector2.Zero;
             var ary = casted.Split(',');
             return new Vector2(float.Parse(ary[0]), float.Parse(ary[1]));
         }
 
-        public string CastTo(object? fieldVal)
+        public string CastTo(object? fieldVal, object instance)
         {
             Vector2 vec = (Vector2)fieldVal!;
             return $"{vec.X.ToString("F2")},{vec.Y.ToString("F2")}";
@@ -90,14 +90,14 @@ public class SerializationRule
 
     private class DefaultVector2IntCast : IFieldCastRule
     {
-        public object? CastFrom(string casted)
+        public object? CastFrom(string casted, object instance)
         {
             if (string.IsNullOrEmpty(casted)) return Vector2Int.Zero;
             var ary = casted.Split(',');
             return new Vector2Int(int.Parse(ary[0]), int.Parse(ary[1]));
         }
 
-        public string CastTo(object? fieldVal)
+        public string CastTo(object? fieldVal, object instance)
         {
             Vector2Int vec = (Vector2Int)fieldVal!;
             return $"{vec.X},{vec.Y}";
@@ -106,14 +106,14 @@ public class SerializationRule
 
     private class DefaultColorCast : IFieldCastRule
     {
-        public object? CastFrom(string casted)
+        public object? CastFrom(string casted, object instance)
         {
             if (string.IsNullOrEmpty(casted)) return Vector4.One;
             Color color = Color.Parse(casted);
             return color.ToVector4();
         }
 
-        public string CastTo(object? fieldVal)
+        public string CastTo(object? fieldVal, object instance)
         {
             Vector4 vec = (Vector4)fieldVal!;
             return vec.ToColor().ToHex();
@@ -122,7 +122,7 @@ public class SerializationRule
 
     private class DefaultTextureCast : IFieldCastRule
     {
-        public object? CastFrom(string casted)
+        public object? CastFrom(string casted, object instance)
         {
             if (string.IsNullOrEmpty(casted)) return TextureDefinition.None;
             string[] ary = casted.Split(',');
@@ -150,7 +150,7 @@ public class SerializationRule
             return def;
         }
 
-        public string CastTo(object? fieldVal)
+        public string CastTo(object? fieldVal, object instance)
         {
             TextureDefinition texDef = (TextureDefinition)fieldVal!;
             return texDef.ToString()!;
@@ -159,7 +159,7 @@ public class SerializationRule
 
     private class DefaultGroupReferenceCast : IFieldCastRule
     {
-        public object? CastFrom(string casted)
+        public object? CastFrom(string casted, object instance)
         {
             string[] ary = casted.Split(',');
             string group = ary[0];
@@ -171,7 +171,7 @@ public class SerializationRule
             };
         }
 
-        public string CastTo(object? fieldVal)
+        public string CastTo(object? fieldVal, object instance)
         {
             var groupRef = (GroupReference)fieldVal!;
             return groupRef.ToString();
@@ -180,7 +180,7 @@ public class SerializationRule
 
     private class DefaultTypeReferenceCast : IFieldCastRule
     {
-        public object? CastFrom(string casted)
+        public object? CastFrom(string casted, object instance)
         {
             string[] ary = casted.Split(',');
             string type = ary[0];
@@ -192,10 +192,31 @@ public class SerializationRule
             };
         }
 
-        public string CastTo(object? fieldVal)
+        public string CastTo(object? fieldVal, object instance)
         {
             var typeRef = (TypeReference)fieldVal!;
             return typeRef.ToString();
+        }
+    }
+
+    private class DefaultCustomSerializableCast : IFieldCastRule
+    {
+        public object? CastFrom(string casted, object instance)
+        {
+            int index = casted.IndexOf(' ');
+            string typeName = casted.Substring(0, index);
+            string dataStr = casted.Substring(index + 1);
+            Type type = Type.GetType(typeName)!;
+            var obj = (ICustomSerializableField)Activator.CreateInstance(type)!;
+            obj.DeserializeFromString(dataStr, instance);
+            return obj;
+        }
+
+        public string CastTo(object? fieldVal, object instance)
+        {
+            var obj = (ICustomSerializableField)fieldVal!;
+            Type objType = obj.GetType();
+            return objType.FullName + " " + obj.SerializeToString(instance);
         }
     }
 
@@ -213,22 +234,23 @@ public class SerializationRule
         SetFieldCast(FieldTypes.Texture, new DefaultTextureCast());
         SetFieldCast(FieldTypes.GroupReference, new DefaultGroupReferenceCast());
         SetFieldCast(FieldTypes.TypeReference, new DefaultTypeReferenceCast());
+        SetFieldCast(FieldTypes.Custom, new DefaultCustomSerializableCast());
     }
 
-    public string CastTo(FieldTypes fieldType, object? fieldValue)
+    public string CastTo(FieldTypes fieldType, object? fieldValue, object instance)
     {
         if (_fieldCasts.TryGetValue(fieldType, out var cast))
         {
-            return cast.CastTo(fieldValue);
+            return cast.CastTo(fieldValue, instance);
         }
         throw new DataException($"No cast rule for {fieldType} was setup.");
     }
 
-    public object? CastFrom(FieldTypes fieldType, string castedStr)
+    public object? CastFrom(FieldTypes fieldType, string castedStr, object instance)
     {
         if (_fieldCasts.TryGetValue(fieldType, out var cast))
         {
-            return cast.CastFrom(castedStr);
+            return cast.CastFrom(castedStr, instance);
         }
         throw new DataException($"No cast rule for {fieldType} was setup.");
     }

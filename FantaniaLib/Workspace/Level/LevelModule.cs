@@ -163,7 +163,7 @@ public class LevelModule : WorkspaceModule
             _tempChange = new PropertyChangeInfo
             {
                 PropertyName = fieldInfo.FieldName,
-                OldValue = _rule.CastTo(fieldInfo.FieldType, entity.GetFieldValue(fieldInfo.FieldName)),
+                OldValue = _rule.CastTo(fieldInfo.FieldType, entity.GetFieldValue(fieldInfo.FieldName), entity),
             };
         }
     }
@@ -174,7 +174,7 @@ public class LevelModule : WorkspaceModule
         FieldInfo? fieldInfo = entity.SerializableFields.FirstOrDefault(f => f.FieldName == e.PropertyName);
         if (fieldInfo != null)
         {
-            _tempChange!.NewValue = _rule.CastTo(fieldInfo.FieldType, entity.GetFieldValue(fieldInfo.FieldName));
+            _tempChange!.NewValue = _rule.CastTo(fieldInfo.FieldType, entity.GetFieldValue(fieldInfo.FieldName), entity);
             var op = new ModifyLevelEntityOperation(_workspace, entity, _tempChange);
             _workspace.UndoStack.AddOperation(op);
             _tempChange = null;

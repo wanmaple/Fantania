@@ -409,6 +409,15 @@ namespace Fantania.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 节点数无法被删除至最小值以下。.
+        /// </summary>
+        public static string Warn_DeleteNodesFailed {
+            get {
+                return ResourceManager.GetString("Warn_DeleteNodesFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 词条&apos;{0}&apos;未翻译！.
         /// </summary>
         public static string WARN_LocalizationNotFound {

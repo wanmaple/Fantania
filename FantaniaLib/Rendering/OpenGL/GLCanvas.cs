@@ -55,6 +55,7 @@ public abstract class GLCanvas : OpenGlControlBase, ICustomHitTest
     {
         if (!IsValid) return;
         OnRendering(_pipeline!, fb);
+        _pipeline!.Tick();
     }
 
     protected override void OnOpenGlLost()

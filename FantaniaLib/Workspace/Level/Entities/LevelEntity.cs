@@ -15,7 +15,7 @@ public abstract class LevelEntity : BinaryObject
 
     public abstract int NodeCount { get; }
 
-    public bool PlacementDirty { get; protected set; }
+    public bool PlacementDirty { get; set; }
 
     [SerializableField(FieldTypes.String)]
     public string GUID { get; internal set; } = string.Empty;
@@ -157,21 +157,25 @@ public abstract class LevelEntity : BinaryObject
         }
     }
 
-    public static LevelEntity BuildFromPlacement(UserPlacement placement)
+    public static LevelEntity BuildFromPlacement(IWorkspace workspace, UserPlacement placement)
     {
         LevelEntity? entity;
-        if (placement.Template.SupportMultiNodes)
-            entity = new MultiNodesEntity(placement.Template.NodeOptions.Minimum);
+        if (placement.Template.PlacementType == PlacementTypes.MultiNodes)
+            entity = new MultiNodesEntity();
         else
             entity = new SingleNodeEntity();
         entity.PlacementReference = new TypeReference(placement.TypeName, placement.ID);
         entity.Layer = placement.Template.DefaultLayer;
+        entity.Initialize(workspace);
         return entity;
     }
 
     protected LevelEntity()
     {
     }
+
+    public virtual void Initialize(IWorkspace workspace)
+    {}
 
     public virtual void OnEnter(IWorkspace workspace)
     {
@@ -189,7 +193,7 @@ public abstract class LevelEntity : BinaryObject
         RaiseRenderingDirty();
     }
 
-    void RaiseRenderingDirty()
+    protected void RaiseRenderingDirty()
     {
         RenderingDirty?.Invoke(this);
     }
@@ -202,11 +206,23 @@ public abstract class LevelEntity : BinaryObject
         return placement;
     }
 
+    public virtual void OnTranslateBegin()
+    {
+        _startWorldPos = Position;
+    }
+
+    public virtual void OnTranslating(Vector2Int worldChange)
+    {
+        Position = _startWorldPos + worldChange;
+    }
+
+    public abstract Matrix3x3 TransformAt(int index);
     public abstract void GetLocalNodeAt(IWorkspace workspace, int index, out IReadOnlyList<LocalRenderInfo> locals);
     public abstract void OnAddSelectables(BoundingVolumeHierarchy<ISelectableItem> bvh, int index, Rectf bound);
-    public abstract void OnRemoveSelectables(BoundingVolumeHierarchy<ISelectableItem> bvh, int index);
+    public abstract void OnRemoveSelectables(BoundingVolumeHierarchy<ISelectableItem> bvh);
     public abstract void OnUpdateSelectables(BoundingVolumeHierarchy<ISelectableItem> bvh, int index);
+    
+    public virtual int GetIndexByNodeId(int nodeId) => 0;
 
-    public virtual void TryAppendNode()
-    {}
+    Vector2Int _startWorldPos;
 }

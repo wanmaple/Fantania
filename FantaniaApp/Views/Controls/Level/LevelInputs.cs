@@ -23,7 +23,13 @@ public class LevelInputs : IDisposable
         _inputTracker.KeyUp += OnKeyUp;
         _context = new LevelEditorContext(canvas, config);
 
+        foreach (var entity in _context.Workspace.LevelModule.CurrentLevel!.Entities)
+        {
+            OnEntityAdded(entity);
+        }
         _context.Workspace.EditorModule.PropertyChanged += OnEditorModulePropertyChanged;
+        _context.Workspace.LevelModule.EntityAdded += OnEntityAdded;
+        _context.Workspace.LevelModule.EntityRemoved += OnEntityRemoved;
     }
 
     void OnMouseEntered(object? sender, ControlInputEventArgs e)
@@ -127,6 +133,33 @@ public class LevelInputs : IDisposable
             if (_context.Workspace.EditorModule.CurrentPlacementMode != EntityPlacementModes.Select)
                 _context.Workspace.EditorModule.CancelSelection();
         }
+    }
+
+    void OnEntityAdded(LevelEntity entity)
+    {
+        if (entity is IMultiNodeContainer container)
+        {
+            container.NodeRemoved += OnEntityNodeRemoved;
+        }
+    }
+
+    void OnEntityRemoved(LevelEntity entity)
+    {
+        if (entity is IMultiNodeContainer container)
+        {
+            container.NodeRemoved -= OnEntityNodeRemoved;
+            foreach (var node in container.AllNodes)
+            {
+                _context.Workspace.EditorModule.SelectedObjects.RemoveFast(node);
+            }
+        }
+        else if (entity is ISelectableItem item)
+            _context.Workspace.EditorModule.SelectedObjects.RemoveFast(item);
+    }
+
+    void OnEntityNodeRemoved(LevelEntityNode node)
+    {
+        _context.Workspace.EditorModule.SelectedObjects.RemoveFast(node);
     }
 
     public void Dispose()

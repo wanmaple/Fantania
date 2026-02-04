@@ -5,8 +5,11 @@ using System.Linq;
 using System.Numerics;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Shapes;
 using Avalonia.Data.Converters;
 using Avalonia.Input;
+using Avalonia.Interactivity;
+using Avalonia.Media;
 using Fantania.ViewModels;
 using FantaniaLib;
 
@@ -98,6 +101,95 @@ public partial class LevelView : UserControl
         InitializeComponent();
     }
 
+    protected override void OnLoaded(RoutedEventArgs e)
+    {
+        base.OnLoaded(e);
+
+        ViewModel.Workspace.EditorModule.PropertyChanged += OnEditorModulePropertyChanged;
+    }
+
+    protected override void OnUnloaded(RoutedEventArgs e)
+    {
+        base.OnUnloaded(e);
+
+        ViewModel.Workspace.EditorModule.PropertyChanged -= OnEditorModulePropertyChanged;
+    }
+
+    void OnEditorModulePropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(EditorModule.SelectedObjects) || e.PropertyName == nameof(EditorModule.NotifyFlag))
+        {
+            RedrawNodeConnections();
+        }
+    }
+
+    private void RedrawNodeConnections()
+    {
+        connectionOverlay.Children.Clear();
+        var workspace = ViewModel.Workspace;
+        if (workspace.LevelModule.CurrentLevel == null)
+            return;
+        var selections = workspace.EditorModule.SelectedObjects;
+        var nodes = selections.OfType<LevelEntityNode>().GroupBy(n => n.Owner);
+        foreach (var group in nodes)
+        {
+            if (group.Count() != group.Key.AllNodes.Count || group.Count() <= 1)
+                continue;
+            var ordered = group.OrderBy(n => n.LocalOrder).ToArray();
+            Rectf bound = Rectf.Zero;
+            for (int i = 0; i < ordered.Length - 1; i++)
+            {
+                Vector2 pt1 = group.Key.TransformAt(i) * Vector2.Zero;
+                Vector2 pt2 = group.Key.TransformAt(i + 1) * Vector2.Zero;
+                Vector2 p1 = lvCanvas.WorldPositionToCanvasPosition(pt1);
+                Vector2 p2 = lvCanvas.WorldPositionToCanvasPosition(pt2);
+                var line = new Polyline
+                {
+                    Stroke = Brushes.White,
+                    StrokeThickness = 2.0,
+                    Points = new Points { new(p1.X, p1.Y), new(p2.X, p2.Y) }
+                };
+                connectionOverlay.Children.Add(line);
+                bound = bound.Merge(ordered[i].BoundingBox);
+            }
+            if (ordered.Length > 0)
+                bound = bound.Merge(ordered[^1].BoundingBox);
+            // Vector2 tl = lvCanvas.WorldPositionToCanvasPosition(bound.TopLeft);
+            // Vector2 br = lvCanvas.WorldPositionToCanvasPosition(bound.BottomRight);
+            // var rect = new Rectangle
+            // {
+            //     Stroke = Brushes.White,
+            //     StrokeThickness = 1.0,
+            //     Fill = null,
+            //     Width = br.X - tl.X,
+            //     Height = br.Y - tl.Y
+            // };
+            // Canvas.SetLeft(rect, tl.X);
+            // Canvas.SetTop(rect, tl.Y);
+            // connectionOverlay.Children.Add(rect);
+            Vector2 parentWorldPos = group.Key.SelfTransform * Vector2.Zero;
+            Vector2 parentCanvasPos = lvCanvas.WorldPositionToCanvasPosition(parentWorldPos);
+            DrawParentAnchor(parentCanvasPos);
+        }
+    }
+
+    void DrawParentAnchor(Vector2 pos)
+    {
+        double len = 8.0;
+        var polygon = new Polygon
+        {
+            Fill = Brushes.White,
+            Points = new Points
+            {
+                new(pos.X + len, pos.Y),
+                new(pos.X, pos.Y + len),
+                new(pos.X - len, pos.Y),
+                new(pos.X, pos.Y - len),
+            }
+        };
+        connectionOverlay.Children.Add(polygon);
+    }
+
     void Grid_PointerMoved(object? sender, PointerEventArgs e)
     {
         Point pt = e.GetPosition(gizmo);
@@ -110,7 +202,20 @@ public partial class LevelView : UserControl
     {
         Point pt = e.PointerArgs.GetPosition(this);
         _startWorldPos = lvCanvas.CanvasPositionToWorldPosition(pt.ToVector2());
-        foreach (var selectable in lvCanvas.Workspace!.EditorModule.SelectedObjects)
+        var workspace = lvCanvas.Workspace!;
+        var groups = SelectionHelper.GroupSelections(workspace.EditorModule.SelectedObjects);
+        foreach (var entity in groups.FullySelectedEntities)
+        {
+            entity.OnTranslateBegin();
+        }
+        foreach (var nodeList in groups.PartiallySelectedNodes.Values)
+        {
+            foreach (var node in nodeList)
+            {
+                node.OnTranslateBegin();
+            }
+        }
+        foreach (var selectable in groups.OtherSelectables)
         {
             selectable.OnTranslateBegin();
         }
@@ -126,7 +231,23 @@ public partial class LevelView : UserControl
         else if (e.Handle == TransformGizmoHandles.AxisY)
             movement = movement.WithY();
         Vector2Int translated = movement.ToGridSpace(lvCanvas.EditConfig.GridAlign);
-        foreach (var selectable in lvCanvas.Workspace!.EditorModule.SelectedObjects)
+        var workspace = lvCanvas.Workspace!;
+        var groups = SelectionHelper.GroupSelections(workspace.EditorModule.SelectedObjects);
+        foreach (var entity in groups.FullySelectedEntities)
+        {
+            entity.OnTranslating(translated);
+        }
+        foreach (var nodeList in groups.PartiallySelectedNodes.Values)
+        {
+            foreach (var node in nodeList)
+            {
+                var snapshotBefore = node.CreateSnapshot();
+                node.OnTranslating(translated);
+                var op = new ModifyEntityNodeOperation(workspace, node, snapshotBefore, node.CreateSnapshot());
+                workspace.UndoStack.AddOperation(op);
+            }
+        }
+        foreach (var selectable in groups.OtherSelectables)
         {
             selectable.OnTranslating(translated);
         }

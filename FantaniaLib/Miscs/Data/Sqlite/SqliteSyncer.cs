@@ -37,7 +37,7 @@ public class SqliteSyncer
                 {
                     if (kv.Key == "ID") continue;
                     FieldInfo field = fields.First(f => f.FieldName == kv.Key);
-                    placement.SetFieldValue(kv.Key, _rule.CastFrom(field.FieldType, kv.Value));
+                    placement.SetFieldValue(kv.Key, _rule.CastFrom(field.FieldType, kv.Value, placement));
                 }
                 WatchPropertyChange(placement);
                 _db.AddObject(placement);
@@ -82,7 +82,7 @@ public class SqliteSyncer
                 await SyncTableScheme(groupTableName, fields);
                 kvs.Clear();
                 kvs.Add(new KeyValuePair<string, object>("Type", obj.TypeName));
-                await _db.ExecuteSql(SqlInsertRow(groupTableName, obj.ID, kvs, fields));
+                await _db.ExecuteSql(SqlInsertRow(groupTableName, obj.ID, kvs, fields, obj));
             }
             await SyncTableScheme(obj.TypeName, obj.SerializableFields);
             kvs.Clear();
@@ -90,7 +90,7 @@ public class SqliteSyncer
             {
                 kvs.Add(new KeyValuePair<string, object>(field.FieldName, obj.GetFieldValue(field.FieldName)!));
             }
-            await _db.ExecuteSql(SqlInsertRow(obj.TypeName, obj.ID, kvs, obj.SerializableFields));
+            await _db.ExecuteSql(SqlInsertRow(obj.TypeName, obj.ID, kvs, obj.SerializableFields, obj));
         }
         await _db.CloseAsync();
         foreach (var obj in _added)
@@ -182,7 +182,7 @@ public class SqliteSyncer
         return $"SELECT * FROM {tableName}";
     }
 
-    string SqlInsertRow(string tableName, int id, IReadOnlyList<KeyValuePair<string, object>> kvs, IReadOnlyList<FieldInfo> fields)
+    string SqlInsertRow(string tableName, int id, IReadOnlyList<KeyValuePair<string, object>> kvs, IReadOnlyList<FieldInfo> fields, object instance)
     {
         var sb = new StringBuilder();
         sb.Append("INSERT INTO ").Append(tableName).Append("(ID,");
@@ -196,7 +196,7 @@ public class SqliteSyncer
         for (int i = 0; i < kvs.Count; i++)
         {
             FieldInfo field = fields.First(f => f.FieldName == kvs[i].Key);
-            sb.Append(EscapeIfRequire(_rule.CastTo(field.FieldType, kvs[i].Value), field));
+            sb.Append(EscapeIfRequire(_rule.CastTo(field.FieldType, kvs[i].Value, instance), field));
             if (i != kvs.Count - 1)
                 sb.Append(',');
         }
@@ -298,7 +298,7 @@ public class SqliteSyncer
                 changes.Add(new PropertyChangeInfo
                 {
                     PropertyName = fieldInfo.FieldName,
-                    OldValue = _rule.CastTo(fieldInfo.FieldType, obj.GetFieldValue(fieldInfo.FieldName)),
+                    OldValue = _rule.CastTo(fieldInfo.FieldType, obj.GetFieldValue(fieldInfo.FieldName), obj),
                 });
             }
         }
@@ -312,7 +312,7 @@ public class SqliteSyncer
         {
             IList<PropertyChangeInfo> changes = _modified[obj];
             var change = changes.First(c => c.PropertyName == e.PropertyName);
-            string newVal = _rule.CastTo(fieldInfo.FieldType, obj.GetFieldValue(fieldInfo.FieldName));
+            string newVal = _rule.CastTo(fieldInfo.FieldType, obj.GetFieldValue(fieldInfo.FieldName), obj);
             if (newVal == change.OldValue)
             {
                 changes.RemoveFast(change);

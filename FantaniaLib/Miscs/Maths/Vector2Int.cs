@@ -72,6 +72,11 @@ public struct Vector2Int : IEquatable<Vector2Int>
         return new Vector2Int(v.X * mul, v.Y * mul);
     }
 
+    public static Vector2Int operator*(int mul, Vector2Int v)
+    {
+        return new Vector2Int(v.X * mul, v.Y * mul);
+    }
+
     public static bool operator ==(Vector2Int v1, Vector2Int v2)
     {
         return v1.X == v2.X && v1.Y == v2.Y;

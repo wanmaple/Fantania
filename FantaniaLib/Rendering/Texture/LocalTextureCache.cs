@@ -34,10 +34,23 @@ public class LocalTextureCache : IDisposable
         if (_texIdMap.TryGetValue(texture.Identifier, out var counter))
         {
             counter.Release();
+            // if (counter.IsFree)
+            // {
+            //     _device.DeleteTexture(counter.Item);
+            //     _texIdMap.Remove(texture.Identifier);
+            // }
+        }
+    }
+
+    public void CleanFreedTextures()
+    {
+        foreach (var key in _texIdMap.Keys)
+        {
+            var counter = _texIdMap[key];
             if (counter.IsFree)
             {
                 _device.DeleteTexture(counter.Item);
-                _texIdMap.Remove(texture.Identifier);
+                _texIdMap.Remove(key);
             }
         }
     }

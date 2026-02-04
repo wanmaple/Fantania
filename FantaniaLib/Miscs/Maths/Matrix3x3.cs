@@ -91,6 +91,42 @@ public struct Matrix3x3 : IEquatable<Matrix3x3>
         throw new System.ArgumentOutOfRangeException("column");
     }
 
+    public Matrix3x3 Inverse()
+    {
+        float det = Determinant();
+        if (MathF.Abs(det) < 1e-12f)
+            throw new InvalidOperationException("Matrix is not invertible (determinant is zero or almost zero).");
+        float invDet = 1.0f / det;
+        float cof00 = m11 * m22 - m12 * m21;
+        float cof01 = -(m10 * m22 - m12 * m20);
+        float cof02 = m10 * m21 - m11 * m20;
+        float cof10 = -(m01 * m22 - m02 * m21);
+        float cof11 = m00 * m22 - m02 * m20;
+        float cof12 = -(m00 * m21 - m01 * m20);
+        float cof20 = m01 * m12 - m02 * m11;
+        float cof21 = -(m00 * m12 - m02 * m10);
+        float cof22 = m00 * m11 - m01 * m10;
+        return new Matrix3x3(
+            cof00 * invDet, cof10 * invDet, cof20 * invDet,
+            cof01 * invDet, cof11 * invDet, cof21 * invDet,
+            cof02 * invDet, cof12 * invDet, cof22 * invDet
+        );
+    }
+
+    public float Determinant()
+    {
+        return m00 * (m11 * m22 - m12 * m21) - m10 * (m01 * m22 - m02 * m21) + m20 * (m01 * m12 - m02 * m11);
+    }
+
+    public Matrix3x3 Transpose()
+    {
+        return new Matrix3x3(
+            m00, m10, m20,
+            m01, m11, m21,
+            m02, m12, m22
+        );
+    }
+
     public bool Equals(Matrix3x3 other)
     {
         return this == other;

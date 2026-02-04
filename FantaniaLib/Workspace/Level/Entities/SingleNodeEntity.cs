@@ -13,6 +13,9 @@ public class SingleNodeEntity : LevelEntity, ISelectableItem
     public int EntityOrder => Order;
     public int LocalOrder => 0;
 
+    internal SingleNodeEntity()
+    {}
+
     public override void GetLocalNodeAt(IWorkspace workspace, int index, out IReadOnlyList<LocalRenderInfo> locals)
     {
         UserPlacement placement = GetReferencedPlacement(workspace);
@@ -22,20 +25,20 @@ public class SingleNodeEntity : LevelEntity, ISelectableItem
     public override void OnAddSelectables(BoundingVolumeHierarchy<ISelectableItem> bvh, int index, Rectf bound)
     {
         _localBound = bound;
-        Matrix3x3 transform = MathHelper.BuildTransform(Vector2.Zero, Vector2.Zero, Position.ToVector2(), Rotation, Scale);
+        Matrix3x3 transform = TransformAt(0);
         CalculateBounds(transform, _localBound);
         bvh.AddItem(this);
         OnPropertyChanged(nameof(BoundingBox));
     }
 
-    public override void OnRemoveSelectables(BoundingVolumeHierarchy<ISelectableItem> bvh, int index)
+    public override void OnRemoveSelectables(BoundingVolumeHierarchy<ISelectableItem> bvh)
     {
         bvh.RemoveItem(this);
     }
 
     public override void OnUpdateSelectables(BoundingVolumeHierarchy<ISelectableItem> bvh, int index)
     {
-        Matrix3x3 transform = MathHelper.BuildTransform(Vector2.Zero, Vector2.Zero, Position.ToVector2(), Rotation, Scale);
+        Matrix3x3 transform = TransformAt(0);
         CalculateBounds(transform, _localBound);
         bvh.UpdateItem(this);
         OnPropertyChanged(nameof(BoundingBox));
@@ -52,23 +55,18 @@ public class SingleNodeEntity : LevelEntity, ISelectableItem
         float minY = MathF.Min(pt1.Y, MathF.Min(pt2.Y, MathF.Min(pt3.Y, pt4.Y)));
         float maxY = MathF.Max(pt1.Y, MathF.Max(pt2.Y, MathF.Max(pt3.Y, pt4.Y)));
         _aabb = new Rectf(minX, minY, maxX - minX, maxY - minY);
-        _exactVerts[0] = pt1;
-        _exactVerts[1] = pt2;
-        _exactVerts[2] = pt3;
-        _exactVerts[3] = pt4;
+        // _exactVerts[0] = pt1;
+        // _exactVerts[1] = pt2;
+        // _exactVerts[2] = pt3;
+        // _exactVerts[3] = pt4;
         OnPropertyChanged(nameof(Anchor));
     }
 
     public bool PointTest(Vector2 pt)
     {
-        if (Rotation != 0.0f)
-            return MathHelper.IsPointInsideConvexQuadrilateral(pt, _exactVerts);
+        // if (Rotation != 0.0f)
+        //     return MathHelper.IsPointInsideConvexQuadrilateral(pt, _exactVerts);
         return true;
-    }
-
-    public void OnDelete(IWorkspace workspace)
-    {
-        workspace.LevelModule.DeleteEntity(this);
     }
 
     public bool CanRotate(IWorkspace workspace)
@@ -86,18 +84,11 @@ public class SingleNodeEntity : LevelEntity, ISelectableItem
         return GetReferencedPlacement(workspace).Template.CanTranslate(0);
     }
 
-    public void OnTranslateBegin()
+    public override Matrix3x3 TransformAt(int index)
     {
-        _startWorldPos = Position;
-    }
-
-    public void OnTranslating(Vector2Int worldChange)
-    {
-        Position = _startWorldPos + worldChange;
+        return MathHelper.BuildTransform(Vector2.Zero, Vector2.Zero, Position.ToVector2(), Rotation, Scale);
     }
 
     Rectf _aabb, _localBound;
-    Vector2[] _exactVerts = new Vector2[4];
-
-    Vector2Int _startWorldPos;
+    // Vector2[] _exactVerts = new Vector2[4];
 }

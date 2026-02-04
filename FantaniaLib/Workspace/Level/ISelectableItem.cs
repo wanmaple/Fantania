@@ -12,7 +12,6 @@ public interface ISelectableItem : IBVHItem
     int LocalOrder { get; }
 
     bool PointTest(Vector2 pt);
-    void OnDelete(IWorkspace workspace);
     bool CanTranslate(IWorkspace workspace);
     bool CanRotate(IWorkspace workspace);
     bool CanScale(IWorkspace workspace);

@@ -71,6 +71,8 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
         Workspace!.LevelModule.EntityAdded -= OnEntityAdded;
         Workspace.LevelModule.EntityRemoved -= OnEntityRemoved;
         Workspace.LevelModule.PropertyChanged -= OnLevelChanged;
+        if (Workspace.LevelModule.CurrentLevel != null)
+            FinalizeLevel(Workspace.LevelModule.CurrentLevel);
         _lifeOfRenderables!.Unregister(_context!.RenderableHierarchy);
         IRenderDevice device = pipeline.Device;
         _blitVertStream!.Dispose(device);
@@ -121,7 +123,7 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
 
     void OnEntityRemoved(LevelEntity entity)
     {
-        // 和OnEntityAdded的逻辑累类似
+        // 和OnEntityAdded的逻辑类似
         if (_context!.EntityManager.HasEntity(entity))
         {
             AddCommand(new SetupLevelEntityCommand(entity, EntitySetups.Remove));
@@ -151,8 +153,21 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
             foreach (var entity in lv.Entities)
             {
                 AddCommand(new SetupLevelEntityCommand(entity, EntitySetups.Add));
+                entity.RenderingDirty += OnEntityUpdated;
             }
         }
+    }
+
+    void FinalizeLevel(IReadonlyLevel? lv)
+    {
+        if (lv != null)
+        {
+            foreach (var entity in lv.Entities)
+            {
+                entity.RenderingDirty -= OnEntityUpdated;
+            }
+        }
+        _context!.RenderableHierarchy.Clear();
     }
 
     void SetupGlobalUniforms(ConfigurableRenderPipeline pipeline)
