@@ -8,6 +8,7 @@ public class SingleNodeEntity : LevelEntity, ISelectableItem
     public Rectf BoundingBox => _aabb;
     public Color SelectionColor => Colors.Yellow;
     public Vector2 Anchor => (Position.ToVector2() - _aabb.TopLeft) / _aabb.Size;
+    public Vector2 WorldPosition => Position.ToVector2();
     public override int NodeCount => 1;
     public int Depth => RealDepth;
     public int EntityOrder => Order;

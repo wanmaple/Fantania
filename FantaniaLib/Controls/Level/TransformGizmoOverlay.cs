@@ -1,3 +1,4 @@
+using System.Numerics;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -62,6 +63,26 @@ public class TransformGizmoOverlay : Control
         }
     }
 
+    public void UpdateRotationVisual(double rotationAngle, Point rayEnd, bool showRay)
+    {
+        if (_gizmo is RotateGizmo rotateGizmo)
+        {
+            rotateGizmo.RotationAngle = rotationAngle;
+            rotateGizmo.RayEnd = rayEnd;
+            rotateGizmo.ShowRay = showRay;
+            InvalidateVisual();
+        }
+    }
+
+    public void UpdateScaleVisual(Vector2 scaleFactor)
+    {
+        if (_gizmo is ScaleGizmo scaleGizmo)
+        {
+            scaleGizmo.ScaleFactor = scaleFactor;
+            InvalidateVisual();
+        }
+    }
+
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
     {
         base.OnPropertyChanged(change);
@@ -90,6 +111,7 @@ public class TransformGizmoOverlay : Control
                     _gizmo = new ScaleGizmo();
                     break;
             }
+            InvalidateVisual();
         }
         else if (change.Property == IsVisibleProperty)
         {

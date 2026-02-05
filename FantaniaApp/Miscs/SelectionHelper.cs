@@ -12,7 +12,7 @@ public struct SelectionGroups
 
 public static class SelectionHelper
 {
-    public static SelectionGroups GroupSelections(IList<ISelectableItem> selections)
+    public static SelectionGroups GroupSelections(IReadOnlyList<ISelectableItem> selections)
     {
         var result = new SelectionGroups
         {

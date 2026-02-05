@@ -47,18 +47,21 @@ public class MultiNodesEntity : LevelEntity, IMultiNodeContainer
 
     internal void SetNodes(IWorkspace workspace, EntityNodesSnapshot snapshot)
     {
-        var oldNodes = _nodes.ToArray();
-        _nodes.Clear();
-        _nodes.AddRange(snapshot.Nodes);
-        foreach (var node in oldNodes)
-        {
-            if (!snapshot.Nodes.Contains(node))
-                NodeRemoved?.Invoke(node);
-        }
         foreach (var node in _nodes)
         {
-            if (!oldNodes.Contains(node))
+            if (!snapshot.Nodes.Contains(node))
+            {
+                _toRm.Add(node);
+                NodeRemoved?.Invoke(node);
+            }
+        }
+        foreach (var node in snapshot.Nodes)
+        {
+            if (!_nodes.Contains(node))
+            {
+                _nodes.Add(node);
                 NodeAdded?.Invoke(node);
+            }
         }
         GetReferencedPlacement(workspace).MarkFieldDirty();
         PlacementDirty = true;

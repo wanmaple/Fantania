@@ -78,7 +78,7 @@ public class EditorModule : WorkspaceModule
     }
 
     private ObservableCollection<ISelectableItem> _selectedObjs = new ObservableCollection<ISelectableItem>();
-    public IList<ISelectableItem> SelectedObjects => _selectedObjs;
+    public ObservableCollection<ISelectableItem> SelectedObjects => _selectedObjs;
 
     private int _fps = 0;
     public int FPS

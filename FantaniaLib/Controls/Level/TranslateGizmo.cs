@@ -73,7 +73,7 @@ public class TranslateGizmo : ITransformGizmo
     const double CENTER_HANDLE_SIZE = 12;
     const double ARROW_LENGTH = 60;
     const double ARROW_HEAD_SIZE = 12;
-    static readonly IBrush CenterColor = new SolidColorBrush(Colors.Blue);
+    static readonly IBrush CenterColor = new SolidColorBrush(Colors.Orange);
     static readonly IBrush AxisXColor = new SolidColorBrush(Colors.Red);
     static readonly IBrush AxisYColor = new SolidColorBrush(Colors.Green);
 }

@@ -83,7 +83,10 @@ public class ViewEditorMode : ILevelEditorMode
             if (selection.IsZero)
             {
                 Vector2 worldPos = context.CanvasToWorld(e.MouseState.Position.ToVector2());
-                context.AddCommand(new ClickSelectionCommand(worldPos, SelectionModeFromKeyModifiers(e.KeyState.KeyModifiers)));
+                if (e.KeyState.KeyModifiers.HasFlag(KeyModifiers.Alt))
+                    context.AddCommand(new MultiNodeSelectionCommand(worldPos));
+                else
+                    context.AddCommand(new ClickSelectionCommand(worldPos, SelectionModeFromKeyModifiers(e.KeyState.KeyModifiers)));
             }
             ResetSelectionStates(context);
             e.Handled = true;
@@ -115,7 +118,7 @@ public class ViewEditorMode : ILevelEditorMode
         return SelectionModes.Replace;
     }
 
-    void DeleteSelections(IList<ISelectableItem> selections, LevelEditorContext context)
+    void DeleteSelections(IReadOnlyList<ISelectableItem> selections, LevelEditorContext context)
     {
         var groups = SelectionHelper.GroupSelections(selections);
         var entitiesToDelete = new HashSet<LevelEntity>(16);

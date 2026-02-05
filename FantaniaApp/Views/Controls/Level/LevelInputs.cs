@@ -155,11 +155,13 @@ public class LevelInputs : IDisposable
         }
         else if (entity is ISelectableItem item)
             _context.Workspace.EditorModule.SelectedObjects.RemoveFast(item);
+        _context.Workspace.EditorModule.Notify();
     }
 
     void OnEntityNodeRemoved(LevelEntityNode node)
     {
         _context.Workspace.EditorModule.SelectedObjects.RemoveFast(node);
+        _context.Workspace.EditorModule.Notify();
     }
 
     public void Dispose()

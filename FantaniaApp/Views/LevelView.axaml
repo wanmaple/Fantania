@@ -53,7 +53,7 @@
           </MultiBinding>
         </lib:SelectionOverlay.SelectionBounds>
       </lib:SelectionOverlay>
-      <lib:TransformGizmoOverlay x:Name="gizmo" GizmoType="{Binding Workspace.EditorModule.CurrentTransformMode}" TranslationStart="TransformGizmoOverlay_TranslationStart" Translating="TransformGizmoOverlay_Translating" TranslationEnd="TransformGizmoOverlay_TranslationEnd">
+      <lib:TransformGizmoOverlay x:Name="gizmo" GizmoType="{Binding Workspace.EditorModule.CurrentTransformMode}" TranslationStart="TransformGizmoOverlay_TranslationStart" Translating="TransformGizmoOverlay_Translating" TranslationEnd="TransformGizmoOverlay_TranslationEnd"  RotationStart="TransformGizmoOverlay_RotationStart" Rotating="TransformGizmoOverlay_Rotating" RotationEnd="TransformGizmoOverlay_RotationEnd" ScaleStart="TransformGizmoOverlay_ScaleStart" Scaling="TransformGizmoOverlay_Scaling" ScaleEnd="TransformGizmoOverlay_ScaleEnd">
         <Canvas.Left>
           <MultiBinding Converter="{StaticResource Cvt_Sel2CtX}">
             <Binding Path="Workspace.EditorModule.SelectedObjects" />

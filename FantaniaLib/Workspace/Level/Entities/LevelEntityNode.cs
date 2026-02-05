@@ -10,6 +10,7 @@ public class LevelEntityNode : SyncableObject, ISelectableItem
     public IMultiNodeContainer Owner => _container;
     public Color SelectionColor => Colors.Purple;
     public Vector2 Anchor => (_container.TransformAt(LocalOrder) * Vector2.Zero - _aabb.TopLeft) / _aabb.Size;
+    public Vector2 WorldPosition => _container.TransformAt(LocalOrder) * Vector2.Zero;
     public int Depth => _container.Depth;
     public int EntityOrder => _container.Order;
     public int LocalOrder => _container.AllNodes.IndexOf(this);
@@ -112,6 +113,25 @@ public class LevelEntityNode : SyncableObject, ISelectableItem
         Position = localPos.ToVector2i();
     }
 
+    public void OnRotateBegin()
+    {
+    }
+
+    public void OnRotating(float rotationChange)
+    {
+        Rotation += rotationChange;
+    }
+
+    public void OnScaleBegin()
+    {
+        _startScale = Scale;
+    }
+
+    public void OnScaling(Vector2 scaleFactor)
+    {
+        Scale = new Vector2(_startScale.X * scaleFactor.X, _startScale.Y * scaleFactor.Y);
+    }
+
     public bool PointTest(Vector2 pt)
     {
         return true;
@@ -136,4 +156,5 @@ public class LevelEntityNode : SyncableObject, ISelectableItem
 
     IMultiNodeContainer _container;
     Vector2 _startWorldPos;
+    Vector2 _startScale;
 }

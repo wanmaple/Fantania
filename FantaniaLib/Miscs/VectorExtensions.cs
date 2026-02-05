@@ -46,6 +46,11 @@ public static class VectorExtensions
         return new Vector2Int(MathHelper.RoundToInt(xInGrid) * gridSize, MathHelper.RoundToInt(yInGrid) * gridSize);
     }
 
+    public static bool IsZero(this Vector2 self)
+    {
+        return self.X == 0.0f && self.Y == 0.0f;
+    }
+
     public static Vector2 XY(this Vector3 self)
     {
         return new Vector2(self.X, self.Y);

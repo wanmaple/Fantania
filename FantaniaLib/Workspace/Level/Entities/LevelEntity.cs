@@ -216,6 +216,25 @@ public abstract class LevelEntity : BinaryObject
         Position = _startWorldPos + worldChange;
     }
 
+    public virtual void OnRotateBegin()
+    {
+    }
+
+    public virtual void OnRotating(float rotationChange)
+    {
+        Rotation += rotationChange;
+    }
+
+    public virtual void OnScaleBegin()
+    {
+        _startScale = Scale;
+    }
+
+    public virtual void OnScaling(Vector2 scaleFactor)
+    {
+        Scale = new Vector2(_startScale.X * scaleFactor.X, _startScale.Y * scaleFactor.Y);
+    }
+
     public abstract Matrix3x3 TransformAt(int index);
     public abstract void GetLocalNodeAt(IWorkspace workspace, int index, out IReadOnlyList<LocalRenderInfo> locals);
     public abstract void OnAddSelectables(BoundingVolumeHierarchy<ISelectableItem> bvh, int index, Rectf bound);
@@ -225,4 +244,5 @@ public abstract class LevelEntity : BinaryObject
     public virtual int GetIndexByNodeId(int nodeId) => 0;
 
     Vector2Int _startWorldPos;
+    Vector2 _startScale;
 }

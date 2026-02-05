@@ -44,7 +44,10 @@ public class Selections2VisibleConverter : IMultiValueConverter
             if (mode == TransformGizmoTypes.Translation)
                 return selections.All(s => s.CanTranslate(workspace));
             if (mode == TransformGizmoTypes.Rotation)
-                return (selections.Count == 1 && selections[0].CanRotate(workspace)) || selections.All(s => s is SingleNodeEntity && s.CanRotate(workspace));
+            {
+                var groups = SelectionHelper.GroupSelections(selections);
+                return groups.FullySelectedEntities.Count + groups.PartiallySelectedNodes.Sum(pair => pair.Value.Count) + groups.OtherSelectables.Count == 1;
+            }
             if (mode == TransformGizmoTypes.Scale)
                 return selections.All(s => s.CanScale(workspace));
         }
@@ -61,14 +64,30 @@ public class Selections2CenterXConverter : IMultiValueConverter
         if (values[0] is not IReadOnlyList<ISelectableItem> selections) return AvaloniaProperty.UnsetValue;
         if (selections.Count <= 0) return AvaloniaProperty.UnsetValue;
         if (values[1] is not ILevelCanvas canvas) return AvaloniaProperty.UnsetValue;
-        Rectf box = Rectf.Zero;
-        foreach (var r in selections)
+        var groups = SelectionHelper.GroupSelections(selections);
+        Vector2 sum = Vector2.Zero;
+        int num = 0;
+        foreach (var multiNodeEntity in groups.FullySelectedEntities)
         {
-            box = box.Merge(r.BoundingBox);
+            sum += multiNodeEntity.Position.ToVector2();
+            num++;
         }
-        Vector2 tlCvs = canvas.WorldPositionToCanvasPosition(box.TopLeft);
-        Vector2 brCvs = canvas.WorldPositionToCanvasPosition(box.BottomRight);
-        return (double)(tlCvs.X + brCvs.X) * 0.5;
+        foreach (var nodeList in groups.PartiallySelectedNodes.Values)
+        {
+            foreach (var node in nodeList)
+            {
+                sum += node.WorldPosition;
+                num++;
+            }
+        }
+        foreach (var other in groups.OtherSelectables)
+        {
+            sum += other.WorldPosition;
+            num++;
+        }
+        Vector2 avg = sum / num;
+        Vector2 cvs = canvas.WorldPositionToCanvasPosition(avg);
+        return (double)cvs.X;
     }
 }
 
@@ -81,14 +100,30 @@ public class Selections2CenterYConverter : IMultiValueConverter
         if (values[0] is not IReadOnlyList<ISelectableItem> selections) return AvaloniaProperty.UnsetValue;
         if (selections.Count <= 0) return AvaloniaProperty.UnsetValue;
         if (values[1] is not ILevelCanvas canvas) return AvaloniaProperty.UnsetValue;
-        Rectf box = Rectf.Zero;
-        foreach (var r in selections)
+        var groups = SelectionHelper.GroupSelections(selections);
+        Vector2 sum = Vector2.Zero;
+        int num = 0;
+        foreach (var multiNodeEntity in groups.FullySelectedEntities)
         {
-            box = box.Merge(r.BoundingBox);
+            sum += multiNodeEntity.Position.ToVector2();
+            num++;
         }
-        Vector2 tlCvs = canvas.WorldPositionToCanvasPosition(box.TopLeft);
-        Vector2 brCvs = canvas.WorldPositionToCanvasPosition(box.BottomRight);
-        return (double)(tlCvs.Y + brCvs.Y) * 0.5;
+        foreach (var nodeList in groups.PartiallySelectedNodes.Values)
+        {
+            foreach (var node in nodeList)
+            {
+                sum += node.WorldPosition;
+                num++;
+            }
+        }
+        foreach (var other in groups.OtherSelectables)
+        {
+            sum += other.WorldPosition;
+            num++;
+        }
+        Vector2 avg = sum / num;
+        Vector2 cvs = canvas.WorldPositionToCanvasPosition(avg);
+        return (double)cvs.Y;
     }
 }
 
@@ -257,5 +292,184 @@ public partial class LevelView : UserControl
     {
     }
 
+    void TransformGizmoOverlay_RotationStart(object? sender, GizmoEventArgs e)
+    {
+        Point pt = e.PointerArgs.GetPosition(this);
+        _startWorldPos = lvCanvas.CanvasPositionToWorldPosition(pt.ToVector2());
+        // 会进入这里是有个大前提的，这个并不要求像游戏引擎那样需要让多个节点围绕一个中心点旋转，这只是个编辑器，这种操作一般是不合理的，所以这里就可以简单处理，只需要考虑单个对象的旋转。
+        var workspace = lvCanvas.Workspace!;
+        var groups = SelectionHelper.GroupSelections(workspace.EditorModule.SelectedObjects);
+        if (groups.FullySelectedEntities.Count > 0)
+        {
+            var entity = groups.FullySelectedEntities[0];
+            _rotationCenter = entity.Position.ToVector2();
+            entity.OnRotateBegin();
+        }
+        else
+        {
+            var selectable = workspace.EditorModule.SelectedObjects[0];
+            _rotationCenter = selectable.WorldPosition;
+            selectable.OnRotateBegin();
+        }
+        _gizmoRotationAngle = 0.0;
+        gizmo.UpdateRotationVisual(_gizmoRotationAngle, e.PointerArgs.GetPosition(gizmo), true);
+    }
+
+    void TransformGizmoOverlay_Rotating(object? sender, GizmoEventArgs e)
+    {
+        Point pt = e.PointerArgs.GetPosition(this);
+        Vector2 worldPos = lvCanvas.CanvasPositionToWorldPosition(pt.ToVector2());
+        Vector2 dirStart = Vector2.Normalize(_startWorldPos - _rotationCenter);
+        Vector2 dirNow = Vector2.Normalize(worldPos - _rotationCenter);
+        float radianChange = dirNow.IsZero() ? 0.0f : (float)MathF.Asin(MathHelper.Clamp(dirStart.Cross(dirNow), -1.0f, 1.0f));
+        var workspace = lvCanvas.Workspace!;
+        var groups = SelectionHelper.GroupSelections(workspace.EditorModule.SelectedObjects);
+        if (groups.FullySelectedEntities.Count > 0)
+        {
+            var entity = groups.FullySelectedEntities[0];
+            entity.OnRotating(-radianChange);         
+        }
+        else
+        {
+            var selectable = workspace.EditorModule.SelectedObjects[0];
+            if (selectable is LevelEntityNode node)
+            {
+                var snapshotBefore = node.CreateSnapshot();
+                node.OnRotating(-radianChange);
+                var op = new ModifyEntityNodeOperation(workspace, node, snapshotBefore, node.CreateSnapshot());
+                workspace.UndoStack.AddOperation(op);
+            }
+            else
+                selectable.OnRotating(-radianChange);
+        }
+        _startWorldPos = worldPos;
+        _gizmoRotationAngle += radianChange;    // Avalonia的旋转方向和我自己定义的旋转方向是反的
+        gizmo.UpdateRotationVisual(_gizmoRotationAngle, e.PointerArgs.GetPosition(gizmo), true);
+    }
+
+    void TransformGizmoOverlay_RotationEnd(object? sender, GizmoEventArgs e)
+    {
+        _gizmoRotationAngle = 0.0;
+        gizmo.UpdateRotationVisual(0.0, default, false);
+    }
+
+    void TransformGizmoOverlay_ScaleStart(object? sender, GizmoEventArgs e)
+    {
+        Point pt = e.PointerArgs.GetPosition(this);
+        _startWorldPos = lvCanvas.CanvasPositionToWorldPosition(pt.ToVector2());
+        _scaleCenter = GetSelectionCenter(lvCanvas.Workspace!.EditorModule.SelectedObjects);
+        _scaleCenterCanvas = lvCanvas.WorldPositionToCanvasPosition(_scaleCenter);
+        _startCanvasPos = lvCanvas.WorldPositionToCanvasPosition(_startWorldPos);
+        var workspace = lvCanvas.Workspace!;
+        var groups = SelectionHelper.GroupSelections(workspace.EditorModule.SelectedObjects);
+        foreach (var entity in groups.FullySelectedEntities)
+        {
+            entity.OnScaleBegin();
+        }
+        foreach (var nodeList in groups.PartiallySelectedNodes.Values)
+        {
+            foreach (var node in nodeList)
+            {
+                node.OnScaleBegin();
+            }
+        }
+        foreach (var selectable in groups.OtherSelectables)
+        {
+            selectable.OnScaleBegin();
+        }
+        _scaleFactor = Vector2.One;
+        gizmo.UpdateScaleVisual(_scaleFactor);
+    }
+
+    void TransformGizmoOverlay_Scaling(object? sender, GizmoEventArgs e)
+    {
+        Point pt = e.PointerArgs.GetPosition(lvCanvas);
+        Vector2 startDelta = _startCanvasPos - _scaleCenterCanvas;
+        Vector2 nowDelta = pt.ToVector2() - _scaleCenterCanvas;
+        const float EPSILON = 0.0001f;
+        const float MIN_START_LENGTH = 24.0f;
+        float scaleX = 1.0f;
+        float scaleY = 1.0f;
+        if (e.Handle == TransformGizmoHandles.Center)
+        {
+            float startLen = startDelta.Length();
+            float denom = MathF.Max(startLen, MIN_START_LENGTH);
+            Vector2 dir = startLen > EPSILON ? Vector2.Normalize(startDelta) : Vector2.UnitX;
+            float factor = Vector2.Dot(nowDelta, dir) / denom;
+            scaleX = factor;
+            scaleY = factor;
+        }
+        else if (e.Handle == TransformGizmoHandles.AxisX)
+        {
+            float denom = MathF.Abs(startDelta.X) > EPSILON ? startDelta.X : MathF.Sign(nowDelta.X == 0.0f ? 1.0f : nowDelta.X) * MIN_START_LENGTH;
+            scaleX = nowDelta.X / denom;
+        }
+        else if (e.Handle == TransformGizmoHandles.AxisY)
+        {
+            float denom = MathF.Abs(startDelta.Y) > EPSILON ? startDelta.Y : MathF.Sign(nowDelta.Y == 0.0f ? 1.0f : nowDelta.Y) * MIN_START_LENGTH;
+            scaleY = nowDelta.Y / denom;
+        }
+        _scaleFactor = new Vector2(scaleX, scaleY);
+        var workspace = lvCanvas.Workspace!;
+        var groups = SelectionHelper.GroupSelections(workspace.EditorModule.SelectedObjects);
+        foreach (var entity in groups.FullySelectedEntities)
+        {
+            entity.OnScaling(_scaleFactor);
+        }
+        foreach (var nodeList in groups.PartiallySelectedNodes.Values)
+        {
+            foreach (var node in nodeList)
+            {
+                var snapshotBefore = node.CreateSnapshot();
+                node.OnScaling(_scaleFactor);
+                var op = new ModifyEntityNodeOperation(workspace, node, snapshotBefore, node.CreateSnapshot());
+                workspace.UndoStack.AddOperation(op);
+            }
+        }
+        foreach (var selectable in groups.OtherSelectables)
+        {
+            selectable.OnScaling(_scaleFactor);
+        }
+        gizmo.UpdateScaleVisual(_scaleFactor);
+    }
+
+    void TransformGizmoOverlay_ScaleEnd(object? sender, GizmoEventArgs e)
+    {
+        _scaleFactor = Vector2.One;
+        gizmo.UpdateScaleVisual(_scaleFactor);
+    }
+
+    Vector2 GetSelectionCenter(IReadOnlyList<ISelectableItem> selections)
+    {
+        var groups = SelectionHelper.GroupSelections(selections);
+        Vector2 sum = Vector2.Zero;
+        int num = 0;
+        foreach (var multiNodeEntity in groups.FullySelectedEntities)
+        {
+            sum += multiNodeEntity.Position.ToVector2();
+            num++;
+        }
+        foreach (var nodeList in groups.PartiallySelectedNodes.Values)
+        {
+            foreach (var node in nodeList)
+            {
+                sum += node.WorldPosition;
+                num++;
+            }
+        }
+        foreach (var other in groups.OtherSelectables)
+        {
+            sum += other.WorldPosition;
+            num++;
+        }
+        return num > 0 ? sum / num : Vector2.Zero;
+    }
+
     Vector2 _startWorldPos;
+    Vector2 _rotationCenter;
+    double _gizmoRotationAngle;
+    Vector2 _scaleCenter;
+    Vector2 _scaleCenterCanvas;
+    Vector2 _startCanvasPos;
+    Vector2 _scaleFactor;
 }
