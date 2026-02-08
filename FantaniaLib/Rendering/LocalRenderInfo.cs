@@ -2,13 +2,6 @@ using System.Numerics;
 
 namespace FantaniaLib;
 
-[BindingScript]
-public enum ColorOperators
-{
-    Independent,
-    Multiple,
-}
-
 public class LocalRenderInfo
 {
     public required string Stage { get; set; }
@@ -17,7 +10,6 @@ public class LocalRenderInfo
     public required float Rotation { get; set; }
     public required Vector2 Scale { get; set; }
     public required Vector4 Color { get; set; }
-    public required ColorOperators ColorOperator { get; set; }
     public required string MaterialKey { get; set; }
     public required DesiredUniformMap Uniforms { get; set; }
     public required IRenderableSizer Sizer { get; set; }

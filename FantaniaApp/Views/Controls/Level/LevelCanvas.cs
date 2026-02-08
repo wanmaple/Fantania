@@ -83,6 +83,14 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
 
     protected override void OnRendering(ConfigurableRenderPipeline pipeline, int finalFbo)
     {
+        if (_entitiesToUpdate.Count > 0)
+        {
+            foreach (var entity in _entitiesToUpdate)
+            {
+                AddCommand(new UpdateLevelEntityCommand(entity));
+            }
+            _entitiesToUpdate.Clear();
+        }
         HandleCanvasCommands(pipeline);
         SetupGlobalUniforms(pipeline);
         IRenderDevice device = pipeline.Device;
@@ -133,7 +141,7 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
 
     void OnEntityUpdated(LevelEntity entity)
     {
-        AddCommand(new UpdateLevelEntityCommand(entity));
+        _entitiesToUpdate.Add(entity);
     }
 
     void OnLevelChanged(object? sender, PropertyChangedEventArgs e)
@@ -148,6 +156,7 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
     void InitializeLevel(IReadonlyLevel? lv)
     {
         _context!.RenderableHierarchy.Clear();
+        _context.SelectableHierarchy.Clear();
         if (lv != null)
         {
             foreach (var entity in lv.Entities)
@@ -168,6 +177,7 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
             }
         }
         _context!.RenderableHierarchy.Clear();
+        _context.SelectableHierarchy.Clear();
     }
 
     void SetupGlobalUniforms(ConfigurableRenderPipeline pipeline)
@@ -348,4 +358,6 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
     LevelSpaceContext? _context;
     List<ICanvasCommand> _commands = new List<ICanvasCommand>(0);
     RenderableLifePeriod? _lifeOfRenderables;
+
+    HashSet<LevelEntity> _entitiesToUpdate = new HashSet<LevelEntity>(8);
 }

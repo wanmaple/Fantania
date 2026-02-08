@@ -43,5 +43,13 @@ public static class WorkspaceConversions
             }
             return ret;
         });
+        Script.GlobalOptions.CustomConverters.SetClrToScriptCustomConversion<LevelEntityNode>((env, v) =>
+        {
+            var ret = DynValue.NewTable(env);
+            ret.Table.Set("position", DynValue.FromObject(env, v.Position));
+            ret.Table.Set("rotation", DynValue.NewNumber(v.Rotation));
+            ret.Table.Set("scale", DynValue.FromObject(env, v.Scale));
+            return ret;
+        });
     }
 }

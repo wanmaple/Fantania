@@ -14,7 +14,6 @@ public class UserPlacement : DatabaseObject, IPlacement
     public override string GroupName => string.Empty;
 
     internal PlacementTemplate Template => _script;
-    internal bool FieldDirty => _fieldDirty;
 
     public UserPlacement(PlacementTemplate template, int id)
     : base(id)
@@ -46,7 +45,6 @@ public class UserPlacement : DatabaseObject, IPlacement
                 OnPropertyChanging(fieldName);
                 _fieldValues[fieldName] = value;
                 OnPropertyChanged(fieldName);
-                _fieldDirty = true;
                 FieldChanged?.Invoke();
             }
             return;
@@ -69,28 +67,21 @@ public class UserPlacement : DatabaseObject, IPlacement
         return editableFields;
     }
 
-    public IReadOnlyList<LocalRenderInfo> GetLocalNodeAt(int index)
+    public IReadOnlyList<LocalRenderInfo> GetLocalNodeAt(int index, int nodeCnt)
     {
-        if (_fieldDirty)
-        {
-            _cache.Clear();
-            _fieldDirty = false;
-        }
-        if (!_cache.TryGetValue(index, out var nodes))
-        {
-            nodes = Template.GetLocalNodeAt(this, index);
-            _cache.Add(index, nodes);
-        }
-        return nodes;
+        return Template.GetLocalNodeAt(this, index, nodeCnt);
     }
 
-    internal void MarkFieldDirty()
+    public IReadOnlyList<LocalRenderInfo> GetBackgroundNodes(IReadOnlyList<LevelEntityNode> nodes)
     {
-        _fieldDirty = true;
+        return Template.GetBackgroundNodes(this, nodes);
+    }
+
+    public IReadOnlyList<LocalRenderInfo> GetForegroundNodes(IReadOnlyList<LevelEntityNode> nodes)
+    {
+        return Template.GetForegroundNodes(this, nodes);
     }
 
     PlacementTemplate _script;
     Dictionary<string, object?> _fieldValues;
-    bool _fieldDirty = true;
-    Dictionary<int, IReadOnlyList<LocalRenderInfo>> _cache = new Dictionary<int, IReadOnlyList<LocalRenderInfo>>(16);
 }

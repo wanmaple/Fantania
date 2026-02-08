@@ -25,6 +25,10 @@
       <PublicClass>true</PublicClass>
     </EmbeddedResource>
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Localization\Resources.Designer.cs" />
+  </ItemGroup>
   
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="11.3.6" />

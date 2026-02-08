@@ -46,10 +46,21 @@ public class Selections2VisibleConverter : IMultiValueConverter
             if (mode == TransformGizmoTypes.Rotation)
             {
                 var groups = SelectionHelper.GroupSelections(selections);
-                return groups.FullySelectedEntities.Count + groups.PartiallySelectedNodes.Sum(pair => pair.Value.Count) + groups.OtherSelectables.Count == 1;
+                if (groups.FullySelectedEntities.Count + groups.PartiallySelectedNodes.Sum(pair => pair.Value.Count) + groups.OtherSelectables.Count == 1)
+                {
+                    return groups.FullySelectedEntities.Count == 1 || (groups.PartiallySelectedNodes.Values.All(list => list.All(n => n.CanRotate(workspace))) && groups.OtherSelectables.All(s => s.CanRotate(workspace)));
+                }
+                return false;
             }
             if (mode == TransformGizmoTypes.Scale)
+            {
+                var groups = SelectionHelper.GroupSelections(selections);
+                if (groups.FullySelectedEntities.Count > 0)
+                {
+                    return groups.PartiallySelectedNodes.Values.All(list => list.All(n => n.CanScale(workspace))) && groups.OtherSelectables.All(s => s.CanScale(workspace));
+                }
                 return selections.All(s => s.CanScale(workspace));
+            }
         }
         return false;
     }

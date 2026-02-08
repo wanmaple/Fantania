@@ -32,11 +32,35 @@ public class PlacementTemplate : ScriptTemplate, IPlacement
         return GetOrCallMember("canScale", index).GetBooleanOrDefault(true);
     }
 
-    public IReadOnlyList<LocalRenderInfo> GetLocalNodeAt(UserPlacement placement, int index)
+    public IReadOnlyList<LocalRenderInfo> GetLocalNodeAt(UserPlacement placement, int index, int nodeCnt)
     {
         try
         {
-            return GetOrCallMember("nodeAt", placement, index).ToObject<List<LocalRenderInfo>>();
+            return GetOrCallMember("nodeAt", placement, index, nodeCnt).GetObjectOrDefault(new List<LocalRenderInfo>());
+        }
+        catch
+        {
+            return Array.Empty<LocalRenderInfo>();
+        }
+    }
+
+    public IReadOnlyList<LocalRenderInfo> GetBackgroundNodes(UserPlacement placement, IReadOnlyList<LevelEntityNode> nodes)
+    {
+        try
+        {
+            return GetOrCallMember("backgroundNodes", placement, nodes.ToList()).GetObjectOrDefault(new List<LocalRenderInfo>());
+        }
+        catch
+        {
+            return Array.Empty<LocalRenderInfo>();
+        }
+    }
+
+    public IReadOnlyList<LocalRenderInfo> GetForegroundNodes(UserPlacement placement, IReadOnlyList<LevelEntityNode> nodes)
+    {
+        try
+        {
+            return GetOrCallMember("foregroundNodes", placement, nodes.ToList()).GetObjectOrDefault(new List<LocalRenderInfo>());
         }
         catch
         {

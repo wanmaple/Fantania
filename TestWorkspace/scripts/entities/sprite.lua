@@ -54,7 +54,7 @@ Sprite.nodeOptions = {
     defaultOffset = { x = 100, y = 0, },
 }
 
-function Sprite:nodeAt(info, index)
+function Sprite:nodeAt(info, index, nodeCount)
     local ret = {}
     table.insert(ret, {
         stage = BuiltinStages.Transparent,

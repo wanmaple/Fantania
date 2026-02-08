@@ -32,6 +32,7 @@ public class BoundingVolumeHierarchy<T> where T : IBVHItem
     public int ItemCount => _num;
     public Rectf Bounds => _root == null ? Rectf.Zero : _root.bounds;
     public BoundingVolumeHierarchyNode<T>? Root => _root;
+    public T FirstNode => _item2node.Keys.First();
 
     public BoundingVolumeHierarchy()
     {

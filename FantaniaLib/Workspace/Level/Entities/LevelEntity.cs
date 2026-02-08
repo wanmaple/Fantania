@@ -16,6 +16,7 @@ public abstract class LevelEntity : BinaryObject
     public abstract int NodeCount { get; }
 
     public bool PlacementDirty { get; set; }
+    public virtual Matrix3x3 SelfTransform => MathHelper.BuildTransform(Vector2.Zero, Vector2.Zero, Position.ToVector2(), Rotation, Scale);
 
     [SerializableField(FieldTypes.String)]
     public string GUID { get; internal set; } = string.Empty;
@@ -106,23 +107,6 @@ public abstract class LevelEntity : BinaryObject
     }
 
     public int RealDepth => Layer * LAYER_RANGE + RelativeDepth;
-
-    private Vector4 _color = Vector4.One;
-    [SerializableField(FieldTypes.Color), EditableField(EditGroup = "G_Appearance", TooltipKey = "TT_Color")]
-    public Vector4 Color
-    {
-        get { return _color; }
-        set
-        {
-            if (_color != value)
-            {
-                OnPropertyChanging(nameof(Color));
-                _color = value;
-                OnPropertyChanged(nameof(Color));
-                RaiseRenderingDirty();
-            }
-        }
-    }
 
     private TypeReference _refPlacement = TypeReference.None;
     [SerializableField(FieldTypes.TypeReference)]
@@ -235,13 +219,27 @@ public abstract class LevelEntity : BinaryObject
         Scale = new Vector2(_startScale.X * scaleFactor.X, _startScale.Y * scaleFactor.Y);
     }
 
+    public void ResetRotationAndScale()
+    {
+        Rotation = 0.0f;
+        Scale = Vector2.One;
+    }
+
     public abstract Matrix3x3 TransformAt(int index);
     public abstract void GetLocalNodeAt(IWorkspace workspace, int index, out IReadOnlyList<LocalRenderInfo> locals);
     public abstract void OnAddSelectables(BoundingVolumeHierarchy<ISelectableItem> bvh, int index, Rectf bound);
     public abstract void OnRemoveSelectables(BoundingVolumeHierarchy<ISelectableItem> bvh);
     public abstract void OnUpdateSelectables(BoundingVolumeHierarchy<ISelectableItem> bvh, int index);
-    
-    public virtual int GetIndexByNodeId(int nodeId) => 0;
+
+    public virtual void GetBackgroundNodes(IWorkspace workspace, out IReadOnlyList<LocalRenderInfo> locals)
+    {
+        locals = Array.Empty<LocalRenderInfo>();
+    }
+    public virtual void GetForegroundNodes(IWorkspace workspace, out IReadOnlyList<LocalRenderInfo> locals)
+    {
+        locals = Array.Empty<LocalRenderInfo>();
+    }
+    public virtual int GetIndexByNodeId(int nodeId) => -1;
 
     Vector2Int _startWorldPos;
     Vector2 _startScale;

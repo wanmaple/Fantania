@@ -129,7 +129,8 @@ public class LevelInputs : IDisposable
     {
         if (e.PropertyName == nameof(EditorModule.CurrentPlacementMode))
         {
-            ChangeModeDependsOnPlacementMode(_inputTracker.CreateInputEventArgs());
+            if (_inArea)
+                ChangeModeDependsOnPlacementMode(_inputTracker.CreateInputEventArgs());
             if (_context.Workspace.EditorModule.CurrentPlacementMode != EntityPlacementModes.Select)
                 _context.Workspace.EditorModule.CancelSelection();
         }

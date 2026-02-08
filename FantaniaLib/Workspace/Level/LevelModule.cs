@@ -85,6 +85,7 @@ public class LevelModule : WorkspaceModule
     {
         if (_curLv != lv)
         {
+            _workspace.EditorModule.SelectedObjects.Clear();
             OnPropertyChanging(nameof(CurrentLevel));
             if (_curLv != null)
             {

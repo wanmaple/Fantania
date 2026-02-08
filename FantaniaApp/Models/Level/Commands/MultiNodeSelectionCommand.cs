@@ -18,7 +18,7 @@ public class MultiNodeSelectionCommand : ICanvasCommand
     public void Execute(LevelSpaceContext context, ConfigurableRenderPipeline pipeline)
     {
         var bvh = context.SelectableHierarchy;
-        bvh.PointTest(Point, _cache);
+        bvh.PointTest(Point, _cache, s => s is LevelEntityNode);
         // 这里和普通选中逻辑相同
         var target = _cache.FirstOrDefault(r => !context.Workspace.EditorModule.SelectedObjects.Contains(r));
         if (target == null)

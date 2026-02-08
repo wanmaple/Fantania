@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using Avalonia.Input;
 using Fantania.Localization;
@@ -90,6 +91,37 @@ public class ViewEditorMode : ILevelEditorMode
             }
             ResetSelectionStates(context);
             e.Handled = true;
+        }
+        else if (e.MouseState.IsRightButtonJustReleased)
+        {
+            var selections = context.Workspace.EditorModule.SelectedObjects;
+            Vector2 worldPos = context.CanvasToWorld(e.MouseState.Position.ToVector2());
+            if (selections.Any(s => s.BoundingBox.Contains(worldPos)))
+            {
+                var groups = SelectionHelper.GroupSelections(selections);
+                foreach (var entity in groups.FullySelectedEntities)
+                {
+                    entity.ResetRotationAndScale();
+                }
+                foreach (var (container, nodes) in groups.PartiallySelectedNodes)
+                {
+                    foreach (var node in nodes)
+                    {
+                        if (node.Rotation != 0.0f || node.Scale != Vector2.One)
+                        {
+                            var snapshotBefore = node.CreateSnapshot();
+                            node.ResetRotationAndScale();
+                            var op = new ModifyEntityNodeOperation(context.Workspace, node, snapshotBefore, node.CreateSnapshot());
+                            context.Workspace.UndoStack.AddOperation(op);
+                        }
+                    }
+                }
+                foreach (var sel in groups.OtherSelectables)
+                {
+                    sel.ResetRotationAndScale();
+                }
+                context.Workspace.EditorModule.Notify();
+            }
         }
     }
 

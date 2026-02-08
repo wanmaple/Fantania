@@ -20,7 +20,7 @@ public class SingleNodeEntity : LevelEntity, ISelectableItem
     public override void GetLocalNodeAt(IWorkspace workspace, int index, out IReadOnlyList<LocalRenderInfo> locals)
     {
         UserPlacement placement = GetReferencedPlacement(workspace);
-        locals = placement.GetLocalNodeAt(index);
+        locals = placement.GetLocalNodeAt(index, 1);
     }
 
     public override void OnAddSelectables(BoundingVolumeHierarchy<ISelectableItem> bvh, int index, Rectf bound)

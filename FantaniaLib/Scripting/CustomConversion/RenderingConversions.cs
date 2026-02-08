@@ -130,7 +130,6 @@ public static class RenderingConversions
             float rot = v.Table.Get("rotation").GetFloatOrDefault(0.0f);
             Vector2 scale = v.Table.Get("scale").GetObjectOrDefault(Vector2.One);
             Vector4 color = v.Table.Get("color").GetObjectOrDefault(Vector4.One);
-            ColorOperators colorOp = v.Table.Get("colorOp").GetEnumOrDefault(ColorOperators.Multiple);
             string matKey = v.Table.Get("materialKey").GetStringOrDefault(string.Empty);
             DesiredUniformMap uniforms = v.Table.Get("uniforms").GetObjectOrDefault(new DesiredUniformMap());
             IRenderableSizer sizer = v.Table.Get("sizer").GetObjectOrDefault(FallbackSizer.Fallback);
@@ -142,7 +141,6 @@ public static class RenderingConversions
                 Rotation = rot,
                 Scale = scale,
                 Color = color,
-                ColorOperator = colorOp,
                 MaterialKey = matKey,
                 Uniforms = uniforms,
                 Sizer = sizer,

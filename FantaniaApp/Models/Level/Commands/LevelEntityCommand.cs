@@ -12,9 +12,15 @@ public abstract class LevelEntityCommand : ICanvasCommand
 
     protected void AddEntity(LevelEntity entity, LevelSpaceContext context, ConfigurableRenderPipeline pipeline)
     {
-        List<LocalRenderInfo> allLocals = new List<LocalRenderInfo>();
-        List<IRenderable> allRenderables = new List<IRenderable>();
+        List<LocalRenderInfo> nonNodeLocals = new List<LocalRenderInfo>();
+        List<IRenderable> nonNodeRenderables = new List<IRenderable>();
+        List<LocalRenderInfo> nodeLocals = new List<LocalRenderInfo>();
+        List<IRenderable> nodeRenderables = new List<IRenderable>();
         int localOrderStart = 0;
+        entity.GetBackgroundNodes(context.Workspace, out var bgLocals);
+        nonNodeLocals.AddRange(bgLocals);
+        nonNodeRenderables.AddRange(BuildRenderables(entity, bgLocals, localOrderStart, context.Workspace, pipeline, out var _));
+        localOrderStart += bgLocals.Count;
         for (int i = 0; i < entity.NodeCount; i++)
         {
             entity.GetLocalNodeAt(context.Workspace, i, out var locals);
@@ -26,17 +32,27 @@ public abstract class LevelEntityCommand : ICanvasCommand
             }
             var renderables = BuildRenderables(entity, locals, localOrderStart, context.Workspace, pipeline, out var localBound);
             entity.OnAddSelectables(context.SelectableHierarchy, i, localBound);
-            foreach (var renderable in renderables)
-            {
-                context.RenderableHierarchy.AddItem(renderable);
-            }
-            allLocals.AddRange(locals);
-            allRenderables.AddRange(renderables);
+            nodeLocals.AddRange(locals);
+            nodeRenderables.AddRange(renderables);
             localOrderStart += locals.Count;
         }
-        context.EntityManager.Register(entity, allRenderables, new EntityLocalInfo
+        entity.GetForegroundNodes(context.Workspace, out var fgLocals);
+        nonNodeLocals.AddRange(fgLocals);
+        nonNodeRenderables.AddRange(BuildRenderables(entity, fgLocals, localOrderStart, context.Workspace, pipeline, out var _));
+        foreach (var renderable in nodeRenderables)
         {
-            Locals = allLocals,
+            context.RenderableHierarchy.AddItem(renderable);
+        }
+        foreach (var renderable in nonNodeRenderables)
+        {
+            context.RenderableHierarchy.AddItem(renderable);
+        }
+        context.EntityManager.Register(entity, new EntityRenderInfo
+        {
+            NodeLocals = nodeLocals,
+            NodeRenderables = nodeRenderables,
+            NonNodeLocals = nonNodeLocals,
+            NonNodeRenderables = nonNodeRenderables,
             OnChange = null,
         });
     }
@@ -44,8 +60,11 @@ public abstract class LevelEntityCommand : ICanvasCommand
     protected void RemoveEntity(LevelEntity entity, LevelSpaceContext context)
     {
         entity.OnRemoveSelectables(context.SelectableHierarchy);
-        var renderables = context.EntityManager.GetRenderables(entity);
-        foreach (var renderable in renderables)
+        foreach (var renderable in context.EntityManager.GetNodeRenderables(entity))
+        {
+            context.RenderableHierarchy.RemoveItem(renderable);
+        }
+        foreach (var renderable in context.EntityManager.GetNonNodeRenderables(entity))
         {
             context.RenderableHierarchy.RemoveItem(renderable);
         }
@@ -62,23 +81,44 @@ public abstract class LevelEntityCommand : ICanvasCommand
         }
         else
         {
-            var renderables = context.EntityManager.GetRenderables(entity);
+            foreach (var renderable in context.EntityManager.GetNonNodeRenderables(entity))
+            {
+                context.RenderableHierarchy.RemoveItem(renderable);
+            }
+            List<LocalRenderInfo> nonNodeLocals = new List<LocalRenderInfo>();
+            List<IRenderable> nonNodeRenderables = new List<IRenderable>();
+            int localOrderStart = 0;
+            entity.GetBackgroundNodes(context.Workspace, out var bgLocals);
+            nonNodeLocals.AddRange(bgLocals);
+            nonNodeRenderables.AddRange(BuildRenderables(entity, bgLocals, localOrderStart, context.Workspace, pipeline, out var _));
+            localOrderStart += bgLocals.Count;
+            var nodeRenderables = context.EntityManager.GetNodeRenderables(entity);
             var localInfo = context.EntityManager.GetLocalInfo(entity);
             for (int i = 0; i < entity.NodeCount; i++)
             {
                 entity.OnUpdateSelectables(context.SelectableHierarchy, i);
             }
-            for (int i = 0; i < renderables.Count; i++)
+            for (int i = 0; i < nodeRenderables.Count; i++)
             {
-                var renderable = renderables[i];
-                int currentIndex = entity.GetIndexByNodeId(localInfo.Locals[i].NodeId);
+                var renderable = nodeRenderables[i];
+                int currentIndex = entity.GetIndexByNodeId(localInfo.NodeLocals[i].NodeId);
                 Matrix3x3 worldMat = entity.TransformAt(currentIndex);
-                renderable.Transform = worldMat * localInfo.Locals[i].LocalTransform;
+                renderable.Transform = worldMat * localInfo.NodeLocals[i].LocalTransform;
                 renderable.Depth = entity.RealDepth;
                 renderable.EntityOrder = entity.Order;
-                renderable.LocalOrder = i;
+                renderable.LocalOrder = localOrderStart + i;
                 context.RenderableHierarchy.UpdateItem(renderable);
             }
+            localOrderStart += nodeRenderables.Count;
+            entity.GetForegroundNodes(context.Workspace, out var fgLocals);
+            nonNodeLocals.AddRange(fgLocals);
+            nonNodeRenderables.AddRange(BuildRenderables(entity, fgLocals, localOrderStart, context.Workspace, pipeline, out var _));
+            foreach (var renderable in nonNodeRenderables)
+            {
+                context.RenderableHierarchy.AddItem(renderable);
+            }
+            localInfo.NonNodeLocals = nonNodeLocals;
+            localInfo.NonNodeRenderables = nonNodeRenderables;
         }
     }
 
@@ -100,16 +140,11 @@ public abstract class LevelEntityCommand : ICanvasCommand
         {
             var local = locals[i];
             int currentIndex = entity.GetIndexByNodeId(local.NodeId);
-            Matrix3x3 worldMat = entity.TransformAt(currentIndex);
+            Matrix3x3 worldMat = currentIndex >= 0 ? entity.TransformAt(currentIndex) : entity.SelfTransform;
             RenderInfo info = new RenderInfo
             {
                 Stage = local.Stage,
-                Color = local.ColorOperator switch
-                {
-                    ColorOperators.Independent => local.Color,
-                    ColorOperators.Multiple => local.Color * entity.Color,
-                    _ => local.Color,
-                },
+                Color = local.Color,
                 Depth = entity.RealDepth,
                 EntityOrder = entity.Order,
                 LocalOrder = i + localOrderStart,

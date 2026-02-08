@@ -10,7 +10,6 @@ public class MultiNodesEntity : LevelEntity, IMultiNodeContainer
     public override int NodeCount => AllNodes.Count;
     public IReadOnlyList<LevelEntityNode> AllNodes => _nodes;
     public int Depth => RealDepth;
-    public Matrix3x3 SelfTransform => MathHelper.BuildTransform(Vector2.Zero, Vector2.Zero, Position.ToVector2(), Rotation, Scale);
 
     private EntityNodeCollection _nodes = new EntityNodeCollection();
     [SerializableField(FieldTypes.Custom)]
@@ -63,7 +62,6 @@ public class MultiNodesEntity : LevelEntity, IMultiNodeContainer
                 NodeAdded?.Invoke(node);
             }
         }
-        GetReferencedPlacement(workspace).MarkFieldDirty();
         PlacementDirty = true;
         RaiseRenderingDirty();
     }
@@ -102,7 +100,6 @@ public class MultiNodesEntity : LevelEntity, IMultiNodeContainer
             var snapshotBefore = new EntityNodesSnapshot(_nodes);
             _nodes.Add(node);
             NodeAdded?.Invoke(node);
-            GetReferencedPlacement(workspace).MarkFieldDirty();
             PlacementDirty = true;
             RaiseRenderingDirty();
             var snapshotAfter = new EntityNodesSnapshot(_nodes);
@@ -122,7 +119,6 @@ public class MultiNodesEntity : LevelEntity, IMultiNodeContainer
                 _toRm.Add(node);
                 NodeRemoved?.Invoke(node);
             }
-            GetReferencedPlacement(workspace).MarkFieldDirty();
             PlacementDirty = true;
             RaiseRenderingDirty();
             var snapshotAfter = new EntityNodesSnapshot(_nodes.Except(snapshot.Nodes).ToArray());
@@ -157,7 +153,19 @@ public class MultiNodesEntity : LevelEntity, IMultiNodeContainer
     public override void GetLocalNodeAt(IWorkspace workspace, int index, out IReadOnlyList<LocalRenderInfo> locals)
     {
         UserPlacement placement = GetReferencedPlacement(workspace);
-        locals = placement.GetLocalNodeAt(index);
+        locals = placement.GetLocalNodeAt(index, NodeCount);
+    }
+
+    public override void GetBackgroundNodes(IWorkspace workspace, out IReadOnlyList<LocalRenderInfo> locals)
+    {
+        UserPlacement placement = GetReferencedPlacement(workspace);
+        locals = placement.GetBackgroundNodes(_nodes);
+    }
+
+    public override void GetForegroundNodes(IWorkspace workspace, out IReadOnlyList<LocalRenderInfo> locals)
+    {
+        UserPlacement placement = GetReferencedPlacement(workspace);
+        locals = placement.GetForegroundNodes(_nodes);
     }
 
     public override void OnAddSelectables(BoundingVolumeHierarchy<ISelectableItem> bvh, int index, Rectf bound)

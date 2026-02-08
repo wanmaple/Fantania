@@ -1,8 +1,11 @@
 namespace FantaniaLib;
 
-public struct EntityLocalInfo
+public class EntityRenderInfo
 {
-    public IReadOnlyList<LocalRenderInfo> Locals;
+    public required IReadOnlyList<LocalRenderInfo> NodeLocals;
+    public required IReadOnlyList<IRenderable> NodeRenderables;
+    public required IReadOnlyList<LocalRenderInfo> NonNodeLocals;
+    public required IReadOnlyList<IRenderable> NonNodeRenderables;
     public Action<LevelEntity>? OnChange;
 }
 
@@ -10,17 +13,22 @@ public class EntityRenderableManager
 {
     public bool HasEntity(LevelEntity entity)
     {
-        return _entity2renderables.ContainsKey(entity);
+        return _entity2renders.ContainsKey(entity);
     }
 
-    public IReadOnlyList<IRenderable> GetRenderables(LevelEntity entity)
+    public IReadOnlyList<IRenderable> GetNodeRenderables(LevelEntity entity)
     {
-        return _entity2renderables[entity];
+        return _entity2renders[entity].NodeRenderables;
     }
 
-    public EntityLocalInfo GetLocalInfo(LevelEntity entity)
+    public IReadOnlyList<IRenderable> GetNonNodeRenderables(LevelEntity entity)
     {
-        return _entity2locals[entity];
+        return _entity2renders[entity].NonNodeRenderables;
+    }
+
+    public EntityRenderInfo GetLocalInfo(LevelEntity entity)
+    {
+        return _entity2renders[entity];
     }
 
     public LevelEntity GetEntity(IRenderable renderable)
@@ -28,13 +36,16 @@ public class EntityRenderableManager
         return _renderable2entity[renderable];
     }
 
-    public void Register(LevelEntity entity, IReadOnlyList<IRenderable> renderables, EntityLocalInfo localInfo)
+    public void Register(LevelEntity entity, EntityRenderInfo localInfo)
     {
-        _entity2renderables.Add(entity, renderables);
-        _entity2locals.Add(entity, localInfo);
+        _entity2renders.Add(entity, localInfo);
         if (localInfo.OnChange != null)
             entity.RenderingDirty += localInfo.OnChange;
-        foreach (IRenderable renderable in renderables)
+        foreach (IRenderable renderable in localInfo.NodeRenderables)
+        {
+            _renderable2entity.Add(renderable, entity);
+        }
+        foreach (IRenderable renderable in localInfo.NonNodeRenderables)
         {
             _renderable2entity.Add(renderable, entity);
         }
@@ -42,18 +53,20 @@ public class EntityRenderableManager
 
     public void Unregister(LevelEntity entity)
     {
-        foreach (IRenderable renderable in _entity2renderables[entity])
+        var localInfo = _entity2renders[entity];
+        foreach (IRenderable renderable in localInfo.NodeRenderables)
         {
             _renderable2entity.Remove(renderable);
         }
-        _entity2renderables.Remove(entity);
-        var localInfo = _entity2locals[entity];
+        foreach (IRenderable renderable in localInfo.NonNodeRenderables)
+        {
+            _renderable2entity.Remove(renderable);
+        }
         if (localInfo.OnChange != null)
             entity.RenderingDirty -= localInfo.OnChange;
-        _entity2locals.Remove(entity);
+        _entity2renders.Remove(entity);
     }
 
-    Dictionary<LevelEntity, IReadOnlyList<IRenderable>> _entity2renderables = new Dictionary<LevelEntity, IReadOnlyList<IRenderable>>(64);
     Dictionary<IRenderable, LevelEntity> _renderable2entity = new Dictionary<IRenderable, LevelEntity>(128);
-    Dictionary<LevelEntity, EntityLocalInfo> _entity2locals = new Dictionary<LevelEntity, EntityLocalInfo>(64);
+    Dictionary<LevelEntity, EntityRenderInfo> _entity2renders = new Dictionary<LevelEntity, EntityRenderInfo>(64);
 }
