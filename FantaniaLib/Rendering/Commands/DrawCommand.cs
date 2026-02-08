@@ -22,6 +22,8 @@ public class DrawCommand : IRenderCommand
             {
                 pipeline.Device.SyncVertexStream(stream);
                 pipeline.Device.Draw(stream, Material);
+                ++pipeline.Statistics.DrawCalls;
+                pipeline.Statistics.Triangles += stream.IndiceCount / 3;
                 stream.Reset();
                 stream.TryAppend(mesh);
             }
@@ -30,6 +32,8 @@ public class DrawCommand : IRenderCommand
         {
             pipeline.Device.SyncVertexStream(stream);
             pipeline.Device.Draw(stream, Material);
+            ++pipeline.Statistics.DrawCalls;
+            pipeline.Statistics.Triangles += stream.IndiceCount / 3;
         }
         pipeline.VertexStreamCache.Recycle(stream);
     }

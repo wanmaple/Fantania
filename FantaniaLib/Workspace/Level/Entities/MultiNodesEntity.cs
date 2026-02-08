@@ -146,8 +146,8 @@ public class MultiNodesEntity : LevelEntity, IMultiNodeContainer
 
     public override int GetIndexByNodeId(int nodeId)
     {
-        var node = _nodes.First(n => n.NodeId == nodeId);
-        return node.LocalOrder;
+        var node = _nodes.FirstOrDefault(n => n.NodeId == nodeId);
+        return node == null ? -1 : node.LocalOrder;
     }
 
     public override void GetLocalNodeAt(IWorkspace workspace, int index, out IReadOnlyList<LocalRenderInfo> locals)

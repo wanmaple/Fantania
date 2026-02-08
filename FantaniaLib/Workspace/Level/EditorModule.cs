@@ -94,6 +94,34 @@ public class EditorModule : WorkspaceModule
         }
     }
 
+    private int _dcs = 0;
+    public int DrawCalls
+    {
+        get { return _dcs; }
+        set
+        {
+            if (_dcs != value)
+            {
+                _dcs = value;
+                OnPropertyChanged(nameof(DrawCalls));
+            }
+        }
+    }
+
+    private int _tris = 0;
+    public int Triangles
+    {
+        get { return _tris; }
+        set
+        {
+            if (_tris != value)
+            {
+                _tris = value;
+                OnPropertyChanged(nameof(Triangles));
+            }
+        }
+    }
+
     public EditorModule(IWorkspace workspace) : base(workspace)
     {}
 

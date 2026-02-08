@@ -1,0 +1,50 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             xmlns:lib="using:FantaniaLib"
+             xmlns:v="using:Fantania.Views"
+             xmlns:vm="using:Fantania.ViewModels"
+             xmlns:lang="using:Fantania.Localization"
+             x:DataType="vm:LevelViewModel"
+             x:Class="Fantania.Views.LevelPanel"
+             x:Name="Root">
+  <Design.DataContext>
+    <vm:LevelViewModel />
+  </Design.DataContext>
+  <UserControl.Resources>
+    <v:Level2ForeColorConverter x:Key="Cvt_Lv2ForeColor" />
+    <v:IsNotCurrentLevelConverter x:Key="Cvt_IsNotCurLv" />
+  </UserControl.Resources>
+  <Grid RowDefinitions="auto,*">
+    <Button Grid.Row="0" Classes="p" Content="{x:Static lang:Resources.BT_CreateLevel}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="5" Command="{Binding CreateNewLevelCommand}" />
+    <ItemsControl Grid.Row="1" ItemsSource="{Binding Workspace.LevelModule.LevelDescriptions}" Margin="5">
+      <ItemsControl.ItemTemplate>
+        <DataTemplate>
+          <Grid ColumnDefinitions="*,auto" Height="28">
+            <TextBlock Grid.Column="0" Classes="p" Text="{Binding Name}" VerticalAlignment="Center" PointerPressed="TbLevel_PointerPressed">
+              <TextBlock.Foreground>
+                <MultiBinding Converter="{StaticResource Cvt_Lv2ForeColor}">
+                  <Binding Path="." />
+                  <Binding Path="#Root.DataContext.Workspace.LevelModule.CurrentLevel" />
+                </MultiBinding>
+              </TextBlock.Foreground>
+            </TextBlock>
+            <Button Grid.Column="1" Width="24" Height="24" VerticalAlignment="Center" Click="BtnSwitchLevel_Click">
+              <Button.IsVisible>
+                <MultiBinding Converter="{StaticResource Cvt_IsNotCurLv}">
+                  <Binding Path="." />
+                  <Binding Path="#Root.DataContext.Workspace.LevelModule.CurrentLevel" />
+                </MultiBinding>
+              </Button.IsVisible>
+              <Button.Content>
+                <Image Width="16" Height="16" Source="avares://Fantania/Assets/icons/switch.png" />
+              </Button.Content>
+            </Button>
+          </Grid>
+        </DataTemplate>
+      </ItemsControl.ItemTemplate>
+    </ItemsControl>
+  </Grid>
+</UserControl>

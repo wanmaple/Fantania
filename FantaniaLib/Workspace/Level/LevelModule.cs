@@ -30,6 +30,7 @@ public class LevelModule : WorkspaceModule
         {
             Name = lv.Name,
         });
+        _lvDescs.StableSort((a, b) => string.Compare(a.Name, b.Name, StringComparison.Ordinal));
         _syncer = new BinaryDataSyncer<LevelEntity>(lv.MutableEntities, SerializationRule.Default);
         await _syncer.SyncToFile(lvPath);
         SetCurrentLevel(lv);
@@ -43,6 +44,25 @@ public class LevelModule : WorkspaceModule
         _syncer = new BinaryDataSyncer<LevelEntity>(lv.MutableEntities, SerializationRule.Default);
         await _syncer.SyncFromFile(lvPath);
         SetCurrentLevel(lv);
+    }
+
+    public async Task DeleteLevel(string lvName)
+    {
+        await Task.Run(() =>
+        {
+            var desc = _lvDescs.FirstOrDefault(lv => lv.Name == lvName);
+            if (desc != null)
+            {
+                string path = GetLevelFilePath(desc.Name);
+                File.Delete(path);
+                _lvDescs.Remove(desc);
+                if (_curLv != null && _curLv.Name == desc.Name)
+                {
+                    _syncer = null;
+                    SetCurrentLevel(null!);
+                }
+            }
+        });
     }
 
     public void DeleteAllLevels()
@@ -78,6 +98,7 @@ public class LevelModule : WorkspaceModule
                     Name = name,
                 });
             }
+            _lvDescs.StableSort((a, b) => string.Compare(a.Name, b.Name, StringComparison.Ordinal));
         }
     }
 

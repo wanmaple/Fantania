@@ -289,4 +289,16 @@
     <value>节点数无法被删除至最小值以下。</value>
     <comment/>
   </data>
+  <data name="BT_CurrentLevel" xml:space="preserve">
+    <value>当前关卡: {0}</value>
+    <comment/>
+  </data>
+  <data name="WARN_ConfirmSaveWorkspaceSwitch" xml:space="preserve">
+    <value>检测到当前工作区有未保存的修改，是否要先保存再切换关卡？</value>
+    <comment/>
+  </data>
+  <data name="WARN_ConfirmDeleteLevel" xml:space="preserve">
+    <value>你确定要删除关卡'{0}'吗？此操作不可逆，请慎重选择！</value>
+    <comment/>
+  </data>
 </root>

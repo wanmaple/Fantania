@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.Input;
 using Fantania.Localization;
+using Fantania.Models;
 using Fantania.Views;
 using FantaniaLib;
 
@@ -15,6 +16,8 @@ public partial class LevelViewModel : ViewModelBase
 
     public IReadOnlyList<RadioToggleInformation> PlacementModesDefinitions => _groupPlaceModes;
     public IReadOnlyList<RadioToggleInformation> TransformModesDefinitions => _groupTransformModes;
+
+    public PopupStates PopupStates => _popupStates;
 
     public LevelViewModel(Workspace workspace)
     {
@@ -112,8 +115,21 @@ public partial class LevelViewModel : ViewModelBase
         }
     }
 
+    [RelayCommand]
+    public void ToggleLevelPopup()
+    {
+        PopupStates.LevelPopupIsOpen = !PopupStates.LevelPopupIsOpen;
+    }
+
+    [RelayCommand]
+    public void ToggleRenderStatisticsPopup()
+    {
+        PopupStates.RenderStatisticsPopupIsOpen = !PopupStates.RenderStatisticsPopupIsOpen;
+    }
+
     Workspace _workspace;
     List<RadioToggleInformation> _groupPlaceModes = new List<RadioToggleInformation>(3);
     List<RadioToggleInformation> _groupTransformModes = new List<RadioToggleInformation>(4);
     ICommand? _placeModeCmd, _transModeCmd;
+    PopupStates _popupStates = new PopupStates();
 }

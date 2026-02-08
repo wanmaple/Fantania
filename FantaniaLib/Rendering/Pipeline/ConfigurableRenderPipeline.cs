@@ -15,6 +15,12 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
         }
     }
 
+    public class RenderStatistics
+    {
+        public int DrawCalls { get; set; }
+        public int Triangles { get; set; }
+    }
+
     public const string COLOR_BUFFER = "Color";
 
     public IRenderDevice Device => _device;
@@ -27,6 +33,8 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
 
     private CommandBuffer CompletedBuffer => _cmdBuffers[_completeBufferIndex];
     private CommandBuffer WorkingBuffer => _cmdBuffers[(_completeBufferIndex + 1) % 2];
+
+    public RenderStatistics Statistics { get; } = new RenderStatistics();
 
     public ConfigurableRenderPipeline(IRenderDevice device)
     {
@@ -186,6 +194,12 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
     public void Tick()
     {
         _mgrTextures.Tick();
+    }
+
+    public void ResetStatistics()
+    {
+        Statistics.DrawCalls = 0;
+        Statistics.Triangles = 0;
     }
 
     public void Dispose()

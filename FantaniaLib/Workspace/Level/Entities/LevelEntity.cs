@@ -146,6 +146,8 @@ public abstract class LevelEntity : BinaryObject
         LevelEntity? entity;
         if (placement.Template.PlacementType == PlacementTypes.MultiNodes)
             entity = new MultiNodesEntity();
+        else if (placement.Template.PlacementType == PlacementTypes.Tiled)
+            entity = new TiledEntity();
         else
             entity = new SingleNodeEntity();
         entity.PlacementReference = new TypeReference(placement.TypeName, placement.ID);

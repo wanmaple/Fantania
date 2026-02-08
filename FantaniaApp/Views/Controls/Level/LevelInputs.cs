@@ -23,9 +23,13 @@ public class LevelInputs : IDisposable
         _inputTracker.KeyUp += OnKeyUp;
         _context = new LevelEditorContext(canvas, config);
 
-        foreach (var entity in _context.Workspace.LevelModule.CurrentLevel!.Entities)
+        var currentLv = _context.Workspace.LevelModule.CurrentLevel;
+        if (currentLv != null)
         {
-            OnEntityAdded(entity);
+            foreach (var entity in currentLv.Entities)
+            {
+                OnEntityAdded(entity);
+            }
         }
         _context.Workspace.EditorModule.PropertyChanged += OnEditorModulePropertyChanged;
         _context.Workspace.LevelModule.EntityAdded += OnEntityAdded;
@@ -102,13 +106,15 @@ public class LevelInputs : IDisposable
 
     void OnKeyDown(object? sender, ControlInputEventArgs e)
     {
-        ChangeModeDependsOnPlacementMode(e);
+        if (_inArea)
+            ChangeModeDependsOnPlacementMode(e);
         _manager.CurrentMode.OnKeyDown(_context, e);
     }
 
     void OnKeyUp(object? sender, ControlInputEventArgs e)
     {
-        ChangeModeDependsOnPlacementMode(e);
+        if (_inArea)
+            ChangeModeDependsOnPlacementMode(e);
         _manager.CurrentMode.OnKeyUp(_context, e);
     }
 

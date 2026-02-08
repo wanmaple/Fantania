@@ -105,4 +105,9 @@ public static class IListExtensions
             k++;
         }
     }
+
+    public static void StableSort<T>(this IList<T> self, Comparison<T> comparison)
+    {
+        StableSort(self, 0, self.Count - 1, Comparer<T>.Create(comparison));
+    }
 }

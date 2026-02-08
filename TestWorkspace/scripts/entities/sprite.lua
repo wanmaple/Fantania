@@ -48,11 +48,6 @@ Sprite.editDefs = {
 
 Sprite.defaultLayer = 0
 Sprite.placementType = PlacementTypes.Single
-Sprite.nodeOptions = {
-    min = 0,
-    max = 0,
-    defaultOffset = { x = 100, y = 0, },
-}
 
 function Sprite:nodeAt(info, index, nodeCount)
     local ret = {}

@@ -11,6 +11,7 @@ EditControls = {
     FloatBox = "FantaniaLib.FloatBox",
     StringBox = "FantaniaLib.StringBox",
     Vector2Box = "FantaniaLib.Vector2Box",
+    Vector2IntBox = "FantaniaLib.Vector2IntBox",
     ColorPicker = "FantaniaLib.ColorPicker",
     TextureBox = "FantaniaLib.TextureBox",
 }

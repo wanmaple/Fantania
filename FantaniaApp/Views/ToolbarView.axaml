@@ -3,6 +3,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:lib="using:FantaniaLib"
+             xmlns:f="using:Fantania"
+             xmlns:v="using:Fantania.Views"
              xmlns:vm="using:Fantania.ViewModels"
              xmlns:lang="using:Fantania.Localization"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
@@ -11,10 +13,13 @@
   <Design.DataContext>
     <vm:LevelViewModel />
   </Design.DataContext>
-  <Grid RowDefinitions="auto,auto,*">
+  <UserControl.Resources>
+    <v:Level2NameConverter x:Key="Cvt_Lv2Name" />
+  </UserControl.Resources>
+  <Grid RowDefinitions="auto,auto,auto,*">
     <DockPanel Grid.Row="0" HorizontalAlignment="Stretch">
-      <TextBlock DockPanel.Dock="Left" Classes="p" IsVisible="{Binding Workspace.IsModified}" Text="*" Foreground="LightGreen" />
-      <TextBlock DockPanel.Dock="Left" Classes="p">
+      <TextBlock DockPanel.Dock="Left" Classes="m" IsVisible="{Binding Workspace.IsModified}" Text="*" Foreground="LightGreen" VerticalAlignment="Center" />
+      <TextBlock DockPanel.Dock="Left" Classes="m" VerticalAlignment="Center">
         <TextBlock.Text>
           <MultiBinding StringFormat="{}{0}: {1}">
             <Binding Source="{x:Static lang:Resources.H_CurrentWorkspace}" />
@@ -22,13 +27,37 @@
           </MultiBinding>
         </TextBlock.Text>
       </TextBlock>
-      <TextBlock DockPanel.Dock="Right" Classes="p" Text="{Binding Workspace.EditorModule.FPS, StringFormat={}FPS: {0}}" HorizontalAlignment="Right" VerticalAlignment="Center" />
+      <Button x:Name="btnRenderStatistics" DockPanel.Dock="Right" Classes="m" Command="{Binding ToggleRenderStatisticsPopupCommand}" Content="{Binding Workspace.EditorModule.FPS, StringFormat={}FPS: {0}}" HorizontalAlignment="Right" VerticalAlignment="Center" />
+      <Popup PlacementTarget="{Binding #btnRenderStatistics}" IsOpen="{Binding PopupStates.RenderStatisticsPopupIsOpen}" Placement="BottomEdgeAlignedRight">
+        <Border Classes="thin s1" Background="{x:Static f:ThemeHelper.BackgroundBrush}">
+          <ScrollViewer MaxHeight="400">
+            <v:RenderStatisticsPanel />
+          </ScrollViewer>
+        </Border>
+      </Popup>
     </DockPanel>
     <StackPanel Grid.Row="1" Orientation="Horizontal">
       <lib:ToggleButtonGroup ItemsSource="{Binding PlacementModesDefinitions}" SelectedValue="{Binding Workspace.EditorModule.CurrentPlacementMode}" />
       <Separator Classes="toolbar" />
       <lib:ToggleButtonGroup ItemsSource="{Binding TransformModesDefinitions}" SelectedValue="{Binding Workspace.EditorModule.CurrentTransformMode}" />
     </StackPanel>
-    <TextBlock Grid.Row="2" Classes="p" Text="{Binding Workspace.EditorModule.MouseWorldPosition}" />
+    <StackPanel Grid.Row="2" Orientation="Horizontal">
+      <Button x:Name="btnLevels" Classes="m" Command="{Binding ToggleLevelPopupCommand}">
+        <Button.Content>
+          <MultiBinding Converter="{StaticResource Cvt_Lv2Name}">
+            <Binding Path="Workspace.LevelModule.CurrentLevel" />
+            <Binding Path="Workspace" />
+          </MultiBinding>
+        </Button.Content>
+      </Button>
+      <Popup PlacementTarget="{Binding #btnLevels}" IsOpen="{Binding PopupStates.LevelPopupIsOpen}" Placement="BottomEdgeAlignedLeft">
+        <Border Classes="thin s1" Background="{x:Static f:ThemeHelper.BackgroundBrush}">
+          <ScrollViewer MinWidth="200" MaxHeight="400">
+            <v:LevelPanel />
+          </ScrollViewer>
+        </Border>
+      </Popup>
+    </StackPanel>
+    <TextBlock Grid.Row="3" Classes="p" Text="{Binding Workspace.EditorModule.MouseWorldPosition}" />
   </Grid>
 </UserControl>

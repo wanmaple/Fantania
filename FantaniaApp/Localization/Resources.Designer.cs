@@ -85,6 +85,15 @@ namespace Fantania.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 当前关卡: {0}.
+        /// </summary>
+        public static string BT_CurrentLevel {
+            get {
+                return ResourceManager.GetString("BT_CurrentLevel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 创建关卡失败，详情：{0}.
         /// </summary>
         public static string ERR_CreateLevelFailure {
@@ -391,6 +400,15 @@ namespace Fantania.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 你确定要删除关卡&apos;{0}&apos;吗？此操作不可逆，请慎重选择！.
+        /// </summary>
+        public static string WARN_ConfirmDeleteLevel {
+            get {
+                return ResourceManager.GetString("WARN_ConfirmDeleteLevel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 检测到当前工作区有未保存的修改，你是否要先保存再继续？.
         /// </summary>
         public static string WARN_ConfirmSaveWorkspace {
@@ -405,6 +423,15 @@ namespace Fantania.Localization {
         public static string WARN_ConfirmSaveWorkspaceExit {
             get {
                 return ResourceManager.GetString("WARN_ConfirmSaveWorkspaceExit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 检测到当前工作区有未保存的修改，是否要先保存再切换关卡？.
+        /// </summary>
+        public static string WARN_ConfirmSaveWorkspaceSwitch {
+            get {
+                return ResourceManager.GetString("WARN_ConfirmSaveWorkspaceSwitch", resourceCulture);
             }
         }
         

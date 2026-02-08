@@ -103,10 +103,13 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
                 var renderables = _context!.CollectRenderables();
                 pipeline.ReceiveRenderables(renderables);
             }
-            device.ClearColor("#FF000000".ToVector4());
+            device.ClearColor("#000000".ToVector4());
             device.ClearBufferBits(BufferBits.Color | BufferBits.Depth);
             device.Viewport(0, 0, fbColor.Description.Width, fbColor.Description.Height);
+            pipeline.ResetStatistics();
             pipeline.ExecuteCompletedBuffer();
+            Workspace!.EditorModule.DrawCalls = pipeline.Statistics.DrawCalls;
+            Workspace.EditorModule.Triangles = pipeline.Statistics.Triangles;
         }
         device.SetRenderTarget(finalFbo);
         if (device.IsFrameBufferReady())

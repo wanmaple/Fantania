@@ -1,0 +1,21 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             xmlns:lib="using:FantaniaLib"
+             xmlns:v="using:Fantania.Views"
+             xmlns:vm="using:Fantania.ViewModels"
+             xmlns:lang="using:Fantania.Localization"
+             x:DataType="vm:LevelViewModel"
+             x:Class="Fantania.Views.RenderStatisticsPanel">
+  <Design.DataContext>
+    <vm:LevelViewModel />
+  </Design.DataContext>
+  <Grid RowDefinitions="*,auto" ColumnDefinitions="*,auto" Margin="5">
+    <TextBlock Grid.Row="0" Grid.Column="0" Classes="p" Text="Draw Calls" MinWidth="100" />
+    <TextBlock Grid.Row="0" Grid.Column="1" Classes="p" Text="{Binding Workspace.EditorModule.DrawCalls, Converter={x:Static lib:NumberConverters.Integer2CompactString}}" HorizontalAlignment="Right" />
+    <TextBlock Grid.Row="1" Grid.Column="0" Classes="p" Text="Triangles" MinWidth="100" />
+    <TextBlock Grid.Row="1" Grid.Column="1" Classes="p" Text="{Binding Workspace.EditorModule.Triangles, Converter={x:Static lib:NumberConverters.Integer2CompactString}}" HorizontalAlignment="Right" />
+  </Grid>
+</UserControl>
