@@ -21,6 +21,8 @@ public class UserPlacementEditableField : ObservableObject, IEditableField
                     OnPropertyChanged(nameof(FieldValue));
                 }
             }
+            else if (FieldValidator != null)
+                FieldValidator.ValidateField(Workspace, value);
         }
     }
     public IFieldValidator? FieldValidator => _validator;

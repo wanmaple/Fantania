@@ -19,6 +19,7 @@ public struct Recti : IEquatable<Recti>
 
     public Vector2Int Position => new Vector2Int(X, Y);
     public Vector2Int Size => new Vector2Int(Width, Height);
+    public Vector2Int TopLeft => new Vector2Int(Left, Top);
     public Vector2Int TopRight => new Vector2Int(Right, Top);
     public Vector2Int BottomLeft => new Vector2Int(Left, Bottom);
     public Vector2Int BottomRight => new Vector2Int(Right, Bottom);

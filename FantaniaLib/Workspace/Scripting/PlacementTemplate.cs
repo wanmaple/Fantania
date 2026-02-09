@@ -11,6 +11,7 @@ public class PlacementTemplate : ScriptTemplate, IPlacement
     public PlacementTypes PlacementType => GetOrCallMember("placementType").GetEnumOrDefault(PlacementTypes.Single);
     public int DefaultLayer => GetOrCallMember("defaultLayer").GetIntegerOrDefault(0);
     public NodeOptions NodeOptions => GetOrCallMember("nodeOptions").GetObjectOrDefault(NodeOptions.Default);
+    public Vector2Int TileSize => GetOrCallMember("tileSize").GetObjectOrDefault(Vector2Int.Zero);
 
     public PlacementTemplate(ScriptEngine engine, DynValue obj) : base(engine, obj)
     {
@@ -65,6 +66,18 @@ public class PlacementTemplate : ScriptTemplate, IPlacement
         catch
         {
             return Array.Empty<LocalRenderInfo>();
+        }
+    }
+
+    public TileInfo GetTileInfo(UserPlacement placement, Vector2Int size, int x, int y)
+    {
+        try
+        {
+            return GetOrCallMember("tileAt", placement, size, x, y).GetObjectOrDefault(TileInfo.Default);
+        }
+        catch
+        {
+            return TileInfo.Default;
         }
     }
 

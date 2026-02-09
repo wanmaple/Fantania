@@ -7,7 +7,7 @@ public class FantaniaScriptLoader : ScriptLoaderBase
 {
     public FantaniaScriptLoader()
     {
-        foreach (var asset in AvaloniaHelper.EnumerateAssetFolder("avares://Fantania/Assets/scripts"))
+        foreach (var asset in AvaloniaHelper.EnumerateAssetFolder(EMBEDDED_SCRIPTS_FOLDER))
         {
             string assetPath = asset.ToString();
             if (assetPath.EndsWith(".lua"))

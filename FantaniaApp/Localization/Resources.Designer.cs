@@ -175,6 +175,24 @@ namespace Fantania.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Tile贴图切分尺寸不能为非正数。.
+        /// </summary>
+        public static string ERR_TileSplitMustBePositive {
+            get {
+                return ResourceManager.GetString("ERR_TileSplitMustBePositive", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tile贴图切分尺寸大小不能超过256。.
+        /// </summary>
+        public static string ERR_TileSplitTooLarge {
+            get {
+                return ResourceManager.GetString("ERR_TileSplitTooLarge", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 创建关卡.
         /// </summary>
         public static string H_CreateLevel {

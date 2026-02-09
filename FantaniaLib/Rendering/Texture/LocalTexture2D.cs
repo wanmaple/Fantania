@@ -64,6 +64,8 @@ public class LocalTexture2D : ITexture2D
                     desc.Height = Height;
                     desc.Format = Format;
                     desc.GenerateMipmap = true;
+                    desc.WrapS = TextureWraps.Repeat;
+                    desc.WrapT = TextureWraps.Repeat;
                     return true;
                 }
             }

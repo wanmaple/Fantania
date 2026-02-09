@@ -151,6 +151,7 @@ public abstract class LevelEntityCommand : ICanvasCommand
                 Transform = worldMat * local.LocalTransform,
                 Anchor = local.Anchor,
                 Size = local.LocalSize,
+                Tiling = local.Tiling,
                 MaterialKey = local.MaterialKey,
                 Uniforms = local.Uniforms,
             };

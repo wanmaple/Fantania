@@ -1,3 +1,4 @@
+using System.Numerics;
 using MoonSharp.Interpreter;
 
 namespace FantaniaLib;
@@ -32,6 +33,22 @@ public static class WorkspaceConversions
                 Minimum = min,
                 Maximum = max,
                 DefaultOffset = defOffset,
+            };
+        });
+        Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Table, typeof(TileInfo), v =>
+        {
+            string stage = v.Table.Get("stage").GetStringOrDefault(string.Empty);
+            string materialKey = v.Table.Get("material").GetStringOrDefault(string.Empty);
+            DesiredUniformMap uniforms = v.Table.Get("uniforms").GetObjectOrDefault(new DesiredUniformMap());
+            Vector2 uvOffset = v.Table.Get("uvOffset").GetObjectOrDefault(Vector2.Zero);
+            Vector2 uvSize = v.Table.Get("uvSize").GetObjectOrDefault(Vector2.One);
+            return new TileInfo
+            {
+                RenderStage = stage,
+                MaterialKey = materialKey,
+                Uniforms = uniforms,
+                UVOffset = uvOffset,
+                UVSize = uvSize,
             };
         });
         Script.GlobalOptions.CustomConverters.SetClrToScriptCustomConversion<UserPlacement>((env, v) =>

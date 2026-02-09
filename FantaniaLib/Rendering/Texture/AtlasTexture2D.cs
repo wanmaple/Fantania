@@ -67,6 +67,8 @@ public class AtlasTexture2D : ITexture2D
                     desc.Height = Height;
                     desc.Format = Format;
                     desc.GenerateMipmap = true;
+                    desc.WrapS = TextureWraps.ClampToEdge;
+                    desc.WrapT = TextureWraps.ClampToEdge;
                     return true;
                 }
             }

@@ -14,6 +14,7 @@ public class LocalRenderInfo
     public required DesiredUniformMap Uniforms { get; set; }
     public required IRenderableSizer Sizer { get; set; }
 
+    public Rectf Tiling { get; set; } = new Rectf(0.0f, 0.0f, 1.0f, 1.0f);
     public int NodeId { get; set; } = -1;  // 节点的唯一 ID，用于稳定追踪节点身份
     public Matrix3x3 LocalTransform { get; set; } = Matrix3x3.Identity;
     public Vector2 LocalSize { get; set; } = Vector2.Zero;

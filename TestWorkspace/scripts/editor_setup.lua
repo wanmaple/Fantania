@@ -5,9 +5,10 @@ local EditorSetup = {
 	zoomMax = 5.0,
 	-- Render Layer names, should be in range [-40, 39]
 	namedLayers = {
-		[0] = Default,
-		[39] = Background,
-		[-40] = Foreground,
+		[0] = "Default",
+		[39] = "Background",
+		[-40] = "Foreground",
+		[-10] = "Platformer",
 	},
 }
 

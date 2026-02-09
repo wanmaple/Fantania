@@ -58,6 +58,8 @@ public class UserPlacement : DatabaseObject, IPlacement
         var editableFields = new List<IEditableField>(defFields.Count);
         foreach (FieldInfo info in defFields)
         {
+            if (!_script.CanEditField(info.FieldName))
+                continue;
             string fieldName = info.FieldName;
             var editableField = new UserPlacementEditableField(workspace, this, fieldName);
             editableFields.Add(editableField);

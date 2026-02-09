@@ -19,6 +19,14 @@
     <v:Selections2CenterYConverter x:Key="Cvt_Sel2CtY" />
     <v:Selections2VisibleConverter x:Key="Cvt_Sel2V" />
   </UserControl.Resources>
+  <UserControl.KeyBindings>
+    <KeyBinding Command="{Binding PlacementModesDefinitions[0].Command}" CommandParameter="{x:Static lib:EntityPlacementModes.Select}" Gesture="D1" />
+    <KeyBinding Command="{Binding PlacementModesDefinitions[1].Command}" CommandParameter="{x:Static lib:EntityPlacementModes.Place}" Gesture="D2" />
+    <KeyBinding Command="{Binding TransformModesDefinitions[0].Command}" CommandParameter="{x:Static lib:TransformGizmoTypes.None}" Gesture="Q" />
+    <KeyBinding Command="{Binding TransformModesDefinitions[1].Command}" CommandParameter="{x:Static lib:TransformGizmoTypes.Translation}" Gesture="W" />
+    <KeyBinding Command="{Binding TransformModesDefinitions[2].Command}" CommandParameter="{x:Static lib:TransformGizmoTypes.Rotation}" Gesture="E" />
+    <KeyBinding Command="{Binding TransformModesDefinitions[3].Command}" CommandParameter="{x:Static lib:TransformGizmoTypes.Scale}" Gesture="R" />
+  </UserControl.KeyBindings>
   <Grid IsHitTestVisible="True" PointerMoved="Grid_PointerMoved">
     <v:LevelCanvas x:Name="lvCanvas" IsVisible="{Binding Workspace.LevelModule.CurrentLevel, Converter={x:Static ObjectConverters.IsNotNull}}" />
     <ItemsControl ItemsSource="{Binding Workspace.EditorModule.SelectedObjects}">

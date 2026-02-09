@@ -8,6 +8,7 @@ public class Level : IReadonlyLevel
 
     public string Name { get; private set; }
     public IReadOnlyList<LevelEntity> Entities => _entities;
+    public TiledEntityManager TiledEntityManager => _tileMgr;
 
     internal IList<LevelEntity> MutableEntities => _entities;
 
@@ -29,7 +30,7 @@ public class Level : IReadonlyLevel
         Name = name;
     }
 
-    public string NewGUID()
+    public string ObtainGUID()
     {
         string guid = string.Empty;
         do
@@ -41,11 +42,26 @@ public class Level : IReadonlyLevel
         return guid;
     }
 
+    public void ReleaseGUID(string guid)
+    {
+        _usedGUIDs.Remove(guid);
+    }
+
     public int NewOrder()
     {
         return _entities.Count > 0 ? _entities.Max(e => e.Order) + 1 : 0;
     }
 
+    internal void RefreshGUIDs()
+    {
+        _usedGUIDs.Clear();
+        foreach (var entity in _entities)
+        {
+            _usedGUIDs.Add(entity.GUID);
+        }
+    }
+
     ObservableCollection<LevelEntity> _entities = new ObservableCollection<LevelEntity>();
     HashSet<string> _usedGUIDs = new HashSet<string>();
+    TiledEntityManager _tileMgr = new TiledEntityManager();
 }

@@ -301,4 +301,12 @@
     <value>你确定要删除关卡'{0}'吗？此操作不可逆，请慎重选择！</value>
     <comment/>
   </data>
+  <data name="ERR_TileSplitMustBePositive" xml:space="preserve">
+    <value>Tile贴图切分尺寸不能为非正数。</value>
+    <comment/>
+  </data>
+  <data name="ERR_TileSplitTooLarge" xml:space="preserve">
+    <value>Tile贴图切分尺寸大小不能超过256。</value>
+    <comment/>
+  </data>
 </root>

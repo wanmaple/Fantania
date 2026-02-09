@@ -34,6 +34,12 @@ public class QuadRenderable : ObservableObject, IRenderable
     public QuadRenderable(RenderInfo info, RenderMaterial material)
     {
         _mesh = MeshBuilder.CreateStandardQuad(info.Size);
+        for (int i = 0; i < 4; i++)
+        {
+            VertexStandard vert = _mesh.GetVerticeAt<VertexStandard>(i);
+            vert.UV = info.Tiling.TopLeft + QUAD_VERTICES[i] * info.Tiling.Size;
+            _mesh.SetVerticeAt(i, vert);
+        }
         Stage = info.Stage;
         Depth = info.Depth;
         EntityOrder = info.EntityOrder;

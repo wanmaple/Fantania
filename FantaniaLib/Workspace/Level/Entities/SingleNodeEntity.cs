@@ -87,7 +87,7 @@ public class SingleNodeEntity : LevelEntity, ISelectableItem
 
     public override Matrix3x3 TransformAt(int index)
     {
-        return MathHelper.BuildTransform(Vector2.Zero, Vector2.Zero, Position.ToVector2(), Rotation, Scale);
+        return SelfTransform;
     }
 
     Rectf _aabb, _localBound;

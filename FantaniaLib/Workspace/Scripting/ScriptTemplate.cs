@@ -8,6 +8,7 @@ public class ScriptTemplate
     public class FieldExtraData
     {
         public DynValue DefaultValue { get; set; } = DynValue.Nil;
+        public bool CanEdit { get; set; } = false;
         public string EditGroup { get; set; } = string.Empty;
         public string Tooltip { get; set; } = string.Empty;
         public Type? EditControlType { get; set; } = null;
@@ -64,6 +65,7 @@ public class ScriptTemplate
                     DynValue tbVal = _engine.GetInstanceMember(editVal, fieldName);
                     if (!tbVal.IsNil())
                     {
+                        extra.CanEdit = true;
                         var groupVal = _engine.GetInstanceMember(tbVal, "group");
                         string group = groupVal.Type == DataType.String ? groupVal.String : string.Empty;
                         var tooltipVal = _engine.GetInstanceMember(tbVal, "tooltip");
@@ -79,6 +81,10 @@ public class ScriptTemplate
                         extra.EditControlType = ctrlType;
                         extra.EditParameter = param;
                         extra.EditValidatorType = validatorType;
+                    }
+                    else
+                    {
+                        extra.CanEdit = false;
                     }
                 }
                 _extraDataMap[fieldName] = extra;
@@ -131,6 +137,14 @@ public class ScriptTemplate
         editInfo.Tooltip = extra.Tooltip;
         editInfo.EditGroup = extra.EditGroup;
         editInfo.EditParameter = extra.EditParameter;
+    }
+
+    public bool CanEditField(string fieldName)
+    {
+        GetDefinedFields();
+        if (!_extraDataMap!.TryGetValue(fieldName, out FieldExtraData? extra))
+            return false;
+        return extra.CanEdit;
     }
 
     public Type? GetFieldValidatorType(string fieldName)

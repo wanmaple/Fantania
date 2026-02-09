@@ -205,6 +205,10 @@ public abstract class Workspace : SyncableObject, IWorkspace
 
     async Task WriteUserTemp()
     {
+        if (!Directory.Exists(GetAbsolutePath(GENERATED_FOLDER)))
+        {
+            Directory.CreateDirectory(GetAbsolutePath(GENERATED_FOLDER));
+        }
         string userTempPath = GetAbsolutePath(GENERATED_FOLDER, USER_TEMP_FILENAME);
         using (var fs = new FileStream(userTempPath, FileMode.Create, FileAccess.Write))
         {
