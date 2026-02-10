@@ -12,7 +12,7 @@ public class OpaquePipelineStage : IPipelineStage
 
     public void PreRender(IRenderContext context)
     {
-        // context.CommandBuffer.SetupState(_state);
+        context.CommandBuffer.SetupState(_state);
     }
 
     public void Render(IRenderContext context, IEnumerable<IRenderable> renderables)

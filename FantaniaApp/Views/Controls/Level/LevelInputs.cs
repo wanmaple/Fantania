@@ -39,6 +39,7 @@ public class LevelInputs : IDisposable
     void OnMouseEntered(object? sender, ControlInputEventArgs e)
     {
         ChangeModeDependsOnPlacementMode(e);
+        _context.Focus();
         _inArea = true;
     }
 

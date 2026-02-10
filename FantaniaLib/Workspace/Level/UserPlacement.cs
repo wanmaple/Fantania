@@ -13,7 +13,7 @@ public class UserPlacement : DatabaseObject, IPlacement
     public override string TypeName => _script.ClassName.MakeFirstCharacterUpper();
     public override string GroupName => string.Empty;
 
-    internal PlacementTemplate Template => _script;
+    public PlacementTemplate Template => _script;
 
     public UserPlacement(PlacementTemplate template, int id)
     : base(id)

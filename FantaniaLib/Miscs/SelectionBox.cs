@@ -21,6 +21,8 @@ public class SelectionBox : ObservableObject
                 OnPropertyChanged(nameof(Right));
                 OnPropertyChanged(nameof(Top));
                 OnPropertyChanged(nameof(Bottom));
+                OnPropertyChanged(nameof(Width));
+                OnPropertyChanged(nameof(Height));
             }
         }
     }
@@ -39,6 +41,8 @@ public class SelectionBox : ObservableObject
                 OnPropertyChanged(nameof(Right));
                 OnPropertyChanged(nameof(Top));
                 OnPropertyChanged(nameof(Bottom));
+                OnPropertyChanged(nameof(Width));
+                OnPropertyChanged(nameof(Height));
             }
         }
     }
@@ -53,4 +57,6 @@ public class SelectionBox : ObservableObject
     public float Right => MathF.Max(_orig.X, _cur.X);
     public float Top => MathF.Min(_orig.Y, _cur.Y);
     public float Bottom => MathF.Max(_orig.Y, _cur.Y);
+    public float Width => MathF.Abs(_cur.X - _orig.X);
+    public float Height => MathF.Abs(_cur.Y - _orig.Y);
 }

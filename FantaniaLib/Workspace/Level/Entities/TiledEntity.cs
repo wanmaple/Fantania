@@ -9,15 +9,15 @@ public class TiledEntity : LevelEntity, ISelectableItem
     public int Depth => RealDepth;
 
     public Color SelectionColor => Colors.Orange;
-    public Vector2 Anchor => new Vector2(0.5f, 0.5f);
+    public Vector2 Anchor => new Vector2(0.0f, 0.0f);
     public Vector2 WorldPosition => Position.ToVector2();
     public int EntityOrder => Order;
     public int LocalOrder => 0;
 
     public Rectf BoundingBox => _aabb;
 
-    private Vector2Int _size = new Vector2Int(4, 4);
-    [SerializableField(FieldTypes.Vector2Int)]
+    private Vector2Int _size = Vector2Int.Zero;
+    [SerializableField(FieldTypes.Vector2Int), EditableField(EditParameter = "1:100000:1")]
     public Vector2Int Size
     {
         get { return _size; }
@@ -28,12 +28,31 @@ public class TiledEntity : LevelEntity, ISelectableItem
                 OnPropertyChanging(nameof(Size));
                 _size = value;
                 OnPropertyChanged(nameof(Size));
+                PlacementDirty = true;
+                RaiseRenderingDirty();
+            }
+        }
+    }
+
+    private int _seed = 0;
+    [SerializableField(FieldTypes.Integer), EditableField(EditControlType = typeof(RandomSeedBox))]
+    public int RandomSeed
+    {
+        get { return _seed; }
+        set
+        {
+            if (_seed != value)
+            {
+                OnPropertyChanging(nameof(RandomSeed));
+                _seed = value;
+                OnPropertyChanged(nameof(RandomSeed));
             }
         }
     }
 
     internal TiledEntity()
     {
+        RandomSeed = new Random().Next();
         for (int i = 0; i < _serializableFields.Count;)
         {
             if (_serializableFields[i].FieldName == nameof(Rotation) || _serializableFields[i].FieldName == nameof(Scale))
@@ -105,7 +124,8 @@ public class TiledEntity : LevelEntity, ISelectableItem
             {
                 for (int y = 0; y < Size.Y; y++)
                 {
-                    var tileInfo = placement.Template.GetTileInfo(placement, Size, x, y);
+                    int hash = Hash(x, y, RandomSeed);
+                    var tileInfo = placement.Template.GetTileInfo(placement, Size, x, y, hash);
                     var localInfo = new LocalRenderInfo
                     {
                         Stage = tileInfo.RenderStage,
@@ -144,6 +164,24 @@ public class TiledEntity : LevelEntity, ISelectableItem
         _aabb = new Rectf(Position.X + _localBound.X, Position.Y + _localBound.Y, _localBound.Width, _localBound.Height);
         bvh.UpdateItem(this);
         OnPropertyChanged(nameof(BoundingBox));
+    }
+
+    int Hash(int x, int y, int seed)
+    {
+        unchecked
+        {
+            uint s = (uint)seed;
+            uint h = (uint)x + 0x9E3779B9u;
+            h ^= (h << 6);
+            h ^= (h >> 2);
+            h = (h + (uint)y);
+            h ^= (h << 7);
+            h ^= (h >> 3);
+            h = (h + s);
+            h ^= (h << 13);
+            h ^= (h >> 11);
+            return (int)(h & 0x7FFFFFFFu);
+        }
     }
 
     Rectf _localBound, _aabb;

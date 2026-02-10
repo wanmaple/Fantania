@@ -1,0 +1,21 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:lib="using:FantaniaLib"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="lib:IEditableField"
+             x:Class="FantaniaLib.RandomSeedBox"
+            x:Name="Root">
+  <Grid>
+    <StackPanel Orientation="Horizontal" Spacing="8">
+      <NumericUpDown Value="{Binding FieldValue, Converter={x:Static lib:NumberConverters.Integer2Decimal}}" FormatString="F0" ParsingNumberStyle="Integer" VerticalAlignment="Center" Width="200" ToolTip.ServiceEnabled="{Binding FieldValidator.Error, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+        <ToolTip.Tip>
+          <TextBlock Classes="p err" Text="{Binding FieldValidator.Error}" />
+        </ToolTip.Tip>
+      </NumericUpDown>
+      <Button Content="Random" VerticalAlignment="Center" Command="{Binding #Root.RandomizeSeed}" />
+    </StackPanel>
+    <Border Classes="thick err" IsVisible="{Binding FieldValidator.Error, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+  </Grid>
+</UserControl>

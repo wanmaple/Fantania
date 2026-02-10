@@ -69,11 +69,11 @@ public class PlacementTemplate : ScriptTemplate, IPlacement
         }
     }
 
-    public TileInfo GetTileInfo(UserPlacement placement, Vector2Int size, int x, int y)
+    public TileInfo GetTileInfo(UserPlacement placement, Vector2Int size, int x, int y, int hash)
     {
         try
         {
-            return GetOrCallMember("tileAt", placement, size, x, y).GetObjectOrDefault(TileInfo.Default);
+            return GetOrCallMember("tileAt", placement, size, x, y, hash).GetObjectOrDefault(TileInfo.Default);
         }
         catch
         {

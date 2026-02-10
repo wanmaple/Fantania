@@ -50,5 +50,10 @@ public class LevelEditorContext
         _canvas.AddCommand(command);
     }
 
+    public void Focus()
+    {
+        _canvas.FocusSelf();
+    }
+
     ILevelCanvas _canvas;
 }

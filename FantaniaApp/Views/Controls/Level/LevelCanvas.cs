@@ -104,7 +104,14 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
                 pipeline.ReceiveRenderables(renderables);
             }
             device.ClearColor("#000000".ToVector4());
-            device.ClearBufferBits(BufferBits.Color | BufferBits.Depth);
+            // 清除DepthBuffer需要设置DepthMask为true
+            device.ApplyRenderState(new RenderState
+            {
+                DepthTestEnabled = false,
+                DepthWriteEnabled = true,
+                BlendingEnabled = false,
+            });
+            device.ClearBufferBits(BufferBits.Color | BufferBits.Depth | BufferBits.Stencil);
             device.Viewport(0, 0, fbColor.Description.Width, fbColor.Description.Height);
             pipeline.ResetStatistics();
             pipeline.ExecuteCompletedBuffer();
@@ -338,6 +345,11 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
     public void AddCommand(ICanvasCommand command)
     {
         _commands.Add(command);
+    }
+
+    public void FocusSelf()
+    {
+        Focus();
     }
 
     void HandleCanvasCommands(ConfigurableRenderPipeline pipeline)

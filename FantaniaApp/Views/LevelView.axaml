@@ -58,6 +58,8 @@
             <Binding Path="Workspace.EditorModule.Selection.Top" />
             <Binding Path="Workspace.EditorModule.Selection.Right" />
             <Binding Path="Workspace.EditorModule.Selection.Bottom" />
+            <Binding Path="#lvCanvas" />
+            <Binding Path="Workspace.EditorModule.NotifyFlag" />
           </MultiBinding>
         </lib:SelectionOverlay.SelectionBounds>
       </lib:SelectionOverlay>

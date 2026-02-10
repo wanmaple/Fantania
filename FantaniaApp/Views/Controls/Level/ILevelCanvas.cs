@@ -14,6 +14,7 @@ public interface ILevelCanvas
     Control Control { get; }
 
     void AddCommand(ICanvasCommand command);
+    void FocusSelf();
 
     Vector2 CanvasPositionToScreenPosition(Vector2 canvasPos);
     Vector2 ScreenPositionToCanvasPosition(Vector2 screenPos);
