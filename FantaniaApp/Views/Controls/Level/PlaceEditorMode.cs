@@ -16,6 +16,7 @@ public class PlaceEditorMode : ILevelEditorMode
     {
         if (context.Workspace.PlacementModule.ActivePlacement != null)
             context.AddCommand(new SetupGhostEntityCommand(EntitySetups.Remove));
+        context.AddCommand(new ClearSnapsCommand());
     }
 
     public void OnKeyDown(LevelEditorContext context, ControlInputEventArgs e)
@@ -32,29 +33,37 @@ public class PlaceEditorMode : ILevelEditorMode
         var activePlacement = context.Workspace.PlacementModule.ActivePlacement;
         if (activePlacement != null)
         {
-            if (activePlacement.Template.PlacementType == PlacementTypes.Tiled && e.MouseState.IsLeftButtonPressed)
+            if (activePlacement.Template.IsSizeable && e.MouseState.IsLeftButtonPressed)
             {
                 Vector2Int tileSize = activePlacement.Template.TileSize;
                 Vector2Int gridPos = worldPos.ToGridSpace(context.EditConfig.GridAlign);
                 _rangeBox.Current = gridPos.ToVector2();
                 int width = MathHelper.RoundToInt(_rangeBox.Width / tileSize.X);
                 int height = MathHelper.RoundToInt(_rangeBox.Height / tileSize.Y);
-                context.AddCommand(new UpdateGhostTiledEntityCommand(new Vector2Int((int)_rangeBox.Left, (int)_rangeBox.Top), new Vector2Int(width, height)));
+                int left = _rangeBox.Current.X < _rangeBox.Origin.X ? (int)_rangeBox.Origin.X - width * tileSize.X : (int)_rangeBox.Origin.X;
+                int top = _rangeBox.Current.Y < _rangeBox.Origin.Y ? (int)_rangeBox.Origin.Y - height * tileSize.Y : (int)_rangeBox.Origin.Y;
+                context.AddCommand(new UpdateSizeableGhostCommand(new Vector2Int(left, top), new Vector2Int(width, height)));
             }
             else
                 context.AddCommand(UpdateGhostEntityCommand.UpdatePosition(worldPos));
+            if (!e.MouseState.IsLeftButtonPressed)
+                context.AddCommand(new UpdateSnapsCommand(worldPos));
         }
     }
 
     public void OnMousePressed(LevelEditorContext context, ControlInputEventArgs e)
     {
         var activePlacement = context.Workspace.PlacementModule.ActivePlacement;
-        if (activePlacement != null && activePlacement.Template.PlacementType == PlacementTypes.Tiled)
+        if (activePlacement != null && activePlacement.Template.IsSizeable)
         {
             if (e.MouseState.IsLeftButtonPressed)
             {
-                Vector2Int gridPos = context.CanvasToWorld(e.MouseState.Position.ToVector2()).ToGridSpace(context.EditConfig.GridAlign);
-                _rangeBox.Origin = gridPos.ToVector2();
+                Vector2Int origin;
+                if (context.Workspace.EditorModule.SnapPoints.Count > 0)
+                    origin = context.Workspace.EditorModule.SnapPoints[0].Position.ToVector2i();
+                else
+                    origin = context.CanvasToWorld(e.MouseState.Position.ToVector2()).ToGridSpace(context.EditConfig.GridAlign);
+                _rangeBox.Origin = origin.ToVector2();
                 _rangeBox.Current = _rangeBox.Origin;
             }
         }

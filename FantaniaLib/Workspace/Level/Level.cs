@@ -30,6 +30,18 @@ public class Level : IReadonlyLevel
         Name = name;
     }
 
+    public void OnLevelLoaded(IWorkspace workspace)
+    {
+        RefreshGUIDs();
+        foreach (var entity in _entities)
+        {
+            if (entity is TiledEntity tiledEntity)
+            {
+                _tileMgr.AddEntity(workspace, tiledEntity);
+            }
+        }
+    }
+
     public string ObtainGUID()
     {
         string guid = string.Empty;
@@ -52,7 +64,7 @@ public class Level : IReadonlyLevel
         return _entities.Count > 0 ? _entities.Max(e => e.Order) + 1 : 0;
     }
 
-    internal void RefreshGUIDs()
+    void RefreshGUIDs()
     {
         _usedGUIDs.Clear();
         foreach (var entity in _entities)

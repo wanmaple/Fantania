@@ -25,6 +25,11 @@ local RenderPipelineSetup = {
 			fragShader = BuiltinShaders.FS_Standard,
 		},
 		{
+			key = "StandardCutoff",
+			vertShader = BuiltinShaders.VS_Standard,
+			fragShader = BuiltinShaders.FS_StandardCutoff,
+		},
+		{
 			key = "PureColor",
 			vertShader = BuiltinShaders.VS_Standard,
 			fragShader = "shaders/pure_color.fs",

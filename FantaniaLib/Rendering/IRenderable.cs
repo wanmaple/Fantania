@@ -8,6 +8,7 @@ public interface IRenderable : IBVHItem
     Matrix3x3 Transform { get; set; }
     Vector2 Anchor { get; }
     Vector2 Size { get; }
+    Rectf Tiling { get; }
     Vector4 VertexColor { get; }
     int Depth { get; set; }
     int EntityOrder { get; set; }

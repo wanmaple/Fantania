@@ -14,7 +14,11 @@ public class UpdateLevelEntityCommand : LevelEntityCommand
 
     public override void Execute(LevelSpaceContext context, ConfigurableRenderPipeline pipeline)
     {
-        UpdateEntity(Entity, context, pipeline);
-        context.Workspace.EditorModule.Notify();
+        // Entity可能已经被删了，这就是延迟逻辑的坏处，不过也没辙
+        if (context.EntityManager.HasEntity(Entity))
+        {
+            UpdateEntity(Entity, context, pipeline);
+            context.Workspace.EditorModule.Notify();
+        }
     }
 }

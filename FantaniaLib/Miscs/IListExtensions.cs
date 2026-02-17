@@ -40,6 +40,14 @@ public static class IListExtensions
         }
     }
 
+    public static void AddIfNotExists<T>(this IList<T> self, T item)
+    {
+        if (!self.Contains(item))
+        {
+            self.Add(item);
+        }
+    }
+
     public static void StableSort<T>(this IList<T> self, IComparer<T>? comparer = null)
     {
         if (comparer == null)

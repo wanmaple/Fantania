@@ -1,4 +1,3 @@
-
 namespace FantaniaLib;
 
 public class OpaquePipelineStage : IPipelineStage
@@ -17,12 +16,20 @@ public class OpaquePipelineStage : IPipelineStage
 
     public void Render(IRenderContext context, IEnumerable<IRenderable> renderables)
     {
-        var groups = renderables.GroupBy(r => (r.Mesh.Descriptor.VertexDescriptor, r.Material));
-        foreach (var group in groups)
+        var groupDict = new Dictionary<(VertexDescriptor, RenderMaterial), (List<Mesh>, RenderMaterial)>();
+        foreach (var renderable in renderables)
         {
-            var vertDesc = group.Key.VertexDescriptor;
-            var material = group.Key.Material;
-            context.CommandBuffer.Draw(group.Select(r => r.Mesh), material);
+            var key = (renderable.Mesh.Descriptor.VertexDescriptor, renderable.Material);
+            if (!groupDict.TryGetValue(key, out var drawInfo))
+            {
+                drawInfo = (new List<Mesh>(), renderable.Material);
+                groupDict.Add(key, drawInfo);
+            }
+            drawInfo.Item1.Add(renderable.Mesh);
+        }
+        foreach (var pair in groupDict)
+        {
+            context.CommandBuffer.Draw(pair.Value.Item1, pair.Value.Item2);
         }
     }
 

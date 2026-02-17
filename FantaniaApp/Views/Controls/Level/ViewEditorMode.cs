@@ -53,9 +53,7 @@ public class ViewEditorMode : ILevelEditorMode
             selection.Current = context.CanvasToWorld(e.MouseState.Position.ToVector2());
             if (!selection.IsZero)
             {
-                Vector2 origWorld = selection.Origin;
-                Vector2 curWorld = selection.Current;
-                Rectf range = new Rectf(origWorld, curWorld - origWorld);
+                Rectf range = new Rectf(new Vector2(selection.Left, selection.Top), new Vector2(selection.Width, selection.Height));
                 context.AddCommand(new RangeSelectionCommand(range, SelectionModeFromKeyModifiers(e.KeyState.KeyModifiers)));
             }
             e.Handled = true;

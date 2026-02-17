@@ -24,7 +24,7 @@ public class TransparentPipelineStage : IPipelineStage
         {
             var vertDesc = group.Key.VertexDescriptor;
             var material = group.Key.Material;
-            context.CommandBuffer.Draw(group.Select(r => r.Mesh), material);
+            context.CommandBuffer.Draw(group.Select(r => r.Mesh).ToList(), material);
         }
     }
 

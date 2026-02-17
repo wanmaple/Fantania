@@ -42,6 +42,7 @@ public static class WorkspaceConversions
             DesiredUniformMap uniforms = v.Table.Get("uniforms").GetObjectOrDefault(new DesiredUniformMap());
             Vector2 uvOffset = v.Table.Get("uvOffset").GetObjectOrDefault(Vector2.Zero);
             Vector2 uvSize = v.Table.Get("uvSize").GetObjectOrDefault(Vector2.One);
+            Vector4 color = v.Table.Get("color").GetObjectOrDefault(Vector4.One);
             return new TileInfo
             {
                 RenderStage = stage,
@@ -49,6 +50,7 @@ public static class WorkspaceConversions
                 Uniforms = uniforms,
                 UVOffset = uvOffset,
                 UVSize = uvSize,
+                Color = color,
             };
         });
         Script.GlobalOptions.CustomConverters.SetClrToScriptCustomConversion<UserPlacement>((env, v) =>

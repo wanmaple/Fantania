@@ -138,6 +138,32 @@ public class Selections2CenterYConverter : IMultiValueConverter
     }
 }
 
+public class SnapPosition2CanvasXConverter : IMultiValueConverter
+{
+    public object? Convert(IList<object?> values, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (values == null) return AvaloniaProperty.UnsetValue;
+        if (values.Count < 2) return AvaloniaProperty.UnsetValue;
+        if (values[0] is not Vector2 pos) return AvaloniaProperty.UnsetValue;
+        if (values[1] is not ILevelCanvas canvas) return AvaloniaProperty.UnsetValue;
+        Vector2 canvasPos = canvas.WorldPositionToCanvasPosition(pos);
+        return System.Convert.ToDouble(canvasPos.X);
+    }
+}
+
+public class SnapPosition2CanvasYConverter : IMultiValueConverter
+{
+    public object? Convert(IList<object?> values, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (values == null) return AvaloniaProperty.UnsetValue;
+        if (values.Count < 2) return AvaloniaProperty.UnsetValue;
+        if (values[0] is not Vector2 pos) return AvaloniaProperty.UnsetValue;
+        if (values[1] is not ILevelCanvas canvas) return AvaloniaProperty.UnsetValue;
+        Vector2 canvasPos = canvas.WorldPositionToCanvasPosition(pos);
+        return System.Convert.ToDouble(canvasPos.Y);
+    }
+}
+
 public partial class LevelView : UserControl
 {
     LevelViewModel ViewModel => (LevelViewModel)DataContext!;
@@ -167,9 +193,13 @@ public partial class LevelView : UserControl
         {
             RedrawNodeConnections();
         }
+        if (e.PropertyName == nameof(EditorModule.SnapPoints) || e.PropertyName == nameof(EditorModule.NotifyFlag))
+        {
+            RedrawSnapPoints();
+        }
     }
 
-    private void RedrawNodeConnections()
+    void RedrawNodeConnections()
     {
         connectionOverlay.Children.Clear();
         var workspace = ViewModel.Workspace;
@@ -234,6 +264,27 @@ public partial class LevelView : UserControl
             }
         };
         connectionOverlay.Children.Add(polygon);
+    }
+
+    void RedrawSnapPoints()
+    {
+        snapOverlay.Children.Clear();
+        var workspace = ViewModel.Workspace;
+        if (workspace.LevelModule.CurrentLevel == null)
+            return;
+        foreach (var snap in workspace.EditorModule.SnapPoints)
+        {
+            var control = new SnapOverlay
+            {
+                Shape = snap.Shape,
+                Size = snap.Size,
+                Color = snap.Color,
+            };
+            Vector2 canvasPos = lvCanvas.WorldPositionToCanvasPosition(snap.Position);
+            Canvas.SetLeft(control, canvasPos.X);
+            Canvas.SetTop(control, canvasPos.Y);
+            snapOverlay.Children.Add(control);
+        }
     }
 
     void Grid_PointerMoved(object? sender, PointerEventArgs e)

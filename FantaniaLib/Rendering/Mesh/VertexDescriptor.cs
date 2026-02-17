@@ -7,7 +7,6 @@ public struct VertexAttribute
     public bool Normalized { get; set; }
 }
 
-[BindingScript]
 public class VertexDescriptor
 {
     public int SizeofVertex => _sumElements * sizeof(float);

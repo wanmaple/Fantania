@@ -3,12 +3,12 @@ using FantaniaLib;
 
 namespace Fantania.Models;
 
-public class UpdateGhostTiledEntityCommand : LevelEntityCommand
+public class UpdateSizeableGhostCommand : LevelEntityCommand
 {
     public Vector2Int Position { get; set; }
     public Vector2Int Size { get; set; }
     
-    public UpdateGhostTiledEntityCommand(Vector2Int position, Vector2Int size)
+    public UpdateSizeableGhostCommand(Vector2Int position, Vector2Int size)
     {
         Position = position;
         Size = size;
@@ -16,10 +16,10 @@ public class UpdateGhostTiledEntityCommand : LevelEntityCommand
 
     public override void Execute(LevelSpaceContext context, ConfigurableRenderPipeline pipeline)
     {
-        if (context.GhostEntity is TiledEntity tiled)
+        if (context.GhostEntity is ISizeableEntity sizeable)
         {
-            tiled.Position = Position;
-            tiled.Size = Size;
+            sizeable.Position = Position;
+            sizeable.Size = Size;
             UpdateEntity(context.GhostEntity, context, pipeline);
         }
     }

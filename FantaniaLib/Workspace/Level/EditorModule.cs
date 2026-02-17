@@ -80,6 +80,9 @@ public class EditorModule : WorkspaceModule
     private ObservableCollection<ISelectableItem> _selectedObjs = new ObservableCollection<ISelectableItem>();
     public ObservableCollection<ISelectableItem> SelectedObjects => _selectedObjs;
 
+    private ObservableCollection<ISnapPoint> _snapPts = new ObservableCollection<ISnapPoint>();
+    public ObservableCollection<ISnapPoint> SnapPoints => _snapPts;
+
     private int _fps = 0;
     public int FPS
     {
@@ -128,6 +131,13 @@ public class EditorModule : WorkspaceModule
     public void CancelSelection()
     {
         _selectedObjs.Clear();
+        Notify();
+    }
+
+    public void ClearSnapPoints()
+    {
+        _snapPts.Clear();
+        Notify();
     }
 
     public void Notify()

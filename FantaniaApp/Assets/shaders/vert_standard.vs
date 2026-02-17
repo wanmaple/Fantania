@@ -2,14 +2,10 @@
 
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec4 aColor;
-layout (location = 2) in vec3 aNormal;
-layout (location = 3) in vec3 aTangent;
-layout (location = 4) in vec2 aUV;
-layout (location = 5) in vec2 aUV2;
+layout (location = 2) in vec2 aUV;
+layout (location = 3) in vec2 aUV2;
 
 out vec4 vColor;
-out vec3 vNormal;
-out vec3 vTangent;
 out vec2 vUV;
 out vec2 vUV2;
 
@@ -23,8 +19,6 @@ void main() {
     vec2 posCS = posNDC * 2.0 - vec2(1.0);
     gl_Position = vec4(posCS.xy, aPos.z / 4096.0, 1.0);
     vColor = aColor;
-    vNormal = aNormal;
-    vTangent = aTangent;
     vUV = vec2(aUV.x, 1.0 - aUV.y);
     vUV2 = aUV2;
 }

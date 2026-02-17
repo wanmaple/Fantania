@@ -43,7 +43,7 @@ public class LevelModule : WorkspaceModule
         var lv = Level.OpenExist(lvPath);
         _syncer = new BinaryDataSyncer<LevelEntity>(lv.MutableEntities, SerializationRule.Default);
         await _syncer.SyncFromFile(lvPath);
-        lv.RefreshGUIDs();
+        lv.OnLevelLoaded(_workspace);
         SetCurrentLevel(lv);
     }
 

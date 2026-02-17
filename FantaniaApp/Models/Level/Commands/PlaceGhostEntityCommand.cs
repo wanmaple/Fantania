@@ -9,7 +9,12 @@ public class PlaceGhostEntityCommand : LevelEntityCommand
     {
         if (context.GhostEntity != null)
         {
+            if (context.GhostEntity is ISizeableEntity sizeable && (sizeable.Size.X <= 0 || sizeable.Size.Y <= 0)) return;
             context.Workspace.LevelModule.PlaceEntity(context.GhostEntity);
+            if (context.GhostEntity is TiledEntity tiled)
+            {
+                tiled.RefreshSelf();
+            }
             // 继续添加
             UserPlacement placement = context.Workspace.PlacementModule.ActivePlacement!;
             context.GhostEntity = LevelEntity.BuildFromPlacement(context.Workspace, placement);

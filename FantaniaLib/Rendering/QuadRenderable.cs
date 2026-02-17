@@ -25,58 +25,55 @@ public class QuadRenderable : ObservableObject, IRenderable
     public int LocalOrder { get; set; }
     public int NodeIndex { get; set; } = -1;
     public Mesh Mesh => _mesh;
-    public RenderMaterial Material => _material;
+    public RenderMaterial Material => _material!;
     public Rectf BoundingBox => _aabb;
     public Vector2 Anchor { get; private set; } = Vector2.Zero;
     public Vector2 Size { get; private set; } = Vector2.Zero;
+    public Rectf Tiling { get; private set; } = new Rectf(Vector2.Zero, Vector2.One);
     public Vector4 VertexColor { get; private set; } = Vector4.One;
 
     public QuadRenderable(RenderInfo info, RenderMaterial material)
     {
         _mesh = MeshBuilder.CreateStandardQuad(info.Size);
-        for (int i = 0; i < 4; i++)
-        {
-            VertexStandard vert = _mesh.GetVerticeAt<VertexStandard>(i);
-            vert.UV = info.Tiling.TopLeft + QUAD_VERTICES[i] * info.Tiling.Size;
-            _mesh.SetVerticeAt(i, vert);
-        }
         Stage = info.Stage;
         Depth = info.Depth;
         EntityOrder = info.EntityOrder;
         LocalOrder = info.LocalOrder;
         Anchor = info.Anchor;
         Size = info.Size;
+        Tiling = info.Tiling;
         VertexColor = info.Color;
         _material = material;
         _transform = info.Transform;
         UpdateVertices();
         CalculateBounds(Transform);
     }
-
+    
     private QuadRenderable(QuadRenderable other)
     {
         Stage = other.Stage;
-        _transform = other._transform;
+        _transform = other.Transform;
         Depth = other.Depth;
         EntityOrder = other.EntityOrder;
         LocalOrder = other.LocalOrder;
         Anchor = other.Anchor;
         Size = other.Size;
         VertexColor = other.VertexColor;
+        Tiling = other.Tiling;
         _material = other._material.Clone();
         _mesh = other._mesh;
         _aabb = other._aabb;
-        _exactVerts = other._exactVerts;
     }
 
     void UpdateVertices()
     {
         for (int i = 0; i < 4; i++)
         {
-            VertexStandard vert = _mesh.GetVerticeAt<VertexStandard>(i);
+            VertexStandard vert = Mesh.GetVerticeAt<VertexStandard>(i);
             vert.Position = new Vector3(Transform * (QUAD_VERTICES[i] * Size), Depth);
+            vert.UV = Tiling.TopLeft + QUAD_VERTICES[i] * Tiling.Size;
             vert.Color = VertexColor;
-            _mesh.SetVerticeAt(i, vert);
+            Mesh.SetVerticeAt(i, vert);
         }
     }
 
@@ -102,7 +99,6 @@ public class QuadRenderable : ObservableObject, IRenderable
     Mesh _mesh;
     RenderMaterial _material;
     Rectf _aabb;
-    Vector2[] _exactVerts = new Vector2[4];
 
     static readonly Vector2[] QUAD_VERTICES = [
         Vector2.Zero,

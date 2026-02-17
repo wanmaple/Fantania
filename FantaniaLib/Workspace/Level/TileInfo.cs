@@ -11,6 +11,7 @@ public struct TileInfo
         Uniforms = new DesiredUniformMap(),
         UVOffset = Vector2.Zero,
         UVSize = Vector2.One,
+        Color = Vector4.One,
     };
 
     public string RenderStage;
@@ -18,4 +19,5 @@ public struct TileInfo
     public DesiredUniformMap Uniforms;
     public Vector2 UVOffset;
     public Vector2 UVSize;
+    public Vector4 Color;
 }

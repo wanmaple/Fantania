@@ -25,4 +25,5 @@ BuiltinStages = {
 BuiltinShaders = {
     VS_Standard = "avares://Fantania/Assets/shaders/vert_standard.vs",
     FS_Standard = "avares://Fantania/Assets/shaders/frag_standard.fs",
+    FS_StandardCutoff = "avares://Fantania/Assets/shaders/frag_standard_cutoff.fs",
 }

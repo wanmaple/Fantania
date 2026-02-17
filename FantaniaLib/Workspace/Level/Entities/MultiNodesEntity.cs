@@ -62,8 +62,7 @@ public class MultiNodesEntity : LevelEntity, IMultiNodeContainer
                 NodeAdded?.Invoke(node);
             }
         }
-        PlacementDirty = true;
-        RaiseRenderingDirty();
+        RefreshSelf();
     }
 
     public override void Initialize(IWorkspace workspace)
@@ -100,8 +99,7 @@ public class MultiNodesEntity : LevelEntity, IMultiNodeContainer
             var snapshotBefore = new EntityNodesSnapshot(_nodes);
             _nodes.Add(node);
             NodeAdded?.Invoke(node);
-            PlacementDirty = true;
-            RaiseRenderingDirty();
+            RefreshSelf();
             var snapshotAfter = new EntityNodesSnapshot(_nodes);
             var op = new BatchModifyNodesOperation(workspace, this, snapshotBefore, snapshotAfter);
             workspace.UndoStack.AddOperation(op);
@@ -119,8 +117,7 @@ public class MultiNodesEntity : LevelEntity, IMultiNodeContainer
                 _toRm.Add(node);
                 NodeRemoved?.Invoke(node);
             }
-            PlacementDirty = true;
-            RaiseRenderingDirty();
+            RefreshSelf();
             var snapshotAfter = new EntityNodesSnapshot(_nodes.Except(snapshot.Nodes).ToArray());
             var op = new BatchModifyNodesOperation(workspace, this, snapshotBefore, snapshotAfter);
             workspace.UndoStack.AddOperation(op);

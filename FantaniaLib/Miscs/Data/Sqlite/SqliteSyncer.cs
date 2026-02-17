@@ -36,7 +36,8 @@ public class SqliteSyncer
                 foreach (var kv in kvs)
                 {
                     if (kv.Key == "ID") continue;
-                    FieldInfo field = fields.First(f => f.FieldName == kv.Key);
+                    FieldInfo? field = fields.FirstOrDefault(f => f.FieldName == kv.Key);
+                    if (field == null) continue;
                     placement.SetFieldValue(kv.Key, _rule.CastFrom(field.FieldType, kv.Value, placement));
                 }
                 WatchPropertyChange(placement);

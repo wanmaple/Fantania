@@ -175,13 +175,18 @@ public abstract class LevelEntity : BinaryObject
 
     void OnPlacementChanged()
     {
-        PlacementDirty = true;
-        RaiseRenderingDirty();
+        RefreshSelf();
     }
 
     protected void RaiseRenderingDirty()
     {
         RenderingDirty?.Invoke(this);
+    }
+
+    public void RefreshSelf()
+    {
+        PlacementDirty = true;
+        RaiseRenderingDirty();
     }
 
     public UserPlacement GetReferencedPlacement(IWorkspace workspace)
@@ -219,6 +224,10 @@ public abstract class LevelEntity : BinaryObject
     public virtual void OnScaling(Vector2 scaleFactor)
     {
         Scale = new Vector2(_startScale.X * scaleFactor.X, _startScale.Y * scaleFactor.Y);
+    }
+
+    public virtual void OnUpdateSnaps(IWorkspace workspace, BoundingVolumeHierarchy<ISelectableItem> bvh, Vector2 worldPos)
+    {
     }
 
     public void ResetRotationAndScale()

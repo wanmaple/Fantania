@@ -3,7 +3,7 @@ using Avalonia.Media;
 
 namespace FantaniaLib;
 
-public class TiledEntity : LevelEntity, ISelectableItem
+public class TiledEntity : LevelEntity, ISelectableItem, ISizeableEntity
 {
     public override int NodeCount => 1;
     public int Depth => RealDepth;
@@ -28,8 +28,7 @@ public class TiledEntity : LevelEntity, ISelectableItem
                 OnPropertyChanging(nameof(Size));
                 _size = value;
                 OnPropertyChanged(nameof(Size));
-                PlacementDirty = true;
-                RaiseRenderingDirty();
+                RefreshSelf();
             }
         }
     }
@@ -77,10 +76,23 @@ public class TiledEntity : LevelEntity, ISelectableItem
         base.OnEnter(workspace);
         GUID = workspace.LevelModule.CurrentLevel!.ObtainGUID();
         workspace.LevelModule.CurrentLevel.TiledEntityManager.AddEntity(workspace, this);
+        var mgr = workspace.LevelModule.CurrentLevel.TiledEntityManager;
+        var group = mgr.GetGroup(this);
+        foreach (var e in group.Entities)
+        {
+            e.RefreshSelf();
+        }
     }
 
     public override void OnExit(IWorkspace workspace)
     {
+        var mgr = workspace.LevelModule.CurrentLevel!.TiledEntityManager;
+        var group = mgr.GetGroup(this);
+        foreach (var e in group.Entities)
+        {
+            if (e != this)
+                e.RefreshSelf();
+        }
         workspace.LevelModule.CurrentLevel!.TiledEntityManager.RemoveEntity(workspace, this);
         workspace.LevelModule.CurrentLevel.ReleaseGUID(GUID);
         base.OnExit(workspace);
@@ -125,7 +137,8 @@ public class TiledEntity : LevelEntity, ISelectableItem
                 for (int y = 0; y < Size.Y; y++)
                 {
                     int hash = Hash(x, y, RandomSeed);
-                    var tileInfo = placement.Template.GetTileInfo(placement, Size, x, y, hash);
+                    TileLocationTypes locType = workspace.LevelModule.CurrentLevel!.TiledEntityManager.GetLocationType(workspace, this, x, y);
+                    var tileInfo = placement.Template.GetTileInfo(placement, Size, locType, hash);
                     var localInfo = new LocalRenderInfo
                     {
                         Stage = tileInfo.RenderStage,
@@ -133,7 +146,7 @@ public class TiledEntity : LevelEntity, ISelectableItem
                         Position = new Vector2(x * tileSize.X, y * tileSize.Y),
                         Rotation = 0.0f,
                         Scale = Vector2.One,
-                        Color = Vector4.One,
+                        Color = tileInfo.Color,
                         MaterialKey = tileInfo.MaterialKey,
                         Uniforms = tileInfo.Uniforms,
                         Sizer = new FixedSizer(tileSize),
@@ -164,6 +177,120 @@ public class TiledEntity : LevelEntity, ISelectableItem
         _aabb = new Rectf(Position.X + _localBound.X, Position.Y + _localBound.Y, _localBound.Width, _localBound.Height);
         bvh.UpdateItem(this);
         OnPropertyChanged(nameof(BoundingBox));
+    }
+
+    public override void OnUpdateSnaps(IWorkspace workspace, BoundingVolumeHierarchy<ISelectableItem> bvh, Vector2 worldPos)
+    {
+        Vector2Int tileSize = GetTileSize(workspace);
+        Rectf rect = new Rectf(worldPos - tileSize.ToVector2() * 0.5f, tileSize.ToVector2());
+        var closeEntities = new List<ISelectableItem>(8);
+        bvh.RectTest(rect, closeEntities, s => s is TiledEntity e && workspace.LevelModule.CurrentLevel!.TiledEntityManager.IsEntitySnappable(workspace, this, e));
+        var snaps = workspace.EditorModule.SnapPoints;
+        ISnapPoint? nearest = null;
+        float nearestDisSq = float.MaxValue;
+        foreach (TiledEntity e in closeEntities)
+        {
+            int left = e.Position.X;
+            int right = e.Position.X + e.Size.X * tileSize.X;
+            int top = e.Position.Y;
+            int bottom = e.Position.Y + e.Size.Y * tileSize.Y;
+            if (MathF.Abs(left - worldPos.X) <= tileSize.X * 0.5f)
+            {
+                int yOffset = MathHelper.FloorToInt(MathF.Abs(e.Position.Y - worldPos.Y) / tileSize.Y);
+                for (int i = 0; i < 2; i++)
+                {
+                    int y = e.Position.Y + (yOffset + i) * tileSize.Y;
+                    if (y < top || y > bottom)
+                        continue;
+                    Vector2 snapPos = new Vector2(left, y);
+                    var snapPt = new TiledSnapPoint
+                    {
+                        Position = snapPos,
+                    };
+                    float disSq = Vector2.DistanceSquared(worldPos, snapPos);
+                    if (disSq < nearestDisSq)
+                    {
+                        nearestDisSq = disSq;
+                        nearest = snapPt;
+                    }
+                }
+            }
+            if (MathF.Abs(right - worldPos.X) <= tileSize.X * 0.5f)
+            {
+                int yOffset = MathHelper.FloorToInt(MathF.Abs(e.Position.Y - worldPos.Y) / tileSize.Y);
+                for (int i = 0; i < 2; i++)
+                {
+                    int y = e.Position.Y + (yOffset + i) * tileSize.Y;
+                    if (y < top || y > bottom)
+                        continue;
+                    Vector2 snapPos = new Vector2(right, y);
+                    var snapPt = new TiledSnapPoint
+                    {
+                        Position = snapPos,
+                    };
+                    float disSq = Vector2.DistanceSquared(worldPos, snapPos);
+                    if (disSq < nearestDisSq)
+                    {
+                        nearestDisSq = disSq;
+                        nearest = snapPt;
+                    }
+                }
+            }
+            if (MathF.Abs(top - worldPos.Y) <= tileSize.Y * 0.5f)
+            {
+                int xOffset = MathHelper.FloorToInt(MathF.Abs(e.Position.X - worldPos.X) / tileSize.X);
+                for (int i = 0; i < 2; i++)
+                {
+                    int x = e.Position.X + (xOffset + i) * tileSize.X;
+                    if (x < left || x > right)
+                        continue;
+                    Vector2 snapPos = new Vector2(x, top);
+                    var snapPt = new TiledSnapPoint
+                    {
+                        Position = snapPos,
+                    };
+                    float disSq = Vector2.DistanceSquared(worldPos, snapPos);
+                    if (disSq < nearestDisSq)
+                    {
+                        nearestDisSq = disSq;
+                        nearest = snapPt;
+                    }
+                }
+            }
+            if (MathF.Abs(bottom - worldPos.Y) <= tileSize.Y * 0.5f)
+            {
+                int xOffset = MathHelper.FloorToInt(MathF.Abs(e.Position.X - worldPos.X) / tileSize.X);
+                for (int i = 0; i < 2; i++)
+                {
+                    int x = e.Position.X + (xOffset + i) * tileSize.X;
+                    if (x < left || x > right)
+                        continue;
+                    Vector2 snapPos = new Vector2(x, bottom);
+                    var snapPt = new TiledSnapPoint
+                    {
+                        Position = snapPos,
+                    };
+                    float disSq = Vector2.DistanceSquared(worldPos, snapPos);
+                    if (disSq < nearestDisSq)
+                    {
+                        nearestDisSq = disSq;
+                        nearest = snapPt;
+                    }
+                }
+            }
+        }
+        if (nearest != null && (snaps.Count == 0 || !nearest.Equals(snaps[0])))
+        {
+            snaps.Clear();
+            nearest.IsActive = true;
+            snaps.Add(nearest);
+            workspace.EditorModule.Notify();
+        }
+        else if (nearest == null && snaps.Count > 0)
+        {
+            snaps.Clear();
+            workspace.EditorModule.Notify();
+        }
     }
 
     int Hash(int x, int y, int seed)

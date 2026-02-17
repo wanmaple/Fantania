@@ -13,6 +13,8 @@ public class PlacementTemplate : ScriptTemplate, IPlacement
     public NodeOptions NodeOptions => GetOrCallMember("nodeOptions").GetObjectOrDefault(NodeOptions.Default);
     public Vector2Int TileSize => GetOrCallMember("tileSize").GetObjectOrDefault(Vector2Int.Zero);
 
+    public bool IsSizeable => PlacementType == PlacementTypes.Tiled;
+
     public PlacementTemplate(ScriptEngine engine, DynValue obj) : base(engine, obj)
     {
         _filtered = new FilterableBindingSource<IPlacement>(_source);
@@ -69,11 +71,11 @@ public class PlacementTemplate : ScriptTemplate, IPlacement
         }
     }
 
-    public TileInfo GetTileInfo(UserPlacement placement, Vector2Int size, int x, int y, int hash)
+    public TileInfo GetTileInfo(UserPlacement placement, Vector2Int size, TileLocationTypes locType, int hash)
     {
         try
         {
-            return GetOrCallMember("tileAt", placement, size, x, y, hash).GetObjectOrDefault(TileInfo.Default);
+            return GetOrCallMember("tileAt", placement, size, locType, hash).GetObjectOrDefault(TileInfo.Default);
         }
         catch
         {

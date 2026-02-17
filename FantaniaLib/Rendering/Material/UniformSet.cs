@@ -5,11 +5,16 @@ namespace FantaniaLib;
 
 public class UniformSet : IEquatable<UniformSet>, IEnumerable<KeyValuePair<string, MaterialUniform>>
 {
-    public struct TextureInformation
+    public struct TextureInformation : IEquatable<TextureInformation>
     {
         public int TextureSlot;
         public int TextureID;    // 惰性初始化，在BVH生命周期内才会赋值。
         public TextureDefinition TextureDef;
+
+        public bool Equals(TextureInformation other)
+        {
+            return TextureSlot == other.TextureSlot && TextureDef.Equals(other.TextureDef);
+        }
     }
 
     public IReadOnlyCollection<string> Names => _uniforms.Keys;

@@ -18,6 +18,8 @@
     <v:Selections2CenterXConverter x:Key="Cvt_Sel2CtX" />
     <v:Selections2CenterYConverter x:Key="Cvt_Sel2CtY" />
     <v:Selections2VisibleConverter x:Key="Cvt_Sel2V" />
+    <v:SnapPosition2CanvasXConverter x:Key="Cvt_Snap2CtX" />
+    <v:SnapPosition2CanvasYConverter x:Key="Cvt_Snap2CtY" />
   </UserControl.Resources>
   <UserControl.KeyBindings>
     <KeyBinding Command="{Binding PlacementModesDefinitions[0].Command}" CommandParameter="{x:Static lib:EntityPlacementModes.Select}" Gesture="D1" />
@@ -50,6 +52,7 @@
       </ItemsControl.ItemTemplate>
     </ItemsControl>
     <Canvas x:Name="connectionOverlay" IsHitTestVisible="False" IsVisible="{Binding Workspace.LevelModule.CurrentLevel, Converter={x:Static ObjectConverters.IsNotNull}}" />
+    <Canvas x:Name="snapOverlay" IsHitTestVisible="False" IsVisible="{Binding Workspace.LevelModule.CurrentLevel, Converter={x:Static ObjectConverters.IsNotNull}}" />
     <Canvas x:Name="overlay" IsHitTestVisible="False" IsVisible="{Binding Workspace.LevelModule.CurrentLevel, Converter={x:Static ObjectConverters.IsNotNull}}">
       <lib:SelectionOverlay SelectionColor="#408245" IsAnimated="True">
         <lib:SelectionOverlay.SelectionBounds>
@@ -81,8 +84,8 @@
         <lib:TransformGizmoOverlay.IsVisible>
           <MultiBinding Converter="{StaticResource Cvt_Sel2V}">
             <Binding Path="Workspace.EditorModule.SelectedObjects" />
-            <Binding Path="Workspace.EditorModule.CurrentTransformMode" /> 
-            <Binding Path="Workspace" /> 
+            <Binding Path="Workspace.EditorModule.CurrentTransformMode" />
+            <Binding Path="Workspace" />
             <Binding Path="Workspace.EditorModule.NotifyFlag" />
           </MultiBinding>
         </lib:TransformGizmoOverlay.IsVisible>
