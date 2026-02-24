@@ -77,10 +77,7 @@ public class GLImagePreview : GLCanvas
             DepthWriteEnabled = false,
             BlendingEnabled = false,
         };
-        _matSample = new RenderMaterial
-        {
-            Shader = pipeline.ShaderCache.Acquire(vertSrc, fragSample)!,
-        };
+        _shaderSample = pipeline.ShaderCache.Acquire(vertSrc, fragSample);
     }
 
     protected override void OnContextFinalizing(ConfigurableRenderPipeline pipeline)
@@ -88,7 +85,7 @@ public class GLImagePreview : GLCanvas
         IRenderDevice device = pipeline.Device;
         _blitVertStream!.Dispose(device);
         _quad!.Dispose();
-        pipeline.ShaderCache.Release(_matSample!.Shader);
+        pipeline.ShaderCache.Release(_shaderSample!);
         if (_lastTexture != null)
         {
             pipeline.TextureManager.ReleaseTexture(_lastTexture);
@@ -127,9 +124,9 @@ public class GLImagePreview : GLCanvas
                     device.SyncVertexStream(_blitVertStream);
                 }
                 int texId = pipeline.TextureManager.AcquireTextureID(Texture);
-                _matSample!.Uniforms.SetUniform("u_Texture", TextureDefinition.CreateGpuDefinition(texId), 0);
+                _uniformsSample.SetUniform("u_Texture", TextureDefinition.CreateGpuDefinition(texId), 0);
                 device.ApplyRenderState(_state!.Value);
-                device.Draw(_blitVertStream!, _matSample);
+                device.Draw(_blitVertStream!, _shaderSample!, _uniformsSample);
             }
             _lastTexture = Texture;
         }
@@ -154,6 +151,7 @@ public class GLImagePreview : GLCanvas
     VertexStream? _blitVertStream;
     Mesh? _quad;
     RenderState? _state;
-    RenderMaterial? _matSample;
+    ShaderProgram? _shaderSample;
+    UniformSet _uniformsSample = new UniformSet();
     ITexture2D? _lastTexture;
 }

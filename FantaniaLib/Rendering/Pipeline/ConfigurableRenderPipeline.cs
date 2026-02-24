@@ -81,12 +81,8 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
             string? vertSrc = IOHelper.ReadText(matInfo.VertexShader, workspace);
             string? fragSrc = IOHelper.ReadText(matInfo.FragmentShader, workspace);
             if (vertSrc == null || fragSrc == null) continue;
-            var shader = _cacheShaders.Acquire(vertSrc, fragSrc);
-            var material = new RenderMaterial
-            {
-                Shader = shader,
-            };
-            _materials.AddMaterial(matInfo.MaterialKey, material);
+            ShaderProgram shader = _cacheShaders.Acquire(vertSrc, fragSrc);
+            _materials.AddShader(matInfo.MaterialKey, shader);
         }
         _built = true;
     }
@@ -169,10 +165,7 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
         if (_evTaskComplete!.WaitOne(-1))
         {
             _renderables.Clear();
-            foreach (var renderable in renderables)
-            {
-                _renderables.Add(renderable.Clone());
-            }
+            _renderables.AddRange(renderables);
             _evTaskStart!.Set();
         }
     }
@@ -181,14 +174,6 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
     {
         lock (_mutexBuffers)
             CompletedBuffer.Execute(this);
-    }
-
-    public void SyncGlobalUniforms(RenderMaterial material)
-    {
-        foreach (var pair in _globalUniforms)
-        {
-            material.Uniforms.SetUniform(pair.Key, pair.Value);
-        }
     }
 
     public void Tick()

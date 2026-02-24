@@ -322,12 +322,15 @@ public class GLDevice : IRenderDevice
         DebugError();
     }
 
-    public void ApplyMaterial(RenderMaterial material)
+    public void ApplyMaterial(ShaderProgram shader, params IReadonlyUniformSet[] uniforms)
     {
-        ApplyShaderProgram(material.Shader);
-        foreach (var pair in material.Uniforms)
+        ApplyShaderProgram(shader);
+        foreach (var uniformSet in uniforms)
         {
-            ApplyUniform(material.Shader, pair.Key, pair.Value);
+            foreach (var pair in uniformSet)
+            {
+                ApplyUniform(shader, pair.Key, pair.Value);
+            }
         }
         DebugError();
     }
@@ -366,10 +369,10 @@ public class GLDevice : IRenderDevice
         DebugError();
     }
 
-    public void Draw(VertexStream vertStream, RenderMaterial material)
+    public void Draw(VertexStream vertStream, ShaderProgram shader, params IReadonlyUniformSet[] uniforms)
     {
         ApplyVertexStream(vertStream);
-        ApplyMaterial(material);
+        ApplyMaterial(shader, uniforms);
         _gl.DrawElements(GL_TRIANGLES, vertStream.IndiceCount, GL_UNSIGNED_SHORT, 0);
         DebugError();
     }

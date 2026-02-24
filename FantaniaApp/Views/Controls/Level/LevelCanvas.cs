@@ -32,9 +32,11 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
         RenderPipelineConfig rpConfig = Workspace!.ScriptingModule.GetCustomRenderPipelineConfigOrDefault();
         pipeline.Build(rpConfig, Workspace);
         ColorSize = rpConfig.Resolution.ToVector2();
-        _camera = new Camera2D(rpConfig.Resolution);
-        _camera.Position = Workspace.UserTemporary.CameraPosition;
-        _camera.Zoom = Workspace.UserTemporary.CameraZoom;
+        _camera = new Camera2D(rpConfig.Resolution)
+        {
+            Position = Workspace.UserTemporary.CameraPosition,
+            Zoom = Workspace.UserTemporary.CameraZoom
+        };
         IRenderDevice device = pipeline.Device;
         var vertDesc = VertexAnalyzer.GenerateDescriptor<PositionUV>();
         _blitVertStream = device.CreateVertexStream(vertDesc, vertDesc.SizeofVertex * 4, sizeof(ushort) * 6);
@@ -49,10 +51,7 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
             DepthWriteEnabled = false,
             BlendingEnabled = false,
         };
-        _matFinalBlit = new RenderMaterial
-        {
-            Shader = pipeline.ShaderCache.Acquire(vertSrc, fragSrc)!,
-        };
+        _shaderFinalBlit = pipeline.ShaderCache.Acquire(vertSrc, fragSrc);
         pipeline.StartWorkerThread();
         LevelEditConfig leConfig = Workspace.ScriptingModule.GetCustomLevelEditConfigOrDefault();
         _inputs = new LevelInputs(this, leConfig);
@@ -77,7 +76,7 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
         IRenderDevice device = pipeline.Device;
         _blitVertStream!.Dispose(device);
         _quad!.Dispose();
-        pipeline.ShaderCache.Release(_matFinalBlit!.Shader);
+        pipeline.ShaderCache.Release(_shaderFinalBlit!);
         _inputs!.Dispose();
     }
 
@@ -225,11 +224,9 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
             _blitVertStream.TryAppend(_quad!);
             device.SyncVertexStream(_blitVertStream);
         }
-        _matFinalBlit!.Uniforms.SetUniform("u_MainTexture", TextureDefinition.CreateGpuDefinition(fbColor.ColorAttachment), 0);
+        _uniformsFinalBlit.SetUniform("u_MainTexture", TextureDefinition.CreateGpuDefinition(fbColor.ColorAttachment), 0);
         device.ApplyRenderState(_blitState!.Value);
-        // device.SetupFrameBufferSRGB(true);
-        device.Draw(_blitVertStream!, _matFinalBlit!);
-        // device.SetupFrameBufferSRGB(false);
+        device.Draw(_blitVertStream!, _shaderFinalBlit!, _uniformsFinalBlit);
     }
 
     bool UpdateUVs(params Vector2[] uvs)
@@ -368,7 +365,8 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
     VertexStream? _blitVertStream;
     Mesh? _quad;
     RenderState? _blitState;
-    RenderMaterial? _matFinalBlit;
+    ShaderProgram? _shaderFinalBlit;
+    UniformSet _uniformsFinalBlit = new UniformSet();
     LevelInputs? _inputs;
     LevelSpaceContext? _context;
     List<ICanvasCommand> _commands = new List<ICanvasCommand>(0);

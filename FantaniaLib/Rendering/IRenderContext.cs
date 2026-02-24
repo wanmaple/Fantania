@@ -7,6 +7,4 @@ public interface IRenderContext
     TextureManager TextureManager { get; }
     MaterialSet MaterialSet { get; }
     VertexStreamCache VertexStreamCache { get; }
-
-    void SyncGlobalUniforms(RenderMaterial material);
 }

@@ -1,35 +1,25 @@
 namespace FantaniaLib;
 
-public class RenderMaterial : IEquatable<RenderMaterial>
+public class RenderMaterial
 {
-    public required ShaderProgram Shader { get; set; }
-    public UniformSet Uniforms => _uniforms;
+    public ShaderProgram Shader { get; set; }
+    public IReadonlyUniformSet Uniforms => _uniforms;
+    /// <summary>
+    /// 除非你知道自己在干什么，否则不要使用它修改Uniforms。
+    /// 一般来说，修改Uniform需要重新创建新的Material实例，这里只是为了修改Texture Uniform的TextureID而提供的接口，其他Uniform的修改请直接创建新的Material实例。
+    /// </summary>
+    public UniformSet MutableUniforms => _uniforms;
 
-    public RenderMaterial Clone()
+    public RenderMaterial(ShaderProgram shader)
+    : this(shader, new UniformSet())
     {
-        var clone = new RenderMaterial
-        {
-            Shader = Shader,
-            _uniforms = _uniforms.Clone(),
-        };
-        return clone;
     }
 
-    public bool Equals(RenderMaterial? other)
+    public RenderMaterial(ShaderProgram shader, UniformSet uniforms)
     {
-        return other != null && Shader.Equals(other.Shader) && _uniforms.Equals(other._uniforms);
+        Shader = shader;
+        _uniforms = uniforms;
     }
 
-    public override bool Equals(object? obj)
-    {
-        return obj is RenderMaterial && Equals((RenderMaterial)obj);
-    }
-
-    public override int GetHashCode()
-    {
-        int hash = (Shader.GetHashCode() * 397) ^ _uniforms.GetHashCode();
-        return hash;
-    }
-
-    UniformSet _uniforms = new UniformSet();
+    UniformSet _uniforms;
 }

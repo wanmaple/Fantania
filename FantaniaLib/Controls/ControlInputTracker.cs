@@ -126,7 +126,7 @@ public class ControlInputTracker : IDisposable
         if (_isDisposed) return;
         UpdateMovement(e);
         UpdatePosition(e);
-        UpdateButtonStates(e);
+        // UpdateButtonStates(e);
         KeyModifiers = e.KeyModifiers;
         var args = CreateInputEventArgs();
         MouseMoved?.Invoke(_targetControl, args);

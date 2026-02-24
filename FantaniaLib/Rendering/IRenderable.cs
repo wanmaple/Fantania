@@ -16,6 +16,4 @@ public interface IRenderable : IBVHItem
     int NodeIndex { get; set; }
     Mesh Mesh { get; }
     RenderMaterial Material { get; }
-
-    IRenderable Clone();
 }

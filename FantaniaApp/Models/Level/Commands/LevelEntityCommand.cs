@@ -57,15 +57,17 @@ public abstract class LevelEntityCommand : ICanvasCommand
         });
     }
 
-    protected void RemoveEntity(LevelEntity entity, LevelSpaceContext context)
+    protected void RemoveEntity(LevelEntity entity, LevelSpaceContext context, ConfigurableRenderPipeline pipeline)
     {
         entity.OnRemoveSelectables(context.SelectableHierarchy);
         foreach (var renderable in context.EntityManager.GetNodeRenderables(entity))
         {
+            pipeline.MaterialSet.ReleaseMaterial(renderable.Material);
             context.RenderableHierarchy.RemoveItem(renderable);
         }
         foreach (var renderable in context.EntityManager.GetNonNodeRenderables(entity))
         {
+            pipeline.MaterialSet.ReleaseMaterial(renderable.Material);
             context.RenderableHierarchy.RemoveItem(renderable);
         }
         context.EntityManager.Unregister(entity);
@@ -75,7 +77,7 @@ public abstract class LevelEntityCommand : ICanvasCommand
     {
         if (entity.PlacementDirty)
         {
-            RemoveEntity(entity, context);
+            RemoveEntity(entity, context, pipeline);
             AddEntity(entity, context, pipeline);
             entity.PlacementDirty = false;
         }
@@ -155,8 +157,8 @@ public abstract class LevelEntityCommand : ICanvasCommand
                 MaterialKey = local.MaterialKey,
                 Uniforms = local.Uniforms,
             };
-            RenderMaterial material = context.MaterialSet.GetMaterial(info.MaterialKey);
-            info.Uniforms.ApplyToUniformSet(material.Uniforms);
+            var uniforms = new UniformSet(info.Uniforms);
+            RenderMaterial material = context.MaterialSet.AcquireMaterial(info.MaterialKey, uniforms);
             renderables.Add(new QuadRenderable(info, material));
         }
         return renderables;

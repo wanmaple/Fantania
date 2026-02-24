@@ -22,7 +22,7 @@ public class SetupLevelEntityCommand : LevelEntityCommand
                 AddEntity(Entity, context, pipeline);
                 break;
             case EntitySetups.Remove:
-                RemoveEntity(Entity, context);
+                RemoveEntity(Entity, context, pipeline);
                 break;
         }
     }

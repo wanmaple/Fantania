@@ -3,7 +3,7 @@ using System.Numerics;
 
 namespace FantaniaLib;
 
-public class UniformSet : IEquatable<UniformSet>, IEnumerable<KeyValuePair<string, MaterialUniform>>
+public class UniformSet : IEquatable<UniformSet>, IReadonlyUniformSet
 {
     public struct TextureInformation : IEquatable<TextureInformation>
     {
@@ -15,6 +15,21 @@ public class UniformSet : IEquatable<UniformSet>, IEnumerable<KeyValuePair<strin
         {
             return TextureSlot == other.TextureSlot && TextureDef.Equals(other.TextureDef);
         }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is TextureInformation && Equals((TextureInformation)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(TextureSlot, TextureDef);
+        }
+
+        public override string ToString()
+        {
+            return $"slot: {TextureSlot}, def: {TextureDef}";
+        }
     }
 
     public IReadOnlyCollection<string> Names => _uniforms.Keys;
@@ -23,6 +38,43 @@ public class UniformSet : IEquatable<UniformSet>, IEnumerable<KeyValuePair<strin
     {
         get => _uniforms[name];
         set => _uniforms[name] = value;
+    }
+
+    public UniformSet()
+    {
+    }
+
+    public UniformSet(DesiredUniformMap map)
+    {
+        int texSlot = 0;
+        foreach (var pair in map)
+        {
+            string name = pair.Key;
+            DesiredUniformValue def = pair.Value;
+            switch (def.Type)
+            {
+                case UniformTypes.Float1:
+                    SetUniform(name, (float)def.Value);
+                    break;
+                case UniformTypes.Float2:
+                    SetUniform(name, (Vector2)def.Value);
+                    break;
+                case UniformTypes.Float3:
+                    SetUniform(name, (Vector3)def.Value);
+                    break;
+                case UniformTypes.Float4:
+                    SetUniform(name, (Vector4)def.Value);
+                    break;
+                case UniformTypes.Matrix3x3:
+                    SetUniform(name, (Matrix3x3)def.Value);
+                    break;
+                case UniformTypes.Texture:
+                    var texDef = (TextureDefinition)def.Value;
+                    SetUniform(name, texDef, texSlot);
+                    texSlot++;
+                    break;
+            }
+        }
     }
 
     public void SetUniform(string name, MaterialUniform uniform)

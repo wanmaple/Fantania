@@ -130,8 +130,6 @@ public class ViewEditorMode : ILevelEditorMode
     {
         if (_selecting)
         {
-            var selection = context.Workspace.EditorModule.Selection;
-            selection.Reset();
             _selecting = false;
             context.AddCommand(new SetupSelectionCommand(SelectionSetups.End));
         }

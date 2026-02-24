@@ -27,7 +27,7 @@ public class SetupGhostEntityCommand : LevelEntityCommand
                 break;
             case EntitySetups.Remove:
                 {
-                    RemoveEntity(context.GhostEntity!, context);
+                    RemoveEntity(context.GhostEntity!, context, pipeline);
                     context.GhostEntity = null;
                 }
                 break;

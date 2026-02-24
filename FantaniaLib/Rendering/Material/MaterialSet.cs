@@ -3,30 +3,51 @@ namespace FantaniaLib;
 [BindingScript]
 public class MaterialSet
 {
-    public IEnumerable<RenderMaterial> AllMaterials => _materials.Values;
-
     public MaterialSet(ShaderProgram fallback)
     {
-        _fallback = new RenderMaterial
-        {
-            Shader = fallback,
-        };
+        _fallback = fallback;
     }
 
-    public RenderMaterial GetMaterial(string key)
+    public RenderMaterial AcquireMaterial(string key, UniformSet uniforms)
     {
-        if (_materials.TryGetValue(key, out var mat))
+        if (!_shaders.TryGetValue(key, out var shader))
         {
-            return mat.Clone();
+            throw new RenderingException("Shader not found for material key: " + key);
         }
-        return _fallback.Clone();
+        var matKey = (shader, uniforms);
+        if (!_materials.TryGetValue(matKey, out var matRef))
+        {
+            RenderMaterial material = new RenderMaterial(shader, uniforms);
+            matRef = new ReferenceCounter<RenderMaterial>(material);
+            _materials.Add(matKey, matRef);
+            return material;
+        }
+        else
+        {
+            matRef.Acquire();
+            return matRef.Item;
+        }
     }
 
-    public void AddMaterial(string key, RenderMaterial material)
+    public void ReleaseMaterial(RenderMaterial material)
     {
-        _materials[key] = material;
+        var matKey = (material.Shader, (UniformSet)material.Uniforms);
+        if (_materials.TryGetValue(matKey, out var matRef))
+        {
+            matRef.Release();
+            if (matRef.IsFree)
+            {
+                _materials.Remove(matKey);
+            }
+        }
     }
 
-    Dictionary<string, RenderMaterial> _materials = new Dictionary<string, RenderMaterial>(16);
-    RenderMaterial _fallback;
+    public void AddShader(string key, ShaderProgram shader)
+    {
+        _shaders[key] = shader;
+    }
+
+    Dictionary<string, ShaderProgram> _shaders = new Dictionary<string, ShaderProgram>(32);
+    Dictionary<(ShaderProgram, UniformSet), ReferenceCounter<RenderMaterial>> _materials = new Dictionary<(ShaderProgram, UniformSet), ReferenceCounter<RenderMaterial>>(32);
+    ShaderProgram _fallback;
 }

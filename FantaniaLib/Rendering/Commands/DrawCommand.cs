@@ -13,7 +13,6 @@ public class DrawCommand : IRenderCommand
 
     public void Execute(ConfigurableRenderPipeline pipeline)
     {
-        pipeline.SyncGlobalUniforms(Material);
         VertexDescriptor desc = Meshes.First().Descriptor.VertexDescriptor;
         VertexStream stream = pipeline.VertexStreamCache.Acquire(desc);
         foreach (var mesh in Meshes)
@@ -21,7 +20,7 @@ public class DrawCommand : IRenderCommand
             if (!stream.TryAppend(mesh))
             {
                 pipeline.Device.SyncVertexStream(stream);
-                pipeline.Device.Draw(stream, Material);
+                pipeline.Device.Draw(stream, Material.Shader, Material.Uniforms, pipeline.GlobalUniforms);
                 ++pipeline.Statistics.DrawCalls;
                 pipeline.Statistics.Triangles += stream.IndiceCount / 3;
                 stream.Reset();
@@ -31,7 +30,7 @@ public class DrawCommand : IRenderCommand
         if (stream.IndiceCount > 0)
         {
             pipeline.Device.SyncVertexStream(stream);
-            pipeline.Device.Draw(stream, Material);
+            pipeline.Device.Draw(stream, Material.Shader, Material.Uniforms, pipeline.GlobalUniforms);
             ++pipeline.Statistics.DrawCalls;
             pipeline.Statistics.Triangles += stream.IndiceCount / 3;
         }

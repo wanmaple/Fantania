@@ -48,22 +48,6 @@ public class QuadRenderable : ObservableObject, IRenderable
         UpdateVertices();
         CalculateBounds(Transform);
     }
-    
-    private QuadRenderable(QuadRenderable other)
-    {
-        Stage = other.Stage;
-        _transform = other.Transform;
-        Depth = other.Depth;
-        EntityOrder = other.EntityOrder;
-        LocalOrder = other.LocalOrder;
-        Anchor = other.Anchor;
-        Size = other.Size;
-        VertexColor = other.VertexColor;
-        Tiling = other.Tiling;
-        _material = other._material.Clone();
-        _mesh = other._mesh;
-        _aabb = other._aabb;
-    }
 
     void UpdateVertices()
     {
@@ -89,11 +73,6 @@ public class QuadRenderable : ObservableObject, IRenderable
         float maxY = MathF.Max(pt1.Y, MathF.Max(pt2.Y, MathF.Max(pt3.Y, pt4.Y)));
         _aabb = new Rectf(minX, minY, maxX - minX, maxY - minY);
         OnPropertyChanged(nameof(BoundingBox));
-    }
-
-    public IRenderable Clone()
-    {
-        return new QuadRenderable(this);
     }
 
     Mesh _mesh;

@@ -30,7 +30,12 @@ public class ShaderProgram : IEquatable<ShaderProgram>, IRenderResource
 
     public override int GetHashCode()
     {
-        return _programId;
+        return _programId.GetHashCode();
+    }
+
+    public override string ToString()
+    {
+        return _programId.ToString();
     }
 
     string _srcVert, _srcFrag;

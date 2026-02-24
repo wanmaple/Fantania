@@ -21,6 +21,8 @@ public class SetupSelectionCommand : ICanvasCommand
             break;
             case SelectionSetups.End:
             context.SelectionContext.End();
+            var selection = context.Workspace.EditorModule.Selection;
+            selection.Reset();
             break;
         }
     }

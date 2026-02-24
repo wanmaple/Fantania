@@ -48,7 +48,7 @@ public class RenderableLifePeriod
                 }
                 info.TextureID = texId;
                 uniform.Set(info);
-                material.Uniforms.SetUniform(name, uniform);
+                material.MutableUniforms.SetUniform(name, uniform);
             }
         }
     }

@@ -25,11 +25,11 @@ public interface IRenderDevice
     void DeleteProgram(int id);
     void ApplyRenderState(RenderState state);
     void ApplyUniform(ShaderProgram shader, string name, MaterialUniform uniform);
-    void ApplyMaterial(RenderMaterial material);
+    void ApplyMaterial(ShaderProgram shader, params IReadonlyUniformSet[] uniforms);
     VertexStream CreateVertexStream(VertexDescriptor vertDesc, int maxVertBufferBytes = 160 * 1024, int maxIndiceBufferBytes = 80 * 1024);
     void ApplyVertexStream(VertexStream vertStream);
     void SyncVertexStream(VertexStream vertStream);
-    void Draw(VertexStream vertStream, RenderMaterial material);
+    void Draw(VertexStream vertStream, ShaderProgram shader, params IReadonlyUniformSet[] uniforms);
     void DeleteVertexArray(int id);
     void DeleteBuffer(int id);
     
