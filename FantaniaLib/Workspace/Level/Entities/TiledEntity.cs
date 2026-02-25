@@ -71,6 +71,11 @@ public class TiledEntity : LevelEntity, ISelectableItem, ISizeableEntity
         return placement.Template.TileSize;
     }
 
+    public Vector2Int GetUnitSize(IWorkspace workspace)
+    {
+        return GetTileSize(workspace);
+    }
+
     public override void OnEnter(IWorkspace workspace)
     {
         base.OnEnter(workspace);

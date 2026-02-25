@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel;
 using System.Numerics;
+using Avalonia.Input;
 using FantaniaLib;
 
 namespace Fantania.Views;
@@ -115,7 +116,16 @@ public class LevelInputs : IDisposable
     void OnKeyUp(object? sender, ControlInputEventArgs e)
     {
         if (_inArea)
+        {
+            if (e.KeyState.JustReleased == Key.Space && !_context.FixCamera)
+            {
+                Vector2 mouseWorldPos = _context.CanvasToWorld(e.MouseState.Position.ToVector2());
+                _context.Camera.SetZoomAt(1.0f, mouseWorldPos);
+                _context.Workspace.EditorModule.Notify();
+                _context.Workspace.UserTemporary.CameraZoom = _context.Camera.Zoom;
+            }
             ChangeModeDependsOnPlacementMode(e);
+        }
         _manager.CurrentMode.OnKeyUp(_context, e);
     }
 
@@ -149,6 +159,10 @@ public class LevelInputs : IDisposable
         {
             container.NodeRemoved += OnEntityNodeRemoved;
         }
+        if (entity is TiledEntity tiled)
+        {
+            tiled.PropertyChanged += OnTiledEntityPropertyChanged;
+        }
     }
 
     void OnEntityRemoved(LevelEntity entity)
@@ -163,6 +177,10 @@ public class LevelInputs : IDisposable
         }
         else if (entity is ISelectableItem item)
             _context.Workspace.EditorModule.SelectedObjects.RemoveFast(item);
+        if (entity is TiledEntity tiled)
+        {
+            tiled.PropertyChanged -= OnTiledEntityPropertyChanged;
+        }
         _context.Workspace.EditorModule.Notify();
     }
 
@@ -170,6 +188,23 @@ public class LevelInputs : IDisposable
     {
         _context.Workspace.EditorModule.SelectedObjects.RemoveFast(node);
         _context.Workspace.EditorModule.Notify();
+    }
+
+    void OnTiledEntityPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(TiledEntity.Position) || e.PropertyName == nameof(TiledEntity.Size))
+        {
+            TiledEntity tiled = (TiledEntity)sender!;
+            IReadonlyLevel lv = _context.Workspace.LevelModule.CurrentLevel!;
+            var group = lv.TiledEntityManager.GetGroup(tiled);
+            foreach (var entity in group.Entities)
+                entity.RefreshSelf();
+            lv.TiledEntityManager.RemoveEntity(_context.Workspace, tiled);
+            lv.TiledEntityManager.AddEntity(_context.Workspace, tiled);
+            group = lv.TiledEntityManager.GetGroup(tiled);
+            foreach (var entity in group.Entities)
+                entity.RefreshSelf();
+        }
     }
 
     public void Dispose()

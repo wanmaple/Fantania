@@ -13,6 +13,9 @@ public class PopupStates : ObservableObject
             if (_popupLvIsOpen != value)
             {
                 _popupLvIsOpen = value;
+                if (_popupLvIsOpen)
+                {
+                }
                 OnPropertyChanged(nameof(LevelPopupIsOpen));
             }
         }

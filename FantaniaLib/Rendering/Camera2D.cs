@@ -67,6 +67,15 @@ public class Camera2D
         Position += offset;
     }
 
+    public void SetZoomAt(float zoom, Vector2 centerInWorld)
+    {
+        float oldZoom = _zoom;
+        Zoom = MathHelper.Clamp(zoom, MinZoom, MaxZoom);
+        float zoomFactor = Zoom / oldZoom;
+        Vector2 offset = (centerInWorld - Position) * (1.0f - 1.0f / zoomFactor);
+        Position += offset;
+    }
+
     public void SetZoomRange(float zoomMin, float zoomMax)
     {
         MinZoom = MathF.Max(zoomMin, 0.1f);

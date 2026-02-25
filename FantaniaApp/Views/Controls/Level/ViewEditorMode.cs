@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -17,6 +18,7 @@ public class ViewEditorMode : ILevelEditorMode
     public void OnExit(LevelEditorContext context, ControlInputEventArgs e)
     {
         ResetSelectionStates(context);
+        ResetResizeState(context);
     }
 
     public void OnKeyDown(LevelEditorContext context, ControlInputEventArgs e)
@@ -47,7 +49,12 @@ public class ViewEditorMode : ILevelEditorMode
 
     public void OnMouseMoved(LevelEditorContext context, ControlInputEventArgs e)
     {
-        if (_selecting)
+        if (_resizePending)
+        {
+            Vector2 worldPos = context.CanvasToWorld(e.MouseState.Position.ToVector2());
+            context.AddCommand(new UpdateResizeCommand(worldPos));
+        }
+        else if (_selecting)
         {
             var selection = context.Workspace.EditorModule.Selection;
             selection.Current = context.CanvasToWorld(e.MouseState.Position.ToVector2());
@@ -56,19 +63,28 @@ public class ViewEditorMode : ILevelEditorMode
                 Rectf range = new Rectf(new Vector2(selection.Left, selection.Top), new Vector2(selection.Width, selection.Height));
                 context.AddCommand(new RangeSelectionCommand(range, SelectionModeFromKeyModifiers(e.KeyState.KeyModifiers)));
             }
-            e.Handled = true;
         }
+        e.Handled = true;
     }
 
     public void OnMousePressed(LevelEditorContext context, ControlInputEventArgs e)
     {
         if (e.MouseState.IsLeftButtonPressed)
         {
-            Vector2 toWorld = context.CanvasToWorld(e.MouseState.Position.ToVector2());
-            context.Workspace.EditorModule.Selection.Origin = toWorld;
-            context.Workspace.EditorModule.Selection.Current = toWorld;
-            _selecting = true;
-            context.AddCommand(new SetupSelectionCommand(SelectionSetups.Begin));
+            Vector2 worldPos = context.CanvasToWorld(e.MouseState.Position.ToVector2());
+            if (CanStartResize(context, context.Workspace.EditorModule.SelectedObjects, e.MouseState.Position.ToVector2(), out var handle))
+            {
+                _resizePending = true;
+                context.AddCommand(new StartResizeCommand(worldPos, e.MouseState.Position.ToVector2(), handle));
+            }
+            else
+            {
+                Vector2 toWorld = context.CanvasToWorld(e.MouseState.Position.ToVector2());
+                context.Workspace.EditorModule.Selection.Origin = toWorld;
+                context.Workspace.EditorModule.Selection.Current = toWorld;
+                _selecting = true;
+                context.AddCommand(new SetupSelectionCommand(SelectionSetups.Begin));
+            }
             e.Handled = true;
         }
     }
@@ -77,16 +93,24 @@ public class ViewEditorMode : ILevelEditorMode
     {
         if (e.MouseState.IsLeftButtonJustReleased)
         {
-            var selection = context.Workspace.EditorModule.Selection;
-            if (selection.IsZero)
+            if (_resizePending)
             {
-                Vector2 worldPos = context.CanvasToWorld(e.MouseState.Position.ToVector2());
-                if (e.KeyState.KeyModifiers.HasFlag(KeyModifiers.Alt))
-                    context.AddCommand(new MultiNodeSelectionCommand(worldPos));
-                else
-                    context.AddCommand(new ClickSelectionCommand(worldPos, SelectionModeFromKeyModifiers(e.KeyState.KeyModifiers)));
+                context.AddCommand(new EndResizeCommand());
+                _resizePending = false;
             }
-            ResetSelectionStates(context);
+            else
+            {
+                var selection = context.Workspace.EditorModule.Selection;
+                if (selection.IsZero)
+                {
+                    Vector2 worldPos = context.CanvasToWorld(e.MouseState.Position.ToVector2());
+                    if (e.KeyState.KeyModifiers.HasFlag(KeyModifiers.Alt))
+                        context.AddCommand(new MultiNodeSelectionCommand(worldPos));
+                    else
+                        context.AddCommand(new ClickSelectionCommand(worldPos, SelectionModeFromKeyModifiers(e.KeyState.KeyModifiers)));
+                }
+                ResetSelectionStates(context);
+            }
             e.Handled = true;
         }
         else if (e.MouseState.IsRightButtonJustReleased)
@@ -135,6 +159,15 @@ public class ViewEditorMode : ILevelEditorMode
         }
     }
 
+    void ResetResizeState(LevelEditorContext context)
+    {
+        if (_resizePending)
+        {
+            _resizePending = false;
+            context.AddCommand(new EndResizeCommand());
+        }
+    }
+
     SelectionModes SelectionModeFromKeyModifiers(KeyModifiers modifiers)
     {
         if (modifiers.HasFlag(KeyModifiers.Control) && modifiers.HasFlag(KeyModifiers.Shift))
@@ -179,5 +212,122 @@ public class ViewEditorMode : ILevelEditorMode
         context.Workspace.EditorModule.Notify();
     }
 
+    bool CanStartResize(LevelEditorContext context, IReadOnlyList<ISelectableItem> selections, Vector2 canvasPos, out ResizeHandleTypes handle)
+    {
+        if (!TryGetResizeHandle(context, selections, canvasPos, out handle))
+            return false;
+        return true;
+    }
+
+    bool TryGetResizeHandle(LevelEditorContext context, IReadOnlyList<ISelectableItem> selections, Vector2 canvasPos, out ResizeHandleTypes handle)
+    {
+        handle = ResizeHandleTypes.None;
+        if (selections.Count <= 0)
+            return false;
+        foreach (var sel in selections)
+        {
+            if (sel is not ISizeableEntity)
+                return false;
+        }
+        float minDistanceSq = float.MaxValue;
+        foreach (var sel in selections)
+        {
+            if (TryHitResizeHandle(context, sel.BoundingBox, canvasPos, out var candidate, out float distanceSq) && distanceSq < minDistanceSq)
+            {
+                minDistanceSq = distanceSq;
+                handle = candidate;
+            }
+        }
+        return handle != ResizeHandleTypes.None;
+    }
+
+    bool TryHitResizeHandle(LevelEditorContext context, Rectf bound, Vector2 canvasPos, out ResizeHandleTypes handle, out float distanceSq)
+    {
+        handle = ResizeHandleTypes.None;
+        distanceSq = float.MaxValue;
+        if (bound.IsZero)
+            return false;
+        Vector2 leftTop = context.WorldToCanvas(bound.TopLeft);
+        Vector2 rightTop = context.WorldToCanvas(bound.TopRight);
+        Vector2 leftBottom = context.WorldToCanvas(bound.BottomLeft);
+        Vector2 rightBottom = context.WorldToCanvas(bound.BottomRight);
+        float left = MathF.Min(leftTop.X, leftBottom.X);
+        float right = MathF.Max(rightTop.X, rightBottom.X);
+        float top = MathF.Min(leftTop.Y, rightTop.Y);
+        float bottom = MathF.Max(leftBottom.Y, rightBottom.Y);
+        const float CORNER_RADIUS = 10.0f;
+        const float EDGE_THICKNESS = 8.0f;
+        float cornerRadiusSq = CORNER_RADIUS * CORNER_RADIUS;
+        float dTopLeft = (canvasPos - new Vector2(left, top)).LengthSquared();
+        float dTopRight = (canvasPos - new Vector2(right, top)).LengthSquared();
+        float dBottomLeft = (canvasPos - new Vector2(left, bottom)).LengthSquared();
+        float dBottomRight = (canvasPos - new Vector2(right, bottom)).LengthSquared();
+        bool cornerHit = false;
+        if (dTopLeft <= cornerRadiusSq)
+        {
+            cornerHit = true;
+            handle = ResizeHandleTypes.Left | ResizeHandleTypes.Top;
+            distanceSq = dTopLeft;
+        }
+        if (dTopRight <= cornerRadiusSq && dTopRight < distanceSq)
+        {
+            cornerHit = true;
+            handle = ResizeHandleTypes.Right | ResizeHandleTypes.Top;
+            distanceSq = dTopRight;
+        }
+        if (dBottomLeft <= cornerRadiusSq && dBottomLeft < distanceSq)
+        {
+            cornerHit = true;
+            handle = ResizeHandleTypes.Left | ResizeHandleTypes.Bottom;
+            distanceSq = dBottomLeft;
+        }
+        if (dBottomRight <= cornerRadiusSq && dBottomRight < distanceSq)
+        {
+            cornerHit = true;
+            handle = ResizeHandleTypes.Right | ResizeHandleTypes.Bottom;
+            distanceSq = dBottomRight;
+        }
+        if (cornerHit)
+            return true;
+        if (canvasPos.X >= left - EDGE_THICKNESS && canvasPos.X <= left + EDGE_THICKNESS && canvasPos.Y >= top - EDGE_THICKNESS && canvasPos.Y <= bottom + EDGE_THICKNESS)
+        {
+            float candidateDistanceSq = MathF.Abs(canvasPos.X - left) * MathF.Abs(canvasPos.X - left);
+            if (candidateDistanceSq < distanceSq)
+            {
+                handle = ResizeHandleTypes.Left;
+                distanceSq = candidateDistanceSq;
+            }
+        }
+        if (canvasPos.X >= right - EDGE_THICKNESS && canvasPos.X <= right + EDGE_THICKNESS && canvasPos.Y >= top - EDGE_THICKNESS && canvasPos.Y <= bottom + EDGE_THICKNESS)
+        {
+            float candidateDistanceSq = MathF.Abs(canvasPos.X - right) * MathF.Abs(canvasPos.X - right);
+            if (candidateDistanceSq < distanceSq)
+            {
+                handle = ResizeHandleTypes.Right;
+                distanceSq = candidateDistanceSq;
+            }
+        }
+        if (canvasPos.Y >= top - EDGE_THICKNESS && canvasPos.Y <= top + EDGE_THICKNESS && canvasPos.X >= left - EDGE_THICKNESS && canvasPos.X <= right + EDGE_THICKNESS)
+        {
+            float candidateDistanceSq = MathF.Abs(canvasPos.Y - top) * MathF.Abs(canvasPos.Y - top);
+            if (candidateDistanceSq < distanceSq)
+            {
+                handle = ResizeHandleTypes.Top;
+                distanceSq = candidateDistanceSq;
+            }
+        }
+        if (canvasPos.Y >= bottom - EDGE_THICKNESS && canvasPos.Y <= bottom + EDGE_THICKNESS && canvasPos.X >= left - EDGE_THICKNESS && canvasPos.X <= right + EDGE_THICKNESS)
+        {
+            float candidateDistanceSq = MathF.Abs(canvasPos.Y - bottom) * MathF.Abs(canvasPos.Y - bottom);
+            if (candidateDistanceSq < distanceSq)
+            {
+                handle = ResizeHandleTypes.Bottom;
+                distanceSq = candidateDistanceSq;
+            }
+        }
+        return handle != ResizeHandleTypes.None;
+    }
+
     bool _selecting = false;
+    bool _resizePending = false;
 }

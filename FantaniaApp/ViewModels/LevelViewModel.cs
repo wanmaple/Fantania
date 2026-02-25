@@ -43,13 +43,6 @@ public partial class LevelViewModel : ViewModelBase
                 IconPath = "avares://Fantania/Assets/icons/place.png",
                 Tooltip = "TT_PlaceMode",
             },
-            // new RadioToggleInformation{
-            //     Workspace = _workspace,
-            //     Value = EntityPlacementModes.DrawRect,
-            //     Command = _placeModeCmd,
-            //     IconPath = "avares://Fantania/Assets/icons/drawrect.png",
-            //     Tooltip = "TT_DrawRectMode",
-            // },
         ]);
         _transModeCmd = new RelayCommand<object>(ToggleTransformMode);
         _groupTransformModes.AddRange([

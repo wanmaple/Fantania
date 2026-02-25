@@ -41,7 +41,7 @@
       <Separator Classes="toolbar" />
       <lib:ToggleButtonGroup ItemsSource="{Binding TransformModesDefinitions}" SelectedValue="{Binding Workspace.EditorModule.CurrentTransformMode}" />
     </StackPanel>
-    <StackPanel Grid.Row="2" Orientation="Horizontal">
+    <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="4">
       <Button x:Name="btnLevels" Classes="m" Command="{Binding ToggleLevelPopupCommand}">
         <Button.Content>
           <MultiBinding Converter="{StaticResource Cvt_Lv2Name}">
