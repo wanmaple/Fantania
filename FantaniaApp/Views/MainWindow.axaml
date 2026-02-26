@@ -23,6 +23,9 @@
         <KeyBinding Command="{Binding NewWorkspaceCommand}" Gesture="Ctrl+N" />
         <KeyBinding Command="{Binding OpenWorkspaceCommand}" Gesture="Ctrl+O" />
         <KeyBinding Command="{Binding SaveWorkspaceCommand}" Gesture="Ctrl+S" />
+        <KeyBinding Command="{Binding CutCommand}" Gesture="Ctrl+X" />
+        <KeyBinding Command="{Binding CopyCommand}" Gesture="Ctrl+C" />
+        <KeyBinding Command="{Binding PasteCommand}" Gesture="Ctrl+V" />
         <KeyBinding Command="{Binding UndoCommand}" Gesture="Ctrl+Z" />
         <KeyBinding Command="{Binding RedoCommand}" Gesture="Ctrl+Shift+Z" />
     </Window.KeyBindings>
@@ -50,9 +53,21 @@
                 <MenuItem Classes="p" Header="{x:Static lang:Resources.MI_File_Exit}" Command="{Binding ExitApplicationCommand}" />
             </MenuItem>
             <MenuItem Classes="m" Header="{x:Static lang:Resources.MI_Edit}" IsVisible="{Binding Workspace, Converter={x:Static ObjectConverters.IsNotNull}}">
-                <MenuItem Classes="p" Header="{x:Static lang:Resources.MI_Edit_Cut}" />
-                <MenuItem Classes="p" Header="{x:Static lang:Resources.MI_Edit_Copy}" />
-                <MenuItem Classes="p" Header="{x:Static lang:Resources.MI_Edit_Paste}" />
+                <MenuItem Classes="p" Header="{x:Static lang:Resources.MI_Edit_Cut}" Command="{Binding CutCommand}" InputGesture="Ctrl+X">
+                    <MenuItem.Icon>
+                        <Image Width="24" Height="24" Source="avares://Fantania/Assets/icons/cut.png" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Classes="p" Header="{x:Static lang:Resources.MI_Edit_Copy}" Command="{Binding CopyCommand}" InputGesture="Ctrl+C">
+                    <MenuItem.Icon>
+                        <Image Width="24" Height="24" Source="avares://Fantania/Assets/icons/copy.png" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Classes="p" Header="{x:Static lang:Resources.MI_Edit_Paste}" Command="{Binding PasteCommand}" InputGesture="Ctrl+V">
+                    <MenuItem.Icon>
+                        <Image Width="24" Height="24" Source="avares://Fantania/Assets/icons/paste.png" />
+                    </MenuItem.Icon>
+                </MenuItem>
                 <Separator />
                 <MenuItem Classes="p" Header="{x:Static lang:Resources.MI_Edit_Undo}" Command="{Binding UndoCommand}" InputGesture="Ctrl+Z" IsEnabled="{Binding Workspace.UndoStack.IsUndoable}">
                     <MenuItem.Icon>

@@ -1,5 +1,7 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Numerics;
+using System.Text.Json;
 
 namespace FantaniaLib;
 
@@ -176,6 +178,90 @@ public class LevelModule : WorkspaceModule
             entity.OnExit(_workspace);
             _syncer!.RemoveObject(entity);
             EntityRemoved?.Invoke(entity);
+        }
+    }
+
+    public async Task CutEntities(IReadOnlyList<LevelEntity> entities)
+    {
+        List<string> data = new List<string>(entities.Count);
+        var clipboard = AvaloniaHelper.GetClipboard();
+        foreach (var entity in entities)
+        {
+            data.Add(entity.OnCopy(_workspace));
+            DeleteEntity(entity);
+        }
+        JsonSerializerOptions option = new JsonSerializerOptions
+        {
+            WriteIndented = false,
+        };
+        string serializedData = JsonSerializer.Serialize(data, option);
+        await clipboard.SetTextAsync(serializedData);
+    }
+
+    public async Task CopyEntities(IReadOnlyList<LevelEntity> entities)
+    {
+        List<string> data = new List<string>(entities.Count);
+        var clipboard = AvaloniaHelper.GetClipboard();
+        foreach (var entity in entities)
+        {
+            data.Add(entity.OnCopy(_workspace));
+        }
+        JsonSerializerOptions option = new JsonSerializerOptions
+        {
+            WriteIndented = false,
+        };
+        string serializedData = JsonSerializer.Serialize(data, option);
+        await clipboard.SetTextAsync(serializedData);
+    }
+
+    public async Task PasteEntities(Vector2Int worldPos)
+    {
+        var clipboard = AvaloniaHelper.GetClipboard();
+        string serializedData = await clipboard.GetTextAsync() ?? string.Empty;
+        if (string.IsNullOrEmpty(serializedData)) return;
+        try
+        {
+            var ary = JsonSerializer.Deserialize<List<string>>(serializedData);
+            Vector2 center = Vector2.Zero;
+            List<LevelEntity> entities = new List<LevelEntity>(ary!.Count);
+            foreach (string entityData in ary!)
+            {
+                Dictionary<string, object?> dict = JsonSerializer.Deserialize<Dictionary<string, object?>>(entityData)!;
+                string typename = dict["Type"]!.ToString()!;
+                LevelEntity entity = (LevelEntity)Activator.CreateInstance(Type.GetType(typename)!, true)!;
+                entity.OnPaste(_workspace, dict["Data"]!.ToString()!);
+                entities.Add(entity);
+                center += entity.Position.ToVector2();
+            }
+            center /= entities.Count;
+            Vector2Int offset = worldPos - center.ToVector2i();
+            foreach (var entity in entities)
+            {
+                entity.Position += offset;
+                entity.Order = CurrentLevel!.NewOrder();
+                PlaceEntity(entity);
+            }
+            _workspace.EditorModule.CancelSelection();
+            foreach (var entity in entities)
+            {
+                if (entity is MultiNodesEntity multiNodeEntity)
+                {
+                    foreach (var node in multiNodeEntity.AllNodes)
+                    {
+                        _workspace.EditorModule.SelectedObjects.Add(node);
+                    }
+                }
+                else
+                {
+                    _workspace.EditorModule.SelectedObjects.Add((ISelectableItem)entity);
+                }
+            }
+            _workspace.EditorModule.Notify();
+        }
+        catch (Exception)
+        {
+            // 解析失败，说明剪贴板内容不是合法的实体数据，直接忽略
+            await clipboard.SetTextAsync(null);
         }
     }
 

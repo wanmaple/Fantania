@@ -126,6 +126,33 @@ public partial class LevelViewModel : ViewModelBase
         PopupStates.RenderStatisticsPopupIsOpen = !PopupStates.RenderStatisticsPopupIsOpen;
     }
 
+    [RelayCommand]
+    public async Task Cut()
+    {
+        var selections = Workspace!.EditorModule.SelectedObjects;
+        if (selections.Count == 0) return;
+        var entities = SelectionHelper.GetSelectedEntities(selections);
+        if (entities.Count > 0)
+            await Workspace.LevelModule.CutEntities(entities);
+    }
+
+    [RelayCommand]
+    public async Task Copy()
+    {
+        var selections = Workspace!.EditorModule.SelectedObjects;
+        if (selections.Count == 0) return;
+        var entities = SelectionHelper.GetSelectedEntities(selections);
+        if (entities.Count > 0)
+            await Workspace.LevelModule.CopyEntities(entities);
+    }
+
+    [RelayCommand]
+    public async Task Paste()
+    {
+        Vector2Int worldPos = Workspace!.EditorModule.MouseWorldPosition;
+        await Workspace.LevelModule.PasteEntities(worldPos);
+    }
+
     Workspace _workspace;
     List<RadioToggleInformation> _groupPlaceModes = new List<RadioToggleInformation>(3);
     List<RadioToggleInformation> _groupTransformModes = new List<RadioToggleInformation>(4);

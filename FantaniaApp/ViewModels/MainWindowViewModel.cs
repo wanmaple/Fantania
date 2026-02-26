@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Avalonia.Controls;
@@ -114,6 +115,53 @@ public partial class MainWindowViewModel : ViewModelBase
     public void ExitApplication()
     {
         Environment.Exit(0);
+    }
+
+    [RelayCommand(CanExecute = nameof(CanCutCopy))]
+    public async Task Cut()
+    {
+        var selections = Workspace!.EditorModule.SelectedObjects;
+        var entities = SelectionHelper.GetSelectedEntities(selections);
+        if (entities.Count > 0)
+            await Workspace.LevelModule.CutEntities(entities);
+    }
+
+    [RelayCommand(CanExecute = nameof(CanCutCopy))]
+    public async Task Copy()
+    {
+        var selections = Workspace!.EditorModule.SelectedObjects;
+        var entities = SelectionHelper.GetSelectedEntities(selections);
+        if (entities.Count > 0)
+            await Workspace.LevelModule.CopyEntities(entities);
+    }
+
+    bool CanCutCopy()
+    {
+        if (Workspace != null)
+        {
+            return Workspace.EditorModule.SelectedObjects.Count > 0;
+        }
+        return false;
+    }
+
+    [RelayCommand(CanExecute = nameof(CanPaste))]
+    public async Task Paste()
+    {
+        Vector2Int worldPos = Workspace!.EditorModule.MouseWorldPosition;
+        await Workspace.LevelModule.PasteEntities(worldPos);
+    }
+
+    bool CanPaste()
+    {
+        if (Workspace != null)
+        {
+            if (Workspace.LevelModule.CurrentLevel != null)
+            {
+                var clipboard = AvaloniaHelper.GetClipboard();
+                return clipboard.GetTextAsync().GetAwaiter().GetResult() != null;
+            }
+        }
+        return false;
     }
 
     [RelayCommand(CanExecute = nameof(IsUndoable))]

@@ -40,6 +40,27 @@
       <lib:ToggleButtonGroup ItemsSource="{Binding PlacementModesDefinitions}" SelectedValue="{Binding Workspace.EditorModule.CurrentPlacementMode}" />
       <Separator Classes="toolbar" />
       <lib:ToggleButtonGroup ItemsSource="{Binding TransformModesDefinitions}" SelectedValue="{Binding Workspace.EditorModule.CurrentTransformMode}" />
+      <Separator Classes="toolbar" />
+      <StackPanel Orientation="Horizontal" Spacing="2">
+        <Button Classes="tool" Command="{Binding CutCommand}">
+          <ToolTip.Tip>
+            <TextBlock Classes="tooltip" Text="{x:Static lang:Resources.TT_CutEntities}" />
+          </ToolTip.Tip>
+          <Image Source="avares://Fantania/Assets/icons/cut.png" Width="24" Height="24" />
+        </Button>
+        <Button Classes="tool" Command="{Binding CopyCommand}">
+          <ToolTip.Tip>
+            <TextBlock Classes="tooltip" Text="{x:Static lang:Resources.TT_CopyEntities}" />
+          </ToolTip.Tip>
+          <Image Source="avares://Fantania/Assets/icons/copy.png" Width="24" Height="24" />
+        </Button>
+        <Button Classes="tool" Command="{Binding PasteCommand}">
+          <ToolTip.Tip>
+            <TextBlock Classes="tooltip" Text="{x:Static lang:Resources.TT_PasteEntities}" />
+          </ToolTip.Tip>
+          <Image Source="avares://Fantania/Assets/icons/paste.png" Width="24" Height="24" />
+        </Button>
+      </StackPanel>
     </StackPanel>
     <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="4">
       <Button x:Name="btnLevels" Classes="m" Command="{Binding ToggleLevelPopupCommand}">

@@ -99,7 +99,7 @@ public class TransparentPipelineStage : IPipelineStage
 
     void RenderSortedBatches(IRenderContext context, IList<IRenderable> renderables)
     {
-        var list = renderables as List<IRenderable> ?? renderables;
+        var list = renderables;
         list.StableSort(RenderableInverseDepthComparer.Instance);
         RenderMaterial? currentMaterial = null;
         VertexDescriptor? currentVertexDesc = null;

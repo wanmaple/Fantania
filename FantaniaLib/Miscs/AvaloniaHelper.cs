@@ -1,7 +1,9 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Input.Platform;
 using Avalonia.Platform;
+using Tmds.DBus.Protocol;
 
 namespace FantaniaLib;
 
@@ -65,5 +67,12 @@ public static class AvaloniaHelper
     {
         var desktop = (IClassicDesktopStyleApplicationLifetime)Application.Current!.ApplicationLifetime!;
         return desktop.MainWindow!;
+    }
+
+    public static IClipboard GetClipboard()
+    {
+        var top = TopLevel.GetTopLevel(GetTopWindow());
+        var clipboard = top!.Clipboard!;
+        return clipboard;
     }
 }

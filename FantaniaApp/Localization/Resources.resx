@@ -321,4 +321,16 @@
     <value>层级</value>
     <comment/>
   </data>
+  <data name="TT_CutEntities" xml:space="preserve">
+    <value>剪切(快捷键: Ctrl + X)</value>
+    <comment/>
+  </data>
+  <data name="TT_CopyEntities" xml:space="preserve">
+    <value>复制(快捷键: Ctrl + C)</value>
+    <comment/>
+  </data>
+  <data name="TT_PasteEntities" xml:space="preserve">
+    <value>粘贴(快捷键: Ctrl + V)</value>
+    <comment/>
+  </data>
 </root>

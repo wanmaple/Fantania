@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using FantaniaLib;
 
 namespace Fantania;
@@ -51,5 +52,22 @@ public static class SelectionHelper
             }
         }
         return result;
+    }
+
+    public static IReadOnlyList<LevelEntity> GetSelectedEntities(IReadOnlyList<ISelectableItem> selections)
+    {
+        var result = new HashSet<LevelEntity>(selections.Count);
+        foreach (var sel in selections)
+        {
+            if (sel is LevelEntityNode node)
+            {
+                result.Add((MultiNodesEntity)node.Owner);
+            }
+            else if (sel is LevelEntity entity)
+            {
+                result.Add(entity);
+            }
+        }
+        return result.ToList();
     }
 }

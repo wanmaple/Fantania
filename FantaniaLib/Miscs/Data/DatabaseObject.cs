@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Text.Json;
 
 namespace FantaniaLib;
 
@@ -96,6 +97,44 @@ public abstract class DatabaseObject : SyncableObject, ISerializableData, IEdita
         }
         editableFields.Sort((f1, f2) => f1.FieldName.CompareTo(f2.FieldName));
         return editableFields;
+    }
+
+    public virtual string OnCopy(IWorkspace workspace)
+    {
+        var rule = SerializationRule.Default;
+        var obj = new Dictionary<string, object?>();
+        obj["Type"] = GetType().ToString();
+        var data = new Dictionary<string, string>();
+        foreach (var field in SerializableFields)
+        {
+            var value = GetFieldValue(field.FieldName);
+            var serializedValue = rule.CastTo(field.FieldType, value, this);
+            data[field.FieldName] = serializedValue;
+        }
+        obj["Data"] = data;
+        JsonSerializerOptions option = new JsonSerializerOptions
+        {
+            WriteIndented = false,
+            IncludeFields = true,
+        };
+        return JsonSerializer.Serialize(obj, option);
+    }
+
+    public virtual void OnPaste(IWorkspace workspace, string serializedData)
+    {
+        var rule = SerializationRule.Default;
+        var obj = JsonSerializer.Deserialize<Dictionary<string, object?>>(serializedData);
+        if (obj == null) return;
+        var data = obj["Data"] as Dictionary<string, string>;
+        if (data == null) return;
+        foreach (var field in SerializableFields)
+        {
+            if (data.TryGetValue(field.FieldName, out var serializedValue))
+            {
+                var value = rule.CastFrom(field.FieldType, serializedValue, this);
+                SetFieldValue(field.FieldName, value);
+            }
+        }
     }
 
     protected List<FieldInfo> _serializableFields;

@@ -391,11 +391,38 @@ namespace Fantania.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 复制(快捷键: Ctrl + C).
+        /// </summary>
+        public static string TT_CopyEntities {
+            get {
+                return ResourceManager.GetString("TT_CopyEntities", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 无变换(快捷键: Q).
         /// </summary>
         public static string TT_CursorMode {
             get {
                 return ResourceManager.GetString("TT_CursorMode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 剪切(快捷键: Ctrl + X).
+        /// </summary>
+        public static string TT_CutEntities {
+            get {
+                return ResourceManager.GetString("TT_CutEntities", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 粘贴(快捷键: Ctrl + V).
+        /// </summary>
+        public static string TT_PasteEntities {
+            get {
+                return ResourceManager.GetString("TT_PasteEntities", resourceCulture);
             }
         }
         
