@@ -168,6 +168,31 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
     void OnLayerVisibilityChanged()
     {
         _context!.SceneDirty = true;
+        var selections = Workspace!.EditorModule.SelectedObjects;
+        var toRm = new HashSet<ISelectableItem>(8);
+        foreach (var sel in selections)
+        {
+            if (sel is LevelEntityNode node)
+            {
+                var owner = (MultiNodesEntity)node.Owner;
+                if (!Workspace.LevelModule.LayerManager.IsLayerVisible(owner.Layer))
+                {
+                    toRm.Add(sel);
+                }
+            }
+            else
+            {
+                LevelEntity entity = (LevelEntity)sel;
+                if (!Workspace.LevelModule.LayerManager.IsLayerVisible(entity.Layer))
+                {
+                    toRm.Add(sel);
+                }
+            }
+        }
+        foreach (var sel in toRm)
+        {
+            selections.Remove(sel);
+        }
     }
 
     void InitializeLevel(IReadonlyLevel? lv)

@@ -18,7 +18,7 @@ public class RangeSelectionCommand : ICanvasCommand
     public void Execute(LevelSpaceContext context, ConfigurableRenderPipeline pipeline)
     {
         var bvh = context.SelectableHierarchy;
-        bvh.RectTest(Range, _cache);
+        bvh.RectTest(Range, _cache, r => context.Workspace.LevelModule.LayerManager.IsLayerVisible(MathHelper.FloorToInt((float)r.Depth / LevelEntity.LAYER_RANGE)));
         context.SelectionContext.UpdateSelectedObjects(_cache, Mode);
         _cache.Clear();
     }

@@ -20,7 +20,7 @@ public class ClickSelectionCommand : ICanvasCommand
     public void Execute(LevelSpaceContext context, ConfigurableRenderPipeline pipeline)
     {
         var bvh = context.SelectableHierarchy;
-        bvh.PointTest(Point, _cache);
+        bvh.PointTest(Point, _cache, r => context.Workspace.LevelModule.LayerManager.IsLayerVisible(MathHelper.FloorToInt((float)r.Depth / LevelEntity.LAYER_RANGE)));
         if (Mode == SelectionModes.Add)
         {
             // 复数选中的话，就默认多选取第一个当前未被选中的对象
