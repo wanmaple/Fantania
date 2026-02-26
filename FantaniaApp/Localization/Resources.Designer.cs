@@ -427,7 +427,7 @@ namespace Fantania.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 默认放置模式(快捷键: 2).
+        ///   Looks up a localized string similar to 实体放置模式(快捷键: 2).
         /// </summary>
         public static string TT_PlaceMode {
             get {
@@ -454,7 +454,7 @@ namespace Fantania.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 场景选中模式(快捷键: 1).
+        ///   Looks up a localized string similar to 实体选中模式(快捷键: 1).
         /// </summary>
         public static string TT_SelectMode {
             get {

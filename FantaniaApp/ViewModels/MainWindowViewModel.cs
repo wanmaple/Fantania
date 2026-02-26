@@ -158,7 +158,7 @@ public partial class MainWindowViewModel : ViewModelBase
             if (Workspace.LevelModule.CurrentLevel != null)
             {
                 var clipboard = AvaloniaHelper.GetClipboard();
-                return clipboard.GetTextAsync().GetAwaiter().GetResult() != null;
+                return !string.IsNullOrEmpty(clipboard.GetTextAsync().GetAwaiter().GetResult());
             }
         }
         return false;

@@ -27,8 +27,8 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
 
     protected override void OnContextInitializing(ConfigurableRenderPipeline pipeline)
     {
-        Workspace!.LogOptional(GlVersion.ToString());
-        Workspace!.LogOptional($"{pipeline.Device.GetString(GLConstants.GL_VENDOR)} ({pipeline.Device.GetString(GLConstants.GL_VERSION)})");
+        Workspace!.Log(GlVersion.ToString());
+        Workspace!.Log($"{pipeline.Device.GetString(GLConstants.GL_VENDOR)} ({pipeline.Device.GetString(GLConstants.GL_VERSION)})");
         RenderPipelineConfig rpConfig = Workspace!.ScriptingModule.GetCustomRenderPipelineConfigOrDefault();
         pipeline.Build(rpConfig, Workspace);
         ColorSize = rpConfig.Resolution.ToVector2();

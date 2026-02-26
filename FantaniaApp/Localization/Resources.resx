@@ -254,11 +254,11 @@
     <comment/>
   </data>
   <data name="TT_SelectMode" xml:space="preserve">
-    <value>场景选中模式(快捷键: 1)</value>
+    <value>实体选中模式(快捷键: 1)</value>
     <comment/>
   </data>
   <data name="TT_PlaceMode" xml:space="preserve">
-    <value>默认放置模式(快捷键: 2)</value>
+    <value>实体放置模式(快捷键: 2)</value>
     <comment/>
   </data>
   <data name="ERR_DuplicatedLevelName" xml:space="preserve">
