@@ -17,7 +17,7 @@ public class TiledEntity : LevelEntity, ISelectableItem, ISizeableEntity
     public Rectf BoundingBox => _aabb;
 
     private Vector2Int _size = Vector2Int.Zero;
-    [SerializableField(FieldTypes.Vector2Int), EditableField(EditParameter = "1:100000:1")]
+    [SerializableField(FieldTypes.Vector2Int), EditableField(EditParameter = "1:100000:1", TooltipKey = "TT_TiledEntitySize")]
     public Vector2Int Size
     {
         get { return _size; }
@@ -34,7 +34,7 @@ public class TiledEntity : LevelEntity, ISelectableItem, ISizeableEntity
     }
 
     private int _seed = 0;
-    [SerializableField(FieldTypes.Integer), EditableField(EditControlType = typeof(RandomSeedBox))]
+    [SerializableField(FieldTypes.Integer), EditableField(EditControlType = typeof(RandomSeedBox), TooltipKey = "TT_RandomSeed")]
     public int RandomSeed
     {
         get { return _seed; }
@@ -45,6 +45,7 @@ public class TiledEntity : LevelEntity, ISelectableItem, ISizeableEntity
                 OnPropertyChanging(nameof(RandomSeed));
                 _seed = value;
                 OnPropertyChanged(nameof(RandomSeed));
+                RefreshSelf();
             }
         }
     }
@@ -63,6 +64,24 @@ public class TiledEntity : LevelEntity, ISelectableItem, ISizeableEntity
                 i++;
             }
         }
+    }
+
+    public override IReadOnlyList<IEditableField> GetEditableFields(IWorkspace workspace)
+    {
+        var fields = (List<IEditableField>)base.GetEditableFields(workspace);
+        if (!CanTranslate(workspace))
+        {
+            fields.RemoveAll(f => f.FieldName == nameof(Position));
+        }
+        if (!CanRotate(workspace))
+        {
+            fields.RemoveAll(f => f.FieldName == nameof(Rotation));
+        }
+        if (!CanScale(workspace))
+        {
+            fields.RemoveAll(f => f.FieldName == nameof(Scale));
+        }
+        return fields;
     }
 
     public Vector2Int GetTileSize(IWorkspace workspace)

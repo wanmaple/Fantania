@@ -73,7 +73,7 @@ public abstract class LevelEntity : BinaryObject
     }
 
     private int _layer = 0;
-    [SerializableField(FieldTypes.Integer), EditableField(EditGroup = "G_Transform", TooltipKey = "TT_Layer", EditParameter = "-40:40:1")]
+    [SerializableField(FieldTypes.Integer), EditableField(EditGroup = "G_Transform", TooltipKey = "TT_Layer", EditParameter = "-40:40:1", EditControlType = typeof(LayerBox))]
     public int Layer
     {
         get { return _layer; }
@@ -228,12 +228,6 @@ public abstract class LevelEntity : BinaryObject
 
     public virtual void OnUpdateSnaps(IWorkspace workspace, BoundingVolumeHierarchy<ISelectableItem> bvh, Vector2 worldPos)
     {
-    }
-
-    public void ResetRotationAndScale()
-    {
-        Rotation = 0.0f;
-        Scale = Vector2.One;
     }
 
     public abstract Matrix3x3 TransformAt(int index);

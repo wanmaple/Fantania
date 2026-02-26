@@ -2,10 +2,10 @@ namespace FantaniaLib;
 
 public class DrawCommand : IRenderCommand
 {
-    public List<Mesh> Meshes { get; private set; }
+    public IEnumerable<Mesh> Meshes { get; private set; }
     public RenderMaterial Material { get; private set; }
 
-    public DrawCommand(List<Mesh> meshes, RenderMaterial material)
+    public DrawCommand(IEnumerable<Mesh> meshes, RenderMaterial material)
     {
         Meshes = meshes;
         Material = material;

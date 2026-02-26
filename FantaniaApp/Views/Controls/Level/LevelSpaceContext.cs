@@ -28,7 +28,7 @@ public class LevelSpaceContext
         Vector2 br = _canvas.CanvasPositionToWorldPosition(_canvas.ControlSize);
         Rectf visibleRect = new Rectf(tl, br - tl);
         _collector.Clear();
-        _bvhRenderables.RectTest(visibleRect, _collector);
+        _bvhRenderables.RectTest(visibleRect, _collector, r => Workspace.LevelModule.LayerManager.IsLayerVisible(MathHelper.FloorToInt((float)r.Depth / LevelEntity.LAYER_RANGE)));
         return _collector;
     }
 

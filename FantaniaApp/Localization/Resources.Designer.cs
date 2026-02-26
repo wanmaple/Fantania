@@ -94,6 +94,15 @@ namespace Fantania.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 层级管理.
+        /// </summary>
+        public static string BT_LayerManage {
+            get {
+                return ResourceManager.GetString("BT_LayerManage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 创建关卡失败，详情：{0}.
         /// </summary>
         public static string ERR_CreateLevelFailure {
@@ -211,11 +220,29 @@ namespace Fantania.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 层级.
+        /// </summary>
+        public static string H_Layers {
+            get {
+                return ResourceManager.GetString("H_Layers", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 日志.
         /// </summary>
         public static string H_Log {
             get {
                 return ResourceManager.GetString("H_Log", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 实体属性.
+        /// </summary>
+        public static string H_ModifyEntities {
+            get {
+                return ResourceManager.GetString("H_ModifyEntities", resourceCulture);
             }
         }
         

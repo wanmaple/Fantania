@@ -18,13 +18,13 @@ public class TransparentPipelineStage : IPipelineStage
     public void Render(IRenderContext context, IEnumerable<IRenderable> renderables)
     {
         var list = renderables.ToList();
-        list.StableSort(RenderableDepthComparer.Instance);
+        list.StableSort(RenderableInverseDepthComparer.Instance);
         var groups = list.GroupBy(r => (r.Mesh.Descriptor.VertexDescriptor, r.Material));
         foreach (var group in groups)
         {
             var vertDesc = group.Key.VertexDescriptor;
             var material = group.Key.Material;
-            context.CommandBuffer.Draw(group.Select(r => r.Mesh).ToList(), material);
+            context.CommandBuffer.Draw(group.Select(r => r.Mesh), material);
         }
     }
 

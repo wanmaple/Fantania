@@ -1,0 +1,22 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:lib="using:FantaniaLib"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="lib:IEditableField"
+             x:Class="FantaniaLib.LayerBox">
+  <UserControl.Resources>
+    <lib:Workspace2LayersConverter x:Key="Cvt_WS2Layers" />
+  </UserControl.Resources>
+  <Grid>
+    <ComboBox ItemsSource="{Binding Workspace, Converter={StaticResource Cvt_WS2Layers}}" SelectedValueBinding="{ReflectionBinding Layer}" SelectedValue="{Binding FieldValue, Mode=TwoWay}" MinWidth="200">
+      <ComboBox.ItemTemplate>
+        <DataTemplate x:DataType="lib:LayerOption">
+          <TextBlock Text="{Binding Name}" />
+        </DataTemplate>
+      </ComboBox.ItemTemplate>
+    </ComboBox>
+    <Border Classes="thick err" IsVisible="{Binding FieldValidator.Error, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+  </Grid>
+</UserControl>

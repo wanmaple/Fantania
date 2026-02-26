@@ -23,7 +23,7 @@ public abstract class BinaryObject : SyncableObject, ISerializableData, IEditabl
         }
     }
 
-    public IReadOnlyList<IEditableField> GetEditableFields(IWorkspace workspace)
+    public virtual IReadOnlyList<IEditableField> GetEditableFields(IWorkspace workspace)
     {
         var editableFields = new List<IEditableField>();
         var props = GetPropertiesWithAttribute<EditableFieldAttribute>();

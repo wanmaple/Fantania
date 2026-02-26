@@ -15,8 +15,27 @@ public class PopupStates : ObservableObject
                 _popupLvIsOpen = value;
                 if (_popupLvIsOpen)
                 {
+                    LayerPopupIsOpen = false;
                 }
                 OnPropertyChanged(nameof(LevelPopupIsOpen));
+            }
+        }
+    }
+
+    private bool _popupLayerIsOpen = false;
+    public bool LayerPopupIsOpen
+    {
+        get { return _popupLayerIsOpen; }
+        set
+        {
+            if (_popupLayerIsOpen != value)
+            {
+                _popupLayerIsOpen = value;
+                if (_popupLayerIsOpen)
+                {
+                    LevelPopupIsOpen = false;
+                }
+                OnPropertyChanged(nameof(LayerPopupIsOpen));
             }
         }
     }

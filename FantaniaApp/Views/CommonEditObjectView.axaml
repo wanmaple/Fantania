@@ -19,7 +19,7 @@
         </MultiBinding>
       </lib:ObjectEditView.EditableFields>
     </lib:ObjectEditView>
-    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
+    <StackPanel Grid.Row="2" IsVisible="{Binding #Root.ShowButtons}" Orientation="Horizontal" HorizontalAlignment="Center">
       <Button Content="Okay" Width="100" Margin="5" Command="{Binding #Root.Confirm}" HorizontalContentAlignment="Center" />
       <Button Content="Cancel" Width="100" Margin="5" Command="{Binding #Root.Cancel}" HorizontalContentAlignment="Center" />
     </StackPanel>

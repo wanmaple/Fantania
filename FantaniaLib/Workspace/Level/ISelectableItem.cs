@@ -12,7 +12,6 @@ public interface ISelectableItem : IBVHItem
     int EntityOrder { get; }
     int LocalOrder { get; }
 
-    void ResetRotationAndScale();
     bool PointTest(Vector2 pt);
     bool CanTranslate(IWorkspace workspace);
     bool CanRotate(IWorkspace workspace);

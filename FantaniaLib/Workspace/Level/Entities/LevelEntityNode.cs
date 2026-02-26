@@ -154,12 +154,6 @@ public class LevelEntityNode : SyncableObject, ISelectableItem
         Scale = snapshot.Scale;
     }
 
-    public void ResetRotationAndScale()
-    {
-        Rotation = 0.0f;
-        Scale = Vector2.One;
-    }
-
     IMultiNodeContainer _container;
     Vector2 _startWorldPos;
     Vector2 _startScale;

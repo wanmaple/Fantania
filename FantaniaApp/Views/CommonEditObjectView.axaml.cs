@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Avalonia;
 using Avalonia.Controls;
 using Fantania.Localization;
 using FantaniaLib;
@@ -7,6 +8,13 @@ namespace Fantania.Views;
 
 public partial class CommonEditObjectView : Window
 {
+    public static readonly StyledProperty<bool> ShowButtonsProperty = AvaloniaProperty.Register<CommonEditObjectView, bool>(nameof(ShowButtons), defaultValue: true);
+    public bool ShowButtons
+    {
+        get => GetValue(ShowButtonsProperty);
+        set => SetValue(ShowButtonsProperty, value);
+    }
+
     public CommonEditObjectView()
     {
         InitializeComponent();

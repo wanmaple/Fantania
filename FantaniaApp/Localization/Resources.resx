@@ -309,4 +309,16 @@
     <value>Tile贴图切分尺寸大小不能超过256。</value>
     <comment/>
   </data>
+  <data name="H_ModifyEntities" xml:space="preserve">
+    <value>实体属性</value>
+    <comment/>
+  </data>
+  <data name="BT_LayerManage" xml:space="preserve">
+    <value>层级管理</value>
+    <comment/>
+  </data>
+  <data name="H_Layers" xml:space="preserve">
+    <value>层级</value>
+    <comment/>
+  </data>
 </root>

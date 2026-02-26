@@ -5,11 +5,15 @@ namespace FantaniaLib;
 
 public class LevelModule : WorkspaceModule
 {
+    public const int MAX_LAYER = 39;
+    public const int MIN_LAYER = -40;
+
     public event Action<LevelEntity>? EntityAdded;
     public event Action<LevelEntity>? EntityRemoved;
 
     private Level? _curLv = null;
     public IReadonlyLevel? CurrentLevel => _curLv;
+    public LayerManager LayerManager => _layerMgr;
 
     public IReadOnlyList<LevelDescription> LevelDescriptions => _lvDescs;
     public bool HasChange => _syncer != null ? _syncer.HasChange : false;
@@ -213,6 +217,7 @@ public class LevelModule : WorkspaceModule
 
     ObservableCollection<LevelDescription> _lvDescs = new ObservableCollection<LevelDescription>();
     BinaryDataSyncer<LevelEntity>? _syncer;
+    LayerManager _layerMgr = new LayerManager();
 
     PropertyChangeInfo? _tempChange;
     SerializationRule _rule = SerializationRule.Default;

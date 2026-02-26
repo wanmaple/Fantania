@@ -20,7 +20,19 @@ public class QuadRenderable : ObservableObject, IRenderable
             }
         }
     }
-    public int Depth { get; set; }
+    private int _depth = 0;
+    public int Depth
+    {
+        get { return _depth; }
+        set
+        {
+            if (_depth != value)
+            {
+                _depth = value;
+                UpdateVertices();
+            }
+        }
+    }
     public int EntityOrder { get; set; }
     public int LocalOrder { get; set; }
     public int NodeIndex { get; set; } = -1;

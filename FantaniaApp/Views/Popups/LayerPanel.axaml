@@ -1,0 +1,39 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:lib="using:FantaniaLib"
+             xmlns:v="using:Fantania.Views"
+             xmlns:vm="using:Fantania.ViewModels"
+             xmlns:lang="using:Fantania.Localization"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="vm:LevelViewModel"
+             x:Class="Fantania.Views.LayerPanel"
+             x:Name="Root">
+  <UserControl.Resources>
+    <v:Layer2NameConverter x:Key="Cvt_Layer2Name" />
+  </UserControl.Resources>
+  <StackPanel Orientation="Vertical" Margin="5">
+    <DockPanel>
+      <CheckBox DockPanel.Dock="Right" VerticalAlignment="Center" IsChecked="True" IsCheckedChanged="CheckBox_IsCheckedChanged" Margin="0 0 10 0" />
+      <TextBlock Text="{x:Static lang:Resources.H_Layers}" VerticalAlignment="Center" />
+    </DockPanel>
+    <ItemsControl ItemsSource="{Binding Workspace.LevelModule.LayerManager.LayerVisibilities}">
+      <ItemsControl.ItemTemplate>
+        <DataTemplate>
+          <DockPanel>
+            <CheckBox DockPanel.Dock="Right" IsChecked="{Binding IsVisible, Mode=TwoWay}" VerticalAlignment="Center" Margin="0 0 10 0" />
+            <TextBlock VerticalAlignment="Center">
+              <TextBlock.Text>
+                <MultiBinding Converter="{StaticResource Cvt_Layer2Name}">
+                  <Binding Path="Layer" />
+                  <Binding Path="#Root.DataContext.Workspace" />
+                </MultiBinding>
+              </TextBlock.Text>
+            </TextBlock>
+          </DockPanel>
+        </DataTemplate>
+      </ItemsControl.ItemTemplate>
+    </ItemsControl>
+  </StackPanel>
+</UserControl>

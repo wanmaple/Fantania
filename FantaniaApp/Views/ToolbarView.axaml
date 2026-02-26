@@ -57,6 +57,14 @@
           </ScrollViewer>
         </Border>
       </Popup>
+      <Button x:Name="btnLayers" Classes="m" Command="{Binding ToggleLayerPopupCommand}" Content="{x:Static lang:Resources.BT_LayerManage}" />
+      <Popup PlacementTarget="{Binding #btnLayers}" IsOpen="{Binding PopupStates.LayerPopupIsOpen}" Placement="BottomEdgeAlignedLeft">
+        <Border Classes="thin s1" Background="{x:Static f:ThemeHelper.BackgroundBrush}">
+          <ScrollViewer MinWidth="200" MaxHeight="400">
+            <v:LayerPanel />
+          </ScrollViewer>
+        </Border>
+      </Popup>
     </StackPanel>
     <TextBlock Grid.Row="3" Classes="p" Text="{Binding Workspace.EditorModule.MouseWorldPosition}" />
   </Grid>

@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 using Avalonia.Input;
 using Fantania.Localization;
 using Fantania.Models;
+using Fantania.ViewModels;
 using FantaniaLib;
 
 namespace Fantania.Views;
@@ -53,6 +53,7 @@ public class ViewEditorMode : ILevelEditorMode
         {
             Vector2 worldPos = context.CanvasToWorld(e.MouseState.Position.ToVector2());
             context.AddCommand(new UpdateResizeCommand(worldPos));
+            e.Handled = true;
         }
         else if (_selecting)
         {
@@ -62,9 +63,9 @@ public class ViewEditorMode : ILevelEditorMode
             {
                 Rectf range = new Rectf(new Vector2(selection.Left, selection.Top), new Vector2(selection.Width, selection.Height));
                 context.AddCommand(new RangeSelectionCommand(range, SelectionModeFromKeyModifiers(e.KeyState.KeyModifiers)));
+                e.Handled = true;
             }
         }
-        e.Handled = true;
     }
 
     public void OnMousePressed(LevelEditorContext context, ControlInputEventArgs e)
@@ -116,32 +117,41 @@ public class ViewEditorMode : ILevelEditorMode
         else if (e.MouseState.IsRightButtonJustReleased)
         {
             var selections = context.Workspace.EditorModule.SelectedObjects;
+            bool hit = false;
             Vector2 worldPos = context.CanvasToWorld(e.MouseState.Position.ToVector2());
-            if (selections.Any(s => s.BoundingBox.Contains(worldPos)))
+            foreach (var sel in selections)
             {
-                var groups = SelectionHelper.GroupSelections(selections);
-                foreach (var entity in groups.FullySelectedEntities)
+                if (sel.BoundingBox.Contains(worldPos))
                 {
-                    entity.ResetRotationAndScale();
+                    hit = true;
+                    break;
                 }
-                foreach (var (container, nodes) in groups.PartiallySelectedNodes)
+            }
+            if (hit)
+            {
+                HashSet<IEditableObject> entities = new HashSet<IEditableObject>();
+                foreach (var sel in selections)
                 {
-                    foreach (var node in nodes)
+                    if (sel is LevelEntity entity)
+                        entities.Add(entity);
+                    else if (sel is LevelEntityNode node)
+                        entities.Add((MultiNodesEntity)node.Owner);
+                }
+                if (entities.Count > 0)
+                {
+                    var multiEditable = new MultiEditableObjects(entities);
+                    if (multiEditable.GetEditableFields(context.Workspace).Count > 0)
                     {
-                        if (node.Rotation != 0.0f || node.Scale != Vector2.One)
+                        var winEdit = new CommonEditObjectView()
                         {
-                            var snapshotBefore = node.CreateSnapshot();
-                            node.ResetRotationAndScale();
-                            var op = new ModifyEntityNodeOperation(context.Workspace, node, snapshotBefore, node.CreateSnapshot());
-                            context.Workspace.UndoStack.AddOperation(op);
-                        }
+                            ShowButtons = false,
+                        };
+                        winEdit.Title = Resources.H_ModifyEntities;
+                        winEdit.DataContext = new CommonEditObjectViewModel(context.Workspace, new MultiEditableObjects(entities));
+                        winEdit.ShowDialog(AvaloniaHelper.GetTopWindow());
+                        e.Handled = true;
                     }
                 }
-                foreach (var sel in groups.OtherSelectables)
-                {
-                    sel.ResetRotationAndScale();
-                }
-                context.Workspace.EditorModule.Notify();
             }
         }
     }

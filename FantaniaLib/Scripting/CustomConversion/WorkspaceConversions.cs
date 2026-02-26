@@ -13,12 +13,21 @@ public static class WorkspaceConversions
             float zoomSensitivity = v.Table.Get("zoomSensitivity").GetFloatOrDefault(1.5f);
             float zoomMin = v.Table.Get("zoomMin").GetFloatOrDefault(0.1f);
             float zoomMax = v.Table.Get("zoomMax").GetFloatOrDefault(10.0f);
+            DynValue table = v.Table.Get("namedLayers");
+            var dict = new Dictionary<int, string>();
+            foreach (var pair in table.Table.Pairs)
+            {
+                int layer = (int)pair.Key.Number;
+                string name = pair.Value.GetStringOrDefault(string.Empty);
+                dict.Add(layer, name);
+            }
             return new LevelEditConfig
             {
                 GridAlign = gridAlign,
                 ZoomSensitivity = zoomSensitivity,
                 ZoomMin = zoomMin,
                 ZoomMax = zoomMax,
+                LayerNames = dict,
             };
         });
         Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Table, typeof(NodeOptions), v =>

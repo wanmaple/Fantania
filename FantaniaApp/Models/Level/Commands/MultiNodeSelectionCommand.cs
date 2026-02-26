@@ -27,6 +27,7 @@ public class MultiNodeSelectionCommand : ICanvasCommand
         }
         if (target != null)
         {
+            _cache.Clear();
             if (target is LevelEntityNode node && node.Owner.AllNodes.Count > 1)
             {
                 foreach (var n in node.Owner.AllNodes)

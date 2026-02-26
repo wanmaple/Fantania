@@ -16,8 +16,10 @@ public class OpaquePipelineStage : IPipelineStage
 
     public void Render(IRenderContext context, IEnumerable<IRenderable> renderables)
     {
+        var list = renderables.ToList();
+        list.StableSort(RenderableDepthComparer.Instance);
         var groupDict = new Dictionary<(VertexDescriptor, RenderMaterial), (List<Mesh>, RenderMaterial)>();
-        foreach (var renderable in renderables)
+        foreach (var renderable in list)
         {
             var key = (renderable.Mesh.Descriptor.VertexDescriptor, renderable.Material);
             if (!groupDict.TryGetValue(key, out var drawInfo))

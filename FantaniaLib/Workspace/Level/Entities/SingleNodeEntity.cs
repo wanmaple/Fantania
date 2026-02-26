@@ -17,6 +17,24 @@ public class SingleNodeEntity : LevelEntity, ISelectableItem
     internal SingleNodeEntity()
     {}
 
+    public override IReadOnlyList<IEditableField> GetEditableFields(IWorkspace workspace)
+    {
+        var fields = (List<IEditableField>)base.GetEditableFields(workspace);
+        if (!CanTranslate(workspace))
+        {
+            fields.RemoveAll(f => f.FieldName == nameof(Position));
+        }
+        if (!CanRotate(workspace))
+        {
+            fields.RemoveAll(f => f.FieldName == nameof(Rotation));
+        }
+        if (!CanScale(workspace))
+        {
+            fields.RemoveAll(f => f.FieldName == nameof(Scale));
+        }
+        return fields;
+    }
+
     public override void GetLocalNodeAt(IWorkspace workspace, int index, out IReadOnlyList<LocalRenderInfo> locals)
     {
         UserPlacement placement = GetReferencedPlacement(workspace);
