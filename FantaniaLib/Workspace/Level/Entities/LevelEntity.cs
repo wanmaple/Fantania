@@ -163,6 +163,14 @@ public abstract class LevelEntity : BinaryObject
     public virtual void Initialize(IWorkspace workspace)
     {}
 
+    /// <summary>
+    /// 这个周期是在加载Level时已经存在的Entity会调用，这个时候的Entity不会走OnEnter。
+    /// </summary>
+    public virtual void OnLoaded(IWorkspace workspace, Level level)
+    {
+        GetReferencedPlacement(workspace).FieldChanged += OnPlacementChanged;
+    }
+
     public virtual void OnEnter(IWorkspace workspace)
     {
         GetReferencedPlacement(workspace).FieldChanged += OnPlacementChanged;

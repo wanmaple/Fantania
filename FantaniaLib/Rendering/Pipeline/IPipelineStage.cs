@@ -7,6 +7,6 @@ public interface IPipelineStage
     int Order { get; }
 
     void PreRender(IRenderContext context);
-    void Render(IRenderContext context, IEnumerable<IRenderable> renderables);
+    void Render(IRenderContext context, IEnumerable<IRenderable> renderables, Camera2D camera);
     void PostRender(IRenderContext context);
 }

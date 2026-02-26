@@ -10,16 +10,36 @@ public class LevelSpaceContext
     public BoundingVolumeHierarchy<ISelectableItem> SelectableHierarchy => _bvhSelectables;
     public Workspace Workspace => _canvas.Workspace!;
     public EntityRenderableManager EntityManager => _entityMgr;
-    public ResizeContext ResizeContext { get; private set; }
+
+    public bool SceneDirty { get; set; } = true;
 
     public LevelEntity? GhostEntity { get; set; }
     public SelectionContext SelectionContext { get; private set; }
+    public ResizeContext ResizeContext { get; private set; }
 
     public LevelSpaceContext(ILevelCanvas canvas)
     {
         _canvas = canvas;
         SelectionContext = new SelectionContext(Workspace);
         ResizeContext = new ResizeContext();
+    }
+
+    public void AddRenderableToBVH(IRenderable renderable)
+    {
+        _bvhRenderables.AddItem(renderable);
+        SceneDirty = true;
+    }
+
+    public void RemoveRenderableFromBVH(IRenderable renderable)
+    {
+        _bvhRenderables.RemoveItem(renderable);
+        SceneDirty = true;
+    }
+
+    public void UpdateRenderableInBVH(IRenderable renderable)
+    {
+        _bvhRenderables.UpdateItem(renderable);
+        SceneDirty = true;
     }
 
     public IEnumerable<IRenderable> CollectRenderables()

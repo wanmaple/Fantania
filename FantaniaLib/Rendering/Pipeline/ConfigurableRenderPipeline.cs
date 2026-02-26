@@ -105,7 +105,7 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
         }
     }
 
-    public void StartWorkerThread()
+    public void StartWorkerThread(Camera2D camera)
     {
         _ctsWorker = new CancellationTokenSource();
         _evTaskStart = new AutoResetEvent(false);
@@ -128,7 +128,7 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
                         if (group != null)
                         {
                             stage.PreRender(this);
-                            stage.Render(this, group);
+                            stage.Render(this, group, camera);
                             stage.PostRender(this);
                         }
                     }

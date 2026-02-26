@@ -32,6 +32,12 @@ public class MultiNodesEntity : LevelEntity, IMultiNodeContainer
     {
     }
 
+    public override void OnLoaded(IWorkspace workspace, Level level)
+    {
+        base.OnLoaded(workspace, level);
+        workspace.LevelModule.SpecialPropertyObserver.Observe(this);
+    }
+
     private int AllocateNodeId()
     {
         return _nextNodeId++;
@@ -46,21 +52,24 @@ public class MultiNodesEntity : LevelEntity, IMultiNodeContainer
 
     internal void SetNodes(IWorkspace workspace, EntityNodesSnapshot snapshot)
     {
+        var targetNodes = snapshot.Nodes;
+        var targetSet = new HashSet<LevelEntityNode>(targetNodes);
+        var currentSet = new HashSet<LevelEntityNode>(_nodes);
         foreach (var node in _nodes)
         {
-            if (!snapshot.Nodes.Contains(node))
+            if (!targetSet.Contains(node))
             {
-                _toRm.Add(node);
+                if (!_toRm.Contains(node))
+                    _toRm.Add(node);
                 NodeRemoved?.Invoke(node);
             }
         }
-        foreach (var node in snapshot.Nodes)
+        _nodes.Clear();
+        _nodes.AddRange(targetNodes);
+        foreach (var node in targetNodes)
         {
-            if (!_nodes.Contains(node))
-            {
-                _nodes.Add(node);
+            if (!currentSet.Contains(node))
                 NodeAdded?.Invoke(node);
-            }
         }
         RefreshSelf();
     }

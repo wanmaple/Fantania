@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel;
 using System.Numerics;
 using Avalonia.Input;
+using Fantania.Models;
 using FantaniaLib;
 
 namespace Fantania.Views;
@@ -87,6 +88,7 @@ public class LevelInputs : IDisposable
             _context.Camera.Translate(-movementWorld);
             _context.Workspace.EditorModule.Notify();
             _context.Workspace.UserTemporary.CameraPosition = _context.Camera.Position;
+            _context.AddCommand(MarkSceneDirtyCommand.Instance);
         }
         ChangeModeDependsOnPlacementMode(e);
         _manager.CurrentMode.OnMouseMoved(_context, e);
@@ -98,9 +100,12 @@ public class LevelInputs : IDisposable
         if (!_context.FixCamera)
         {
             Vector2 mouseWorldPos = _context.CanvasToWorld(e.MouseState.Position.ToVector2());
+            float oldZoom = _context.Camera.Zoom;
             _context.Camera.ZoomAt((float)e.MouseState.WheelDelta.Y * _context.EditConfig.ZoomSensitivity, mouseWorldPos);
             _context.Workspace.EditorModule.Notify();
             _context.Workspace.UserTemporary.CameraZoom = _context.Camera.Zoom;
+            if (oldZoom != _context.Camera.Zoom)
+                _context.AddCommand(MarkSceneDirtyCommand.Instance);
         }
         ChangeModeDependsOnPlacementMode(e);
         _manager.CurrentMode.OnMouseWheelChanged(_context, e);
@@ -120,9 +125,12 @@ public class LevelInputs : IDisposable
             if (e.KeyState.JustReleased == Key.Space && !_context.FixCamera)
             {
                 Vector2 mouseWorldPos = _context.CanvasToWorld(e.MouseState.Position.ToVector2());
+                float oldZoom = _context.Camera.Zoom;
                 _context.Camera.SetZoomAt(1.0f, mouseWorldPos);
                 _context.Workspace.EditorModule.Notify();
                 _context.Workspace.UserTemporary.CameraZoom = _context.Camera.Zoom;
+                if (oldZoom != _context.Camera.Zoom)
+                    _context.AddCommand(MarkSceneDirtyCommand.Instance);
             }
             ChangeModeDependsOnPlacementMode(e);
         }

@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace FantaniaLib;
@@ -22,6 +23,8 @@ public class LayerVisibility : ObservableObject
 
 public class LayerManager
 {
+    public event Action? LayerVisibilityChanged;
+
     public IReadOnlyList<LayerVisibility> LayerVisibilities => _layerVisibilities;
 
     public LayerManager()
@@ -33,6 +36,15 @@ public class LayerManager
                 Layer = i,
                 IsVisible = true,
             };
+            _layerVisibilities[LevelModule.MAX_LAYER - i].PropertyChanged += OnLayerVisibilityChanged;
+        }
+    }
+
+    ~LayerManager()
+    {
+        foreach (var layerVis in _layerVisibilities)
+        {
+            layerVis.PropertyChanged -= OnLayerVisibilityChanged;
         }
     }
 
@@ -46,6 +58,14 @@ public class LayerManager
     {
         if (layer < LevelModule.MIN_LAYER || layer > LevelModule.MAX_LAYER) return;
         _layerVisibilities[LevelModule.MAX_LAYER - layer].IsVisible = visible;
+    }
+
+    void OnLayerVisibilityChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(LayerVisibility.IsVisible))
+        {
+            LayerVisibilityChanged?.Invoke();
+        }
     }
 
     LayerVisibility[] _layerVisibilities = new LayerVisibility[LevelModule.MAX_LAYER - LevelModule.MIN_LAYER + 1];

@@ -14,7 +14,7 @@ public class OpaquePipelineStage : IPipelineStage
         context.CommandBuffer.SetupState(_state);
     }
 
-    public void Render(IRenderContext context, IEnumerable<IRenderable> renderables)
+    public void Render(IRenderContext context, IEnumerable<IRenderable> renderables, Camera2D camera)
     {
         var list = renderables.ToList();
         list.StableSort(RenderableDepthComparer.Instance);

@@ -1,6 +1,6 @@
 namespace FantaniaLib;
 
-public class ReferenceCounter<T>
+public sealed class ReferenceCounter<T>
 {
     public T Item { get; private set; }
 

@@ -95,6 +95,12 @@ public class TiledEntity : LevelEntity, ISelectableItem, ISizeableEntity
         return GetTileSize(workspace);
     }
 
+    public override void OnLoaded(IWorkspace workspace, Level level)
+    {
+        base.OnLoaded(workspace, level);
+        level.TiledEntityManager.AddEntity(workspace, this);
+    }
+
     public override void OnEnter(IWorkspace workspace)
     {
         base.OnEnter(workspace);

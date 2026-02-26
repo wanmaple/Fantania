@@ -35,10 +35,7 @@ public class Level : IReadonlyLevel
         RefreshGUIDs();
         foreach (var entity in _entities)
         {
-            if (entity is TiledEntity tiledEntity)
-            {
-                _tileMgr.AddEntity(workspace, tiledEntity);
-            }
+            entity.OnLoaded(workspace, this);
         }
     }
 

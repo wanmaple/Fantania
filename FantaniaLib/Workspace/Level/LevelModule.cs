@@ -14,9 +14,10 @@ public class LevelModule : WorkspaceModule
     private Level? _curLv = null;
     public IReadonlyLevel? CurrentLevel => _curLv;
     public LayerManager LayerManager => _layerMgr;
+    public SpecialPropertyObserver SpecialPropertyObserver => _specPropOb;
 
     public IReadOnlyList<LevelDescription> LevelDescriptions => _lvDescs;
-    public bool HasChange => _syncer != null ? _syncer.HasChange : false;
+    public bool HasChange => (_syncer != null ? _syncer.HasChange : false) || _specPropOb.HasChange;
 
     public LevelModule(IWorkspace workspace) : base(workspace)
     {
@@ -47,8 +48,8 @@ public class LevelModule : WorkspaceModule
         var lv = Level.OpenExist(lvPath);
         _syncer = new BinaryDataSyncer<LevelEntity>(lv.MutableEntities, SerializationRule.Default);
         await _syncer.SyncFromFile(lvPath);
-        lv.OnLevelLoaded(_workspace);
         SetCurrentLevel(lv);
+        lv.OnLevelLoaded(_workspace);
     }
 
     public async Task DeleteLevel(string lvName)
@@ -86,6 +87,14 @@ public class LevelModule : WorkspaceModule
         {
             string lvPath = GetLevelFilePath(_curLv.Name);
             await _syncer!.SyncToFile(lvPath);
+            _specPropOb.Reset();
+            foreach (var entity in _curLv.Entities)
+            {
+                if (entity is MultiNodesEntity e)
+                {
+                    _specPropOb.Observe(e);
+                }
+            }
         }
     }
 
@@ -112,6 +121,7 @@ public class LevelModule : WorkspaceModule
         if (_curLv != lv)
         {
             _workspace.EditorModule.SelectedObjects.Clear();
+            _specPropOb.Reset();
             OnPropertyChanging(nameof(CurrentLevel));
             if (_curLv != null)
             {
@@ -218,6 +228,7 @@ public class LevelModule : WorkspaceModule
     ObservableCollection<LevelDescription> _lvDescs = new ObservableCollection<LevelDescription>();
     BinaryDataSyncer<LevelEntity>? _syncer;
     LayerManager _layerMgr = new LayerManager();
+    SpecialPropertyObserver _specPropOb = new SpecialPropertyObserver();
 
     PropertyChangeInfo? _tempChange;
     SerializationRule _rule = SerializationRule.Default;

@@ -3,7 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace FantaniaLib;
 
-public class SelectionBox : ObservableObject
+public sealed class SelectionBox : ObservableObject
 {
     public bool IsZero => _orig.X == _cur.X || _orig.Y == _cur.Y;
 

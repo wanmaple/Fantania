@@ -41,11 +41,11 @@ public abstract class LevelEntityCommand : ICanvasCommand
         nonNodeRenderables.AddRange(BuildRenderables(entity, fgLocals, localOrderStart, context.Workspace, pipeline, out var _));
         foreach (var renderable in nodeRenderables)
         {
-            context.RenderableHierarchy.AddItem(renderable);
+            context.AddRenderableToBVH(renderable);
         }
         foreach (var renderable in nonNodeRenderables)
         {
-            context.RenderableHierarchy.AddItem(renderable);
+            context.AddRenderableToBVH(renderable);
         }
         context.EntityManager.Register(entity, new EntityRenderInfo
         {
@@ -63,12 +63,12 @@ public abstract class LevelEntityCommand : ICanvasCommand
         foreach (var renderable in context.EntityManager.GetNodeRenderables(entity))
         {
             pipeline.MaterialSet.ReleaseMaterial(renderable.Material);
-            context.RenderableHierarchy.RemoveItem(renderable);
+            context.RemoveRenderableFromBVH(renderable);
         }
         foreach (var renderable in context.EntityManager.GetNonNodeRenderables(entity))
         {
             pipeline.MaterialSet.ReleaseMaterial(renderable.Material);
-            context.RenderableHierarchy.RemoveItem(renderable);
+            context.RemoveRenderableFromBVH(renderable);
         }
         context.EntityManager.Unregister(entity);
     }
@@ -85,7 +85,7 @@ public abstract class LevelEntityCommand : ICanvasCommand
         {
             foreach (var renderable in context.EntityManager.GetNonNodeRenderables(entity))
             {
-                context.RenderableHierarchy.RemoveItem(renderable);
+                context.RemoveRenderableFromBVH(renderable);
             }
             List<LocalRenderInfo> nonNodeLocals = new List<LocalRenderInfo>();
             List<IRenderable> nonNodeRenderables = new List<IRenderable>();
@@ -109,7 +109,7 @@ public abstract class LevelEntityCommand : ICanvasCommand
                 renderable.Depth = entity.RealDepth;
                 renderable.EntityOrder = entity.Order;
                 renderable.LocalOrder = localOrderStart + i;
-                context.RenderableHierarchy.UpdateItem(renderable);
+                context.UpdateRenderableInBVH(renderable);
             }
             localOrderStart += nodeRenderables.Count;
             entity.GetForegroundNodes(context.Workspace, out var fgLocals);
@@ -117,7 +117,7 @@ public abstract class LevelEntityCommand : ICanvasCommand
             nonNodeRenderables.AddRange(BuildRenderables(entity, fgLocals, localOrderStart, context.Workspace, pipeline, out var _));
             foreach (var renderable in nonNodeRenderables)
             {
-                context.RenderableHierarchy.AddItem(renderable);
+                context.AddRenderableToBVH(renderable);
             }
             localInfo.NonNodeLocals = nonNodeLocals;
             localInfo.NonNodeRenderables = nonNodeRenderables;

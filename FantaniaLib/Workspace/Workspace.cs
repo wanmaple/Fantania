@@ -111,7 +111,7 @@ public abstract class Workspace : SyncableObject, IWorkspace
             {
                 await LevelModule.LoadLevel(lastAccess);
             }
-            catch
+            finally
             {
             }
         }
@@ -123,6 +123,7 @@ public abstract class Workspace : SyncableObject, IWorkspace
         await _lvModule.SyncCurrentLevel();
         await WriteSolution();
         await WriteUserTemp();
+        UndoStack.ForceStopMerging();
     }
 
     public void Tick(TimeSpan elapsed)

@@ -79,7 +79,6 @@ public class EntityNodeCollection : IReadOnlyList<LevelEntityNode>, IList<LevelE
     public string SerializeToString(object instance)
     {
         var sb = new StringBuilder();
-        sb.Append(_nodes.Count);
         var rule = SerializationRule.Default;
         for (int i = 0; i < _nodes.Count; i++)
         {
@@ -111,6 +110,15 @@ public class EntityNodeCollection : IReadOnlyList<LevelEntityNode>, IList<LevelE
             node.NodeId = (int)rule.CastFrom(FieldTypes.Integer, fields[3], node)!;
             _nodes.Add(node);
         }
+    }
+
+    public EntityNodeCollection Clone()
+    {
+        var clone = new EntityNodeCollection()
+        {
+            _nodes = _nodes.ToList(),
+        };
+        return clone;
     }
 
     List<LevelEntityNode> _nodes = new List<LevelEntityNode>(0);

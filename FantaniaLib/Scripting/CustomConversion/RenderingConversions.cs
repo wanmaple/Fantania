@@ -45,10 +45,6 @@ public static class RenderingConversions
                 Materials = materials,
             };
         });
-        Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Table, typeof(IPipelineStage), v =>
-        {
-            return new ScriptablePipelineStage(v);
-        });
         Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Table, typeof(RenderState), v =>
         {
             bool depthTestEnabled = v.Table.Get("depthTestEnabled").GetBooleanOrDefault(true);

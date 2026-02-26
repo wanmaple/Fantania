@@ -52,7 +52,7 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
             BlendingEnabled = false,
         };
         _shaderFinalBlit = pipeline.ShaderCache.Acquire(vertSrc, fragSrc);
-        pipeline.StartWorkerThread();
+        pipeline.StartWorkerThread(_camera!);
         LevelEditConfig leConfig = Workspace.ScriptingModule.GetCustomLevelEditConfigOrDefault();
         _inputs = new LevelInputs(this, leConfig);
         _context = new LevelSpaceContext(this);
@@ -63,6 +63,7 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
         Workspace.LevelModule.EntityAdded += OnEntityAdded;
         Workspace.LevelModule.EntityRemoved += OnEntityRemoved;
         Workspace.LevelModule.PropertyChanged += OnLevelChanged;
+        Workspace.LevelModule.LayerManager.LayerVisibilityChanged += OnLayerVisibilityChanged;
     }
 
     protected override void OnContextFinalizing(ConfigurableRenderPipeline pipeline)
@@ -70,6 +71,7 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
         Workspace!.LevelModule.EntityAdded -= OnEntityAdded;
         Workspace.LevelModule.EntityRemoved -= OnEntityRemoved;
         Workspace.LevelModule.PropertyChanged -= OnLevelChanged;
+        Workspace.LevelModule.LayerManager.LayerVisibilityChanged -= OnLayerVisibilityChanged;
         if (Workspace.LevelModule.CurrentLevel != null)
             FinalizeLevel(Workspace.LevelModule.CurrentLevel);
         _lifeOfRenderables!.Unregister(_context!.RenderableHierarchy);
@@ -97,10 +99,11 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
         device.SetRenderTarget(fbColor.ID);
         if (device.IsFrameBufferReady())
         {
-            if (true /* Scene Dirty */)
+            if (_context!.SceneDirty)
             {
                 var renderables = _context!.CollectRenderables();
                 pipeline.ReceiveRenderables(renderables);
+                _context.SceneDirty = false;
             }
             device.ClearColor("#000000".ToVector4());
             // 清除DepthBuffer需要设置DepthMask为true
@@ -160,6 +163,11 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
             LevelModule module = (LevelModule)sender!;
             InitializeLevel(module.CurrentLevel);
         }
+    }
+
+    void OnLayerVisibilityChanged()
+    {
+        _context!.SceneDirty = true;
     }
 
     void InitializeLevel(IReadonlyLevel? lv)
