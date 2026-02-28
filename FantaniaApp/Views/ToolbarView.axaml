@@ -86,7 +86,7 @@
           </ScrollViewer>
         </Border>
       </Popup>
+      <TextBlock Grid.Row="3" Classes="p" Text="{Binding Workspace.EditorModule.MouseWorldPosition}" VerticalAlignment="Bottom" />
     </StackPanel>
-    <TextBlock Grid.Row="3" Classes="p" Text="{Binding Workspace.EditorModule.MouseWorldPosition}" />
   </Grid>
 </UserControl>

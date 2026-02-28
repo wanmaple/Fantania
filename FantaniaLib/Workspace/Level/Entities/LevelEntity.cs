@@ -124,22 +124,6 @@ public abstract class LevelEntity : BinaryObject
         }
     }
 
-    private TypeReference _refTest = TypeReference.EmptyOfType("Sprite");
-    [EditableField]
-    public TypeReference Test
-    {
-        get { return _refTest; }
-        set
-        {
-            if (_refTest != value)
-            {
-                OnPropertyChanging(nameof(Test));
-                _refTest = value;
-                OnPropertyChanged(nameof(Test));
-            }
-        }
-    }
-
     private int _order = 0;
     [SerializableField(FieldTypes.Integer)]
     public int Order
