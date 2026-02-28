@@ -17,7 +17,7 @@ public class PlacementModule : WorkspaceModule
     {
         foreach (PlacementTemplate template in _placementTemplateMap.Values)
         {
-            var objs = _workspace.DatabaseModule.GetObjectsOfType(template.ClassName);
+            var objs = _workspace.DatabaseModule.GetObjectsOfType(template.ClassName).Skip(1);
             foreach (UserPlacement placement in objs)
             {
                 template.Source.Add(placement);

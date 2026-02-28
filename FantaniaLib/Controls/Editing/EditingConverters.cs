@@ -49,6 +49,8 @@ public class EditableField2EditControlConverter : IValueConverter
         { typeof(Vector2), typeof(Vector2Box) },
         { typeof(Vector2Int), typeof(Vector2IntBox) },
         { typeof(Vector4), typeof(ColorPicker) },
+        { typeof(TypeReference), typeof(TypeReferenceBox) },
+        { typeof(GroupReference), typeof(GroupReferenceBox) },
         { typeof(TextureDefinition), typeof(TextureBox) },
     };
 }

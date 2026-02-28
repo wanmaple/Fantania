@@ -333,4 +333,8 @@
     <value>粘贴(快捷键: Ctrl + V)</value>
     <comment/>
   </data>
+  <data name="CM_MissingReference" xml:space="preserve">
+    <value>引用已丢失</value>
+    <comment/>
+  </data>
 </root>

@@ -1,0 +1,27 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:lib="using:FantaniaLib"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="lib:IEditableField"
+             x:Class="FantaniaLib.ReadonlyTypeReference">
+  <UserControl.Resources>
+    <lib:TypeReference2ReferenceNameConverter x:Key="Cvt_TR2Name" />
+    <lib:TypeReference2ForegroundConverter x:Key="Cvt_TR2Fore" />
+  </UserControl.Resources>
+  <SelectableTextBlock VerticalAlignment="Center">
+    <SelectableTextBlock.Text>
+      <MultiBinding Converter="{StaticResource Cvt_TR2Name}">
+        <Binding Path="FieldValue" />
+        <Binding Path="Workspace" />
+      </MultiBinding>
+    </SelectableTextBlock.Text>
+    <SelectableTextBlock.Foreground>
+      <MultiBinding Converter="{StaticResource Cvt_TR2Fore}">
+        <Binding Path="FieldValue" />
+        <Binding Path="Workspace" />
+      </MultiBinding>
+    </SelectableTextBlock.Foreground>
+  </SelectableTextBlock>
+</UserControl>

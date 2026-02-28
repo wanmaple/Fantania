@@ -69,6 +69,11 @@ public class UserPlacement : DatabaseObject, IPlacement
         return editableFields;
     }
 
+    public override string GetDisplayName(IWorkspace workspace)
+    {
+        return workspace.LocalizeString(_script.Name);
+    }
+
     public IReadOnlyList<LocalRenderInfo> GetLocalNodeAt(int index, int nodeCnt)
     {
         return Template.GetLocalNodeAt(this, index, nodeCnt);

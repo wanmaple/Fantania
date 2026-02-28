@@ -25,9 +25,9 @@ public class BoundingVolumeHierarchyNode<T> where T : IBVHItem
 
 public class BoundingVolumeHierarchy<T> where T : IBVHItem
 {
-    public Action<T>? ItemAdded;
-    public Action<T>? ItemRemoved;
-    public Action<T>? ItemChanged;
+    public event Action<T>? ItemAdded;
+    public event Action<T>? ItemRemoved;
+    public event Action<T>? ItemChanged;
 
     public int ItemCount => _num;
     public Rectf Bounds => _root == null ? Rectf.Zero : _root.bounds;

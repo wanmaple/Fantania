@@ -8,6 +8,15 @@ public struct TypeReference : IEquatable<TypeReference>
         ReferenceID = 0,
     };
 
+    public static TypeReference EmptyOfType(string type)
+    {
+        return new TypeReference
+        {
+            ReferenceType = type,
+            ReferenceID = 0,
+        };
+    }
+
     public string ReferenceType;
     public int ReferenceID;
 

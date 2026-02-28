@@ -20,7 +20,7 @@ public abstract class DatabaseObject : SyncableObject, ISerializableData, IEdita
 
     private string _name = string.Empty;
     [SerializableField(FieldTypes.String), EditableField(TooltipKey = "TT_Name")]
-    public string Name
+    public virtual string Name
     {
         get { return _name; }
         set
@@ -97,6 +97,11 @@ public abstract class DatabaseObject : SyncableObject, ISerializableData, IEdita
         }
         editableFields.Sort((f1, f2) => f1.FieldName.CompareTo(f2.FieldName));
         return editableFields;
+    }
+
+    public virtual string GetDisplayName(IWorkspace workspace)
+    {
+        return TypeName;
     }
 
     public virtual string OnCopy(IWorkspace workspace)

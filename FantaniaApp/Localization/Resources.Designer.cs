@@ -103,6 +103,15 @@ namespace Fantania.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 引用已丢失.
+        /// </summary>
+        public static string CM_MissingReference {
+            get {
+                return ResourceManager.GetString("CM_MissingReference", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 创建关卡失败，详情：{0}.
         /// </summary>
         public static string ERR_CreateLevelFailure {

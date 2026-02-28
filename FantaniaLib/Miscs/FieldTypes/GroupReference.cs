@@ -8,6 +8,15 @@ public struct GroupReference : IEquatable<GroupReference>
         ReferenceID = 0,
     };
 
+    public static GroupReference EmptyOfGroup(string group)
+    {
+        return new GroupReference
+        {
+            ReferenceGroup = group,
+            ReferenceID = 0,
+        };
+    }
+
     public string ReferenceGroup;
     public int ReferenceID;
 

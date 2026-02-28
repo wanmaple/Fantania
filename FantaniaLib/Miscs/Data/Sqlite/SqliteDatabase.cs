@@ -45,6 +45,7 @@ public class SqliteDatabase : IDisposable
             if (!_groupedObjs.TryGetValue(obj.GroupName, out objs))
             {
                 objs = new ObservableCollection<DatabaseObject>();
+                objs.Add(EmptyDatabaseObject.Instance);
                 _groupedObjs.Add(obj.GroupName, objs);
             }
             objs.Add(obj);
@@ -52,6 +53,7 @@ public class SqliteDatabase : IDisposable
         if (!_typedObjs.TryGetValue(obj.TypeName, out objs))
         {
             objs = new ObservableCollection<DatabaseObject>();
+            objs.Add(EmptyDatabaseObject.Instance);
             _typedObjs.Add(obj.TypeName, objs);
         }
         objs.Add(obj);

@@ -1,0 +1,35 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:lib="using:FantaniaLib"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="lib:IEditableField"
+             x:Class="FantaniaLib.GroupReferenceBox">
+  <UserControl.Resources>
+    <lib:GroupReference2OptionsConverter x:Key="Cvt_GR2Ops" />
+    <lib:GroupReference2ReferedObjectConverter x:Key="Cvt_GR2Obj" />
+  </UserControl.Resources>
+  <Grid>
+    <AutoCompleteBox MinWidth="200" ValueMemberBinding="{ReflectionBinding Name}" MinimumPrefixLength="0" FilterMode="Contains" SelectionChanged="AutoCompleteBox_SelectionChanged">
+      <AutoCompleteBox.ItemsSource>
+        <MultiBinding Converter="{StaticResource Cvt_GR2Ops}">
+          <Binding Path="FieldValue" />
+          <Binding Path="Workspace" />
+        </MultiBinding>
+      </AutoCompleteBox.ItemsSource>
+      <AutoCompleteBox.SelectedItem>
+        <MultiBinding Converter="{StaticResource Cvt_GR2Obj}">
+          <Binding Path="FieldValue" />
+          <Binding Path="Workspace" />
+        </MultiBinding>
+      </AutoCompleteBox.SelectedItem>
+      <AutoCompleteBox.ItemTemplate>
+        <DataTemplate x:DataType="lib:DatabaseObject">
+          <TextBlock Text="{Binding Name}" />
+        </DataTemplate>
+      </AutoCompleteBox.ItemTemplate>
+    </AutoCompleteBox>
+    <Border Classes="thick err" IsVisible="{Binding FieldValidator.Error, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+  </Grid>
+</UserControl>

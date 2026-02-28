@@ -109,7 +109,7 @@ public abstract class LevelEntity : BinaryObject
     public int RealDepth => Layer * LAYER_RANGE + RelativeDepth;
 
     private TypeReference _refPlacement = TypeReference.None;
-    [SerializableField(FieldTypes.TypeReference)]
+    [SerializableField(FieldTypes.TypeReference), EditableField(EditControlType = typeof(ReadonlyTypeReference))]
     public TypeReference PlacementReference
     {
         get { return _refPlacement; }
@@ -120,6 +120,22 @@ public abstract class LevelEntity : BinaryObject
                 OnPropertyChanging(nameof(PlacementReference));
                 _refPlacement = value;
                 OnPropertyChanged(nameof(PlacementReference));
+            }
+        }
+    }
+
+    private TypeReference _refTest = TypeReference.EmptyOfType("Sprite");
+    [EditableField]
+    public TypeReference Test
+    {
+        get { return _refTest; }
+        set
+        {
+            if (_refTest != value)
+            {
+                OnPropertyChanging(nameof(Test));
+                _refTest = value;
+                OnPropertyChanged(nameof(Test));
             }
         }
     }
