@@ -14,6 +14,7 @@ public class SingleObjectEditableField : ObservableObject, IEditableField
         get => _propInfo.GetValue(_instance)!;
         set
         {
+            if (value == null) return;
             if (!FieldValue.Equals(value))
             {
                 if (FieldValidator == null || FieldValidator.ValidateField(Workspace, value))
@@ -26,6 +27,7 @@ public class SingleObjectEditableField : ObservableObject, IEditableField
                 FieldValidator.ValidateField(Workspace, value);
         } 
     }
+    public Type FieldType => FieldValue.GetType();
     public IFieldValidator? FieldValidator => _validator;
     public IWorkspace Workspace { get; private set; }
 

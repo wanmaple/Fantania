@@ -11,6 +11,7 @@ public class OpaquePipelineStage : IPipelineStage
 
     public void PreRender(IRenderContext context)
     {
+        context.CommandBuffer.SetRenderTarget(ConfigurableRenderPipeline.COLOR_BUFFER);
         context.CommandBuffer.SetupState(_state);
     }
 

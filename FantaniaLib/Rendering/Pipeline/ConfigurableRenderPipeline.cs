@@ -30,6 +30,8 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
     public MaterialSet MaterialSet => _materials;
     public VertexStreamCache VertexStreamCache => _cacheVertStreams;
     public CommandBuffer CommandBuffer => WorkingBuffer;
+    public int LightCullingTileSize { get; private set; }
+    public TiledLightCullingData TiledLightCullingData => _tiledLightCullingData;
 
     private CommandBuffer CompletedBuffer => _cmdBuffers[_completeBufferIndex];
     private CommandBuffer WorkingBuffer => _cmdBuffers[(_completeBufferIndex + 1) % 2];
@@ -62,7 +64,7 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
             {
                 Width = config.Resolution.X,
                 Height = config.Resolution.Y,
-                ColorFormat = TextureFormats.RGBA8,
+                ColorFormat = TextureFormats.RGBA16F,
                 DepthFormat = DepthFormats.Depth24Stencil8,
             },
         });
@@ -76,6 +78,10 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
             AddStage(stage);
         }
         _stageList.StableSort(PipelineStageComparer.Instance);
+        string innerVertSrc = IOHelper.ReadText("avares://Fantania/Assets/shaders/vert_standard.vs", workspace)!;
+        string innerFragSrc = IOHelper.ReadText("avares://Fantania/Assets/shaders/frag_standard.fs", workspace)!;
+        ShaderProgram innerShader = _cacheShaders.Acquire(innerVertSrc, innerFragSrc);
+        _materials.AddShader("#FantaniaStandard", innerShader);
         foreach (var matInfo in config.Materials)
         {
             string? vertSrc = IOHelper.ReadText(matInfo.VertexShader, workspace);
@@ -84,6 +90,7 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
             ShaderProgram shader = _cacheShaders.Acquire(vertSrc, fragSrc);
             _materials.AddShader(matInfo.MaterialKey, shader);
         }
+        LightCullingTileSize = config.LightCullingTileSize;
         _built = true;
     }
 
@@ -219,4 +226,5 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
     object _mutexBuffers = new object();
     CommandBuffer[] _cmdBuffers = new CommandBuffer[2];
     volatile int _completeBufferIndex;
+    TiledLightCullingData _tiledLightCullingData = new TiledLightCullingData();
 }

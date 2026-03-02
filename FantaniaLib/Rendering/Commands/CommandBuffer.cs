@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Numerics;
 using MoonSharp.Interpreter;
 
 namespace FantaniaLib;
@@ -9,6 +10,16 @@ public class CommandBuffer : IEnumerable<IRenderCommand>
     public void AddCommand(IRenderCommand cmd)
     {
         _cmds.Add(cmd);
+    }
+
+    public void ClearColor(float r, float g, float b, float a)
+    {
+        AddCommand(new ClearColorCommand(new Vector4(r, g, b, a)));
+    }
+
+    public void SetRenderTarget(string rtName)
+    {
+        AddCommand(new SetRenderTargetCommand(rtName));
     }
 
     public void SetupState(RenderState state)

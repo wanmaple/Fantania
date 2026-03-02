@@ -9,6 +9,7 @@ public enum TextureFormats
     RGBA8,
     SRGB8,
     SRGB8_ALPHA8,
+    RGBA16F,
 }
 
 public enum TextureMinFilters

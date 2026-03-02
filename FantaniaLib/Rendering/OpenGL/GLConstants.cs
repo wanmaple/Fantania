@@ -13,6 +13,7 @@ public static class GLConstants
 
     public const int GL_UNSIGNED_BYTE = GlConsts.GL_UNSIGNED_BYTE;
     public const int GL_UNSIGNED_SHORT = GlConsts.GL_UNSIGNED_SHORT;
+    public const int GL_HALF_FLOAT = 0x140B;
     public const int GL_RED = 0x1903;
     public const int GL_RGB = 0x1907;
     public const int GL_RGBA = GlConsts.GL_RGBA;
@@ -21,6 +22,7 @@ public static class GLConstants
     public const int GL_RGBA8 = GlConsts.GL_RGBA8;
     public const int GL_SRGB8 = 0x8C41;
     public const int GL_SRGB8_ALPHA8 = 0x8C43;
+    public const int GL_RGBA16F = 0x881A;
 
     public const int GL_NEAREST = GlConsts.GL_NEAREST;
     public const int GL_LINEAR = GlConsts.GL_LINEAR;

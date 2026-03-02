@@ -31,6 +31,12 @@ public class EditableField2EditControlConverter : IValueConverter
                 uc.DataContext = field;
                 return uc;
             }
+            else if (type.IsEnum)
+            {
+                EnumBox uc = new EnumBox();
+                uc.DataContext = field;
+                return uc;
+            }
         }
         return AvaloniaProperty.UnsetValue;
     }

@@ -19,6 +19,7 @@ EditControls = {
 BuiltinStages = {
     Opaque = "Opaque",
     Transparent = "Transparent",
+    TiledLightCulling = "Tiled Light Culling",
     PostProcessing = "Post Processing",
 }
 

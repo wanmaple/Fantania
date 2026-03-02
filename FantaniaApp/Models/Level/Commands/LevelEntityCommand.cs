@@ -154,12 +154,14 @@ public abstract class LevelEntityCommand : ICanvasCommand
                 Anchor = local.Anchor,
                 Size = local.LocalSize,
                 Tiling = local.Tiling,
+                Tiling2 = local.Tiling2,
                 MaterialKey = local.MaterialKey,
                 Uniforms = local.Uniforms,
             };
             var uniforms = new UniformSet(info.Uniforms);
             RenderMaterial material = context.MaterialSet.AcquireMaterial(info.MaterialKey, uniforms);
-            renderables.Add(new QuadRenderable(info, material));
+            var renderable = (IRenderable)Activator.CreateInstance(local.RenderableType, info, material, local.CustomArgs)!;
+            renderables.Add(renderable);
         }
         return renderables;
     }

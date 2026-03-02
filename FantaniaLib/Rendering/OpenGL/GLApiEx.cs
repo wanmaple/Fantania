@@ -27,11 +27,41 @@ public static class GLApiEx
         func(location, value);
     }
 
+    public unsafe static void Uniform1iv(GlInterface gl, int location, int[] values)
+    {
+        nint ptr = gl.GetProcAddress("glUniform1iv");
+        var func = (delegate*<int, int, void*, void>)ptr;
+        fixed (int* arrPtr = values)
+        {
+            func(location, values.Length, arrPtr);
+        }
+    }
+
+    public unsafe static void Uniform1fv(GlInterface gl, int location, float[] values)
+    {
+        nint ptr = gl.GetProcAddress("glUniform1fv");
+        var func = (delegate*<int, int, void*, void>)ptr;
+        fixed (float* arrPtr = values)
+        {
+            func(location, values.Length, arrPtr);
+        }
+    }
+
     public unsafe static void Uniform2f(GlInterface gl, int location, Vector2 vec)
     {
         nint ptr = gl.GetProcAddress("glUniform2f");
         var func = (delegate*<int, float, float, void>)ptr;
         func(location, vec.X, vec.Y);
+    }
+
+    public unsafe static void Uniform2fv(GlInterface gl, int location, Vector2[] values)
+    {
+        nint ptr = gl.GetProcAddress("glUniform2fv");
+        var func = (delegate*<int, int, void*, void>)ptr;
+        fixed (Vector2* arrPtr = values)
+        {
+            func(location, values.Length, arrPtr);
+        }
     }
 
     public unsafe static void Uniform3f(GlInterface gl, int location, Vector3 vec)
@@ -41,6 +71,16 @@ public static class GLApiEx
         func(location, vec.X, vec.Y, vec.Z);
     }
 
+    public unsafe static void Uniform3fv(GlInterface gl, int location, Vector3[] values)
+    {
+        nint ptr = gl.GetProcAddress("glUniform3fv");
+        var func = (delegate*<int, int, void*, void>)ptr;
+        fixed (Vector3* arrPtr = values)
+        {
+            func(location, values.Length, arrPtr);
+        }
+    }
+
     public unsafe static void Uniform4f(GlInterface gl, int location, Vector4 vec)
     {
         nint ptr = gl.GetProcAddress("glUniform4f");
@@ -48,11 +88,31 @@ public static class GLApiEx
         func(location, vec.X, vec.Y, vec.Z, vec.W);
     }
 
+    public unsafe static void Uniform4fv(GlInterface gl, int location, Vector4[] values)
+    {
+        nint ptr = gl.GetProcAddress("glUniform4fv");
+        var func = (delegate*<int, int, void*, void>)ptr;
+        fixed (Vector4* arrPtr = values)
+        {
+            func(location, values.Length, arrPtr);
+        }
+    }
+
     public unsafe static void UniformMatrix3fv(GlInterface gl, int location, Matrix3x3 mat, bool transpose = false)
     {
         nint ptr = gl.GetProcAddress("glUniformMatrix3fv");
         var func = (delegate*<int, int, int, void*, void>)ptr;
         func(location, 1, transpose ? GL_TRUE : GL_FALSE, &mat);
+    }
+
+    public unsafe static void UniformMatrix3fv(GlInterface gl, int location, Matrix3x3[] values, bool transpose = false)
+    {
+        nint ptr = gl.GetProcAddress("glUniformMatrix3fv");
+        var func = (delegate*<int, int, int, void*, void>)ptr;
+        fixed (Matrix3x3* arrPtr = values)
+        {
+            func(location, values.Length, transpose ? GL_TRUE : GL_FALSE, arrPtr);
+        }
     }
 
     public unsafe static void GenerateMipmap(GlInterface gl, int target)

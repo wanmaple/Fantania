@@ -199,6 +199,25 @@ public class SerializationRule
         }
     }
 
+    private class DefaultEnumCast : IFieldCastRule
+    {
+        public object? CastFrom(string casted, object instance)
+        {
+            string[] ary = casted.Split(',');
+            string enumTypeName = ary[0];
+            int enumValue = int.Parse(ary[1]);
+            Type enumType = Type.GetType(enumTypeName)!;
+            return Enum.ToObject(enumType, enumValue);
+        }
+
+        public string CastTo(object? fieldVal, object instance)
+        {
+            Enum enumVal = (Enum)fieldVal!;
+            Type enumType = enumVal.GetType();
+            return $"{enumType.FullName},{Convert.ToInt32(enumVal)}";
+        }
+    }
+
     private class DefaultCustomSerializableCast : IFieldCastRule
     {
         public object? CastFrom(string casted, object instance)
@@ -234,6 +253,7 @@ public class SerializationRule
         SetFieldCast(FieldTypes.Texture, new DefaultTextureCast());
         SetFieldCast(FieldTypes.GroupReference, new DefaultGroupReferenceCast());
         SetFieldCast(FieldTypes.TypeReference, new DefaultTypeReferenceCast());
+        SetFieldCast(FieldTypes.Enum, new DefaultEnumCast());
         SetFieldCast(FieldTypes.Custom, new DefaultCustomSerializableCast());
     }
 

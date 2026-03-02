@@ -9,6 +9,7 @@ public class RenderInfo
     public required Vector2 Anchor { get; set; }
     public required Vector2 Size { get; set; }
     public required Rectf Tiling { get; set; }
+    public required Rectf Tiling2 { get; set; }
     public required int Depth { get; set; }
     public required int EntityOrder { get; set; }
     public required int LocalOrder { get; set; }

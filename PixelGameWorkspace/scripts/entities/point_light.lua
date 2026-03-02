@@ -1,0 +1,85 @@
+local PointLight = Class("PointLight")
+local Helper = require("helper_functions")
+
+PointLight.group = "SG_Lights"
+PointLight.name = "SN_PointLight"
+PointLight.tooltip = "ST_PointLight"
+PointLight.dataDefs = {
+    icon = {
+        type = FieldTypes.Texture,
+    },
+    texture = {
+        type = FieldTypes.Texture,
+    },
+    color = {
+        type = FieldTypes.Color,
+        default = "#ffffff",
+    },
+    radius = {
+        type = FieldTypes.Integer,
+        default = 128,
+    },
+}
+PointLight.editDefs = {
+    icon = {
+        group = "SG_Appearance",
+        tooltip = "ST_PointLight_Icon",
+    },
+    texture = {
+        group = "SG_Appearance",
+        tooltip = "ST_PointLight_Texture",
+    },
+    color = {
+        group = "SG_Appearance",
+        tooltip = "ST_PointLight_Color",
+    },
+    radius = {
+        group = "SG_Appearance",
+        tooltip = "ST_PointLight_Radius",
+        parameter = "8:10000:8",
+    },
+}
+
+PointLight.defaultLayer = 0
+PointLight.placementType = PlacementTypes.LightSource
+
+function PointLight:canRotate(index)
+    return false
+end
+
+function PointLight:nodeAt(info, index, nodeCount)
+    local ret = {}
+    table.insert(ret, {
+        stage = BuiltinStages.Transparent,
+        anchor = { x = 0.5, y = 0.5, },
+        materialKey = "Standard",
+        color = "#ffffff",
+        uniforms = {
+            u_Texture = {
+                type = UniformTypes.Texture,
+                value = info.icon,
+            },
+        },
+        sizer = {
+            type = SizerTypes.Texture,
+            texture = info.icon,
+        },
+    })
+    -- table.insert(ret, {
+    --     stage = BuiltinStages.LightAccumulation,
+    --     anchor = { x = 0.5, y = 0.5, },
+    --     materialKey = "PointLightAcc",
+    --     color = info.color,
+    --     uniforms = {
+    --         u_LightTexture = info.texture,
+    --     },
+    --     sizer = {
+    --         type = SizerTypes.Fixed,
+    --         width = info.radius * 2,
+    --         height = info.radius * 2,
+    --     },
+    -- })
+    return ret
+end
+
+return PointLight

@@ -7,4 +7,9 @@ public interface IRenderContext
     TextureManager TextureManager { get; }
     MaterialSet MaterialSet { get; }
     VertexStreamCache VertexStreamCache { get; }
+    UniformSet GlobalUniforms { get; }
+    int LightCullingTileSize { get; }
+    TiledLightCullingData TiledLightCullingData { get; }
+
+    FrameBuffer? GetFrameBuffer(string name);
 }

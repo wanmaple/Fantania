@@ -50,6 +50,32 @@ public class RenderableLifePeriod
                 uniform.Set(info);
                 material.MutableUniforms.SetUniform(name, uniform);
             }
+            else if (uniform.Type == UniformTypes.TextureArray)
+            {
+                var info = uniform.Get<UniformSet.TextureArrayInformation>();
+                int[] texIds = (int[])info.TextureIDs.Clone();
+                for (int i = 0; i < info.TextureDefs.Length; i++)
+                {
+                    TextureDefinition def = info.TextureDefs[i];
+                    int texId = _context.TextureManager.FallbackTextureID;
+                    if (def.TextureType == TextureTypes.Gpu)
+                    {
+                        texId = def.TextureParameters.GpuParams.TextureID;
+                    }
+                    else
+                    {
+                        ITexture2D? tex = def.ToTexture(_workspace.RootFolder);
+                        if (tex != null)
+                        {
+                            texId = _context.TextureManager.AcquireTextureID(tex);
+                        }
+                    }
+                    texIds[i] = texId;
+                }
+                info.TextureIDs = texIds;
+                uniform.Set(info);
+                material.MutableUniforms.SetUniform(name, uniform);
+            }
         }
     }
 
@@ -71,6 +97,20 @@ public class RenderableLifePeriod
                 }
                 info.TextureID = texId;
                 uniform.Set(info);
+            }
+            else if (uniform.Type == UniformTypes.TextureArray)
+            {
+                var info = uniform.Get<UniformSet.TextureArrayInformation>();
+                for (int i = 0; i < info.TextureDefs.Length; i++)
+                {
+                    TextureDefinition def = info.TextureDefs[i];
+                    int texId = info.TextureIDs[i];
+                    if (def.TextureType != TextureTypes.Gpu && texId != _context.TextureManager.FallbackTextureID)
+                    {
+                        ITexture2D tex = def.ToTexture(_workspace.RootFolder)!;
+                        _context.TextureManager.ReleaseTexture(tex);
+                    }
+                }
             }
         }
     }

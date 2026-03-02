@@ -41,10 +41,11 @@ public class QuadRenderable : ObservableObject, IRenderable
     public Rectf BoundingBox => _aabb;
     public Vector2 Anchor { get; private set; } = Vector2.Zero;
     public Vector2 Size { get; private set; } = Vector2.Zero;
-    public Rectf Tiling { get; private set; } = new Rectf(Vector2.Zero, Vector2.One);
+    public Rectf Tiling { get; private set; } = Rectf.Zero;
+    public Rectf Tiling2 { get; private set; } = Rectf.Zero;
     public Vector4 VertexColor { get; private set; } = Vector4.One;
 
-    public QuadRenderable(RenderInfo info, RenderMaterial material)
+    public QuadRenderable(RenderInfo info, RenderMaterial material, IReadOnlyDictionary<string, object?> customArgs)
     {
         _mesh = MeshBuilder.CreateStandardQuad(info.Size);
         Stage = info.Stage;
@@ -54,6 +55,7 @@ public class QuadRenderable : ObservableObject, IRenderable
         Anchor = info.Anchor;
         Size = info.Size;
         Tiling = info.Tiling;
+        Tiling2 = info.Tiling2;
         VertexColor = info.Color;
         _material = material;
         _transform = info.Transform;
@@ -69,6 +71,7 @@ public class QuadRenderable : ObservableObject, IRenderable
             vert.Position = new Vector3(Transform * (QUAD_VERTICES[i] * Size), Depth);
             vert.UV = Tiling.TopLeft + QUAD_VERTICES[i] * Tiling.Size;
             vert.Color = VertexColor;
+            vert.UV2 = Tiling2.TopLeft + QUAD_VERTICES[i] * Tiling2.Size;
             Mesh.SetVerticeAt(i, vert);
         }
     }

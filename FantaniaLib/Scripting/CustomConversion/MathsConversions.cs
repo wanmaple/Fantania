@@ -127,5 +127,49 @@ public static class MathsConversions
             float m22 = (float)v.Table.Get("m22").Number;
             return new Matrix3x3(m00, m01, m02, m10, m11, m12, m20, m21, m22);
         });
+        // Rectf
+        Script.GlobalOptions.CustomConverters.SetClrToScriptCustomConversion<Rectf>((env, v) =>
+        {
+            float x = v.X;
+            float y = v.Y;
+            float width = v.Width;
+            float height = v.Height;
+            DynValue ret = DynValue.NewTable(env);
+            ret.Table.Set("x", DynValue.FromObject(env, x));
+            ret.Table.Set("y", DynValue.FromObject(env, y));
+            ret.Table.Set("width", DynValue.FromObject(env, width));
+            ret.Table.Set("height", DynValue.FromObject(env, height));
+            return ret;
+        });
+        Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Table, typeof(Rectf), v =>
+        {
+            float x = (float)v.Table.Get("x").Number;
+            float y = (float)v.Table.Get("y").Number;
+            float width = (float)v.Table.Get("width").Number;
+            float height = (float)v.Table.Get("height").Number;
+            return new Rectf(x, y, width, height);
+        });
+        // Recti
+        Script.GlobalOptions.CustomConverters.SetClrToScriptCustomConversion<Recti>((env, v) =>
+        {
+            int x = v.X;
+            int y = v.Y;
+            int width = v.Width;
+            int height = v.Height;
+            DynValue ret = DynValue.NewTable(env);
+            ret.Table.Set("x", DynValue.FromObject(env, x));
+            ret.Table.Set("y", DynValue.FromObject(env, y));
+            ret.Table.Set("width", DynValue.FromObject(env, width));
+            ret.Table.Set("height", DynValue.FromObject(env, height));
+            return ret;
+        });
+        Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Table, typeof(Recti), v =>
+        {
+            int x = (int)v.Table.Get("x").Number;
+            int y = (int)v.Table.Get("y").Number;
+            int width = (int)v.Table.Get("width").Number;
+            int height = (int)v.Table.Get("height").Number;
+            return new Recti(x, y, width, height);
+        });
     }
 }

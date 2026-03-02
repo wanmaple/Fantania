@@ -106,6 +106,7 @@ public class ScriptingModule : WorkspaceModule
             ret = new RenderPipelineConfig
             {
                 Resolution = new Vector2Int(1920, 1080),
+                LightCullingTileSize = 32,
                 FrameBuffers = [],
                 Stages = [
                     BuiltinPipelineStages.Opaque,

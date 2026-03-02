@@ -32,6 +32,58 @@ public class UniformSet : IEquatable<UniformSet>, IReadonlyUniformSet
         }
     }
 
+    public struct TextureArrayInformation : IEquatable<TextureArrayInformation>
+    {
+        public int[] TextureSlots;
+        public int[] TextureIDs;
+        public TextureDefinition[] TextureDefs;
+
+        public bool Equals(TextureArrayInformation other)
+        {
+            if (TextureSlots.Length != other.TextureSlots.Length || TextureIDs.Length != other.TextureIDs.Length || TextureDefs.Length != other.TextureDefs.Length)
+                return false;
+            for (int i = 0; i < TextureSlots.Length; i++)
+            {
+                if (TextureSlots[i] != other.TextureSlots[i])
+                    return false;
+            }
+            for (int i = 0; i < TextureDefs.Length; i++)
+            {
+                if (!TextureDefs[i].Equals(other.TextureDefs[i]))
+                    return false;
+            }
+            return true;
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is TextureArrayInformation && Equals((TextureArrayInformation)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            int hash = 17;
+            for (int i = 0; i < TextureSlots.Length; i++)
+            {
+                hash = (hash * 31) ^ TextureSlots[i].GetHashCode();
+            }
+            for (int i = 0; i < TextureIDs.Length; i++)
+            {
+                hash = (hash * 31) ^ TextureIDs[i].GetHashCode();
+            }
+            for (int i = 0; i < TextureDefs.Length; i++)
+            {
+                hash = (hash * 31) ^ TextureDefs[i].GetHashCode();
+            }
+            return hash;
+        }
+
+        public override string ToString()
+        {
+            return $"count: {TextureDefs.Length}";
+        }
+    }
+
     public IReadOnlyCollection<string> Names => _uniforms.Keys;
 
     public MaterialUniform this[string name]
@@ -47,12 +99,16 @@ public class UniformSet : IEquatable<UniformSet>, IReadonlyUniformSet
     public UniformSet(DesiredUniformMap map)
     {
         int texSlot = 0;
+        var slotCache = new Dictionary<TextureDefinition, int>(16);
         foreach (var pair in map)
         {
             string name = pair.Key;
             DesiredUniformValue def = pair.Value;
             switch (def.Type)
             {
+                case UniformTypes.Int1:
+                    SetUniform(name, (int)def.Value);
+                    break;
                 case UniformTypes.Float1:
                     SetUniform(name, (float)def.Value);
                     break;
@@ -68,11 +124,54 @@ public class UniformSet : IEquatable<UniformSet>, IReadonlyUniformSet
                 case UniformTypes.Matrix3x3:
                     SetUniform(name, (Matrix3x3)def.Value);
                     break;
-                case UniformTypes.Texture:
-                    var texDef = (TextureDefinition)def.Value;
-                    SetUniform(name, texDef, texSlot);
-                    texSlot++;
+                case UniformTypes.Int1Array:
+                    SetUniform(name, (int[])def.Value);
                     break;
+                case UniformTypes.Float1Array:
+                    SetUniform(name, (float[])def.Value);
+                    break;
+                case UniformTypes.Float2Array:
+                    SetUniform(name, (Vector2[])def.Value);
+                    break;
+                case UniformTypes.Float3Array:
+                    SetUniform(name, (Vector3[])def.Value);
+                    break;
+                case UniformTypes.Float4Array:
+                    SetUniform(name, (Vector4[])def.Value);
+                    break;
+                case UniformTypes.Matrix3x3Array:
+                    SetUniform(name, (Matrix3x3[])def.Value);
+                    break;
+                case UniformTypes.Texture:
+                {
+                    var texDef = (TextureDefinition)def.Value;
+                    if (!slotCache.TryGetValue(texDef, out int singleSlot))
+                    {
+                        singleSlot = texSlot;
+                        slotCache.Add(texDef, singleSlot);
+                        texSlot++;
+                    }
+                    SetUniform(name, texDef, singleSlot);
+                    break;
+                }
+                case UniformTypes.TextureArray:
+                {
+                    var texDefs = (TextureDefinition[])def.Value;
+                    int[] slots = new int[texDefs.Length];
+                    for (int i = 0; i < texDefs.Length; i++)
+                    {
+                        TextureDefinition cur = texDefs[i];
+                        if (!slotCache.TryGetValue(cur, out int arrSlot))
+                        {
+                            arrSlot = texSlot;
+                            slotCache.Add(cur, arrSlot);
+                            texSlot++;
+                        }
+                        slots[i] = arrSlot;
+                    }
+                    SetUniform(name, texDefs, slots);
+                    break;
+                }
             }
         }
     }
@@ -87,6 +186,20 @@ public class UniformSet : IEquatable<UniformSet>, IReadonlyUniformSet
         if (!_uniforms.TryGetValue(name, out var val))
         {
             val = new MaterialUniform(UniformTypes.Float1, value);
+            _uniforms.Add(name, val);
+        }
+        else
+        {
+            val.Set(value);
+            _uniforms[name] = val;
+        }
+    }
+
+    public void SetUniform(string name, int value)
+    {
+        if (!_uniforms.TryGetValue(name, out var val))
+        {
+            val = new MaterialUniform(UniformTypes.Int1, value);
             _uniforms.Add(name, val);
         }
         else
@@ -152,6 +265,96 @@ public class UniformSet : IEquatable<UniformSet>, IReadonlyUniformSet
         }
     }
 
+    public void SetUniform(string name, int[] values)
+    {
+        int[] copy = (int[])values.Clone();
+        if (!_uniforms.TryGetValue(name, out var val))
+        {
+            val = new MaterialUniform(UniformTypes.Int1Array, copy);
+            _uniforms.Add(name, val);
+        }
+        else
+        {
+            val.Set(copy);
+            _uniforms[name] = val;
+        }
+    }
+
+    public void SetUniform(string name, float[] values)
+    {
+        float[] copy = (float[])values.Clone();
+        if (!_uniforms.TryGetValue(name, out var val))
+        {
+            val = new MaterialUniform(UniformTypes.Float1Array, copy);
+            _uniforms.Add(name, val);
+        }
+        else
+        {
+            val.Set(copy);
+            _uniforms[name] = val;
+        }
+    }
+
+    public void SetUniform(string name, Vector2[] values)
+    {
+        Vector2[] copy = (Vector2[])values.Clone();
+        if (!_uniforms.TryGetValue(name, out var val))
+        {
+            val = new MaterialUniform(UniformTypes.Float2Array, copy);
+            _uniforms.Add(name, val);
+        }
+        else
+        {
+            val.Set(copy);
+            _uniforms[name] = val;
+        }
+    }
+
+    public void SetUniform(string name, Vector3[] values)
+    {
+        Vector3[] copy = (Vector3[])values.Clone();
+        if (!_uniforms.TryGetValue(name, out var val))
+        {
+            val = new MaterialUniform(UniformTypes.Float3Array, copy);
+            _uniforms.Add(name, val);
+        }
+        else
+        {
+            val.Set(copy);
+            _uniforms[name] = val;
+        }
+    }
+
+    public void SetUniform(string name, Vector4[] values)
+    {
+        Vector4[] copy = (Vector4[])values.Clone();
+        if (!_uniforms.TryGetValue(name, out var val))
+        {
+            val = new MaterialUniform(UniformTypes.Float4Array, copy);
+            _uniforms.Add(name, val);
+        }
+        else
+        {
+            val.Set(copy);
+            _uniforms[name] = val;
+        }
+    }
+
+    public void SetUniform(string name, Matrix3x3[] values)
+    {
+        Matrix3x3[] copy = (Matrix3x3[])values.Clone();
+        if (!_uniforms.TryGetValue(name, out var val))
+        {
+            val = new MaterialUniform(UniformTypes.Matrix3x3Array, copy);
+            _uniforms.Add(name, val);
+        }
+        else
+        {
+            val.Set(copy);
+            _uniforms[name] = val;
+        }
+    }
+
     public void SetUniform(string name, TextureDefinition value, int slot)
     {
         var info = new TextureInformation
@@ -161,6 +364,34 @@ public class UniformSet : IEquatable<UniformSet>, IReadonlyUniformSet
             TextureDef = value,
         };
         var uniform = new MaterialUniform(UniformTypes.Texture, info);
+        if (!_uniforms.TryGetValue(name, out var val))
+        {
+            val = uniform;
+            _uniforms.Add(name, val);
+        }
+        else
+        {
+            val.Set(info);
+            _uniforms[name] = val;
+        }
+    }
+
+    public void SetUniform(string name, TextureDefinition[] values, int[] slots)
+    {
+        TextureDefinition[] defs = (TextureDefinition[])values.Clone();
+        int[] slotCopy = (int[])slots.Clone();
+        int[] ids = new int[defs.Length];
+        for (int i = 0; i < defs.Length; i++)
+        {
+            ids[i] = defs[i].TextureType == TextureTypes.Gpu ? defs[i].TextureParameters.GpuParams.TextureID : 0;
+        }
+        var info = new TextureArrayInformation
+        {
+            TextureSlots = slotCopy,
+            TextureIDs = ids,
+            TextureDefs = defs,
+        };
+        var uniform = new MaterialUniform(UniformTypes.TextureArray, info);
         if (!_uniforms.TryGetValue(name, out var val))
         {
             val = uniform;

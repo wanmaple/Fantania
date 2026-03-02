@@ -34,12 +34,14 @@ public static class RenderingConversions
         Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Table, typeof(RenderPipelineConfig), v =>
         {
             Vector2Int resolution = v.Table.Get("resolution").GetObjectOrDefault(new Vector2Int(1920, 1080));
+                int lightCullingTileSize = v.Table.Get("lightCullingTileSize").GetIntegerOrDefault(32);
             List<FrameBufferConfig> fbCfgs = v.Table.Get("frameBuffers").GetObjectOrDefault(new List<FrameBufferConfig>(0));
             List<IPipelineStage> stages = v.Table.Get("stages").GetObjectOrDefault(new List<IPipelineStage>(0));
             List<MaterialInfo> materials = v.Table.Get("materials").GetObjectOrDefault(new List<MaterialInfo>(0));
             return new RenderPipelineConfig
             {
                 Resolution = resolution,
+                    LightCullingTileSize = lightCullingTileSize,
                 FrameBuffers = fbCfgs,
                 Stages = stages,
                 Materials = materials,
@@ -101,12 +103,20 @@ public static class RenderingConversions
                 DynValue val = tb.Table.Get("value");
                 object value = type switch
                 {
+                    UniformTypes.Int1 => val.GetIntegerOrDefault(0),
                     UniformTypes.Float1 => val.GetFloatOrDefault(0.0f),
                     UniformTypes.Float2 => val.GetObjectOrDefault(Vector2.Zero),
                     UniformTypes.Float3 => val.GetObjectOrDefault(Vector3.Zero),
                     UniformTypes.Float4 => val.GetObjectOrDefault(Vector4.Zero),
                     UniformTypes.Matrix3x3 => val.GetObjectOrDefault(Matrix3x3.Identity),
+                    UniformTypes.Int1Array => val.GetObjectOrDefault(Array.Empty<int>()),
+                    UniformTypes.Float1Array => val.GetObjectOrDefault(Array.Empty<float>()),
+                    UniformTypes.Float2Array => val.GetObjectOrDefault(Array.Empty<Vector2>()),
+                    UniformTypes.Float3Array => val.GetObjectOrDefault(Array.Empty<Vector3>()),
+                    UniformTypes.Float4Array => val.GetObjectOrDefault(Array.Empty<Vector4>()),
+                    UniformTypes.Matrix3x3Array => val.GetObjectOrDefault(Array.Empty<Matrix3x3>()),
                     UniformTypes.Texture => val.GetObjectOrDefault(TextureDefinition.None),
+                    UniformTypes.TextureArray => val.GetObjectOrDefault(Array.Empty<TextureDefinition>()),
                     _ => 0.0f,
                 };
                 var desiredUniform = new DesiredUniformValue
@@ -126,9 +136,12 @@ public static class RenderingConversions
             float rot = v.Table.Get("rotation").GetFloatOrDefault(0.0f);
             Vector2 scale = v.Table.Get("scale").GetObjectOrDefault(Vector2.One);
             Vector4 color = v.Table.Get("color").GetObjectOrDefault(Vector4.One);
+            Rectf tiling2 = v.Table.Get("uv2").GetObjectOrDefault(Rectf.Zero);
             string matKey = v.Table.Get("materialKey").GetStringOrDefault(string.Empty);
             DesiredUniformMap uniforms = v.Table.Get("uniforms").GetObjectOrDefault(new DesiredUniformMap());
             IRenderableSizer sizer = v.Table.Get("sizer").GetObjectOrDefault(FallbackSizer.Fallback);
+            Type renderableType = v.Table.Get("renderableType").GetObjectOrDefault(typeof(QuadRenderable));
+            IReadOnlyDictionary<string, object?> customArgs = v.Table.Get("customArgs").GetObjectOrDefault(new Dictionary<string, object?>(0));
             return new LocalRenderInfo
             {
                 Stage = stage,
@@ -137,9 +150,12 @@ public static class RenderingConversions
                 Rotation = rot,
                 Scale = scale,
                 Color = color,
+                Tiling2 = tiling2,
                 MaterialKey = matKey,
                 Uniforms = uniforms,
                 Sizer = sizer,
+                RenderableType = renderableType,
+                CustomArgs = customArgs,
             };
         });
     }

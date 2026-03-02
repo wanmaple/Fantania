@@ -88,17 +88,17 @@ public class SingleNodeEntity : LevelEntity, ISelectableItem
         return true;
     }
 
-    public bool CanRotate(IWorkspace workspace)
+    public virtual bool CanRotate(IWorkspace workspace)
     {
         return GetReferencedPlacement(workspace).Template.CanRotate(0);
     }
 
-    public bool CanScale(IWorkspace workspace)
+    public virtual bool CanScale(IWorkspace workspace)
     {
         return GetReferencedPlacement(workspace).Template.CanScale(0);
     }
 
-    public bool CanTranslate(IWorkspace workspace)
+    public virtual bool CanTranslate(IWorkspace workspace)
     {
         return GetReferencedPlacement(workspace).Template.CanTranslate(0);
     }

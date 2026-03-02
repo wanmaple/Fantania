@@ -75,6 +75,7 @@ public class GLDevice : IRenderDevice
             TextureFormats.RGBA8 => (GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE),
             TextureFormats.SRGB8 => (GL_SRGB8, GL_RGB, GL_UNSIGNED_BYTE),
             TextureFormats.SRGB8_ALPHA8 => (GL_SRGB8_ALPHA8, GL_RGBA, GL_UNSIGNED_BYTE),
+            TextureFormats.RGBA16F => (GL_RGBA16F, GL_RGBA, GL_HALF_FLOAT),
             _ => (GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE),
         };
         _gl.TexImage2D(GL_TEXTURE_2D, 0, internalFormat, desc.Width, desc.Height, 0, format, type, data);
@@ -297,6 +298,9 @@ public class GLDevice : IRenderDevice
         if (location < 0) return;
         switch (uniform.Type)
         {
+            case UniformTypes.Int1:
+                GLApiEx.Uniform1i(_gl, location, uniform.Get<int>());
+                break;
             case UniformTypes.Float1:
                 _gl.Uniform1f(location, uniform.Get<float>());
                 break;
@@ -312,11 +316,38 @@ public class GLDevice : IRenderDevice
             case UniformTypes.Matrix3x3:
                 GLApiEx.UniformMatrix3fv(_gl, location, uniform.Get<Matrix3x3>());
                 break;
+            case UniformTypes.Int1Array:
+                GLApiEx.Uniform1iv(_gl, location, uniform.Get<int[]>());
+                break;
+            case UniformTypes.Float1Array:
+                GLApiEx.Uniform1fv(_gl, location, uniform.Get<float[]>());
+                break;
+            case UniformTypes.Float2Array:
+                GLApiEx.Uniform2fv(_gl, location, uniform.Get<Vector2[]>());
+                break;
+            case UniformTypes.Float3Array:
+                GLApiEx.Uniform3fv(_gl, location, uniform.Get<Vector3[]>());
+                break;
+            case UniformTypes.Float4Array:
+                GLApiEx.Uniform4fv(_gl, location, uniform.Get<Vector4[]>());
+                break;
+            case UniformTypes.Matrix3x3Array:
+                GLApiEx.UniformMatrix3fv(_gl, location, uniform.Get<Matrix3x3[]>());
+                break;
             case UniformTypes.Texture:
                 var info = uniform.Get<UniformSet.TextureInformation>();
                 _gl.ActiveTexture(GL_TEXTURE0 + info.TextureSlot);
                 _gl.BindTexture(GL_TEXTURE_2D, info.TextureID);
                 GLApiEx.Uniform1i(_gl, location, info.TextureSlot);
+                break;
+            case UniformTypes.TextureArray:
+                var arrInfo = uniform.Get<UniformSet.TextureArrayInformation>();
+                for (int i = 0; i < arrInfo.TextureSlots.Length; i++)
+                {
+                    _gl.ActiveTexture(GL_TEXTURE0 + arrInfo.TextureSlots[i]);
+                    _gl.BindTexture(GL_TEXTURE_2D, arrInfo.TextureIDs[i]);
+                }
+                GLApiEx.Uniform1iv(_gl, location, arrInfo.TextureSlots);
                 break;
         }
         DebugError();

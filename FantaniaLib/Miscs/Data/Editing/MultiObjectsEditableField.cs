@@ -11,6 +11,7 @@ public class MultiObjectsEditableField : ObservableObject, IEditableField
         get => _fields[0].FieldValue;
         set
         {
+            if (value == null) return;
             if (!FieldValue.Equals(value))
             {
                 if (FieldValidator == null || FieldValidator.ValidateField(Workspace, value))
@@ -24,6 +25,7 @@ public class MultiObjectsEditableField : ObservableObject, IEditableField
             }
         }
     }
+    public Type FieldType => FieldValue.GetType();
     public IFieldValidator? FieldValidator => _fields[0].FieldValidator;
     public IWorkspace Workspace => _workspace;
 

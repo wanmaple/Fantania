@@ -15,7 +15,10 @@ public class LocalRenderInfo
     public required IRenderableSizer Sizer { get; set; }
 
     public Rectf Tiling { get; set; } = new Rectf(0.0f, 0.0f, 1.0f, 1.0f);
+    public Rectf Tiling2 { get; set; } = Rectf.Zero;
     public int NodeId { get; set; } = -1;  // 节点的唯一 ID，用于稳定追踪节点身份
     public Matrix3x3 LocalTransform { get; set; } = Matrix3x3.Identity;
     public Vector2 LocalSize { get; set; } = Vector2.Zero;
+    public Type RenderableType { get; set; } = typeof(QuadRenderable);
+    public IReadOnlyDictionary<string, object?> CustomArgs { get; set; } = new Dictionary<string, object?>(0);
 }

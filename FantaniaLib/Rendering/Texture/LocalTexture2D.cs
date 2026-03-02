@@ -63,9 +63,11 @@ public class LocalTexture2D : ITexture2D
                     desc.Width = Width;
                     desc.Height = Height;
                     desc.Format = Format;
-                    desc.GenerateMipmap = true;
-                    desc.WrapS = TextureWraps.Repeat;
-                    desc.WrapT = TextureWraps.Repeat;
+                    desc.GenerateMipmap = false;
+                    desc.WrapS = TextureWraps.ClampToEdge;
+                    desc.WrapT = TextureWraps.ClampToEdge;
+                    desc.MinFilter = TextureMinFilters.Nearest;
+                    desc.MagFilter = TextureMagFilters.Nearest;
                     return true;
                 }
             }

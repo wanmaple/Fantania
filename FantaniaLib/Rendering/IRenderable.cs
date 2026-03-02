@@ -9,6 +9,7 @@ public interface IRenderable : IBVHItem
     Vector2 Anchor { get; }
     Vector2 Size { get; }
     Rectf Tiling { get; }
+    Rectf Tiling2 { get; }
     Vector4 VertexColor { get; }
     int Depth { get; set; }
     int EntityOrder { get; set; }
