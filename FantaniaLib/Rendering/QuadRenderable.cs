@@ -1,13 +1,11 @@
 using System.Numerics;
-using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace FantaniaLib;
 
-public class QuadRenderable : ObservableObject, IRenderable
+public class QuadRenderable : RenderableBase
 {
-    public string Stage { get; private set; } = string.Empty;
     private Matrix3x3 _transform = Matrix3x3.Identity;
-    public Matrix3x3 Transform
+    public override Matrix3x3 Transform
     {
         get { return _transform; }
         set
@@ -21,7 +19,7 @@ public class QuadRenderable : ObservableObject, IRenderable
         }
     }
     private int _depth = 0;
-    public int Depth
+    public override int Depth
     {
         get { return _depth; }
         set
@@ -33,17 +31,9 @@ public class QuadRenderable : ObservableObject, IRenderable
             }
         }
     }
-    public int EntityOrder { get; set; }
-    public int LocalOrder { get; set; }
-    public int NodeIndex { get; set; } = -1;
-    public Mesh Mesh => _mesh;
-    public RenderMaterial Material => _material!;
-    public Rectf BoundingBox => _aabb;
-    public Vector2 Anchor { get; private set; } = Vector2.Zero;
-    public Vector2 Size { get; private set; } = Vector2.Zero;
-    public Rectf Tiling { get; private set; } = Rectf.Zero;
-    public Rectf Tiling2 { get; private set; } = Rectf.Zero;
-    public Vector4 VertexColor { get; private set; } = Vector4.One;
+    public override Mesh Mesh => _mesh;
+    public override RenderMaterial Material => _material!;
+    public override Rectf BoundingBox => _aabb;
 
     public QuadRenderable(RenderInfo info, RenderMaterial material, IReadOnlyDictionary<string, object?> customArgs)
     {

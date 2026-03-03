@@ -91,10 +91,44 @@ public struct Matrix3x3 : IEquatable<Matrix3x3>
         throw new System.ArgumentOutOfRangeException("column");
     }
 
+    public Vector2 GetTranslation()
+    {
+        return new Vector2(m20, m21);
+    }
+
+    public float GetRotation()
+    {
+        DecomposeTRS(out _, out float rotation, out _);
+        return rotation;
+    }
+
+    public Vector2 GetScale()
+    {
+        DecomposeTRS(out _, out _, out Vector2 scale);
+        return scale;
+    }
+
+    public void DecomposeTRS(out Vector2 position, out float rotation, out Vector2 scale)
+    {
+        position = GetTranslation();
+        float scaleX = MathF.Sqrt(m00 * m00 + m01 * m01);
+        if (scaleX < EPSILON)
+        {
+            float scaleYFromColumn = MathF.Sqrt(m10 * m10 + m11 * m11);
+            scale = new Vector2(0.0f, scaleYFromColumn);
+            rotation = scaleYFromColumn < EPSILON ? 0.0f : MathF.Atan2(m10, m11);
+            return;
+        }
+        float det = m00 * m11 - m10 * m01;
+        float scaleY = det / scaleX;
+        rotation = MathF.Atan2(-m01 / scaleX, m00 / scaleX);
+        scale = new Vector2(scaleX, scaleY);
+    }
+
     public Matrix3x3 Inverse()
     {
         float det = Determinant();
-        if (MathF.Abs(det) < 1e-12f)
+        if (MathF.Abs(det) < EPSILON)
             throw new InvalidOperationException("Matrix is not invertible (determinant is zero or almost zero).");
         float invDet = 1.0f / det;
         float cof00 = m11 * m22 - m12 * m21;
@@ -206,4 +240,6 @@ public struct Matrix3x3 : IEquatable<Matrix3x3>
     public float m20;      // Column 2 Row 0
     public float m21;      // Column 2 Row 1
     public float m22;      // Column 2 Row 2
+
+    private const float EPSILON = 1e-12f;
 }

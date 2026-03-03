@@ -123,11 +123,14 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
         }
         _worker = new Thread(() =>
         {
-            while (!_ctsWorker.IsCancellationRequested)
+            WaitHandle[] waitHandles = new[] { _ctsWorker.Token.WaitHandle, _evTaskStart };
+            while (true)
             {
                 try
                 {
-                    if (!_evTaskStart.WaitOne(0)) continue;
+                    int signaled = WaitHandle.WaitAny(waitHandles);
+                    if (signaled == 0)
+                        break;
                     var groups = _renderables.GroupBy(r => r.Stage);
                     foreach (var stage in _stageList)
                     {
@@ -203,6 +206,8 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
             fb.Dispose(_device);
         }
         _ctsWorker?.Cancel();
+        _evTaskStart?.Set();
+        _worker?.Join(1000);
     }
 
     IRenderDevice _device;

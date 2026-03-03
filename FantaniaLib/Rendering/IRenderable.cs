@@ -17,4 +17,7 @@ public interface IRenderable : IBVHItem
     int NodeIndex { get; set; }
     Mesh Mesh { get; }
     RenderMaterial Material { get; }
+
+    void OnEnter(IWorkspace workspace, IRenderContext context);
+    void OnExit(IWorkspace workspace, IRenderContext context);
 }

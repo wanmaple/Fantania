@@ -65,20 +65,27 @@ function PointLight:nodeAt(info, index, nodeCount)
             texture = info.icon,
         },
     })
-    -- table.insert(ret, {
-    --     stage = BuiltinStages.LightAccumulation,
-    --     anchor = { x = 0.5, y = 0.5, },
-    --     materialKey = "PointLightAcc",
-    --     color = info.color,
-    --     uniforms = {
-    --         u_LightTexture = info.texture,
-    --     },
-    --     sizer = {
-    --         type = SizerTypes.Fixed,
-    --         width = info.radius * 2,
-    --         height = info.radius * 2,
-    --     },
-    -- })
+    table.insert(ret, {
+        stage = BuiltinStages.TiledLightCulling,
+        anchor = { x = 0.5, y = 0.5, },
+        materialKey = "Standard",
+        color = info.color,
+        renderableType = "FantaniaLib.LightSource",
+        customArgs = {
+            lightTexture = {
+                type = FieldTypes.Texture,
+                value = info.texture,
+            },
+            radius = {
+                type = FieldTypes.Integer,
+                value = info.radius,
+            },
+            color = {
+                type = FieldTypes.Color,
+                value = info.color,
+            },
+        },
+    })
     return ret
 end
 

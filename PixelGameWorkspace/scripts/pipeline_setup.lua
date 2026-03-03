@@ -16,6 +16,7 @@ local RenderPipelineSetup = {
 		-- },
 	},
 	stages = {
+		BuiltinPipelineStages.TiledLightCulling,
 		BuiltinPipelineStages.Opaque,
 		BuiltinPipelineStages.Transparent,
 	},
@@ -29,6 +30,11 @@ local RenderPipelineSetup = {
 			key = "StandardCutoff",
 			vertShader = BuiltinShaders.VS_Standard,
 			fragShader = BuiltinShaders.FS_StandardCutoff,
+		},
+		{
+			key = "StandardLit",
+			vertShader = "shaders/vert_standard_lit.vs",
+			fragShader = "shaders/frag_standard_lit.fs",
 		},
 		{
 			key = "PureColor",

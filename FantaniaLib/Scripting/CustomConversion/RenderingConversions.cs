@@ -34,14 +34,14 @@ public static class RenderingConversions
         Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Table, typeof(RenderPipelineConfig), v =>
         {
             Vector2Int resolution = v.Table.Get("resolution").GetObjectOrDefault(new Vector2Int(1920, 1080));
-                int lightCullingTileSize = v.Table.Get("lightCullingTileSize").GetIntegerOrDefault(32);
+            int lightCullingTileSize = v.Table.Get("lightCullingTileSize").GetIntegerOrDefault(32);
             List<FrameBufferConfig> fbCfgs = v.Table.Get("frameBuffers").GetObjectOrDefault(new List<FrameBufferConfig>(0));
             List<IPipelineStage> stages = v.Table.Get("stages").GetObjectOrDefault(new List<IPipelineStage>(0));
             List<MaterialInfo> materials = v.Table.Get("materials").GetObjectOrDefault(new List<MaterialInfo>(0));
             return new RenderPipelineConfig
             {
                 Resolution = resolution,
-                    LightCullingTileSize = lightCullingTileSize,
+                LightCullingTileSize = lightCullingTileSize,
                 FrameBuffers = fbCfgs,
                 Stages = stages,
                 Materials = materials,
@@ -141,7 +141,34 @@ public static class RenderingConversions
             DesiredUniformMap uniforms = v.Table.Get("uniforms").GetObjectOrDefault(new DesiredUniformMap());
             IRenderableSizer sizer = v.Table.Get("sizer").GetObjectOrDefault(FallbackSizer.Fallback);
             Type renderableType = v.Table.Get("renderableType").GetObjectOrDefault(typeof(QuadRenderable));
-            IReadOnlyDictionary<string, object?> customArgs = v.Table.Get("customArgs").GetObjectOrDefault(new Dictionary<string, object?>(0));
+            var customArgs = new Dictionary<string, object?>(8);
+            var customArgsTable = v.Table.Get("customArgs");
+            if (customArgsTable.Type == DataType.Table)
+            {
+                foreach (var key in customArgsTable.Table.Keys)
+                {
+                    if (key.Type != DataType.String) continue;
+                    string argName = key.String;
+                    DynValue argInfo = customArgsTable.Table.Get(argName);
+                    FieldTypes fieldType = argInfo.Table.Get("type").GetObjectOrDefault(FieldTypes.String);
+                    DynValue argVal = argInfo.Table.Get("value");
+                    object? argObj = fieldType switch
+                    {
+                        FieldTypes.Boolean => argVal.GetBooleanOrDefault(false),
+                        FieldTypes.Integer => argVal.GetIntegerOrDefault(0),
+                        FieldTypes.Float => argVal.GetFloatOrDefault(0.0f),
+                        FieldTypes.String => argVal.GetStringOrDefault(string.Empty),
+                        FieldTypes.Vector2 => argVal.GetObjectOrDefault(Vector2.Zero),
+                        FieldTypes.Vector2Int => argVal.GetObjectOrDefault(Vector2Int.Zero),
+                        FieldTypes.Color => argVal.GetObjectOrDefault(Vector4.One),
+                        FieldTypes.Texture => argVal.GetObjectOrDefault(TextureDefinition.None),
+                        FieldTypes.GroupReference => argVal.GetObjectOrDefault(GroupReference.None),
+                        FieldTypes.TypeReference => argVal.GetObjectOrDefault(TypeReference.None),
+                        _ => null,
+                    };
+                    customArgs[argName] = argObj;
+                }
+            }
             return new LocalRenderInfo
             {
                 Stage = stage,

@@ -1,26 +1,44 @@
 using System.Numerics;
-using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace FantaniaLib;
 
-public class LightSource : ObservableObject, IRenderable
+public struct LightSourceInfo
 {
-    public string Stage { get; private set; } = string.Empty;
-    public Matrix3x3 Transform { get; set; } = Matrix3x3.Identity;
-    public int Depth { get; set; }
-    public int EntityOrder { get; set; }
-    public int LocalOrder { get; set; }
-    public int NodeIndex { get; set; } = -1;
-    public Mesh Mesh => _mesh;
-    public RenderMaterial Material => _material!;
-    public Rectf BoundingBox => _aabb;
-    public Vector2 Anchor { get; private set; } = Vector2.Zero;
-    public Vector2 Size { get; private set; } = Vector2.Zero;
-    public Rectf Tiling { get; private set; } = Rectf.Zero;
-    public Rectf Tiling2 { get; private set; } = Rectf.Zero;
-    public Vector4 VertexColor { get; private set; } = Vector4.One;
+    public TextureDefinition LightTexture;
+    public int LightTextureID;
+    public float Radius;
+    public Vector4 Color;
+    public Vector3 Position;
+}
 
-    public LightSource(RenderInfo info, RenderMaterial material)
+public class LightSource : RenderableBase
+{
+    private Matrix3x3 _transform = Matrix3x3.Identity;
+    public override Matrix3x3 Transform
+    {
+        get => _transform;
+        set
+        {
+            if (_transform != value)
+            {
+                _transform = value;
+                _lightInfo.Position = new Vector3(_transform.GetTranslation(), Depth);
+            }
+        }
+    }
+    public override int Depth { get; set; }
+    public override Mesh Mesh => _mesh;
+    public override RenderMaterial Material => _material!;
+    public override Rectf BoundingBox => _aabb;
+
+    public LightSourceInfo LightInfo => _lightInfo;
+
+    public void SetResolvedLightTextureID(int textureID)
+    {
+        _lightInfo.LightTextureID = textureID;
+    }
+
+    public LightSource(RenderInfo info, RenderMaterial material, IReadOnlyDictionary<string, object?> customArgs)
     {
         _mesh = MeshBuilder.CreateStandardQuad(info.Size);
         Stage = info.Stage;
@@ -34,8 +52,77 @@ public class LightSource : ObservableObject, IRenderable
         VertexColor = info.Color;
         _material = material;
         Transform = info.Transform;
+        SetupLightInfo(customArgs);
         UpdateVertices();
         CalculateBounds(Transform);
+    }
+
+    public override void OnEnter(IWorkspace workspace, IRenderContext context)
+    {
+        LightSourceInfo lightInfo = LightInfo;
+        TextureDefinition lightTexDef = lightInfo.LightTexture;
+        int lightTexId = context.TextureManager.FallbackTextureID;
+        if (lightTexDef.TextureType == TextureTypes.Gpu)
+        {
+            lightTexId = lightTexDef.TextureParameters.GpuParams.TextureID;
+        }
+        else
+        {
+            ITexture2D? lightTex = lightTexDef.ToTexture(workspace.RootFolder);
+            if (lightTex != null)
+            {
+                lightTexId = context.TextureManager.AcquireTextureID(lightTex);
+            }
+        }
+        SetResolvedLightTextureID(lightTexId);
+        base.OnEnter(workspace, context);
+    }
+
+    public override void OnExit(IWorkspace workspace, IRenderContext context)
+    {
+        LightSourceInfo lightInfo = LightInfo;
+        TextureDefinition lightTexDef = lightInfo.LightTexture;
+        int lightTexId = lightInfo.LightTextureID;
+        if (lightTexDef.TextureType != TextureTypes.Gpu && lightTexId != context.TextureManager.FallbackTextureID)
+        {
+            ITexture2D? lightTex = lightTexDef.ToTexture(workspace.RootFolder);
+            if (lightTex != null)
+            {
+                context.TextureManager.ReleaseTexture(lightTex);
+            }
+        }
+        SetResolvedLightTextureID(0);
+        base.OnExit(workspace, context);
+    }
+
+    void SetupLightInfo(IReadOnlyDictionary<string, object?> customArgs)
+    {
+        if (customArgs.TryGetValue("lightTexture", out object? lightTexObj) && lightTexObj is TextureDefinition lightTex)
+        {
+            _lightInfo.LightTexture = lightTex;
+        }
+        else
+        {
+            _lightInfo.LightTexture = TextureDefinition.None;
+        }
+        _lightInfo.LightTextureID = 0;
+        if (customArgs.TryGetValue("radius", out object? radiusObj) && radiusObj is int radius)
+        {
+            _lightInfo.Radius = radius;
+        }
+        else
+        {
+            _lightInfo.Radius = 0.0f;
+        }
+        if (customArgs.TryGetValue("color", out object? colorObj) && colorObj is Vector4 color)
+        {
+            _lightInfo.Color = color;
+        }
+        else
+        {
+            _lightInfo.Color = Vector4.One;
+        }
+        _lightInfo.Position = new Vector3(Transform.GetTranslation(), Depth);
     }
 
     void UpdateVertices()
@@ -68,6 +155,7 @@ public class LightSource : ObservableObject, IRenderable
     Mesh _mesh;
     RenderMaterial _material;
     Rectf _aabb;
+    LightSourceInfo _lightInfo = new LightSourceInfo();
 
     static readonly Vector2[] QUAD_VERTICES = [
         Vector2.Zero,
