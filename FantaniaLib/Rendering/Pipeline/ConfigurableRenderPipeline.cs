@@ -21,6 +21,11 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
         public int Triangles { get; set; }
     }
 
+    private class FrameData
+    {
+        public int MaxTextureSlot { get; set; }
+    }
+
     public const string COLOR_BUFFER = "Color";
 
     public IRenderDevice Device => _device;
@@ -32,6 +37,8 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
     public CommandBuffer CommandBuffer => WorkingBuffer;
     public int LightCullingTileSize { get; private set; }
     public TiledLightCullingData TiledLightCullingData => _tiledLightCullingData;
+
+    public int MaxTextureSlot => _frameData.MaxTextureSlot;
 
     private CommandBuffer CompletedBuffer => _cmdBuffers[_completeBufferIndex];
     private CommandBuffer WorkingBuffer => _cmdBuffers[(_completeBufferIndex + 1) % 2];
@@ -134,6 +141,10 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
                     var groups = _renderables.GroupBy(r => r.Stage);
                     foreach (var stage in _stageList)
                     {
+                        stage.Setup(this);
+                    }
+                    foreach (var stage in _stageList)
+                    {
                         var group = groups.FirstOrDefault(g => g.Key == stage.Name);
                         if (group != null)
                         {
@@ -176,6 +187,32 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
         {
             _renderables.Clear();
             _renderables.AddRange(renderables);
+            int maxTextureSlot = 0;
+            foreach (var r in _renderables)
+            {
+                var set = r.Material.Uniforms;
+                foreach (var name in set.Names)
+                {
+                    var uniform = set[name];
+                    if (uniform.Type == UniformTypes.Texture)
+                    {
+                        var texInfo = uniform.Get<UniformSet.TextureInformation>();
+                        int slot = texInfo.TextureSlot;
+                        if (slot > maxTextureSlot)
+                            maxTextureSlot = slot;
+                    }
+                    else if (uniform.Type == UniformTypes.TextureArray)
+                    {
+                        var texArrayInfo = uniform.Get<UniformSet.TextureArrayInformation>();
+                        foreach (int slot in texArrayInfo.TextureSlots)
+                        {
+                            if (slot > maxTextureSlot)
+                                maxTextureSlot = slot;
+                        }
+                    }
+                }
+            }
+            _frameData.MaxTextureSlot = maxTextureSlot;
             _evTaskStart!.Set();
         }
     }
@@ -231,5 +268,6 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
     object _mutexBuffers = new object();
     CommandBuffer[] _cmdBuffers = new CommandBuffer[2];
     volatile int _completeBufferIndex;
+    FrameData _frameData = new FrameData();
     TiledLightCullingData _tiledLightCullingData = new TiledLightCullingData();
 }

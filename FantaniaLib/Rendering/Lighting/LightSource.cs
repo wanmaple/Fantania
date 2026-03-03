@@ -61,7 +61,7 @@ public class LightSource : RenderableBase
     {
         LightSourceInfo lightInfo = LightInfo;
         TextureDefinition lightTexDef = lightInfo.LightTexture;
-        int lightTexId = context.TextureManager.FallbackTextureID;
+        int lightTexId = context.TextureManager.White4x4TextureID;
         if (lightTexDef.TextureType == TextureTypes.Gpu)
         {
             lightTexId = lightTexDef.TextureParameters.GpuParams.TextureID;
@@ -83,7 +83,7 @@ public class LightSource : RenderableBase
         LightSourceInfo lightInfo = LightInfo;
         TextureDefinition lightTexDef = lightInfo.LightTexture;
         int lightTexId = lightInfo.LightTextureID;
-        if (lightTexDef.TextureType != TextureTypes.Gpu && lightTexId != context.TextureManager.FallbackTextureID)
+        if (lightTexDef.TextureType != TextureTypes.Gpu && lightTexId != context.TextureManager.White4x4TextureID)
         {
             ITexture2D? lightTex = lightTexDef.ToTexture(workspace.RootFolder);
             if (lightTex != null)

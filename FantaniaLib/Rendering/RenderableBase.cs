@@ -35,7 +35,7 @@ public abstract class RenderableBase : ObservableObject, IRenderable
             {
                 var info = uniform.Get<UniformSet.TextureInformation>();
                 TextureDefinition def = info.TextureDef;
-                int texId = context.TextureManager.FallbackTextureID;
+                int texId = context.TextureManager.White4x4TextureID;
                 if (def.TextureType == TextureTypes.Gpu)
                 {
                     // GpuTexture应该被它自己的上下文管理，这里我们只取它的TextureID
@@ -60,7 +60,7 @@ public abstract class RenderableBase : ObservableObject, IRenderable
                 for (int i = 0; i < info.TextureDefs.Length; i++)
                 {
                     TextureDefinition def = info.TextureDefs[i];
-                    int texId = context.TextureManager.FallbackTextureID;
+                    int texId = context.TextureManager.White4x4TextureID;
                     if (def.TextureType == TextureTypes.Gpu)
                     {
                         texId = def.TextureParameters.GpuParams.TextureID;
@@ -93,7 +93,7 @@ public abstract class RenderableBase : ObservableObject, IRenderable
                 var info = uniform.Get<UniformSet.TextureInformation>();
                 TextureDefinition def = info.TextureDef;
                 int texId = info.TextureID;
-                if (def.TextureType != TextureTypes.Gpu && texId != context.TextureManager.FallbackTextureID)
+                if (def.TextureType != TextureTypes.Gpu && texId != context.TextureManager.White4x4TextureID)
                 {
                     ITexture2D tex = def.ToTexture(workspace.RootFolder)!;
                     context.TextureManager.ReleaseTexture(tex);
@@ -108,7 +108,7 @@ public abstract class RenderableBase : ObservableObject, IRenderable
                 {
                     TextureDefinition def = info.TextureDefs[i];
                     int texId = info.TextureIDs[i];
-                    if (def.TextureType != TextureTypes.Gpu && texId != context.TextureManager.FallbackTextureID)
+                    if (def.TextureType != TextureTypes.Gpu && texId != context.TextureManager.White4x4TextureID)
                     {
                         ITexture2D tex = def.ToTexture(workspace.RootFolder)!;
                         context.TextureManager.ReleaseTexture(tex);

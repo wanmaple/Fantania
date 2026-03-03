@@ -5,6 +5,10 @@ public class OpaquePipelineStage : IPipelineStage
     public string Name => "Opaque";
     public int Order => 2000;
 
+    public void Setup(IRenderContext context)
+    {
+    }
+
     public void PostRender(IRenderContext context)
     {
     }

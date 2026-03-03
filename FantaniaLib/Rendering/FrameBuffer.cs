@@ -21,6 +21,7 @@ public class FrameBufferDescription
     public int Width { get; set; } = 1920;
     public int Height { get; set; } = 1080;
     public TextureFormats ColorFormat { get; set; } = TextureFormats.RGBA8;
+    public IReadOnlyList<TextureFormats>? ColorFormats { get; set; } = null;
     public DepthFormats DepthFormat { get; set; } = DepthFormats.Depth24Stencil8;
 }
 
@@ -28,25 +29,38 @@ public class FrameBuffer : IRenderResource
 {
     public FrameBufferDescription Description { get; private set; }
     public int ID => _fbo;
-    public int ColorAttachment => _colorAttachment;
+    public int ColorAttachment => ColorAttachmentAt(0);
+    public IReadOnlyList<int> ColorAttachments => _colorAttachments;
     public int DepthAttachment => _depthAttachment;
 
-    internal FrameBuffer(FrameBufferDescription fbDesc, int fbo, int colorAttachment, int depthAttachment)
+    internal FrameBuffer(FrameBufferDescription fbDesc, int fbo, IReadOnlyList<int> colorAttachments, int depthAttachment)
     {
         Description = fbDesc;
         _fbo = fbo;
-        _colorAttachment = colorAttachment;
+        _colorAttachments = [.. colorAttachments];
         _depthAttachment = depthAttachment;
+    }
+
+    public int ColorAttachmentAt(int index)
+    {
+        if (index < 0 || index >= _colorAttachments.Length)
+            throw new ArgumentOutOfRangeException(nameof(index));
+        return _colorAttachments[index];
     }
 
     public void Dispose(IRenderDevice device)
     {
-        device.DeleteTexture(_colorAttachment);
+        foreach (var colorAttachment in _colorAttachments)
+        {
+            device.DeleteTexture(colorAttachment);
+        }
         device.DeleteRenderBuffer(_depthAttachment);
         device.DeleteFrameBuffer(_fbo);
-        _fbo = _colorAttachment = _depthAttachment = 0;
+        _fbo = _depthAttachment = 0;
+        _colorAttachments = [];
     }
 
     int _fbo;
-    int _colorAttachment, _depthAttachment;
+    int[] _colorAttachments = [];
+    int _depthAttachment;
 }

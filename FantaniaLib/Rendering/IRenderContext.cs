@@ -11,5 +11,7 @@ public interface IRenderContext
     int LightCullingTileSize { get; }
     TiledLightCullingData TiledLightCullingData { get; }
 
+    int MaxTextureSlot { get; }
+
     FrameBuffer? GetFrameBuffer(string name);
 }

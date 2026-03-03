@@ -96,7 +96,7 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
         SetupGlobalUniforms(pipeline);
         IRenderDevice device = pipeline.Device;
         FrameBuffer fbColor = pipeline.GetFrameBuffer(ConfigurableRenderPipeline.COLOR_BUFFER)!;
-        device.SetRenderTarget(fbColor.ID);
+        device.SetRenderTargets(fbColor.ID, fbColor.ColorAttachments.Count);
         if (device.IsFrameBufferReady())
         {
             if (_context!.SceneDirty)

@@ -3,18 +3,27 @@ namespace FantaniaLib;
 [BindingScript]
 public class TextureManager : IDisposable
 {
-    public int FallbackTextureID => _fallbackTextureId;
+    public int White4x4TextureID => _white4x4TextureId;
+    public int Black4x4TextureID => _black4x4TextureId;
 
     public unsafe TextureManager(IRenderDevice device)
     {
         _cacheSingleImage = new LocalTextureCache(device);
         _cacheAtlas = new LocalTextureCache(device);
-        var fallback = new LocalTexture2D("avares://Fantania/Assets/textures/white4x4.png");
-        if (fallback.TryDecode(out var desc, out var data))
+        var white4x4 = new LocalTexture2D("avares://Fantania/Assets/textures/white4x4.png");
+        if (white4x4.TryDecode(out var desc, out var data))
         {
             fixed (void* ptr = data)
             {
-                _fallbackTextureId = device.CreateTexture2D(desc, (nint)ptr);
+                _white4x4TextureId = device.CreateTexture2D(desc, (nint)ptr);
+            }
+        }
+        var black4x4 = new LocalTexture2D("avares://Fantania/Assets/textures/black4x4.png");
+        if (black4x4.TryDecode(out desc, out data))
+        {
+            fixed (void* ptr = data)
+            {
+                _black4x4TextureId = device.CreateTexture2D(desc, (nint)ptr);
             }
         }
     }
@@ -51,5 +60,6 @@ public class TextureManager : IDisposable
 
     LocalTextureCache _cacheSingleImage;
     LocalTextureCache _cacheAtlas;
-    int _fallbackTextureId = 0;
+    int _white4x4TextureId = 0;
+    int _black4x4TextureId = 0;
 }

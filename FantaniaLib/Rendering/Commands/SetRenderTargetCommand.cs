@@ -14,7 +14,7 @@ public class SetRenderTargetCommand : IRenderCommand
         var fb = pipeline.GetFrameBuffer(RenderTargetName);
         if (fb != null)
         {
-            pipeline.Device.SetRenderTarget(fb.ID);
+            pipeline.Device.SetRenderTargets(fb.ID, fb.ColorAttachments.Count);
         }
         else
             throw new InvalidOperationException($"Render target '{RenderTargetName}' not found.");

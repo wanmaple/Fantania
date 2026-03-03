@@ -170,4 +170,14 @@ public static class GLApiEx
         var func = (delegate*<int, bool>)ptr;
         return func(id);
     }
+
+    public unsafe static void DrawBuffers(GlInterface gl, int[] buffers)
+    {
+        nint ptr = gl.GetProcAddress("glDrawBuffers");
+        var func = (delegate*<int, void*, void>)ptr;
+        fixed (int* ptrBuffers = buffers)
+        {
+            func(buffers.Length, ptrBuffers);
+        }
+    }
 }

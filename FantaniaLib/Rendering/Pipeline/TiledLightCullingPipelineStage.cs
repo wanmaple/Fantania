@@ -9,6 +9,18 @@ public class TiledLightCullingPipelineStage : IPipelineStage
 
     public int Order => 1000;
 
+    public void Setup(IRenderContext context)
+    {
+        context.GlobalUniforms.SetUniform("u_TileGridInfo", Vector4.Zero);
+        context.GlobalUniforms.SetUniform("u_TileOffsets", Array.Empty<int>());
+        context.GlobalUniforms.SetUniform("u_TileCounts", Array.Empty<int>());
+        context.GlobalUniforms.SetUniform("u_TileLightIndices", Array.Empty<int>());
+        context.GlobalUniforms.SetUniform("u_LightPosRadius", Array.Empty<Vector4>());
+        context.GlobalUniforms.SetUniform("u_LightColors", Array.Empty<Vector4>());
+        context.GlobalUniforms.SetUniform("u_LightTextureIndices", Array.Empty<int>());
+        context.GlobalUniforms.SetUniform("u_LightTextures", Array.Empty<TextureDefinition>(), Array.Empty<int>());
+    }
+
     public void PostRender(IRenderContext context)
     {
     }
@@ -41,10 +53,10 @@ public class TiledLightCullingPipelineStage : IPipelineStage
         var uniqueLightTextures = new List<TextureDefinition>(16);
         var uniqueLightTextureSlots = new List<int>(16);
         var textureIndexMap = new Dictionary<TextureDefinition, int>(16);
-        int fallbackTexId = context.TextureManager.FallbackTextureID;
+        int fallbackTexId = context.TextureManager.Black4x4TextureID;
         TextureDefinition fallbackTexDef = TextureDefinition.CreateGpuDefinition(fallbackTexId);
         uniqueLightTextures.Add(fallbackTexDef);
-        uniqueLightTextureSlots.Add(LIGHT_TEXTURE_SLOT_BASE);
+        uniqueLightTextureSlots.Add(context.MaxTextureSlot + 1);
         textureIndexMap[fallbackTexDef] = 0;
         float cameraZoom = MathF.Max(camera.Zoom, 0.0001f);
         foreach (IRenderable renderable in renderables)
@@ -83,7 +95,7 @@ public class TiledLightCullingPipelineStage : IPipelineStage
                     texIndex = uniqueLightTextures.Count;
                     textureIndexMap.Add(gpuTexDef, texIndex);
                     uniqueLightTextures.Add(gpuTexDef);
-                    uniqueLightTextureSlots.Add(LIGHT_TEXTURE_SLOT_BASE + texIndex);
+                    uniqueLightTextureSlots.Add(context.MaxTextureSlot + 1 + texIndex);
                 }
                 else
                 {
@@ -157,10 +169,9 @@ public class TiledLightCullingPipelineStage : IPipelineStage
         context.GlobalUniforms.SetUniform("u_LightTextures", cullingData.LightTextures, cullingData.LightTextureSlots);
     }
 
-    const int MAX_TILES = 64;
-    const int MAX_LIGHTS = 32;
+    const int MAX_TILES = 32;
+    const int MAX_LIGHTS = 64;
     const int MAX_TILE_LIGHT_INDICES = 256;
-    const int MAX_LIGHTS_PER_TILE = 16;
+    const int MAX_LIGHTS_PER_TILE = 32;
     const int MAX_LIGHT_TEXTURES = 8;
-    const int LIGHT_TEXTURE_SLOT_BASE = 8;
 }

@@ -20,6 +20,7 @@ public interface IRenderDevice
     void DeleteRenderBuffer(int id);
     void DeleteFrameBuffer(int id);
     void SetRenderTarget(int fbo);
+    void SetRenderTargets(int fbo, int colorAttachmentCount);
     ShaderProgram? CreateProgram(string vertSrc, string fragSrc);
     void ApplyShaderProgram(ShaderProgram program);
     void DeleteProgram(int id);

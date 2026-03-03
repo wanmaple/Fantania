@@ -7,8 +7,8 @@ in vec2 vUV2;
 in vec4 vColor;
 in vec3 vWorldPos;
 
-const int MAX_TILES = 64;
-const int MAX_LIGHTS = 32;
+const int MAX_TILES = 32;
+const int MAX_LIGHTS = 64;
 const int MAX_TILE_LIGHT_INDICES = 256;
 const int MAX_LIGHT_TEXTURES = 8;
 

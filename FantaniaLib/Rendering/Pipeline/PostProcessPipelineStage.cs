@@ -6,6 +6,10 @@ public class PostProcessPipelineStage : IPipelineStage
     public string Name => "Post Processing";
     public int Order => 10000;
 
+    public void Setup(IRenderContext context)
+    {
+    }
+
     public void PostRender(IRenderContext context)
     {
     }

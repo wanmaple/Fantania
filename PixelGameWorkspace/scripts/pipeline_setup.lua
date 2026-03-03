@@ -3,7 +3,7 @@ local RenderPipelineSetup = {
 		x = 640,
 		y = 360,
 	},
-	lightCullingTileSize = 64,
+	lightCullingTileSize = 128,
 	frameBuffers = {
 		-- {
 		-- 	name = "MyTemplate.UIHud",

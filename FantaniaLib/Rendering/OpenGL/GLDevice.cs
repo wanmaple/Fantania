@@ -124,20 +124,32 @@ public class GLDevice : IRenderDevice
         int fbo = _gl.GenFramebuffer();
         // _gl.GetIntegerv(GL_FRAMEBUFFER_BINDING, out int currentFbo);
         _gl.BindFramebuffer(GL_FRAMEBUFFER, fbo);
-        TextureDescription colorDesc = new TextureDescription
+        IReadOnlyList<TextureFormats> formats = desc.ColorFormats is { Count: > 0 }
+            ? desc.ColorFormats
+            : [desc.ColorFormat];
+        var colorAttachmentIds = new int[formats.Count];
+        var drawBuffers = new int[formats.Count];
+        for (int i = 0; i < formats.Count; i++)
         {
-            Width = desc.Width,
-            Height = desc.Height,
-            Format = desc.ColorFormat,
-            GenerateMipmap = false,
-            MinFilter = TextureMinFilters.Nearest,
-            MagFilter = TextureMagFilters.Nearest,
-            WrapS = TextureWraps.ClampToEdge,
-            WrapT = TextureWraps.ClampToEdge,
-        };
-        int colorAttachmentId = CreateTexture2D(colorDesc);
+            TextureDescription colorDesc = new TextureDescription
+            {
+                Width = desc.Width,
+                Height = desc.Height,
+                Format = formats[i],
+                GenerateMipmap = false,
+                MinFilter = TextureMinFilters.Nearest,
+                MagFilter = TextureMagFilters.Nearest,
+                WrapS = TextureWraps.ClampToEdge,
+                WrapT = TextureWraps.ClampToEdge,
+            };
+            int colorAttachmentId = CreateTexture2D(colorDesc);
+            colorAttachmentIds[i] = colorAttachmentId;
+            int attachment = GL_COLOR_ATTACHMENT0 + i;
+            drawBuffers[i] = attachment;
+            _gl.FramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, colorAttachmentId, 0);
+        }
         int depthAttachmentId = 0;
-        _gl.FramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorAttachmentId, 0);
+        GLApiEx.DrawBuffers(_gl, drawBuffers);
         if (desc.DepthFormat != DepthFormats.None)
         {
             depthAttachmentId = _gl.GenRenderbuffer();
@@ -147,7 +159,7 @@ public class GLDevice : IRenderDevice
         }
         // _gl.BindFramebuffer(GL_FRAMEBUFFER, currentFbo);
         DebugError();
-        return new FrameBuffer(desc, fbo, colorAttachmentId, depthAttachmentId);
+        return new FrameBuffer(desc, fbo, colorAttachmentIds, depthAttachmentId);
     }
 
     public bool IsFrameBufferReady()
@@ -160,6 +172,19 @@ public class GLDevice : IRenderDevice
     public void SetRenderTarget(int fbo)
     {
         _gl.BindFramebuffer(GL_FRAMEBUFFER, fbo);
+        DebugError();
+    }
+
+    public void SetRenderTargets(int fbo, int colorAttachmentCount)
+    {
+        _gl.BindFramebuffer(GL_FRAMEBUFFER, fbo);
+        int count = Math.Max(1, colorAttachmentCount);
+        int[] drawBuffers = new int[count];
+        for (int i = 0; i < count; i++)
+        {
+            drawBuffers[i] = GL_COLOR_ATTACHMENT0 + i;
+        }
+        GLApiEx.DrawBuffers(_gl, drawBuffers);
         DebugError();
     }
 

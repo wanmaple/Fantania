@@ -12,12 +12,14 @@ public static class RenderingConversions
             int width = v.Table.Get("width").GetIntegerOrDefault(1920);
             int height = v.Table.Get("height").GetIntegerOrDefault(1080);
             TextureFormats colorFormat = v.Table.Get("colorFormat").GetEnumOrDefault(TextureFormats.RGBA8);
+            List<TextureFormats> colorFormats = v.Table.Get("colorFormats").GetObjectOrDefault(new List<TextureFormats>(0));
             DepthFormats depthFormat = v.Table.Get("depthFormat").GetEnumOrDefault(DepthFormats.None);
             return new FrameBufferDescription
             {
                 Width = width,
                 Height = height,
                 ColorFormat = colorFormat,
+                ColorFormats = colorFormats.Count > 0 ? colorFormats : null,
                 DepthFormat = depthFormat,
             };
         });
