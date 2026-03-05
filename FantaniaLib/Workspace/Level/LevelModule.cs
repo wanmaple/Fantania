@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Numerics;
 using System.Text.Json;
+using Avalonia.Input.Platform;
 
 namespace FantaniaLib;
 
@@ -217,7 +218,7 @@ public class LevelModule : WorkspaceModule
     public async Task PasteEntities(Vector2Int worldPos)
     {
         var clipboard = AvaloniaHelper.GetClipboard();
-        string serializedData = await clipboard.GetTextAsync() ?? string.Empty;
+        string serializedData = await clipboard.TryGetTextAsync() ?? string.Empty;
         if (string.IsNullOrEmpty(serializedData)) return;
         try
         {

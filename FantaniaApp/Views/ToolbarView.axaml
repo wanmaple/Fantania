@@ -63,7 +63,7 @@
       </StackPanel>
     </StackPanel>
     <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="4">
-      <Button x:Name="btnLevels" Classes="m" Command="{Binding ToggleLevelPopupCommand}">
+      <Button x:Name="btnLevels" Classes="m" Background="Transparent" Command="{Binding ToggleLevelPopupCommand}">
         <Button.Content>
           <MultiBinding Converter="{StaticResource Cvt_Lv2Name}">
             <Binding Path="Workspace.LevelModule.CurrentLevel" />
@@ -78,7 +78,7 @@
           </ScrollViewer>
         </Border>
       </Popup>
-      <Button x:Name="btnLayers" Classes="m" Command="{Binding ToggleLayerPopupCommand}" Content="{x:Static lang:Resources.BT_LayerManage}" />
+      <Button x:Name="btnLayers" Classes="m" Background="Transparent" Command="{Binding ToggleLayerPopupCommand}" Content="{x:Static lang:Resources.BT_LayerManage}" />
       <Popup PlacementTarget="{Binding #btnLayers}" IsOpen="{Binding PopupStates.LayerPopupIsOpen}" Placement="BottomEdgeAlignedLeft">
         <Border Classes="thin s1" Background="{x:Static f:ThemeHelper.BackgroundBrush}">
           <ScrollViewer MinWidth="200" MaxHeight="400">

@@ -135,6 +135,21 @@ public static class MathHelper
         return new Vector4(Quintic(t.X), Quintic(t.Y), Quintic(t.Z), Quintic(t.W));
     }
 
+    /// <summary>
+    /// Next Power Of Two.
+    /// </summary>
+    public static int NPOT(int num)
+    {
+		--num;
+		num |= num >> 1;
+		num |= num >> 2;
+		num |= num >> 4;
+		num |= num >> 8;
+		num |= num >> 16;
+		++num;
+		return num;
+    }
+
     public static bool IsPointInsideConvexQuadrilateral(Vector2 pt, IReadOnlyList<Vector2> verts)
     {
         Vector2 v1 = verts[0] - pt;

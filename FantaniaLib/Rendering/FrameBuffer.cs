@@ -16,12 +16,23 @@ public enum DepthFormats
     Depth24Stencil8,
 }
 
+public class FrameBufferColorDescription
+{
+    public static readonly FrameBufferColorDescription Default = new FrameBufferColorDescription();
+
+    public TextureFormats Format { get; set; } = TextureFormats.RGBA8;
+    public TextureMinFilters MinFilter { get; set; } = TextureMinFilters.Nearest;
+    public TextureMagFilters MagFilter { get; set; } = TextureMagFilters.Nearest;
+    public TextureWraps WrapS { get; set; } = TextureWraps.ClampToEdge;
+    public TextureWraps WrapT { get; set; } = TextureWraps.ClampToEdge;
+}
+
 public class FrameBufferDescription
 {
     public int Width { get; set; } = 1920;
     public int Height { get; set; } = 1080;
-    public TextureFormats ColorFormat { get; set; } = TextureFormats.RGBA8;
-    public IReadOnlyList<TextureFormats>? ColorFormats { get; set; } = null;
+    public FrameBufferColorDescription ColorDescription { get; set; } = FrameBufferColorDescription.Default;
+    public IReadOnlyList<FrameBufferColorDescription>? ColorDescriptions { get; set; } = null;
     public DepthFormats DepthFormat { get; set; } = DepthFormats.Depth24Stencil8;
 }
 

@@ -17,6 +17,11 @@ public class CommandBuffer : IEnumerable<IRenderCommand>
         AddCommand(new ClearColorCommand(new Vector4(r, g, b, a)));
     }
 
+    public void ClearBufferBits(BufferBits bits)
+    {
+        AddCommand(new ClearBufferBitsCommand(bits));
+    }
+
     public void SetRenderTarget(string rtName)
     {
         AddCommand(new SetRenderTargetCommand(rtName));

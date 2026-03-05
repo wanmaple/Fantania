@@ -27,6 +27,10 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
     }
 
     public const string COLOR_BUFFER = "Color";
+    public const string LIGHT_OCCLUDER_MASK_BUFFER = "LightOccluderMask";
+    // 这两张RT用于Jump Flood算法，分别存储当前迭代的结果和上一次迭代的结果，并以其中一张最终做BuildSDF的结果
+    public const string JFA1_BUFFER = "JFA1";
+    public const string JFA2_BUFFER = "JFA2";
 
     public IRenderDevice Device => _device;
     public UniformSet GlobalUniforms => _globalUniforms;
@@ -63,21 +67,8 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
     public void Build(RenderPipelineConfig config, IWorkspace workspace)
     {
         if (_built) return;
-        // Color is required.
-        AddFrameBuffer(new FrameBufferConfig
-        {
-            Name = COLOR_BUFFER,
-            Description = new FrameBufferDescription
-            {
-                Width = config.Resolution.X,
-                Height = config.Resolution.Y,
-                ColorFormat = TextureFormats.RGBA16F,
-                DepthFormat = DepthFormats.Depth24Stencil8,
-            },
-        });
         foreach (var fbConfig in config.FrameBuffers)
         {
-            if (fbConfig.Name == COLOR_BUFFER) continue;
             AddFrameBuffer(fbConfig);
         }
         foreach (var stage in config.Stages)
@@ -85,10 +76,13 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
             AddStage(stage);
         }
         _stageList.StableSort(PipelineStageComparer.Instance);
-        string innerVertSrc = IOHelper.ReadText("avares://Fantania/Assets/shaders/vert_standard.vs", workspace)!;
-        string innerFragSrc = IOHelper.ReadText("avares://Fantania/Assets/shaders/frag_standard.fs", workspace)!;
-        ShaderProgram innerShader = _cacheShaders.Acquire(innerVertSrc, innerFragSrc);
-        _materials.AddShader("#FantaniaStandard", innerShader);
+        foreach (var (key, vertPath, fragPath) in BUILTIN_SHADER_SOURCES)
+        {
+            string vertSrc = IOHelper.ReadText(vertPath, workspace)!;
+            string fragSrc = IOHelper.ReadText(fragPath, workspace)!;
+            ShaderProgram shader = _cacheShaders.Acquire(vertSrc, fragSrc);
+            _materials.AddShader(key, shader);
+        }
         foreach (var matInfo in config.Materials)
         {
             string? vertSrc = IOHelper.ReadText(matInfo.VertexShader, workspace);
@@ -119,7 +113,7 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
         }
     }
 
-    public void StartWorkerThread(Camera2D camera)
+    public void StartWorkerThread(IWorkspace workspace, Camera2D camera)
     {
         _ctsWorker = new CancellationTokenSource();
         _evTaskStart = new AutoResetEvent(false);
@@ -138,6 +132,31 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
                     int signaled = WaitHandle.WaitAny(waitHandles);
                     if (signaled == 0)
                         break;
+                    var pipelineHook = workspace.ScriptingModule.GetPipelineHookOrDefault();
+                    foreach (var uniform in pipelineHook.Uniforms)
+                    {
+                        string uniformName = uniform.Name;
+                        if (!string.IsNullOrEmpty(uniformName))
+                        {
+                            if (uniform.Type >= PipelineHookUniformTypes.FrameBufferColorAttachment0 && uniform.Type < PipelineHookUniformTypes.FrameBufferDepthAttachment)
+                            {
+                                string fbName = (string)uniform.Value;
+                                int index = (int)(uniform.Type - PipelineHookUniformTypes.FrameBufferColorAttachment0);
+                                FrameBuffer? fb = GetFrameBuffer(fbName);
+                                if (fb == null)
+                                {
+                                    workspace.LogWarning($"Pipeline Hook Warning: FrameBuffer '{fbName}' not found for uniform '{uniformName}'.");
+                                    continue;
+                                }
+                                if (index >= fb.ColorAttachments.Count)
+                                {
+                                    workspace.LogWarning($"Pipeline Hook Warning: FrameBuffer '{fbName}' does not have color attachment at index {index} for uniform '{uniformName}'.");
+                                    continue;
+                                }
+                                GlobalUniforms.SetUniform(uniformName, TextureDefinition.CreateGpuDefinition(fb.ColorAttachmentAt(index)), ++_frameData.MaxTextureSlot);
+                            }
+                        }
+                    }
                     var groups = _renderables.GroupBy(r => r.Stage);
                     foreach (var stage in _stageList)
                     {
@@ -270,4 +289,13 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
     volatile int _completeBufferIndex;
     FrameData _frameData = new FrameData();
     TiledLightCullingData _tiledLightCullingData = new TiledLightCullingData();
+
+    readonly (string, string, string)[] BUILTIN_SHADER_SOURCES = new[]
+    {
+        ("#FantaniaFallback", "avares://Fantania/Assets/shaders/vert_standard.vs", "avares://Fantania/Assets/shaders/frag_fallback.fs"),
+        ("#FantaniaStandard", "avares://Fantania/Assets/shaders/vert_standard.vs", "avares://Fantania/Assets/shaders/frag_standard.fs"),
+        ("#FantaniaSDFSeed", "avares://Fantania/Assets/shaders/vert_fullscreen.vs", "avares://Fantania/Assets/shaders/frag_sdf_seed.fs"),
+        ("#FantaniaSDFJump", "avares://Fantania/Assets/shaders/vert_fullscreen.vs", "avares://Fantania/Assets/shaders/frag_sdf_jump.fs"),
+        ("#FantaniaSDFBuild", "avares://Fantania/Assets/shaders/vert_fullscreen.vs", "avares://Fantania/Assets/shaders/frag_sdf_build.fs"),
+    };
 }

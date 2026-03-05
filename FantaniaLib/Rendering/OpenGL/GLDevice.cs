@@ -75,6 +75,7 @@ public class GLDevice : IRenderDevice
             TextureFormats.RGBA8 => (GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE),
             TextureFormats.SRGB8 => (GL_SRGB8, GL_RGB, GL_UNSIGNED_BYTE),
             TextureFormats.SRGB8_ALPHA8 => (GL_SRGB8_ALPHA8, GL_RGBA, GL_UNSIGNED_BYTE),
+            TextureFormats.RG16F => (GL_RG16F, GL_RG, GL_HALF_FLOAT),
             TextureFormats.RGBA16F => (GL_RGBA16F, GL_RGBA, GL_HALF_FLOAT),
             _ => (GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE),
         };
@@ -124,23 +125,23 @@ public class GLDevice : IRenderDevice
         int fbo = _gl.GenFramebuffer();
         // _gl.GetIntegerv(GL_FRAMEBUFFER_BINDING, out int currentFbo);
         _gl.BindFramebuffer(GL_FRAMEBUFFER, fbo);
-        IReadOnlyList<TextureFormats> formats = desc.ColorFormats is { Count: > 0 }
-            ? desc.ColorFormats
-            : [desc.ColorFormat];
-        var colorAttachmentIds = new int[formats.Count];
-        var drawBuffers = new int[formats.Count];
-        for (int i = 0; i < formats.Count; i++)
+        IReadOnlyList<FrameBufferColorDescription> descs = desc.ColorDescriptions is { Count: > 0 }
+            ? desc.ColorDescriptions
+            : [desc.ColorDescription];
+        var colorAttachmentIds = new int[descs.Count];
+        var drawBuffers = new int[descs.Count];
+        for (int i = 0; i < descs.Count; i++)
         {
             TextureDescription colorDesc = new TextureDescription
             {
                 Width = desc.Width,
                 Height = desc.Height,
-                Format = formats[i],
+                Format = descs[i].Format,
                 GenerateMipmap = false,
-                MinFilter = TextureMinFilters.Nearest,
-                MagFilter = TextureMagFilters.Nearest,
-                WrapS = TextureWraps.ClampToEdge,
-                WrapT = TextureWraps.ClampToEdge,
+                MinFilter = descs[i].MinFilter,
+                MagFilter = descs[i].MagFilter,
+                WrapS = descs[i].WrapS,
+                WrapT = descs[i].WrapT,
             };
             int colorAttachmentId = CreateTexture2D(colorDesc);
             colorAttachmentIds[i] = colorAttachmentId;

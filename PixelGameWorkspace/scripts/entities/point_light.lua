@@ -53,7 +53,7 @@ function PointLight:nodeAt(info, index, nodeCount)
         stage = BuiltinStages.Transparent,
         anchor = { x = 0.5, y = 0.5, },
         materialKey = "Standard",
-        color = "#ffffff",
+        color = info.color,
         uniforms = {
             u_Texture = {
                 type = UniformTypes.Texture,

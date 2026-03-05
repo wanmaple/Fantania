@@ -42,6 +42,27 @@ public class MaterialSet
         }
     }
 
+    public RenderMaterial GetTemporaryMaterial(string key)
+    {
+        if (!_shaders.TryGetValue(key, out var shader))
+        {
+            throw new RenderingException("Shader not found for material key: " + key);
+        }
+        return new RenderMaterial(shader);
+    }
+
+    public ShaderProgram GetShader(string key)
+    {
+        if (_shaders.TryGetValue(key, out var shader))
+        {
+            return shader;
+        }
+        else
+        {
+            return _fallback;
+        }
+    }
+
     public void AddShader(string key, ShaderProgram shader)
     {
         _shaders[key] = shader;

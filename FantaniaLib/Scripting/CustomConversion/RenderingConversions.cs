@@ -7,19 +7,75 @@ public static class RenderingConversions
 {
     public static void AutoConversions()
     {
+        Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Table, typeof(PipelineHookUniform), v =>
+        {
+            string name = v.Table.Get("name").GetStringOrDefault(string.Empty);
+            PipelineHookUniformTypes type = v.Table.Get("type").GetEnumOrDefault(PipelineHookUniformTypes.Float1);
+            DynValue val = v.Table.Get("value");
+            object? value = type switch
+            {
+                PipelineHookUniformTypes.Int1 => val.GetIntegerOrDefault(0),
+                PipelineHookUniformTypes.Float1 => val.GetFloatOrDefault(0.0f),
+                PipelineHookUniformTypes.Float2 => val.GetObjectOrDefault(Vector2.Zero),
+                PipelineHookUniformTypes.Float3 => val.GetObjectOrDefault(Vector3.Zero),
+                PipelineHookUniformTypes.Float4 => val.GetObjectOrDefault(Vector4.Zero),
+                PipelineHookUniformTypes.Int1Array => val.GetObjectOrDefault(Array.Empty<int>()),
+                PipelineHookUniformTypes.Float1Array => val.GetObjectOrDefault(Array.Empty<float>()),
+                PipelineHookUniformTypes.Float2Array => val.GetObjectOrDefault(Array.Empty<Vector2>()),
+                PipelineHookUniformTypes.Float3Array => val.GetObjectOrDefault(Array.Empty<Vector3>()),
+                PipelineHookUniformTypes.Float4Array => val.GetObjectOrDefault(Array.Empty<Vector4>()),
+                PipelineHookUniformTypes.FrameBufferDepthAttachment => val.GetStringOrDefault(string.Empty),
+                _ => null,
+            };
+            if (value == null && type >= PipelineHookUniformTypes.FrameBufferColorAttachment0 && type < PipelineHookUniformTypes.FrameBufferDepthAttachment)
+            {
+                value = val.GetStringOrDefault(string.Empty);
+            }
+            if (value == null) throw new InvalidOperationException($"Unsupported uniform type {type} for uniform {name}");
+            return new PipelineHookUniform
+            {
+                Name = name,
+                Type = type,
+                Value = value,
+            };
+        });
+        Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Table, typeof(PipelineHook), v =>
+        {
+            List<PipelineHookUniform> uniforms = v.Table.Get("uniforms").GetObjectOrDefault(new List<PipelineHookUniform>(0));
+            return new PipelineHook
+            {
+                Uniforms = uniforms,
+            };
+        });
+        Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Table, typeof(FrameBufferColorDescription), v =>
+        {
+            TextureFormats format = v.Table.Get("format").GetEnumOrDefault(TextureFormats.RGBA8);
+            TextureMinFilters minFilter = v.Table.Get("minFilter").GetEnumOrDefault(TextureMinFilters.Nearest);
+            TextureMagFilters magFilter = v.Table.Get("magFilter").GetEnumOrDefault(TextureMagFilters.Nearest);
+            TextureWraps wrapS = v.Table.Get("wrapS").GetEnumOrDefault(TextureWraps.ClampToEdge);
+            TextureWraps wrapT = v.Table.Get("wrapT").GetEnumOrDefault(TextureWraps.ClampToEdge);
+            return new FrameBufferColorDescription
+            {
+                Format = format,
+                MinFilter = minFilter,
+                MagFilter = magFilter,
+                WrapS = wrapS,
+                WrapT = wrapT,
+            };
+        });
         Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Table, typeof(FrameBufferDescription), v =>
         {
             int width = v.Table.Get("width").GetIntegerOrDefault(1920);
             int height = v.Table.Get("height").GetIntegerOrDefault(1080);
-            TextureFormats colorFormat = v.Table.Get("colorFormat").GetEnumOrDefault(TextureFormats.RGBA8);
-            List<TextureFormats> colorFormats = v.Table.Get("colorFormats").GetObjectOrDefault(new List<TextureFormats>(0));
+            FrameBufferColorDescription colorDesc = v.Table.Get("colorDescription").ToObject<FrameBufferColorDescription>();
+            List<FrameBufferColorDescription> colorDescs = v.Table.Get("colorDescriptions").GetObjectOrDefault(new List<FrameBufferColorDescription>(0));
             DepthFormats depthFormat = v.Table.Get("depthFormat").GetEnumOrDefault(DepthFormats.None);
             return new FrameBufferDescription
             {
                 Width = width,
                 Height = height,
-                ColorFormat = colorFormat,
-                ColorFormats = colorFormats.Count > 0 ? colorFormats : null,
+                ColorDescription = colorDesc,
+                ColorDescriptions = colorDescs.Count > 0 ? colorDescs : null,
                 DepthFormat = depthFormat,
             };
         });
@@ -103,24 +159,7 @@ public static class RenderingConversions
                 if (tb.Table.Get("type").IsNil()) continue;
                 UniformTypes type = tb.Table.Get("type").GetEnumOrDefault(UniformTypes.Float1);
                 DynValue val = tb.Table.Get("value");
-                object value = type switch
-                {
-                    UniformTypes.Int1 => val.GetIntegerOrDefault(0),
-                    UniformTypes.Float1 => val.GetFloatOrDefault(0.0f),
-                    UniformTypes.Float2 => val.GetObjectOrDefault(Vector2.Zero),
-                    UniformTypes.Float3 => val.GetObjectOrDefault(Vector3.Zero),
-                    UniformTypes.Float4 => val.GetObjectOrDefault(Vector4.Zero),
-                    UniformTypes.Matrix3x3 => val.GetObjectOrDefault(Matrix3x3.Identity),
-                    UniformTypes.Int1Array => val.GetObjectOrDefault(Array.Empty<int>()),
-                    UniformTypes.Float1Array => val.GetObjectOrDefault(Array.Empty<float>()),
-                    UniformTypes.Float2Array => val.GetObjectOrDefault(Array.Empty<Vector2>()),
-                    UniformTypes.Float3Array => val.GetObjectOrDefault(Array.Empty<Vector3>()),
-                    UniformTypes.Float4Array => val.GetObjectOrDefault(Array.Empty<Vector4>()),
-                    UniformTypes.Matrix3x3Array => val.GetObjectOrDefault(Array.Empty<Matrix3x3>()),
-                    UniformTypes.Texture => val.GetObjectOrDefault(TextureDefinition.None),
-                    UniformTypes.TextureArray => val.GetObjectOrDefault(Array.Empty<TextureDefinition>()),
-                    _ => 0.0f,
-                };
+                object value = ConversionHelper.UniformTypeToValue(type, val);
                 var desiredUniform = new DesiredUniformValue
                 {
                     Type = type,
@@ -154,20 +193,7 @@ public static class RenderingConversions
                     DynValue argInfo = customArgsTable.Table.Get(argName);
                     FieldTypes fieldType = argInfo.Table.Get("type").GetObjectOrDefault(FieldTypes.String);
                     DynValue argVal = argInfo.Table.Get("value");
-                    object? argObj = fieldType switch
-                    {
-                        FieldTypes.Boolean => argVal.GetBooleanOrDefault(false),
-                        FieldTypes.Integer => argVal.GetIntegerOrDefault(0),
-                        FieldTypes.Float => argVal.GetFloatOrDefault(0.0f),
-                        FieldTypes.String => argVal.GetStringOrDefault(string.Empty),
-                        FieldTypes.Vector2 => argVal.GetObjectOrDefault(Vector2.Zero),
-                        FieldTypes.Vector2Int => argVal.GetObjectOrDefault(Vector2Int.Zero),
-                        FieldTypes.Color => argVal.GetObjectOrDefault(Vector4.One),
-                        FieldTypes.Texture => argVal.GetObjectOrDefault(TextureDefinition.None),
-                        FieldTypes.GroupReference => argVal.GetObjectOrDefault(GroupReference.None),
-                        FieldTypes.TypeReference => argVal.GetObjectOrDefault(TypeReference.None),
-                        _ => null,
-                    };
+                    object? argObj = ConversionHelper.FieldTypeToValue(fieldType, argVal);
                     customArgs[argName] = argObj;
                 }
             }

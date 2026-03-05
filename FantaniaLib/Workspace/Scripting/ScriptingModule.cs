@@ -82,41 +82,91 @@ public class ScriptingModule : WorkspaceModule
 
     public RenderPipelineConfig GetCustomRenderPipelineConfigOrDefault()
     {
-        RenderPipelineConfig? ret = null;
-        string pipelineSetupScriptPath = _workspace.GetAbsolutePath(Workspace.SCRIPTS_FOLDER, "pipeline_setup.lua");
-        if (File.Exists(pipelineSetupScriptPath))
+        if (_renderPipelineCfg == null)
         {
-            DynValue config = _scriptEngine.ExecuteFile(pipelineSetupScriptPath);
-            if (config != null && config.Type == DataType.Table)
+            string pipelineSetupScriptPath = _workspace.GetAbsolutePath(Workspace.SCRIPTS_FOLDER, "pipeline_setup.lua");
+            if (File.Exists(pipelineSetupScriptPath))
             {
-                try
+                DynValue config = _scriptEngine.ExecuteFile(pipelineSetupScriptPath);
+                if (config != null && config.Type == DataType.Table)
                 {
-                    ret = config.ToObject<RenderPipelineConfig>();
-                }
-                catch (Exception ex)
-                {
-                    _workspace.LogError("pipeline_setup.lua is corrupt.");
-                    _workspace.LogError($"Detail: {ex}");
-                    ret = null;
+                    try
+                    {
+                        _renderPipelineCfg = config.ToObject<RenderPipelineConfig>();
+                    }
+                    catch (Exception ex)
+                    {
+                        _workspace.LogError("pipeline_setup.lua is corrupt.");
+                        _workspace.LogError($"Detail: {ex}");
+                        _renderPipelineCfg = null;
+                    }
                 }
             }
-        }
-        if (ret == null)
-        {
-            ret = new RenderPipelineConfig
+            if (_renderPipelineCfg == null)
             {
-                Resolution = new Vector2Int(1920, 1080),
-                LightCullingTileSize = 32,
-                FrameBuffers = [],
-                Stages = [
-                    BuiltinPipelineStages.Opaque,
-                    BuiltinPipelineStages.Transparent,
-                    BuiltinPipelineStages.PostProcessing,
-                ],
-                Materials = [],
-            };
+                _renderPipelineCfg = new RenderPipelineConfig
+                {
+                    Resolution = new Vector2Int(1920, 1080),
+                    LightCullingTileSize = 32,
+                    FrameBuffers = [
+                        new FrameBufferConfig
+                        {
+                            Name = ConfigurableRenderPipeline.COLOR_BUFFER,
+                            Description = new FrameBufferDescription
+                            {
+                                Width = 1920,
+                                Height = 1080,
+                                ColorDescription = new FrameBufferColorDescription
+                                {
+                                    Format = TextureFormats.RGBA8,
+                                    MinFilter = TextureMinFilters.Linear,
+                                    MagFilter = TextureMagFilters.Linear,
+                                    WrapS = TextureWraps.ClampToEdge,
+                                    WrapT = TextureWraps.ClampToEdge,
+                                },
+                                DepthFormat = DepthFormats.Depth24Stencil8,
+                            },
+                        },
+                    ],
+                    Stages = [
+                        BuiltinPipelineStages.Opaque,
+                        BuiltinPipelineStages.Transparent,
+                    ],
+                    Materials = [],
+                };
+            }
         }
-        return ret;
+        return _renderPipelineCfg;
+    }
+
+    public PipelineHook GetPipelineHookOrDefault()
+    {
+        if (_pipelineHook == null)
+        {
+            string pipelineSetupScriptPath = _workspace.GetAbsolutePath(Workspace.SCRIPTS_FOLDER, "pipeline_hook.lua");
+            if (File.Exists(pipelineSetupScriptPath))
+            {
+                DynValue hook = _scriptEngine.ExecuteFile(pipelineSetupScriptPath);
+                if (hook != null && hook.Type == DataType.Table)
+                {
+                    try
+                    {
+                        _pipelineHook = hook.ToObject<PipelineHook>();
+                    }
+                    catch (Exception ex)
+                    {
+                        _workspace.LogError("pipeline_hook.lua is corrupt.");
+                        _workspace.LogError($"Detail: {ex}");
+                        _pipelineHook = null;
+                    }
+                }
+            }
+            if (_pipelineHook == null)
+            {
+                _pipelineHook = new PipelineHook();
+            }
+        }
+        return _pipelineHook;
     }
 
     public LevelEditConfig GetCustomLevelEditConfigOrDefault()
@@ -144,6 +194,9 @@ public class ScriptingModule : WorkspaceModule
             ret = new LevelEditConfig();
         return ret;
     }
+
+    RenderPipelineConfig? _renderPipelineCfg;
+    PipelineHook? _pipelineHook;
 
     ScriptEngine _scriptEngine = new ScriptEngine();
 }

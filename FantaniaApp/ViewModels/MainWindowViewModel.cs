@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Avalonia.Controls;
+using Avalonia.Input.Platform;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.Input;
 using Fantania.Localization;
@@ -158,7 +159,7 @@ public partial class MainWindowViewModel : ViewModelBase
             if (Workspace.LevelModule.CurrentLevel != null)
             {
                 var clipboard = AvaloniaHelper.GetClipboard();
-                return !string.IsNullOrEmpty(clipboard.GetTextAsync().GetAwaiter().GetResult());
+                return !string.IsNullOrEmpty(clipboard.TryGetTextAsync().GetAwaiter().GetResult());
             }
         }
         return false;

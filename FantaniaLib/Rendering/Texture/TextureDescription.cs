@@ -9,9 +9,11 @@ public enum TextureFormats
     RGBA8,
     SRGB8,
     SRGB8_ALPHA8,
+    RG16F,
     RGBA16F,
 }
 
+[BindingScript]
 public enum TextureMinFilters
 {
     Nearest,
@@ -22,12 +24,14 @@ public enum TextureMinFilters
     LinearMipmapLinear,
 }
 
+[BindingScript]
 public enum TextureMagFilters
 {
     Nearest,
     Linear,
 }
 
+[BindingScript]
 public enum TextureWraps
 {
     ClampToEdge,

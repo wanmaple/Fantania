@@ -56,7 +56,7 @@ public abstract class RenderableBase : ObservableObject, IRenderable
             else if (uniform.Type == UniformTypes.TextureArray)
             {
                 var info = uniform.Get<UniformSet.TextureArrayInformation>();
-                int[] texIds = (int[])info.TextureIDs.Clone();
+                int[] texIds = info.TextureIDs;
                 for (int i = 0; i < info.TextureDefs.Length; i++)
                 {
                     TextureDefinition def = info.TextureDefs[i];

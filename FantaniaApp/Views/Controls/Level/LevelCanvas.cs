@@ -52,7 +52,7 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
             BlendingEnabled = false,
         };
         _shaderFinalBlit = pipeline.ShaderCache.Acquire(vertSrc, fragSrc);
-        pipeline.StartWorkerThread(_camera!);
+        pipeline.StartWorkerThread(Workspace, _camera!);
         LevelEditConfig leConfig = Workspace.ScriptingModule.GetCustomLevelEditConfigOrDefault();
         _inputs = new LevelInputs(this, leConfig);
         _context = new LevelSpaceContext(this);
@@ -105,7 +105,7 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
                 pipeline.ReceiveRenderables(renderables);
                 _context.SceneDirty = false;
             }
-            device.ClearColor("#000000".ToVector4());
+            device.ClearColor("#3f3f3f".ToVector4());
             // 清除DepthBuffer需要设置DepthMask为true
             device.ApplyRenderState(new RenderState
             {
@@ -227,6 +227,8 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
         pipeline.GlobalUniforms.SetUniform("u_Time", Workspace!.Time);
         pipeline.GlobalUniforms.SetUniform("u_View", _camera!.ViewMatrix);
         pipeline.GlobalUniforms.SetUniform("u_Resolution", new Vector4(ColorSize.X, ColorSize.Y, 1.0f / ColorSize.X, 1.0f / ColorSize.Y));
+        FrameBuffer fbSDF = pipeline.GetFrameBuffer(ConfigurableRenderPipeline.JFA1_BUFFER)!;
+        pipeline.GlobalUniforms.SetUniform("u_SDFResolution", new Vector4(fbSDF.Description.Width, fbSDF.Description.Height, 1.0f / fbSDF.Description.Width, 1.0f / fbSDF.Description.Height));
     }
 
     void BlitColorToTarget(IRenderDevice device, FrameBuffer fbColor)

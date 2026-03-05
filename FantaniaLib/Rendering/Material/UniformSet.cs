@@ -378,7 +378,7 @@ public class UniformSet : IEquatable<UniformSet>, IReadonlyUniformSet
 
     public void SetUniform(string name, TextureDefinition[] values, int[] slots)
     {
-        TextureDefinition[] defs = (TextureDefinition[])values.Clone();
+        TextureDefinition[] defs = values;
         int[] slotCopy = (int[])slots.Clone();
         int[] ids = new int[defs.Length];
         for (int i = 0; i < defs.Length; i++)

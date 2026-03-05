@@ -18,10 +18,12 @@ public static class GLConstants
     public const int GL_RGB = 0x1907;
     public const int GL_RGBA = GlConsts.GL_RGBA;
     public const int GL_R8 = 0x8229;
+    public const int GL_RG = 0x8227;
     public const int GL_RGB8 = 0x8051;
     public const int GL_RGBA8 = GlConsts.GL_RGBA8;
     public const int GL_SRGB8 = 0x8C41;
     public const int GL_SRGB8_ALPHA8 = 0x8C43;
+    public const int GL_RG16F = 0x822F;
     public const int GL_RGBA16F = 0x881A;
 
     public const int GL_NEAREST = GlConsts.GL_NEAREST;

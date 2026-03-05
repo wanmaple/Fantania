@@ -4,14 +4,8 @@ Sprite.group = "SG_Decoration"
 Sprite.name = "SN_Sprite"
 Sprite.tooltip = "ST_Sprite"
 Sprite.dataDefs = {
-    diffuse = {
+    texture = {
         type = FieldTypes.Texture,
-    },
-    normal = {
-        type = FieldTypes.Texture,
-    },
-    lit = {
-        type = FieldTypes.Boolean,
     },
     color = {
         type = FieldTypes.Color,
@@ -23,17 +17,9 @@ Sprite.dataDefs = {
     },
 }
 Sprite.editDefs = {
-    diffuse = {
+    texture = {
         group = "SG_Appearance",
-        tooltip = "ST_Sprite_Diffuse",
-    },
-    normal = {
-        group = "SG_Appearance",
-        tooltip = "ST_Sprite_Normal",
-    },
-    lit = {
-        group = "SG_Appearance",
-        tooltip = "ST_Sprite_Lit",
+        tooltip = "ST_Sprite_Texture",
     },
     color = {
         group = "SG_Appearance",
@@ -59,33 +45,12 @@ function Sprite:nodeAt(info, index, nodeCount)
             uniforms = {
                 u_Texture = {
                     type = UniformTypes.Texture,
-                    value = info.diffuse,
+                    value = info.texture,
                 },
             },
             sizer = {
                 type = SizerTypes.Texture,
-                texture = info.diffuse,
-            },
-        })
-    else
-        table.insert(ret, {
-            stage = BuiltinStages.Transparent,
-            anchor = info.anchor,
-            materialKey = "StandardLit",
-            color = info.color,
-            uniforms = {
-                u_Albedo = {
-                    type = UniformTypes.Texture,
-                    value = info.diffuse,
-                },
-                u_Normal = {
-                    type = UniformTypes.Texture,
-                    value = info.normal,
-                },
-            },
-            sizer = {
-                type = SizerTypes.Texture,
-                texture = info.diffuse,
+                texture = info.texture,
             },
         })
     end
