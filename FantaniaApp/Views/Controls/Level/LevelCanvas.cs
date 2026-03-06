@@ -31,6 +31,7 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
         Workspace!.Log($"{pipeline.Device.GetString(GLConstants.GL_VENDOR)} ({pipeline.Device.GetString(GLConstants.GL_VERSION)})");
         RenderPipelineConfig rpConfig = Workspace!.ScriptingModule.GetCustomRenderPipelineConfigOrDefault();
         pipeline.Build(rpConfig, Workspace);
+        _lvMeta = Workspace.LevelModule.Metadata;
         ColorSize = rpConfig.Resolution.ToVector2();
         _camera = new Camera2D(rpConfig.Resolution)
         {
@@ -162,6 +163,7 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
         {
             LevelModule module = (LevelModule)sender!;
             InitializeLevel(module.CurrentLevel);
+            _lvMeta = module.Metadata;
         }
     }
 
@@ -227,8 +229,9 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
         pipeline.GlobalUniforms.SetUniform("u_Time", Workspace!.Time);
         pipeline.GlobalUniforms.SetUniform("u_View", _camera!.ViewMatrix);
         pipeline.GlobalUniforms.SetUniform("u_Resolution", new Vector4(ColorSize.X, ColorSize.Y, 1.0f / ColorSize.X, 1.0f / ColorSize.Y));
-        FrameBuffer fbSDF = pipeline.GetFrameBuffer(ConfigurableRenderPipeline.JFA1_BUFFER)!;
-        pipeline.GlobalUniforms.SetUniform("u_SDFResolution", new Vector4(fbSDF.Description.Width, fbSDF.Description.Height, 1.0f / fbSDF.Description.Width, 1.0f / fbSDF.Description.Height));
+        pipeline.GlobalUniforms.SetUniform("u_EnvArgs", new Vector4(_lvMeta!.AmbientColor.X, _lvMeta.AmbientColor.Y, _lvMeta.AmbientColor.Z, 0.0f));
+        Vector3 envLightDir = Vector3.Normalize(_lvMeta.EnvironmentLightDirection);
+        pipeline.GlobalUniforms.SetUniform("u_EnvLight", new Vector4(envLightDir.X, envLightDir.Y, envLightDir.Z, _lvMeta.EnvironmentLightIntensity));
     }
 
     void BlitColorToTarget(IRenderDevice device, FrameBuffer fbColor)
@@ -332,7 +335,8 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
 
     public Vector2 WorldPositionToCanvasPosition(Vector2 worldPos)
     {
-        Vector2 posToScreen = _camera!.WorldPositionToScreenPosition(worldPos);
+        if (_camera == null) return worldPos;
+        Vector2 posToScreen = _camera.WorldPositionToScreenPosition(worldPos);
         return ScreenPositionToCanvasPosition(posToScreen);
     }
 
@@ -406,6 +410,7 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
     LevelSpaceContext? _context;
     List<ICanvasCommand> _commands = new List<ICanvasCommand>(0);
     RenderableLifePeriod? _lifeOfRenderables;
+    LevelMetadata? _lvMeta;
 
     HashSet<LevelEntity> _entitiesToUpdate = new HashSet<LevelEntity>(8);
 }

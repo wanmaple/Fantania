@@ -13,18 +13,18 @@ public class ModifyLevelEntityOperation : FrameBasedOperation
     {
         FieldInfo field = _modifyEntity.SerializableFields.First(f => f.FieldName == _change.PropertyName);
         object? newVal = _workspace.DatabaseModule.SerializationRule.CastFrom(field.FieldType, _change.NewValue, _modifyEntity);
-        _workspace.LevelModule.UnwatchPropertyChange(_modifyEntity);
+        _workspace.LevelModule.UnwatchEntityPropertyChange(_modifyEntity);
         _modifyEntity.SetFieldValue(_change.PropertyName, newVal);
-        _workspace.LevelModule.WatchPropertyChange(_modifyEntity);
+        _workspace.LevelModule.WatchEntityPropertyChange(_modifyEntity);
     }
 
     public override void Undo()
     {
         FieldInfo field = _modifyEntity.SerializableFields.First(f => f.FieldName == _change.PropertyName);
         object? oldVal = _workspace.DatabaseModule.SerializationRule.CastFrom(field.FieldType, _change.OldValue, _modifyEntity);
-        _workspace.LevelModule.UnwatchPropertyChange(_modifyEntity);
+        _workspace.LevelModule.UnwatchEntityPropertyChange(_modifyEntity);
         _modifyEntity.SetFieldValue(_change.PropertyName, oldVal);
-        _workspace.LevelModule.WatchPropertyChange(_modifyEntity);
+        _workspace.LevelModule.WatchEntityPropertyChange(_modifyEntity);
     }
 
     public override bool TryMerge(IUndoable other, out IUndoable? merged)

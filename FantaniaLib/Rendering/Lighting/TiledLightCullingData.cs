@@ -14,6 +14,7 @@ public class TiledLightCullingData
     public int[] TileLightIndices { get; set; } = Array.Empty<int>();
     public Vector4[] LightPosRadius { get; set; } = Array.Empty<Vector4>();
     public Vector4[] LightColors { get; set; } = Array.Empty<Vector4>();
+    public int[] LightLayers { get; set; } = Array.Empty<int>();
     public TextureDefinition[] LightTextures { get; set; } = Array.Empty<TextureDefinition>();
     public int[] LightTextureSlots { get; set; } = Array.Empty<int>();
     public int[] LightTextureIndices { get; set; } = Array.Empty<int>();

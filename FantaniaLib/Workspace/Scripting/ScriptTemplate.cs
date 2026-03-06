@@ -101,31 +101,7 @@ public class ScriptTemplate
         if (fieldInfo == null) throw new WorkspaceException($"Non-exist field '{fieldName}'");
         FieldExtraData extra = _extraDataMap![fieldName];
         DynValue defaultVal = extra.DefaultValue;
-        switch (fieldInfo.FieldType)
-        {
-            case FieldTypes.Boolean:
-                return defaultVal.GetBooleanOrDefault(false);
-            case FieldTypes.Integer:
-                return defaultVal.GetIntegerOrDefault(0);
-            case FieldTypes.Float:
-                return defaultVal.GetFloatOrDefault(0.0f);
-            case FieldTypes.String:
-                return defaultVal.GetStringOrDefault(string.Empty);
-            case FieldTypes.Vector2:
-                return defaultVal.GetObjectOrDefault(Vector2.Zero);
-            case FieldTypes.Vector2Int:
-                return defaultVal.GetObjectOrDefault(Vector2Int.Zero);
-            case FieldTypes.Color:
-                return defaultVal.GetObjectOrDefault(Vector4.One);
-            case FieldTypes.Texture:
-                return defaultVal.GetObjectOrDefault(TextureDefinition.None);
-            case FieldTypes.GroupReference:
-                return defaultVal.GetObjectOrDefault(GroupReference.None);
-            case FieldTypes.TypeReference:
-                return defaultVal.GetObjectOrDefault(TypeReference.None);
-            default:
-                return null;
-        }
+        return ConversionHelper.FieldTypeToValue(fieldInfo.FieldType, defaultVal);
     }
 
     public void FillEditingInfo(string fieldName, FieldEditInfo editInfo)

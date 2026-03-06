@@ -11,6 +11,10 @@ PointLight.dataDefs = {
     texture = {
         type = FieldTypes.Texture,
     },
+    lightingLayer = {
+        type = FieldTypes.Integer,
+        default = 0,
+    },
     color = {
         type = FieldTypes.Color,
         default = "#ffffff",
@@ -28,6 +32,11 @@ PointLight.editDefs = {
     texture = {
         group = "SG_Appearance",
         tooltip = "ST_PointLight_Texture",
+    },
+    lightingLayer = {
+        group = "SG_Appearance",
+        tooltip = "ST_PointLight_LightingLayer",
+        parameter = "0:3:1",
     },
     color = {
         group = "SG_Appearance",
@@ -83,6 +92,10 @@ function PointLight:nodeAt(info, index, nodeCount)
             color = {
                 type = FieldTypes.Color,
                 value = info.color,
+            },
+            lightingLayer = {
+                type = FieldTypes.Integer,
+                value = info.lightingLayer,
             },
         },
     })

@@ -1,4 +1,5 @@
 local LitSprite = Class("LitSprite")
+local Helper = require("helper_functions")
 
 LitSprite.group = "SG_Decoration"
 LitSprite.name = "SN_LitSprite"
@@ -9,6 +10,11 @@ LitSprite.dataDefs = {
     },
     normal = {
         type = FieldTypes.Texture,
+        default = Helper.localTexture("avares://Fantania/Assets/textures/flat4x4.png"),
+    },
+    lightingLayer = {
+        type = FieldTypes.Integer,
+        default = 1,
     },
     color = {
         type = FieldTypes.Color,
@@ -31,6 +37,11 @@ LitSprite.editDefs = {
     normal = {
         group = "SG_Appearance",
         tooltip = "ST_LitSprite_Normal",
+    },
+    lightingLayer = {
+        group = "SG_Appearance",
+        tooltip = "ST_LitSprite_LightingLayer",
+        parameter = "0:3:1",
     },
     color = {
         group = "SG_Appearance",
@@ -70,6 +81,10 @@ function LitSprite:nodeAt(info, index, nodeCount)
                 type = UniformTypes.Float1,
                 value = info.cutoff,
             },
+            u_LightingLayer = {
+                type = UniformTypes.Int1,
+                value = info.lightingLayer,
+            },
         },
         sizer = {
             type = SizerTypes.Texture,
@@ -89,6 +104,10 @@ function LitSprite:nodeAt(info, index, nodeCount)
             u_Cutoff = {
                 type = UniformTypes.Float1,
                 value = info.cutoff,
+            },
+            u_Layer = {
+                type = UniformTypes.Int1,
+                value = info.lightingLayer,
             },
         },
         sizer = {

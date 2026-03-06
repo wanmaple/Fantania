@@ -8,6 +8,7 @@ public struct LightSourceInfo
     public int LightTextureID;
     public float Radius;
     public Vector4 Color;
+    public int LightingLayer;
     public Vector3 Position;
 }
 
@@ -23,10 +24,24 @@ public class LightSource : RenderableBase
             {
                 _transform = value;
                 _lightInfo.Position = new Vector3(_transform.GetTranslation(), Depth);
+                UpdateVertices();
+                CalculateBounds(_transform);
             }
         }
     }
-    public override int Depth { get; set; }
+    private int _depth = 0;
+    public override int Depth
+    {
+        get { return _depth; }
+        set
+        {
+            if (_depth != value)
+            {
+                _depth = value;
+                UpdateVertices();
+            }
+        }
+    }
     public override Mesh Mesh => _mesh;
     public override RenderMaterial Material => _material!;
     public override Rectf BoundingBox => _aabb;
@@ -122,6 +137,14 @@ public class LightSource : RenderableBase
         {
             _lightInfo.Color = Vector4.One;
         }
+        if (customArgs.TryGetValue("lightingLayer", out object? layerObj) && layerObj is int layer)
+        {
+            _lightInfo.LightingLayer = layer;
+        }
+        else
+        {
+            _lightInfo.LightingLayer = 0;
+        }
         _lightInfo.Position = new Vector3(Transform.GetTranslation(), Depth);
     }
 
@@ -134,6 +157,8 @@ public class LightSource : RenderableBase
             vert.UV = Tiling.TopLeft + QUAD_VERTICES[i] * Tiling.Size;
             vert.Color = VertexColor;
             vert.UV2 = Tiling2.TopLeft + QUAD_VERTICES[i] * Tiling2.Size;
+            Vector2 scale = Transform.GetScale();
+            vert.RotationScale = new Vector4(Transform.GetRotation(), scale.X, scale.Y, 0.0f);
             Mesh.SetVerticeAt(i, vert);
         }
     }
@@ -148,7 +173,8 @@ public class LightSource : RenderableBase
         float maxX = MathF.Max(pt1.X, MathF.Max(pt2.X, MathF.Max(pt3.X, pt4.X)));
         float minY = MathF.Min(pt1.Y, MathF.Min(pt2.Y, MathF.Min(pt3.Y, pt4.Y)));
         float maxY = MathF.Max(pt1.Y, MathF.Max(pt2.Y, MathF.Max(pt3.Y, pt4.Y)));
-        _aabb = new Rectf(minX, minY, maxX - minX, maxY - minY);
+        Vector2 center = new Vector2((minX + maxX) * 0.5f, (minY + maxY) * 0.5f);
+        _aabb = new Rectf(center.X - _lightInfo.Radius, center.Y - _lightInfo.Radius, _lightInfo.Radius * 2.0f, _lightInfo.Radius * 2.0f);
         OnPropertyChanged(nameof(BoundingBox));
     }
 

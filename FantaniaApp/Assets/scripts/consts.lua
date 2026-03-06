@@ -26,8 +26,8 @@ BuiltinStages = {
 
 BuiltinShaders = {
     VS_Standard = "avares://Fantania/Assets/shaders/vert_standard.vs",
+    VS_StandardNoFlip = "avares://Fantania/Assets/shaders/vert_standard_noflip.vs",
     FS_Standard = "avares://Fantania/Assets/shaders/frag_standard.fs",
     FS_StandardCutoff = "avares://Fantania/Assets/shaders/frag_standard_cutoff.fs",
-    VS_LightOccluderMask = "avares://Fantania/Assets/shaders/vert_light_occluder_mask.vs",
     FS_LightOccluderMask = "avares://Fantania/Assets/shaders/frag_light_occluder_mask.fs",
 }

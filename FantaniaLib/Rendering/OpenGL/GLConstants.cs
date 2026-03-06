@@ -23,6 +23,7 @@ public static class GLConstants
     public const int GL_RGBA8 = GlConsts.GL_RGBA8;
     public const int GL_SRGB8 = 0x8C41;
     public const int GL_SRGB8_ALPHA8 = 0x8C43;
+    public const int GL_R16F = 0x822D;
     public const int GL_RG16F = 0x822F;
     public const int GL_RGBA16F = 0x881A;
 

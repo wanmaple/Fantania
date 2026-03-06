@@ -9,6 +9,7 @@ public class Level : IReadonlyLevel
     public string Name { get; private set; }
     public IReadOnlyList<LevelEntity> Entities => _entities;
     public TiledEntityManager TiledEntityManager => _tileMgr;
+    public LevelMetadata Metadata { get; set; } = new LevelMetadata();
 
     internal IList<LevelEntity> MutableEntities => _entities;
 

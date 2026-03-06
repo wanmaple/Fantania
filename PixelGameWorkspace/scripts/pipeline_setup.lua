@@ -27,22 +27,7 @@ local RenderPipelineSetup = {
 				width = 640,
 				height = 360,
 				colorDescription = {
-					format = TextureFormats.RG16F,
-					minFilter = TextureMinFilters.Nearest,
-					magFilter = TextureMagFilters.Nearest,
-					wrapS = TextureWraps.ClampToEdge,
-					wrapT = TextureWraps.ClampToEdge,
-				},
-				depthFormat = DepthFormats.Depth24Stencil8,
-			},
-		},
-		{
-			name = "JFA1",
-			description = {
-				width = 320,
-				height = 180,
-				colorDescription = {
-					format = TextureFormats.RG16F,
+					format = TextureFormats.RGBA8,
 					minFilter = TextureMinFilters.Nearest,
 					magFilter = TextureMagFilters.Nearest,
 					wrapS = TextureWraps.ClampToEdge,
@@ -51,21 +36,36 @@ local RenderPipelineSetup = {
 				depthFormat = DepthFormats.None,
 			},
 		},
-		{
-			name = "JFA2",
-			description = {
-				width = 320,
-				height = 180,
-				colorDescription = {
-					format = TextureFormats.RG16F,
-					minFilter = TextureMinFilters.Nearest,
-					magFilter = TextureMagFilters.Nearest,
-					wrapS = TextureWraps.ClampToEdge,
-					wrapT = TextureWraps.ClampToEdge,
-				},
-				depthFormat = DepthFormats.None,
-			},
-		},
+		-- {
+		-- 	name = "JFA1",
+		-- 	description = {
+		-- 		width = 320,
+		-- 		height = 180,
+		-- 		colorDescription = {
+		-- 			format = TextureFormats.RG16F,
+		-- 			minFilter = TextureMinFilters.Nearest,
+		-- 			magFilter = TextureMagFilters.Nearest,
+		-- 			wrapS = TextureWraps.ClampToEdge,
+		-- 			wrapT = TextureWraps.ClampToEdge,
+		-- 		},
+		-- 		depthFormat = DepthFormats.None,
+		-- 	},
+		-- },
+		-- {
+		-- 	name = "JFA2",
+		-- 	description = {
+		-- 		width = 320,
+		-- 		height = 180,
+		-- 		colorDescription = {
+		-- 			format = TextureFormats.RG16F,
+		-- 			minFilter = TextureMinFilters.Nearest,
+		-- 			magFilter = TextureMagFilters.Nearest,
+		-- 			wrapS = TextureWraps.ClampToEdge,
+		-- 			wrapT = TextureWraps.ClampToEdge,
+		-- 		},
+		-- 		depthFormat = DepthFormats.None,
+		-- 	},
+		-- },
 	},
 	stages = {
 		BuiltinPipelineStages.TiledLightCulling,
@@ -86,7 +86,7 @@ local RenderPipelineSetup = {
 		},
 		{
 			key = "LightOccluderMask",
-			vertShader = BuiltinShaders.VS_LightOccluderMask,
+			vertShader = BuiltinShaders.VS_StandardNoFlip,
 			fragShader = BuiltinShaders.FS_LightOccluderMask,
 		},
 		{

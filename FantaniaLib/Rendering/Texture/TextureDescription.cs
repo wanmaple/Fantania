@@ -9,6 +9,7 @@ public enum TextureFormats
     RGBA8,
     SRGB8,
     SRGB8_ALPHA8,
+    R16F,
     RG16F,
     RGBA16F,
 }

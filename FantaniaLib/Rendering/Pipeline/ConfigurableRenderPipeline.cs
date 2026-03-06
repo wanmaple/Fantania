@@ -1,3 +1,5 @@
+using System.Numerics;
+
 namespace FantaniaLib;
 
 public class ConfigurableRenderPipeline : IRenderContext, IDisposable
@@ -154,6 +156,58 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
                                     continue;
                                 }
                                 GlobalUniforms.SetUniform(uniformName, TextureDefinition.CreateGpuDefinition(fb.ColorAttachmentAt(index)), ++_frameData.MaxTextureSlot);
+                            }
+                            else if (uniform.Type == PipelineHookUniformTypes.FrameBufferDepthAttachment)
+                            {
+                                string fbName = (string)uniform.Value;
+                                FrameBuffer? fb = GetFrameBuffer(fbName);
+                                if (fb == null)
+                                {
+                                    workspace.LogWarning($"Pipeline Hook Warning: FrameBuffer '{fbName}' not found for uniform '{uniformName}'.");
+                                    continue;
+                                }
+                                if (fb.Description.DepthFormat == DepthFormats.None)
+                                {
+                                    workspace.LogWarning($"Pipeline Hook Warning: FrameBuffer '{fbName}' does not have a depth attachment for uniform '{uniformName}'.");
+                                    continue;
+                                }
+                                GlobalUniforms.SetUniform(uniformName, TextureDefinition.CreateGpuDefinition(fb.DepthAttachment), ++_frameData.MaxTextureSlot);
+                            }
+                            else
+                            {
+                                switch (uniform.Type)
+                                {
+                                    case PipelineHookUniformTypes.Int1:
+                                        GlobalUniforms.SetUniform(uniformName, (int)uniform.Value);
+                                        break;
+                                    case PipelineHookUniformTypes.Float1:
+                                        GlobalUniforms.SetUniform(uniformName, (float)uniform.Value);
+                                        break;
+                                    case PipelineHookUniformTypes.Float2:
+                                        GlobalUniforms.SetUniform(uniformName, (Vector2)uniform.Value);
+                                        break;
+                                    case PipelineHookUniformTypes.Float3:
+                                        GlobalUniforms.SetUniform(uniformName, (Vector3)uniform.Value);
+                                        break;
+                                    case PipelineHookUniformTypes.Float4:
+                                        GlobalUniforms.SetUniform(uniformName, (Vector4)uniform.Value);
+                                        break;
+                                    case PipelineHookUniformTypes.Int1Array:
+                                        GlobalUniforms.SetUniform(uniformName, ((IReadOnlyList<int>)uniform.Value).ToArray());
+                                        break;
+                                    case PipelineHookUniformTypes.Float1Array:
+                                        GlobalUniforms.SetUniform(uniformName, ((IReadOnlyList<float>)uniform.Value).ToArray());
+                                        break;
+                                    case PipelineHookUniformTypes.Float2Array:
+                                        GlobalUniforms.SetUniform(uniformName, ((IReadOnlyList<Vector2>)uniform.Value).ToArray());
+                                        break;
+                                    case PipelineHookUniformTypes.Float3Array:
+                                        GlobalUniforms.SetUniform(uniformName, ((IReadOnlyList<Vector3>)uniform.Value).ToArray());
+                                        break;
+                                    case PipelineHookUniformTypes.Float4Array:
+                                        GlobalUniforms.SetUniform(uniformName, ((IReadOnlyList<Vector4>)uniform.Value).ToArray());
+                                        break;
+                                }
                             }
                         }
                     }

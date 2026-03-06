@@ -17,6 +17,7 @@ public class LevelModule : WorkspaceModule
     private Level? _curLv = null;
     public IReadonlyLevel? CurrentLevel => _curLv;
     public LayerManager LayerManager => _layerMgr;
+    public LevelMetadata? Metadata => _curLv?.Metadata;
     public SpecialPropertyObserver SpecialPropertyObserver => _specPropOb;
 
     public IReadOnlyList<LevelDescription> LevelDescriptions => _lvDescs;
@@ -41,6 +42,13 @@ public class LevelModule : WorkspaceModule
         _lvDescs.StableSort((a, b) => string.Compare(a.Name, b.Name, StringComparison.Ordinal));
         _syncer = new BinaryDataSyncer<LevelEntity>(lv.MutableEntities, SerializationRule.Default);
         await _syncer.SyncToFile(lvPath);
+        string metaPath = GetLevelMetaPath(config.Name);
+        var options = new JsonSerializerOptions
+        {
+            WriteIndented = true,
+        };
+        _metaSyncer = new JsonDataSyncer<LevelMetadata>(lv.Metadata, SerializationRule.Default);
+        File.WriteAllText(metaPath, _metaSyncer.SyncToJson());
         SetCurrentLevel(lv);
     }
 
@@ -51,6 +59,20 @@ public class LevelModule : WorkspaceModule
         var lv = Level.OpenExist(lvPath);
         _syncer = new BinaryDataSyncer<LevelEntity>(lv.MutableEntities, SerializationRule.Default);
         await _syncer.SyncFromFile(lvPath);
+        string metaPath = GetLevelMetaPath(lvName);
+        if (File.Exists(metaPath))
+        {
+            try
+            {
+                string metaContent = File.ReadAllText(metaPath);
+                _metaSyncer = new JsonDataSyncer<LevelMetadata>(lv.Metadata, SerializationRule.Default);
+                _metaSyncer.SyncFromJson(metaContent);
+            }
+            catch (Exception)
+            {
+                // 解析失败，说明.meta文件内容不合法，直接忽略
+            }
+        }
         SetCurrentLevel(lv);
         lv.OnLevelLoaded(_workspace);
     }
@@ -64,6 +86,11 @@ public class LevelModule : WorkspaceModule
             {
                 string path = GetLevelFilePath(desc.Name);
                 File.Delete(path);
+                string metaPath = GetLevelMetaPath(desc.Name);
+                if (File.Exists(metaPath))
+                {
+                    File.Delete(metaPath);
+                }
                 _lvDescs.Remove(desc);
                 if (_curLv != null && _curLv.Name == desc.Name)
                 {
@@ -81,6 +108,11 @@ public class LevelModule : WorkspaceModule
         {
             string path = GetLevelFilePath(desc.Name);
             File.Delete(path);
+            string metaPath = GetLevelMetaPath(desc.Name);
+            if (File.Exists(metaPath))
+            {
+                File.Delete(metaPath);
+            }
         }
     }
 
@@ -130,19 +162,22 @@ public class LevelModule : WorkspaceModule
             {
                 foreach (var entity in _curLv.Entities)
                 {
-                    UnwatchPropertyChange(entity);
+                    UnwatchEntityPropertyChange(entity);
                 }
+                UnwatchMetaPropertyChange(_curLv.Metadata);
             }
             _curLv = lv;
             if (_curLv != null)
             {
                 foreach (var entity in _curLv.Entities)
                 {
-                    WatchPropertyChange(entity);
+                    WatchEntityPropertyChange(entity);
                 }
+                WatchMetaPropertyChange(_curLv.Metadata);
             }
             _workspace.UserTemporary.LatestEditingLevel = _curLv != null ? _curLv.Name : string.Empty;
             OnPropertyChanged(nameof(CurrentLevel));
+            OnPropertyChanged(nameof(Metadata));
         }
     }
 
@@ -167,7 +202,7 @@ public class LevelModule : WorkspaceModule
             _syncer!.AddObject(entity);
             entity.OnEnter(_workspace);
             EntityAdded?.Invoke(entity);
-            WatchPropertyChange(entity);
+            WatchEntityPropertyChange(entity);
         }
     }
 
@@ -175,7 +210,7 @@ public class LevelModule : WorkspaceModule
     {
         if (_curLv != null)
         {
-            UnwatchPropertyChange(entity);
+            UnwatchEntityPropertyChange(entity);
             entity.OnExit(_workspace);
             _syncer!.RemoveObject(entity);
             EntityRemoved?.Invoke(entity);
@@ -266,13 +301,13 @@ public class LevelModule : WorkspaceModule
         }
     }
 
-    public void WatchPropertyChange(LevelEntity obj)
+    public void WatchEntityPropertyChange(LevelEntity obj)
     {
         obj.PropertyChanging += OnLevelEntityPropertyChanging;
         obj.PropertyChanged += OnLevelEntityPropertyChanged;
     }
 
-    public void UnwatchPropertyChange(LevelEntity obj)
+    public void UnwatchEntityPropertyChange(LevelEntity obj)
     {
         obj.PropertyChanging -= OnLevelEntityPropertyChanging;
         obj.PropertyChanged -= OnLevelEntityPropertyChanged;
@@ -305,15 +340,61 @@ public class LevelModule : WorkspaceModule
         }
     }
 
+    public void WatchMetaPropertyChange(LevelMetadata meta)
+    {
+        meta.PropertyChanging += OnLevelMetaPropertyChanging;
+        meta.PropertyChanged += OnLevelMetaPropertyChanged;
+    }
+
+    public void UnwatchMetaPropertyChange(LevelMetadata meta)
+    {
+        meta.PropertyChanging -= OnLevelMetaPropertyChanging;
+        meta.PropertyChanged -= OnLevelMetaPropertyChanged;
+    }
+
+    void OnLevelMetaPropertyChanging(object? sender, PropertyChangingEventArgs e)
+    {
+        LevelMetadata meta = (LevelMetadata)sender!;
+        FieldInfo? fieldInfo = meta.SerializableFields.FirstOrDefault(f => f.FieldName == e.PropertyName);
+        if (fieldInfo != null)
+        {
+            _tempChange = new PropertyChangeInfo
+            {
+                PropertyName = fieldInfo.FieldName,
+                OldValue = _rule.CastTo(fieldInfo.FieldType, meta.GetFieldValue(fieldInfo.FieldName), meta),
+            };
+        }
+    }
+
+    void OnLevelMetaPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        LevelMetadata meta = (LevelMetadata)sender!;
+        FieldInfo? fieldInfo = meta.SerializableFields.FirstOrDefault(f => f.FieldName == e.PropertyName);
+        if (fieldInfo != null)
+        {
+            _tempChange!.NewValue = _rule.CastTo(fieldInfo.FieldType, meta.GetFieldValue(fieldInfo.FieldName), meta);
+            var op = new ModifyLevelMetaOperation(_workspace, meta, _tempChange);
+            _workspace.UndoStack.AddOperation(op);
+            _tempChange = null;
+        }
+    }
+
     string GetLevelFilePath(string lvName)
     {
         return _workspace.GetAbsolutePath(Workspace.LEVELS_FOLDER, lvName + LEVEL_EXTENSION);
     }
 
+    string GetLevelMetaPath(string lvName)
+    {
+        return _workspace.GetAbsolutePath(Workspace.LEVELS_FOLDER, lvName + LEVEL_META_EXTENSION);
+    }
+
     const string LEVEL_EXTENSION = ".lv";
+    const string LEVEL_META_EXTENSION = ".meta";
 
     ObservableCollection<LevelDescription> _lvDescs = new ObservableCollection<LevelDescription>();
     BinaryDataSyncer<LevelEntity>? _syncer;
+    JsonDataSyncer<LevelMetadata>? _metaSyncer;
     LayerManager _layerMgr = new LayerManager();
     SpecialPropertyObserver _specPropOb = new SpecialPropertyObserver();
 

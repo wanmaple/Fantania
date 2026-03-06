@@ -79,8 +79,8 @@ public class TransparentPipelineStage : IPipelineStage
         DepthTestEnabled = true,
         DepthWriteEnabled = false,
         BlendingEnabled = true,
-        BlendFuncSrc = BlendFuncs.SrcAlpha,
-        BlendFuncDst = BlendFuncs.OneMinusSrcAlpha,
+        BlendSrcFactor = BlendFuncs.SrcAlpha,
+        BlendDstFactor = BlendFuncs.OneMinusSrcAlpha,
     };
 
     float CalculateCellSize(Camera2D camera)

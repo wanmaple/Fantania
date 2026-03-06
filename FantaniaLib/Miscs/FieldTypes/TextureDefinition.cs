@@ -78,19 +78,37 @@ public struct TextureDefinition : IEquatable<TextureDefinition>
             switch (TextureType)
             {
                 case TextureTypes.Image:
-                    string imgPath = Path.Combine(rootFolder, TextureParameters.ImageParams.ImagePath);
-                    if (File.Exists(imgPath))
+                    string imgPath = TextureParameters.ImageParams.ImagePath;
+                    if (imgPath.StartsWith("avares://") && AvaloniaHelper.HasAsset(imgPath))
                     {
                         tex = new LocalTexture2D(imgPath);
                     }
+                    else
+                    {
+                        imgPath = Path.Combine(rootFolder, TextureParameters.ImageParams.ImagePath);
+                        if (File.Exists(imgPath))
+                        {
+                            tex = new LocalTexture2D(imgPath);
+                        }
+                    }
                     break;
                 case TextureTypes.Atlas:
-                    string atlasPath = Path.Combine(rootFolder, TextureParameters.AtlasParams.AtlasPath);
-                    if (File.Exists(atlasPath))
+                    string atlasPath = TextureParameters.AtlasParams.AtlasPath;
+                    if (atlasPath.StartsWith("avares://") && AvaloniaHelper.HasAsset(atlasPath))
                     {
                         SpriteAtlas atlas = new SpriteAtlas(atlasPath);
                         if (atlas.IsValid)
                             tex = new AtlasTexture2D(atlas, TextureParameters.AtlasParams.FrameKey);
+                    }
+                    else
+                    {
+                        atlasPath = Path.Combine(rootFolder, TextureParameters.AtlasParams.AtlasPath);
+                        if (File.Exists(atlasPath))
+                        {
+                            SpriteAtlas atlas = new SpriteAtlas(atlasPath);
+                            if (atlas.IsValid)
+                                tex = new AtlasTexture2D(atlas, TextureParameters.AtlasParams.FrameKey);
+                        }
                     }
                     break;
             }

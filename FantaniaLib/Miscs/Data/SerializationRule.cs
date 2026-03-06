@@ -104,6 +104,22 @@ public class SerializationRule
         }
     }
 
+    private class DefaultVector3Cast : IFieldCastRule
+    {
+        public object? CastFrom(string casted, object instance)
+        {
+            if (string.IsNullOrEmpty(casted)) return Vector3.Zero;
+            var ary = casted.Split(',');
+            return new Vector3(float.Parse(ary[0]), float.Parse(ary[1]), float.Parse(ary[2]));
+        }
+
+        public string CastTo(object? fieldVal, object instance)
+        {
+            Vector3 vec = (Vector3)fieldVal!;
+            return $"{vec.X.ToString("F2")},{vec.Y.ToString("F2")},{vec.Z.ToString("F2")}";
+        }
+    }
+
     private class DefaultColorCast : IFieldCastRule
     {
         public object? CastFrom(string casted, object instance)
@@ -249,6 +265,7 @@ public class SerializationRule
         SetFieldCast(FieldTypes.String, new DefaultStringCast());
         SetFieldCast(FieldTypes.Vector2, new DefaultVector2Cast());
         SetFieldCast(FieldTypes.Vector2Int, new DefaultVector2IntCast());
+        SetFieldCast(FieldTypes.Vector3, new DefaultVector3Cast());
         SetFieldCast(FieldTypes.Color, new DefaultColorCast());
         SetFieldCast(FieldTypes.Texture, new DefaultTextureCast());
         SetFieldCast(FieldTypes.GroupReference, new DefaultGroupReferenceCast());

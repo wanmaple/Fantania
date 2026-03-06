@@ -117,8 +117,8 @@ public static class RenderingConversions
                 DepthTestEnabled = depthTestEnabled,
                 DepthWriteEnabled = depthWriteEnabled,
                 BlendingEnabled = blendEnabled,
-                BlendFuncSrc = blendFuncSrc,
-                BlendFuncDst = blendFuncDst,
+                BlendSrcFactor = blendFuncSrc,
+                BlendDstFactor = blendFuncDst,
             };
         });
         Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Table, typeof(MaterialInfo), v =>

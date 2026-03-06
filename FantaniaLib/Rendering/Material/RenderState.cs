@@ -22,13 +22,13 @@ public struct RenderState : IEquatable<RenderState>
     public bool DepthTestEnabled;
     public bool DepthWriteEnabled;
     public bool BlendingEnabled;
-    public BlendFuncs BlendFuncSrc;
-    public BlendFuncs BlendFuncDst;
+    public BlendFuncs BlendSrcFactor;
+    public BlendFuncs BlendDstFactor;
     // TODO: stencil, culling etc...
 
     public bool Equals(RenderState other)
     {
-        return DepthTestEnabled == other.DepthTestEnabled && DepthWriteEnabled == other.DepthWriteEnabled && BlendingEnabled == other.BlendingEnabled && BlendFuncSrc == other.BlendFuncSrc && BlendFuncDst == other.BlendFuncDst;
+        return DepthTestEnabled == other.DepthTestEnabled && DepthWriteEnabled == other.DepthWriteEnabled && BlendingEnabled == other.BlendingEnabled && BlendSrcFactor == other.BlendSrcFactor && BlendDstFactor == other.BlendDstFactor;
     }
 
     public override bool Equals([NotNullWhen(true)] object? obj)
@@ -40,8 +40,8 @@ public struct RenderState : IEquatable<RenderState>
     {
         int hash = (DepthTestEnabled.GetHashCode() * 397) ^ DepthWriteEnabled.GetHashCode();
         hash = (hash * 397) ^ BlendingEnabled.GetHashCode();
-        hash = (hash * 397) ^ BlendFuncSrc.GetHashCode();
-        hash = (hash * 397) ^ BlendFuncDst.GetHashCode();
+        hash = (hash * 397) ^ BlendSrcFactor.GetHashCode();
+        hash = (hash * 397) ^ BlendDstFactor.GetHashCode();
         return hash;
     }
 }

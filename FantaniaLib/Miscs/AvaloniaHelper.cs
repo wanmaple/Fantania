@@ -17,7 +17,7 @@ public static class AvaloniaHelper
             uri = uri.Replace("file://", string.Empty);
         return uri;
     }
-    
+
     public static IEnumerable<string> EnumerateAssetFolder(string folder)
     {
         if (folder.StartsWith("avares://"))
@@ -29,6 +29,20 @@ public static class AvaloniaHelper
                 yield return asset.ToString();
             }
         }
+    }
+
+    public static bool HasAsset(string assetPath)
+    {
+        Uri? uri = null;
+        try
+        {
+            uri = new Uri(assetPath);
+        }
+        catch (UriFormatException)
+        {
+            return false;
+        }
+        return AssetLoader.Exists(uri);
     }
 
     public static Stream? ReadAssetStream(string assetPath)

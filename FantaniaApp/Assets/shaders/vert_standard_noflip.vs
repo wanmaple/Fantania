@@ -2,13 +2,14 @@
 
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec4 aColor;
-layout (location = 2) in vec2 aUV;
-layout (location = 3) in vec2 aUV2;
+layout (location = 2) in vec4 aRotationScale;
+layout (location = 3) in vec2 aUV;
+layout (location = 4) in vec2 aUV2;
 
 out vec4 vColor;
 out vec2 vUV;
 out vec2 vUV2;
-out float vWorldZ;
+out vec4 vRotationScale;
 
 uniform mat3 u_View;
 uniform vec4 u_Resolution;   // xy is resolution, zw is 1/resolution.
@@ -22,5 +23,5 @@ void main() {
     vColor = aColor;
     vUV = vec2(aUV.x, aUV.y);
     vUV2 = aUV2;
-    vWorldZ = aPos.z;
+    vRotationScale = aRotationScale;
 }

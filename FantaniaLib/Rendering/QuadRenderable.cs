@@ -59,6 +59,8 @@ public class QuadRenderable : RenderableBase
         {
             VertexStandard vert = Mesh.GetVerticeAt<VertexStandard>(i);
             vert.Position = new Vector3(Transform * (QUAD_VERTICES[i] * Size), Depth);
+            Vector2 scale = Transform.GetScale();
+            vert.RotationScale = new Vector4(Transform.GetRotation(), scale.X, scale.Y, 0.0f);
             vert.UV = Tiling.TopLeft + QUAD_VERTICES[i] * Tiling.Size;
             vert.Color = VertexColor;
             vert.UV2 = Tiling2.TopLeft + QUAD_VERTICES[i] * Tiling2.Size;

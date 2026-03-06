@@ -75,6 +75,7 @@ public class GLDevice : IRenderDevice
             TextureFormats.RGBA8 => (GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE),
             TextureFormats.SRGB8 => (GL_SRGB8, GL_RGB, GL_UNSIGNED_BYTE),
             TextureFormats.SRGB8_ALPHA8 => (GL_SRGB8_ALPHA8, GL_RGBA, GL_UNSIGNED_BYTE),
+            TextureFormats.R16F => (GL_R16F, GL_RED, GL_HALF_FLOAT),
             TextureFormats.RG16F => (GL_RG16F, GL_RG, GL_HALF_FLOAT),
             TextureFormats.RGBA16F => (GL_RGBA16F, GL_RGBA, GL_HALF_FLOAT),
             _ => (GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE),
@@ -278,9 +279,9 @@ public class GLDevice : IRenderDevice
             if (state.BlendingEnabled)
             {
                 _gl.Enable(GL_BLEND);
-                if (_currentState == null || state.BlendFuncSrc != _currentState.Value.BlendFuncSrc || state.BlendFuncDst != _currentState.Value.BlendFuncDst)
+                if (_currentState == null || state.BlendSrcFactor != _currentState.Value.BlendSrcFactor || state.BlendDstFactor != _currentState.Value.BlendDstFactor)
                 {
-                    int srcFunc = state.BlendFuncSrc switch
+                    int srcFunc = state.BlendSrcFactor switch
                     {
                         BlendFuncs.Zero => GL_ZERO,
                         BlendFuncs.One => GL_ONE,
@@ -294,7 +295,7 @@ public class GLDevice : IRenderDevice
                         BlendFuncs.OneMinusDstColor => GL_ONE_MINUS_DST_COLOR,
                         _ => GL_SRC_ALPHA,
                     };
-                    int dstFunc = state.BlendFuncDst switch
+                    int dstFunc = state.BlendDstFactor switch
                     {
                         BlendFuncs.Zero => GL_ZERO,
                         BlendFuncs.One => GL_ONE,

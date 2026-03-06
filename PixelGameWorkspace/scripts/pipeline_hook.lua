@@ -1,9 +1,29 @@
 local PipelineHook = {
     uniforms = {
         {
-            name = "u_LightOccluderSDF",
+            name = "u_LightOccluderMask",
             type = PipelineHookUniformTypes.FrameBufferColorAttachment0,
             value = "LightOccluderMask",
+        },
+        -- {
+        --     name = "u_LightOccluderSDF",
+        --     type = PipelineHookUniformTypes.FrameBufferColorAttachment0,
+        --     value = "JFA2",
+        -- },
+        {
+            name = "u_SDFResolution",
+            type = PipelineHookUniformTypes.Float4,
+            value = { x = 320.0, y = 180.0, z = 1.0 / 320.0, w = 1.0 / 180.0, },
+        },
+        {
+            name = "u_LightLayerDepth",
+            type = PipelineHookUniformTypes.Float4,
+            value = { x = 0.0, y = 80.0, z = 160.0, w = 300.0, },
+        },
+        {
+            name = "u_ShadowArguments",
+            type = PipelineHookUniformTypes.Float4,
+            value = { x = 128.0, y = 384.0, z = 0.0, w = 0.0, },
         },
     }
 }

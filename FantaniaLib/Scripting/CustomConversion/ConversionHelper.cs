@@ -15,12 +15,29 @@ public static class ConversionHelper
             FieldTypes.String => val.GetStringOrDefault(string.Empty),
             FieldTypes.Vector2 => val.GetObjectOrDefault(Vector2.Zero),
             FieldTypes.Vector2Int => val.GetObjectOrDefault(Vector2Int.Zero),
+            FieldTypes.Vector3 => val.GetObjectOrDefault(Vector3.Zero),
             FieldTypes.Color => val.GetObjectOrDefault(Vector4.One),
             FieldTypes.Texture => val.GetObjectOrDefault(TextureDefinition.None),
             FieldTypes.GroupReference => val.GetObjectOrDefault(GroupReference.None),
             FieldTypes.TypeReference => val.GetObjectOrDefault(TypeReference.None),
             _ => null,
         };
+    }
+
+    public static FieldTypes TypeToFieldType(Type type)
+    {
+        if (type == typeof(bool)) return FieldTypes.Boolean;
+        if (type == typeof(int)) return FieldTypes.Integer;
+        if (type == typeof(float)) return FieldTypes.Float;
+        if (type == typeof(string)) return FieldTypes.String;
+        if (type == typeof(Vector2)) return FieldTypes.Vector2;
+        if (type == typeof(Vector2Int)) return FieldTypes.Vector2Int;
+        if (type == typeof(Vector3)) return FieldTypes.Vector3;
+        if (type == typeof(Vector4)) return FieldTypes.Color;
+        if (type == typeof(TextureDefinition)) return FieldTypes.Texture;
+        if (type == typeof(GroupReference)) return FieldTypes.GroupReference;
+        if (type == typeof(TypeReference)) return FieldTypes.TypeReference;
+        throw new ArgumentException($"Unsupported type: {type}");
     }
 
     public static object UniformTypeToValue(UniformTypes type, DynValue val)

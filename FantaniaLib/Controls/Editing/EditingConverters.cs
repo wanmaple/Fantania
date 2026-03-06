@@ -24,6 +24,12 @@ public class EditableField2EditControlConverter : IValueConverter
         {
             // FieldValue must never be null, that means a default value should never be null.
             Type type = field.FieldValue.GetType();
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(FantaniaArray<>))
+            {
+                UserControl uc = new ArrayBox();
+                uc.DataContext = field;
+                return uc;
+            }
             if (DEFAULT_CONTROL_MAP.TryGetValue(type, out Type? ctrlType))
             {
                 UserControl? uc = Activator.CreateInstance(ctrlType) as UserControl;
