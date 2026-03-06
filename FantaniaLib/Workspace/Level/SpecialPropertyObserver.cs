@@ -4,7 +4,7 @@ namespace FantaniaLib;
 
 public class SpecialPropertyObserver
 {
-    public bool HasChange => _changedEntities.Count > 0;
+    public bool HasChange => _changedEntities.Count > 0 || _metaChangeInfos.Count > 0;
 
     public void Observe(MultiNodesEntity entity)
     {
@@ -16,6 +16,13 @@ public class SpecialPropertyObserver
         {
             node.PropertyChanged += OnNodePropertyChanged;
         }
+    }
+
+    public void Observe(LevelMetadata meta)
+    {
+        _lvMeta = meta;
+        _lvMeta.PropertyChanging += OnMetaPropertyChanging;
+        _lvMeta.PropertyChanged += OnMetaPropertyChanged;
     }
 
     public void Reset()
@@ -31,6 +38,13 @@ public class SpecialPropertyObserver
         }
         _snapshots.Clear();
         _changedEntities.Clear();
+        if (_lvMeta != null)
+        {
+            _lvMeta.PropertyChanging -= OnMetaPropertyChanging;
+            _lvMeta.PropertyChanged -= OnMetaPropertyChanged;
+            _lvMeta = null;
+        }
+        _metaChangeInfos.Clear();
     }
 
     void OnEntityNodeAdded(LevelEntityNode node)
@@ -88,6 +102,41 @@ public class SpecialPropertyObserver
         }
     }
 
+    void OnMetaPropertyChanging(object? sender, PropertyChangingEventArgs e)
+    {
+        var fields = _lvMeta!.SerializableFields;
+        var field = fields.FirstOrDefault(f => f.FieldName == e.PropertyName);
+        if (field != null)
+        {
+            LevelMetadata meta = (LevelMetadata)sender!;
+            if (!_metaChangeInfos.TryGetValue(field.FieldName, out var changeInfo))
+            {
+                changeInfo = new PropertyChangeInfo
+                {
+                    OldValue = SerializationRule.Default.CastTo(field.FieldType, _lvMeta.GetFieldValue(field.FieldName), _lvMeta),
+                };
+                _metaChangeInfos.Add(field.FieldName, changeInfo);
+            }
+        }
+    }
+
+    void OnMetaPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        var fields = _lvMeta!.SerializableFields;
+        var field = fields.FirstOrDefault(f => f.FieldName == e.PropertyName);
+        if (field != null)
+        {
+            var changeInfo = _metaChangeInfos[field.FieldName];
+            string newValue = SerializationRule.Default.CastTo(field.FieldType, _lvMeta.GetFieldValue(field.FieldName), _lvMeta);
+            if (newValue == changeInfo.OldValue)
+                _metaChangeInfos.Remove(field.FieldName);
+            else
+                changeInfo.NewValue = SerializationRule.Default.CastTo(field.FieldType, _lvMeta.GetFieldValue(field.FieldName), _lvMeta);
+        }
+    }
+
     Dictionary<MultiNodesEntity, string> _snapshots = new Dictionary<MultiNodesEntity, string>();
     HashSet<MultiNodesEntity> _changedEntities = new HashSet<MultiNodesEntity>();
+    LevelMetadata? _lvMeta = null;
+    Dictionary<string, PropertyChangeInfo> _metaChangeInfos = new Dictionary<string, PropertyChangeInfo>();
 }

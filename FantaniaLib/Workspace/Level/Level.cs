@@ -38,6 +38,7 @@ public class Level : IReadonlyLevel
         {
             entity.OnLoaded(workspace, this);
         }
+        workspace.LevelModule.SpecialPropertyObserver.Observe(workspace.LevelModule.Metadata!);
     }
 
     public string ObtainGUID()

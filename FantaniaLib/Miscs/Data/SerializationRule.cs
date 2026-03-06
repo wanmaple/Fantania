@@ -136,6 +136,26 @@ public class SerializationRule
         }
     }
 
+    private class Direction3DCast : IFieldCastRule
+    {
+        public object? CastFrom(string casted, object instance)
+        {
+            if (string.IsNullOrEmpty(casted)) return new Direction3D();
+            var ary = casted.Split(',');
+            return new Direction3D
+            {
+                Azimuth = float.Parse(ary[0]),
+                Elevation = float.Parse(ary[1]),
+            };
+        }
+
+        public string CastTo(object? fieldVal, object instance)
+        {
+            Direction3D dir = (Direction3D)fieldVal!;
+            return $"{dir.Azimuth.ToString("F2")},{dir.Elevation.ToString("F2")}";
+        }
+    }
+
     private class DefaultTextureCast : IFieldCastRule
     {
         public object? CastFrom(string casted, object instance)
@@ -267,6 +287,7 @@ public class SerializationRule
         SetFieldCast(FieldTypes.Vector2Int, new DefaultVector2IntCast());
         SetFieldCast(FieldTypes.Vector3, new DefaultVector3Cast());
         SetFieldCast(FieldTypes.Color, new DefaultColorCast());
+        SetFieldCast(FieldTypes.Direction3D, new Direction3DCast());
         SetFieldCast(FieldTypes.Texture, new DefaultTextureCast());
         SetFieldCast(FieldTypes.GroupReference, new DefaultGroupReferenceCast());
         SetFieldCast(FieldTypes.TypeReference, new DefaultTypeReferenceCast());

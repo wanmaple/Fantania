@@ -229,9 +229,13 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
         pipeline.GlobalUniforms.SetUniform("u_Time", Workspace!.Time);
         pipeline.GlobalUniforms.SetUniform("u_View", _camera!.ViewMatrix);
         pipeline.GlobalUniforms.SetUniform("u_Resolution", new Vector4(ColorSize.X, ColorSize.Y, 1.0f / ColorSize.X, 1.0f / ColorSize.Y));
-        pipeline.GlobalUniforms.SetUniform("u_EnvArgs", new Vector4(_lvMeta!.AmbientColor.X, _lvMeta.AmbientColor.Y, _lvMeta.AmbientColor.Z, 0.0f));
-        Vector3 envLightDir = Vector3.Normalize(_lvMeta.EnvironmentLightDirection);
-        pipeline.GlobalUniforms.SetUniform("u_EnvLight", new Vector4(envLightDir.X, envLightDir.Y, envLightDir.Z, _lvMeta.EnvironmentLightIntensity));
+        if (_lvMeta != null)
+        {
+            pipeline.GlobalUniforms.SetUniform("u_EnvAmbient", _lvMeta.AmbientColor);
+            Vector3 sunlightDir = MathHelper.AnglesToVector(_lvMeta.SunLightDirection.Azimuth, _lvMeta.SunLightDirection.Elevation);
+            pipeline.GlobalUniforms.SetUniform("u_EnvLight", new Vector4(sunlightDir.X, sunlightDir.Y, sunlightDir.Z, _lvMeta.SunLightIntensity));
+            pipeline.GlobalUniforms.SetUniform("u_EnvLightColor", _lvMeta.SunlightColor);
+        }
     }
 
     void BlitColorToTarget(IRenderDevice device, FrameBuffer fbColor)

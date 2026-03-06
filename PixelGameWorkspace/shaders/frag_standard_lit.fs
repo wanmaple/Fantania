@@ -23,6 +23,9 @@ uniform int u_LightingLayer;
 uniform sampler2D u_LightOccluderMask;
 uniform vec4 u_LightLayerDepth;
 uniform vec4 u_ShadowArguments; // x: fadeStart, y: fadeEnd, zw unused
+uniform vec4 u_EnvAmbient;
+uniform vec4 u_EnvLight; // xyz: direction, w: intensity
+uniform vec4 u_EnvLightColor;
 
 uniform vec4 u_TileGridInfo; // x: tileSize, y: tilesX, z: tilesY, w: lightCount
 uniform int u_TileOffsets[MAX_TILES];
@@ -30,6 +33,7 @@ uniform int u_TileCounts[MAX_TILES];
 uniform int u_TileLightIndices[MAX_TILE_LIGHT_INDICES];
 uniform vec4 u_LightPosRadius[MAX_LIGHTS]; // xyz: world position, w: radius
 uniform vec4 u_LightColors[MAX_LIGHTS];    // rgb: color, a: intensity scale
+uniform vec4 u_LightArgs[MAX_LIGHTS];      // xyz: unused, w: intensity
 uniform int u_LightLayers[MAX_LIGHTS];
 uniform int u_LightTextureIndices[MAX_LIGHTS];
 uniform sampler2D u_LightTextures[MAX_LIGHT_TEXTURES];
@@ -54,6 +58,25 @@ float computeShadow(vec2 fragPos, vec2 lightPos, int fragLayer, int lightLayer)
 		sampleUV.y = 1.0 - sampleUV.y;
 		vec4 mask = texture(u_LightOccluderMask, sampleUV);
 		if (mask[layer] > 0.0) return fade;
+	}
+	return 1.0;
+}
+
+float computeSunShadow(vec2 fragPos, vec3 sunDir, int fragLayer)
+{
+	if (abs(sunDir.z) < 0.1) return 1.0;
+	float fragZ = u_LightLayerDepth[fragLayer];
+	vec3 fragWS = vec3(fragPos, fragZ);
+	vec3 sunWS = fragWS + sunDir * 1000.0; // Arbitrary large distance
+	float t = 0.0;
+	for (int layer = fragLayer - 1; layer >= 0; layer--)
+	{
+		t += (u_LightLayerDepth[layer + 1] - u_LightLayerDepth[layer]) / abs(sunDir.z);
+		vec2 sampleUV = (u_View * vec3(fragPos + sunDir.xy * t, 1.0)).xy * u_Resolution.zw;
+		sampleUV.y = 1.0 - sampleUV.y;
+		if (sampleUV.x < 0.0 || sampleUV.x > 1.0 || sampleUV.y < 0.0 || sampleUV.y > 1.0) break;
+		vec4 mask = texture(u_LightOccluderMask, sampleUV);
+		if (mask[layer] > 0.0) return 0.5;
 	}
 	return 1.0;
 }
@@ -102,12 +125,23 @@ void main() {
 		int texIndex = clamp(u_LightTextureIndices[lightIndex], 0, MAX_LIGHT_TEXTURES - 1);
 		vec3 lightTexColor = texture(u_LightTextures[texIndex], lightUV).rgb;
 		vec4 lightColor = u_LightColors[lightIndex];
+		float intensity = u_LightArgs[lightIndex].w;
+		lightColor.rgb *= intensity;
 		float shadow = computeShadow(vWorldPos.xy, posRadius.xy, u_LightingLayer, lightLayer);
-		vec3 contribution = lightColor.rgb * lightTexColor * (NdotL * shadow);
+		vec3 contribution = lightColor.rgb * lightTexColor * NdotL * shadow;
 		lightAccum += contribution;
 	}
-	float ambient = 0.02;
-	vec3 unlitColor = albedo.rgb * ambient;
+	{
+		// Add environment lighting
+		vec3 envLightDir = -normalize(u_EnvLight.xyz);
+		vec3 envLightColor = u_EnvLightColor.rgb;
+		float envLightIntensity = u_EnvLight.w;
+		float NdotL = max(dot(N, envLightDir), 0.0);
+		float shadow = computeSunShadow(vWorldPos.xy, envLightDir, u_LightingLayer);
+		vec3 envContribution = envLightColor * envLightIntensity * NdotL * shadow;
+		lightAccum += envContribution;
+	}
+	vec3 unlitColor = albedo.rgb * u_EnvAmbient.rgb;
 	vec3 litColor = unlitColor + albedo.rgb * lightAccum;
 	vec3 finalColor = mix(unlitColor, litColor, lightingMask);
 	FragColor = vec4(finalColor, albedo.a);

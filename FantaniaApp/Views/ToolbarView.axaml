@@ -86,6 +86,14 @@
           </ScrollViewer>
         </Border>
       </Popup>
+      <Button x:Name="btnLvMeta" Classes="m" Background="Transparent" Command="{Binding ToggleLevelMetaPopupCommand}" Content="{x:Static lang:Resources.BT_LevelMetadata}" IsVisible="{Binding Workspace.LevelModule.CurrentLevel, Converter={x:Static ObjectConverters.IsNotNull}}" />
+      <Popup PlacementTarget="{Binding #btnLvMeta}" IsOpen="{Binding PopupStates.LevelMetaPopupIsOpen}" Placement="BottomEdgeAlignedLeft">
+        <Border Classes="thin s1" Background="{x:Static f:ThemeHelper.BackgroundBrush}">
+          <ScrollViewer MinWidth="400" MaxHeight="640">
+            <v:LevelMetaPanel />
+          </ScrollViewer>
+        </Border>
+      </Popup>
       <TextBlock Grid.Row="3" Classes="p" Text="{Binding Workspace.EditorModule.MouseWorldPosition}" VerticalAlignment="Bottom" />
     </StackPanel>
   </Grid>

@@ -223,4 +223,31 @@ public static class MathHelper
         float maxY = MathF.Max(pt1.Y, MathF.Max(pt2.Y, MathF.Max(pt3.Y, pt4.Y)));
         return new Rectf(minX, minY, maxX - minX, maxY - minY);
     }
+
+    public static Vector3 AnglesToVector(float azDeg, float elDeg)
+    {
+        float a = azDeg * (MathF.PI / 180.0f);
+        float el = elDeg * (MathF.PI / 180.0f);
+        float x = MathF.Cos(el) * MathF.Cos(a);
+        float y = MathF.Cos(el) * MathF.Sin(a);
+        float z = -MathF.Sin(el);
+        var v = new Vector3(x, y, z);
+        if (v == Vector3.Zero) v = new Vector3(0.0f, 0.0f, -1.0f);
+        return Vector3.Normalize(v);
+    }
+
+    public static void VectorToAngles(Vector3 v, out float azDeg, out float elDeg)
+    {
+        if (v == Vector3.Zero)
+        {
+            azDeg = 0.0f; elDeg = 0.0f; return;
+        }
+        var n = Vector3.Normalize(v);
+        float el = MathF.Asin(Clamp(-n.Z, -1.0f, 1.0f));
+        float az = MathF.Atan2(n.Y, n.X);
+        azDeg = az * (180.0f / MathF.PI);
+        if (azDeg > 180.0f) azDeg -= 360.0f;
+        if (azDeg <= -180.0f) azDeg += 360.0f;
+        elDeg = el * (180.0f / MathF.PI);
+    }
 }

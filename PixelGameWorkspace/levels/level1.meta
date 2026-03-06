@@ -1,13 +1,9 @@
 {
   "ObjectType": "FantaniaLib.LevelMetadata",
   "ObjectData": {
-    "LightingEnvironment": {
-      "ObjectType": "FantaniaLib.LightingEnvironment",
-      "ObjectData": {
-        "AmbientColor": "#FF191919",
-        "EnvironmentLightDirection": "-0.24,-0.94,0.24",
-        "EnvironmentLightIntensity": "1.00"
-      }
-    }
+    "AmbientColor": "#FF191919",
+    "SunLightDirection": "45.00,30.00",
+    "SunlightColor": "#FFFFFFFF",
+    "SunLightIntensity": "1.00"
   }
 }

@@ -23,6 +23,10 @@ PointLight.dataDefs = {
         type = FieldTypes.Integer,
         default = 128,
     },
+    intensity = {
+        type = FieldTypes.Float,
+        default = 1.0,
+    },
 }
 PointLight.editDefs = {
     icon = {
@@ -46,6 +50,11 @@ PointLight.editDefs = {
         group = "SG_Appearance",
         tooltip = "ST_PointLight_Radius",
         parameter = "8:10000:8",
+    },
+    intensity = {
+        group = "SG_Appearance",
+        tooltip = "ST_PointLight_Intensity",
+        parameter = "0.0:100.0:0.1",
     },
 }
 
@@ -96,6 +105,10 @@ function PointLight:nodeAt(info, index, nodeCount)
             lightingLayer = {
                 type = FieldTypes.Integer,
                 value = info.lightingLayer,
+            },
+            intensity = {
+                type = FieldTypes.Float,
+                value = info.intensity,
             },
         },
     })

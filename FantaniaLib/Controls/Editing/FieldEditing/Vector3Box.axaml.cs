@@ -1,0 +1,77 @@
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Interactivity;
+
+namespace FantaniaLib;
+
+public partial class Vector3Box : UserControl
+{
+    public IEditableField? Field => DataContext as IEditableField;
+
+    public static readonly StyledProperty<float> RangeMinimumProperty = AvaloniaProperty.Register<IntegerBox, float>(nameof(RangeMinimum), defaultValue: float.MinValue);
+    public float RangeMinimum
+    {
+        get => GetValue(RangeMinimumProperty);
+        set => SetValue(RangeMinimumProperty, value);
+    }
+
+    public static readonly StyledProperty<float> RangeMaximumProperty = AvaloniaProperty.Register<IntegerBox, float>(nameof(RangeMaximum), defaultValue: float.MaxValue);
+    public float RangeMaximum
+    {
+        get => GetValue(RangeMaximumProperty);
+        set => SetValue(RangeMaximumProperty, value);
+    }
+
+    public static readonly StyledProperty<float> RangeIncrementProperty = AvaloniaProperty.Register<IntegerBox, float>(nameof(RangeIncrement), defaultValue: 0.1f);
+    public float RangeIncrement
+    {
+        get => GetValue(RangeIncrementProperty);
+        set => SetValue(RangeIncrementProperty, value);
+    }
+
+    public Vector3Box()
+    {
+        InitializeComponent();
+    }
+
+    protected override void OnLoaded(RoutedEventArgs e)
+    {
+        base.OnLoaded(e);
+        
+        TopLevel topLevel = TopLevel.GetTopLevel(this)!;
+        topLevel.RequestAnimationFrame(OnTick);
+    }
+
+    protected override void OnDataContextChanged(EventArgs e)
+    {
+        base.OnDataContextChanged(e);
+        
+        if (Field != null)
+        {
+            string args = Field.EditInfo.EditParameter;
+            if (!string.IsNullOrEmpty(args))
+            {
+                // "min:max:inc"
+                var ary = args.Split(':');
+                RangeMinimum = float.Parse(ary[0]);
+                if (ary.Length >= 2)
+                    RangeMaximum = float.Parse(ary[1]);
+                if (ary.Length >= 3)
+                    RangeIncrement = float.Parse(ary[2]);
+            }
+        }
+    }
+
+    void OnTick(TimeSpan dt)
+    {
+        if (Field != null)
+        {
+            float x = Convert.ToSingle(numX.Value);
+            float y = Convert.ToSingle(numY.Value);
+            float z = Convert.ToSingle(numZ.Value);
+        }
+        TopLevel topLevel = TopLevel.GetTopLevel(this)!;
+        if (topLevel != null)
+            topLevel.RequestAnimationFrame(OnTick);
+    }
+}

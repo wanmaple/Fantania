@@ -1,0 +1,29 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:lib="using:FantaniaLib"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="lib:IEditableField"
+             x:Class="FantaniaLib.Direction3DBox"
+             x:Name="Root">
+  <UserControl.Resources>
+    <lib:Object2MemberConverter x:Key="Cvt_Member" />
+  </UserControl.Resources>
+  <Grid>
+    <Grid RowDefinitions="auto,auto,*" ColumnDefinitions="auto,*">
+      <!-- <Image Grid.Row="1" Source="avares://Fantania/Assets/icons/side_eye.png" HorizontalAlignment="Left" Width="32" Height="32" /> -->
+      <TextBlock Grid.Row="1" Grid.Column="0" Text="Azimuth" VerticalAlignment="Center" />
+      <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Vertical" Margin="8 0 0 0">
+        <TextBlock Text="{Binding FieldValue, Converter={StaticResource Cvt_Member}, ConverterParameter=Azimuth, StringFormat={}{0:F2}}" />
+        <Slider Name="slAzimuth" Minimum="-180.0" Maximum="180.0" Value="{Binding FieldValue, Converter={StaticResource Cvt_Member}, ConverterParameter=Azimuth, Mode=OneWay}" />
+      </StackPanel>
+      <TextBlock Grid.Row="2" Grid.Column="0" Text="Elevation" VerticalAlignment="Center" />
+      <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Vertical" Margin="8 0 0 0">
+        <TextBlock Text="{Binding FieldValue, Converter={StaticResource Cvt_Member}, ConverterParameter=Elevation, StringFormat={}{0:F2}}" />
+        <Slider Name="slElevation" Minimum="-90.0" Maximum="90.0" Value="{Binding FieldValue, Converter={StaticResource Cvt_Member}, ConverterParameter=Elevation, Mode=OneWay}" />
+      </StackPanel>
+    </Grid>
+    <Border Classes="thick err" IsVisible="{Binding FieldValidator.Error, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+  </Grid>
+</UserControl>

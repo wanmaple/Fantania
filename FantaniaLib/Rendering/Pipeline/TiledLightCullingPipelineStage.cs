@@ -17,6 +17,8 @@ public class TiledLightCullingPipelineStage : IPipelineStage
         context.GlobalUniforms.SetUniform("u_TileLightIndices", Array.Empty<int>());
         context.GlobalUniforms.SetUniform("u_LightPosRadius", Array.Empty<Vector4>());
         context.GlobalUniforms.SetUniform("u_LightColors", Array.Empty<Vector4>());
+        context.GlobalUniforms.SetUniform("u_LightArgs", Array.Empty<Vector4>());
+        context.GlobalUniforms.SetUniform("u_LightLayers", Array.Empty<int>());
         context.GlobalUniforms.SetUniform("u_LightTextureIndices", Array.Empty<int>());
         context.GlobalUniforms.SetUniform("u_LightTextures", Array.Empty<TextureDefinition>(), Array.Empty<int>());
     }
@@ -51,6 +53,8 @@ public class TiledLightCullingPipelineStage : IPipelineStage
         lightPosRadius.Clear();
         var lightColors = _lightColors;
         lightColors.Clear();
+        var lightArgs = _lightArgs;
+        lightArgs.Clear();
         var lightLayers = _lightLayers;
         lightLayers.Clear();
         var lightTextureIndices = _lightTextureIndices;
@@ -92,6 +96,7 @@ public class TiledLightCullingPipelineStage : IPipelineStage
                 continue;
             lightPosRadius.Add(new Vector4(lightInfo.Position.X, lightInfo.Position.Y, lightInfo.Position.Z, lightInfo.Radius));
             lightColors.Add(lightInfo.Color);
+            lightArgs.Add(new Vector4(0.0f, 0.0f, 0.0f, lightInfo.Intensity));
             lightLayers.Add(lightInfo.LightingLayer);
             int resolvedTexId = lightInfo.LightTextureID;
             if (resolvedTexId == 0)
@@ -165,6 +170,7 @@ public class TiledLightCullingPipelineStage : IPipelineStage
         cullingData.TileLightIndices = packedIndices.ToArray();
         cullingData.LightPosRadius = lightPosRadius.ToArray();
         cullingData.LightColors = lightColors.ToArray();
+        cullingData.LightArgs = lightArgs.ToArray();
         cullingData.LightLayers = lightLayers.ToArray();
         cullingData.LightTextureIndices = lightTextureIndices.ToArray();
         cullingData.LightTextures = uniqueLightTextures.ToArray();
@@ -175,6 +181,7 @@ public class TiledLightCullingPipelineStage : IPipelineStage
         context.GlobalUniforms.SetUniform("u_TileLightIndices", cullingData.TileLightIndices);
         context.GlobalUniforms.SetUniform("u_LightPosRadius", cullingData.LightPosRadius);
         context.GlobalUniforms.SetUniform("u_LightColors", cullingData.LightColors);
+        context.GlobalUniforms.SetUniform("u_LightArgs", cullingData.LightArgs);
         context.GlobalUniforms.SetUniform("u_LightLayers", cullingData.LightLayers);
         context.GlobalUniforms.SetUniform("u_LightTextureIndices", cullingData.LightTextureIndices);
         context.GlobalUniforms.SetUniform("u_LightTextures", cullingData.LightTextures, cullingData.LightTextureSlots);
@@ -182,6 +189,7 @@ public class TiledLightCullingPipelineStage : IPipelineStage
 
     List<Vector4> _lightPosRadius = new List<Vector4>(64);
     List<Vector4> _lightColors = new List<Vector4>(64);
+    List<Vector4> _lightArgs = new List<Vector4>(64);
     List<int> _lightLayers = new List<int>(64);
     List<int> _lightTextureIndices = new List<int>(64);
     List<TextureDefinition> _uniqueLightTextures = new List<TextureDefinition>(16);

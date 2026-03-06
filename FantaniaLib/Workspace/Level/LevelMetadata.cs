@@ -20,34 +20,50 @@ public class LevelMetadata : FantaniaObject
         }
     }
 
-    private Vector3 _envLightDir = Vector3.Normalize(new Vector3(-1.0f, -4.0f, 1.0f));
-    [SerializableField(FieldTypes.Vector3), EditableField(EditGroup = "G_LightingEnvironment", TooltipKey = "TT_LightingEnvironment_LightDirection")]
-    public Vector3 EnvironmentLightDirection
+    private Direction3D _sunlightDir = new Direction3D { Azimuth = 45.0f, Elevation = 30.0f };
+    [SerializableField(FieldTypes.Direction3D), EditableField(EditGroup = "G_LightingEnvironment", TooltipKey = "TT_LightingEnvironment_LightDirection")]
+    public Direction3D SunLightDirection
     {
-        get { return _envLightDir; }
+        get { return _sunlightDir; }
         set
         {
-            if (_envLightDir != value)
+            if (_sunlightDir != value)
             {
-                OnPropertyChanging(nameof(EnvironmentLightDirection));
-                _envLightDir = value;
-                OnPropertyChanged(nameof(EnvironmentLightDirection));
+                OnPropertyChanging(nameof(SunLightDirection));
+                _sunlightDir = value;
+                OnPropertyChanged(nameof(SunLightDirection));
             }
         }
     }
 
-    private float _envLightIntensity = 1.0f;
-    [SerializableField(FieldTypes.Float), EditableField(EditGroup = "G_LightingEnvironment", TooltipKey = "TT_LightingEnvironment_LightIntensity")]
-    public float EnvironmentLightIntensity
+    private Vector4 _sunlightColor = Vector4.One;
+    [SerializableField(FieldTypes.Color), EditableField(EditGroup = "G_LightingEnvironment", TooltipKey = "TT_LightingEnvironment_LightColor")]
+    public Vector4 SunlightColor
     {
-        get { return _envLightIntensity; }
+        get { return _sunlightColor; }
         set
         {
-            if (_envLightIntensity != value)
+            if (_sunlightColor != value)
             {
-                OnPropertyChanging(nameof(EnvironmentLightIntensity));
-                _envLightIntensity = value;
-                OnPropertyChanged(nameof(EnvironmentLightIntensity));
+                OnPropertyChanging(nameof(SunlightColor));
+                _sunlightColor = value;
+                OnPropertyChanged(nameof(SunlightColor));
+            }
+        }
+    }
+
+    private float _sunlightIntensity = 1.0f;
+    [SerializableField(FieldTypes.Float), EditableField(EditGroup = "G_LightingEnvironment", TooltipKey = "TT_LightingEnvironment_LightIntensity")]
+    public float SunLightIntensity
+    {
+        get { return _sunlightIntensity; }
+        set
+        {
+            if (_sunlightIntensity != value)
+            {
+                OnPropertyChanging(nameof(SunLightIntensity));
+                _sunlightIntensity = value;
+                OnPropertyChanged(nameof(SunLightIntensity));
             }
         }
     }

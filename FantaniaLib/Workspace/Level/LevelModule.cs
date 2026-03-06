@@ -68,9 +68,10 @@ public class LevelModule : WorkspaceModule
                 _metaSyncer = new JsonDataSyncer<LevelMetadata>(lv.Metadata, SerializationRule.Default);
                 _metaSyncer.SyncFromJson(metaContent);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 // 解析失败，说明.meta文件内容不合法，直接忽略
+                _workspace.LogError(string.Format(_workspace.LocalizeString("ERR_LevelMetaCorrupt"), lvName, ex.Message));
             }
         }
         SetCurrentLevel(lv);
@@ -130,6 +131,7 @@ public class LevelModule : WorkspaceModule
                     _specPropOb.Observe(e);
                 }
             }
+            _specPropOb.Observe(_curLv.Metadata);
         }
     }
 

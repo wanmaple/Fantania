@@ -121,6 +121,12 @@ public partial class LevelViewModel : ViewModelBase
     }
 
     [RelayCommand]
+    public void ToggleLevelMetaPopup()
+    {
+        PopupStates.LevelMetaPopupIsOpen = !PopupStates.LevelMetaPopupIsOpen;
+    }
+
+    [RelayCommand]
     public void ToggleRenderStatisticsPopup()
     {
         PopupStates.RenderStatisticsPopupIsOpen = !PopupStates.RenderStatisticsPopupIsOpen;

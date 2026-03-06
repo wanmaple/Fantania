@@ -7,6 +7,7 @@ public struct LightSourceInfo
     public TextureDefinition LightTexture;
     public int LightTextureID;
     public float Radius;
+    public float Intensity;
     public Vector4 Color;
     public int LightingLayer;
     public Vector3 Position;
@@ -144,6 +145,14 @@ public class LightSource : RenderableBase
         else
         {
             _lightInfo.LightingLayer = 0;
+        }
+        if (customArgs.TryGetValue("intensity", out object? intensityObj) && intensityObj is float intensity)
+        {
+            _lightInfo.Intensity = intensity;
+        }
+        else
+        {
+            _lightInfo.Intensity = 1.0f;
         }
         _lightInfo.Position = new Vector3(Transform.GetTranslation(), Depth);
     }

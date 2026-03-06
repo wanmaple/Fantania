@@ -16,6 +16,7 @@ public class PopupStates : ObservableObject
                 if (_popupLvIsOpen)
                 {
                     LayerPopupIsOpen = false;
+                    LevelMetaPopupIsOpen = false;
                 }
                 OnPropertyChanged(nameof(LevelPopupIsOpen));
             }
@@ -34,8 +35,28 @@ public class PopupStates : ObservableObject
                 if (_popupLayerIsOpen)
                 {
                     LevelPopupIsOpen = false;
+                    LevelMetaPopupIsOpen = false;
                 }
                 OnPropertyChanged(nameof(LayerPopupIsOpen));
+            }
+        }
+    }
+
+    private bool _popupLvMetaIsOpen = false;
+    public bool LevelMetaPopupIsOpen
+    {
+        get { return _popupLvMetaIsOpen; }
+        set
+        {
+            if (_popupLvMetaIsOpen != value)
+            {
+                _popupLvMetaIsOpen = value;
+                if (_popupLvMetaIsOpen)
+                {
+                    LevelPopupIsOpen = false;
+                    LayerPopupIsOpen = false;
+                }
+                OnPropertyChanged(nameof(LevelMetaPopupIsOpen));
             }
         }
     }

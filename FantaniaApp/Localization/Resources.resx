@@ -337,4 +337,12 @@
     <value>引用已丢失</value>
     <comment/>
   </data>
+  <data name="BT_LevelMetadata" xml:space="preserve">
+    <value>关卡设置</value>
+    <comment/>
+  </data>
+  <data name="ERR_LevelMetaCorrupt" xml:space="preserve">
+    <value>关卡'{0}'的元数据可能已经损坏，无法加载，详情：{1}</value>
+    <comment/>
+  </data>
 </root>

@@ -103,6 +103,15 @@ namespace Fantania.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 关卡设置.
+        /// </summary>
+        public static string BT_LevelMetadata {
+            get {
+                return ResourceManager.GetString("BT_LevelMetadata", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 引用已丢失.
         /// </summary>
         public static string CM_MissingReference {
@@ -180,6 +189,15 @@ namespace Fantania.Localization {
         public static string ERR_InvalidLevelName {
             get {
                 return ResourceManager.GetString("ERR_InvalidLevelName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 关卡&apos;{0}&apos;的元数据可能已经损坏，无法加载，详情：{1}.
+        /// </summary>
+        public static string ERR_LevelMetaCorrupt {
+            get {
+                return ResourceManager.GetString("ERR_LevelMetaCorrupt", resourceCulture);
             }
         }
         
