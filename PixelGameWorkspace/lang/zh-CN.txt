@@ -12,7 +12,7 @@ ST_Sprite_Anchor=锚点
 
 # LitSprite
 SN_LitSprite=精灵(受光)
-ST_LitSprite=但贴图(带光照计算)
+ST_LitSprite=单贴图(带光照计算)
 ST_LitSprite_Albedo=反射率贴图
 ST_LitSprite_Normal=法线贴图
 ST_LitSprite_Specular=高光贴图

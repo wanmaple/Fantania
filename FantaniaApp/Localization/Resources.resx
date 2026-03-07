@@ -361,4 +361,24 @@
     <value>翻译文件'{0}'未找到。</value>
     <comment/>
   </data>
+  <data name="G_LightingEnvironment" xml:space="preserve">
+    <value>关卡光照</value>
+    <comment/>
+  </data>
+  <data name="TT_LightingEnvironment_AmbientColor" xml:space="preserve">
+    <value>环境光颜色</value>
+    <comment/>
+  </data>
+  <data name="TT_LightingEnvironment_LightDirection" xml:space="preserve">
+    <value>平行光的方向</value>
+    <comment/>
+  </data>
+  <data name="TT_LightingEnvironment_LightColor" xml:space="preserve">
+    <value>平行光的颜色</value>
+    <comment/>
+  </data>
+  <data name="TT_LightingEnvironment_LightIntensity" xml:space="preserve">
+    <value>平行光的强度</value>
+    <comment/>
+  </data>
 </root>

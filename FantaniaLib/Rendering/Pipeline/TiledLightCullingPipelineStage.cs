@@ -70,68 +70,71 @@ public class TiledLightCullingPipelineStage : IPipelineStage
         uniqueLightTextures.Add(fallbackTexDef);
         uniqueLightTextureSlots.Add(context.MaxTextureSlot + 1);
         textureIndexMap[fallbackTexDef] = 0;
-        float cameraZoom = MathF.Max(camData.Zoom, 0.0001f);
-        foreach (IRenderable renderable in renderables)
+        float cameraZoom = MathF.Max(camData.Zoom, 0.01f);
+        if (cameraZoom > 0.5f)
         {
-            if (renderable is not LightSource light) continue;
-            LightSourceInfo lightInfo = light.LightInfo;
-            Vector2 lightPosWorld = new Vector2(lightInfo.Position.X, lightInfo.Position.Y);
-            Vector2 lightPosScreen = camData.WorldPositionToScreenPosition(lightPosWorld);
-            float lightRadiusWorld = lightInfo.Radius;
-            float lightRadiusScreen = lightRadiusWorld * cameraZoom;
-            if (lightRadiusScreen <= 0.0f)
-                continue;
-            int minX = MathHelper.FloorToInt((lightPosScreen.X - lightRadiusScreen) / tileSize.X);
-            int minY = MathHelper.FloorToInt((lightPosScreen.Y - lightRadiusScreen) / tileSize.Y);
-            int maxX = MathHelper.FloorToInt((lightPosScreen.X + lightRadiusScreen) / tileSize.X);
-            int maxY = MathHelper.FloorToInt((lightPosScreen.Y + lightRadiusScreen) / tileSize.Y);
-            if (maxX < 0 || maxY < 0 || minX >= tilesX || minY >= tilesY)
-                continue;
-            minX = Math.Clamp(minX, 0, tilesX - 1);
-            minY = Math.Clamp(minY, 0, tilesY - 1);
-            maxX = Math.Clamp(maxX, 0, tilesX - 1);
-            maxY = Math.Clamp(maxY, 0, tilesY - 1);
-            int lightIndex = lightPosRadius.Count;
-            if (lightIndex >= MAX_LIGHTS)
-                continue;
-            lightPosRadius.Add(new Vector4(lightInfo.Position.X, lightInfo.Position.Y, lightInfo.Position.Z, lightInfo.Radius));
-            lightColors.Add(lightInfo.Color);
-            lightArgs.Add(new Vector4(0.0f, 0.0f, 0.0f, lightInfo.Intensity));
-            lightLayers.Add(lightInfo.LightingLayer);
-            int resolvedTexId = lightInfo.LightTextureID;
-            if (resolvedTexId == 0)
-                resolvedTexId = fallbackTexId;
-            TextureDefinition gpuTexDef = TextureDefinition.CreateGpuDefinition(resolvedTexId);
-            if (!textureIndexMap.TryGetValue(gpuTexDef, out int texIndex))
+            foreach (IRenderable renderable in renderables)
             {
-                if (uniqueLightTextures.Count < MAX_LIGHT_TEXTURES)
+                if (renderable is not LightSource light) continue;
+                LightSourceInfo lightInfo = light.LightInfo;
+                Vector2 lightPosWorld = new Vector2(lightInfo.Position.X, lightInfo.Position.Y);
+                Vector2 lightPosScreen = camData.WorldPositionToScreenPosition(lightPosWorld);
+                float lightRadiusWorld = lightInfo.Radius;
+                float lightRadiusScreen = lightRadiusWorld * cameraZoom;
+                if (lightRadiusScreen <= 0.0f)
+                    continue;
+                int minX = MathHelper.FloorToInt((lightPosScreen.X - lightRadiusScreen) / tileSize.X);
+                int minY = MathHelper.FloorToInt((lightPosScreen.Y - lightRadiusScreen) / tileSize.Y);
+                int maxX = MathHelper.FloorToInt((lightPosScreen.X + lightRadiusScreen) / tileSize.X);
+                int maxY = MathHelper.FloorToInt((lightPosScreen.Y + lightRadiusScreen) / tileSize.Y);
+                if (maxX < 0 || maxY < 0 || minX >= tilesX || minY >= tilesY)
+                    continue;
+                minX = Math.Clamp(minX, 0, tilesX - 1);
+                minY = Math.Clamp(minY, 0, tilesY - 1);
+                maxX = Math.Clamp(maxX, 0, tilesX - 1);
+                maxY = Math.Clamp(maxY, 0, tilesY - 1);
+                int lightIndex = lightPosRadius.Count;
+                if (lightIndex >= MAX_LIGHTS)
+                    continue;
+                lightPosRadius.Add(new Vector4(lightInfo.Position.X, lightInfo.Position.Y, lightInfo.Position.Z, lightInfo.Radius));
+                lightColors.Add(lightInfo.Color);
+                lightArgs.Add(new Vector4(0.0f, 0.0f, 0.0f, lightInfo.Intensity));
+                lightLayers.Add(lightInfo.LightingLayer);
+                int resolvedTexId = lightInfo.LightTextureID;
+                if (resolvedTexId == 0)
+                    resolvedTexId = fallbackTexId;
+                TextureDefinition gpuTexDef = TextureDefinition.CreateGpuDefinition(resolvedTexId);
+                if (!textureIndexMap.TryGetValue(gpuTexDef, out int texIndex))
                 {
-                    texIndex = uniqueLightTextures.Count;
-                    textureIndexMap.Add(gpuTexDef, texIndex);
-                    uniqueLightTextures.Add(gpuTexDef);
-                    uniqueLightTextureSlots.Add(context.MaxTextureSlot + 1 + texIndex);
-                }
-                else
-                {
-                    texIndex = 0;
-                }
-            }
-            lightTextureIndices.Add(texIndex);
-            for (int tileY = minY; tileY <= maxY; tileY++)
-            {
-                int rowStart = tileY * tilesX;
-                for (int tileX = minX; tileX <= maxX; tileX++)
-                {
-                    int tileId = rowStart + tileX;
-                    List<int>? lightList = tileLightLists[tileId];
-                    if (lightList == null)
+                    if (uniqueLightTextures.Count < MAX_LIGHT_TEXTURES)
                     {
-                        lightList = new List<int>(8);
-                        tileLightLists[tileId] = lightList;
+                        texIndex = uniqueLightTextures.Count;
+                        textureIndexMap.Add(gpuTexDef, texIndex);
+                        uniqueLightTextures.Add(gpuTexDef);
+                        uniqueLightTextureSlots.Add(context.MaxTextureSlot + 1 + texIndex);
                     }
-                    if (lightList.Count < MAX_LIGHTS_PER_TILE)
+                    else
                     {
-                        lightList.Add(lightIndex);
+                        texIndex = 0;
+                    }
+                }
+                lightTextureIndices.Add(texIndex);
+                for (int tileY = minY; tileY <= maxY; tileY++)
+                {
+                    int rowStart = tileY * tilesX;
+                    for (int tileX = minX; tileX <= maxX; tileX++)
+                    {
+                        int tileId = rowStart + tileX;
+                        List<int>? lightList = tileLightLists[tileId];
+                        if (lightList == null)
+                        {
+                            lightList = new List<int>(8);
+                            tileLightLists[tileId] = lightList;
+                        }
+                        if (lightList.Count < MAX_LIGHTS_PER_TILE)
+                        {
+                            lightList.Add(lightIndex);
+                        }
                     }
                 }
             }
