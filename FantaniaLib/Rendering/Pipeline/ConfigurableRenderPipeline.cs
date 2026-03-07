@@ -115,7 +115,7 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
         }
     }
 
-    public void StartWorkerThread(IWorkspace workspace, Camera2D camera)
+    public void StartWorkerThread(IWorkspace workspace)
     {
         _ctsWorker = new CancellationTokenSource();
         _evTaskStart = new AutoResetEvent(false);
@@ -222,7 +222,13 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
                         if (group != null)
                         {
                             stage.PreRender(this);
-                            stage.Render(this, group, camera);
+                            stage.Render(this, group, _camData!);
+                            stage.PostRender(this);
+                        }
+                        else
+                        {
+                            stage.PreRender(this);
+                            stage.Render(this, Array.Empty<IRenderable>(), _camData!);
                             stage.PostRender(this);
                         }
                     }
@@ -254,7 +260,7 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
         }
     }
 
-    public void ReceiveRenderables(IEnumerable<IRenderable> renderables)
+    public void ReceiveRenderables(IEnumerable<IRenderable> renderables, Camera2DFrameData camData)
     {
         if (_evTaskComplete!.WaitOne(-1))
         {
@@ -286,6 +292,7 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
                 }
             }
             _frameData.MaxTextureSlot = maxTextureSlot;
+            _camData = camData;
             _evTaskStart!.Set();
         }
     }
@@ -342,6 +349,7 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
     CommandBuffer[] _cmdBuffers = new CommandBuffer[2];
     volatile int _completeBufferIndex;
     FrameData _frameData = new FrameData();
+    Camera2DFrameData? _camData;
     TiledLightCullingData _tiledLightCullingData = new TiledLightCullingData();
 
     readonly (string, string, string)[] BUILTIN_SHADER_SOURCES = new[]

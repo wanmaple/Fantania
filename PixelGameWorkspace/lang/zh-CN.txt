@@ -1,6 +1,7 @@
 SG_Decoration=装饰
 SG_Appearance=表现
 SG_Transform=变换
+SG_Lights=光源
 
 # Sprite
 SN_Sprite=精灵
@@ -19,3 +20,13 @@ ST_LitSprite_LightingLayer=光照层(0 -> 3 依次从近到远)
 ST_LitSprite_Color=顶点色
 ST_LitSprite_Cutoff=Alpha裁剪(用于Alpha Test)
 ST_LitSprite_Anchor=锚点
+
+# PointLight
+SN_PointLight=点光
+ST_PointLight=点光源(球形放射且强度随距离衰减)
+ST_PointLight_Icon=图标
+ST_PointLight_Texture=光强贴图
+ST_PointLight_LightingLayer=光照层(0 -> 3 依次从近到远)
+ST_PointLight_Color=光源颜色
+ST_PointLight_Radius=光源半径
+ST_PointLight_Intensity=光照强度

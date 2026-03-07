@@ -18,7 +18,7 @@ public class PostProcessPipelineStage : IPipelineStage
     {
     }
 
-    public void Render(IRenderContext context, IEnumerable<IRenderable> renderables, Camera2D camera)
+    public void Render(IRenderContext context, IEnumerable<IRenderable> renderables, Camera2DFrameData camData)
     {
     }
 

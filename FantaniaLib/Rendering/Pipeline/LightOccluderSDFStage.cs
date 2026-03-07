@@ -16,7 +16,7 @@ public class LightOccluderSDFStage : IPipelineStage
         context.CommandBuffer.SetupState(_state);
     }
 
-    public void Render(IRenderContext context, IEnumerable<IRenderable> renderables, Camera2D camera)
+    public void Render(IRenderContext context, IEnumerable<IRenderable> renderables, Camera2DFrameData camData)
     {
         if (_meshFullScreen == null || _matSeed == null || _matBuildSDF == null || _fbJFA == null)
             return;

@@ -19,11 +19,11 @@ public class TransparentPipelineStage : IPipelineStage
         context.CommandBuffer.SetupState(_state);
     }
 
-    public void Render(IRenderContext context, IEnumerable<IRenderable> renderables, Camera2D camera)
+    public void Render(IRenderContext context, IEnumerable<IRenderable> renderables, Camera2DFrameData camData)
     {
         var list = renderables as List<IRenderable> ?? renderables.ToList();
         if (list.Count == 0) return;
-        float cellSize = CalculateCellSize(camera);
+        float cellSize = CalculateCellSize(camData);
         _ds.Reset(list);
         _buckets.Clear();
         for (int i = 0; i < list.Count; i++)
@@ -83,9 +83,9 @@ public class TransparentPipelineStage : IPipelineStage
         BlendDstFactor = BlendFuncs.OneMinusSrcAlpha,
     };
 
-    float CalculateCellSize(Camera2D camera)
+    float CalculateCellSize(Camera2DFrameData camData)
     {
-        float zoom = MathF.Max(camera.Zoom, 0.0001f);
+        float zoom = MathF.Max(camData.Zoom, 0.0001f);
         float worldCellSize = TARGET_CELL_PIXELS / zoom;
         return Math.Clamp(worldCellSize, MIN_CELL_SIZE, MAX_CELL_SIZE);
     }

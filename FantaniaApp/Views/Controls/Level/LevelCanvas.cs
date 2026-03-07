@@ -53,7 +53,7 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
             BlendingEnabled = false,
         };
         _shaderFinalBlit = pipeline.ShaderCache.Acquire(vertSrc, fragSrc);
-        pipeline.StartWorkerThread(Workspace, _camera!);
+        pipeline.StartWorkerThread(Workspace);
         LevelEditConfig leConfig = Workspace.ScriptingModule.GetCustomLevelEditConfigOrDefault();
         _inputs = new LevelInputs(this, leConfig);
         _context = new LevelSpaceContext(this);
@@ -103,7 +103,7 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
             if (_context!.SceneDirty)
             {
                 var renderables = _context!.CollectRenderables();
-                pipeline.ReceiveRenderables(renderables);
+                pipeline.ReceiveRenderables(renderables, new Camera2DFrameData(_camera!));
                 _context.SceneDirty = false;
             }
             device.ClearColor("#3f3f3f".ToVector4());

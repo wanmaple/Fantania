@@ -31,7 +31,7 @@ public class TiledLightCullingPipelineStage : IPipelineStage
     {
     }
 
-    public void Render(IRenderContext context, IEnumerable<IRenderable> renderables, Camera2D camera)
+    public void Render(IRenderContext context, IEnumerable<IRenderable> renderables, Camera2DFrameData camData)
     {
         int tileSizeValue = Math.Max(context.LightCullingTileSize, 1);
         Vector2Int tileSize = new Vector2Int(tileSizeValue, tileSizeValue);
@@ -70,13 +70,13 @@ public class TiledLightCullingPipelineStage : IPipelineStage
         uniqueLightTextures.Add(fallbackTexDef);
         uniqueLightTextureSlots.Add(context.MaxTextureSlot + 1);
         textureIndexMap[fallbackTexDef] = 0;
-        float cameraZoom = MathF.Max(camera.Zoom, 0.0001f);
+        float cameraZoom = MathF.Max(camData.Zoom, 0.0001f);
         foreach (IRenderable renderable in renderables)
         {
             if (renderable is not LightSource light) continue;
             LightSourceInfo lightInfo = light.LightInfo;
             Vector2 lightPosWorld = new Vector2(lightInfo.Position.X, lightInfo.Position.Y);
-            Vector2 lightPosScreen = camera.WorldPositionToScreenPosition(lightPosWorld);
+            Vector2 lightPosScreen = camData.WorldPositionToScreenPosition(lightPosWorld);
             float lightRadiusWorld = lightInfo.Radius;
             float lightRadiusScreen = lightRadiusWorld * cameraZoom;
             if (lightRadiusScreen <= 0.0f)
