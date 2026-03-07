@@ -1,10 +1,29 @@
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Data.Converters;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Fantania.ViewModels;
 using FantaniaLib;
 
 namespace Fantania.Views;
+
+public class Placement2LocalizedConverter : IMultiValueConverter
+{
+    public object? Convert(IList<object?> values, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (values == null) return AvaloniaProperty.UnsetValue;
+        if (values.Count != 3) return AvaloniaProperty.UnsetValue;
+        if (values[0] is not string text) return AvaloniaProperty.UnsetValue;
+        if (values[1] is not IWorkspace workspace) return AvaloniaProperty.UnsetValue;
+        if (values[2] is not IPlacement placement) return AvaloniaProperty.UnsetValue;
+        if (placement is not UserPlacement) return workspace.LocalizeString(text);
+        return text;
+    }
+}
 
 public partial class PlacementView : UserControl
 {

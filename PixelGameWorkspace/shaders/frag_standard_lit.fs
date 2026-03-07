@@ -13,10 +13,14 @@ const int MAX_LIGHTS = 64;
 const int MAX_TILE_LIGHT_INDICES = 256;
 const int MAX_LIGHT_TEXTURES = 8;
 
+const float SPECULAR_INNER = 0.9848077; // cos(10 degrees)
+const float SPECULAR_OUTER = 0.9659258; // cos(15 degrees)
+
 uniform vec4 u_Resolution;   // xy is resolution, zw is 1/resolution.
 uniform vec4 u_SDFResolution;   // xy is resolution, zw is 1/resolution.
 uniform sampler2D u_Albedo;
 uniform sampler2D u_Normal;
+uniform sampler2D u_Specular;
 uniform float u_Cutoff;
 uniform mat3 u_View;
 uniform int u_LightingLayer;
@@ -87,6 +91,7 @@ void main() {
 		discard;
 	}
 	vec4 normalTexel = texture(u_Normal, vUV);
+	vec4 specularTexel = texture(u_Specular, vUV);
 	float lightingMask = clamp(normalTexel.a, 0.0, 1.0);
 	vec3 normalSample = normalTexel.xyz * 2.0 - 1.0;
 	normalSample.y = -normalSample.y;
@@ -125,20 +130,25 @@ void main() {
 		int texIndex = clamp(u_LightTextureIndices[lightIndex], 0, MAX_LIGHT_TEXTURES - 1);
 		vec3 lightTexColor = texture(u_LightTextures[texIndex], lightUV).rgb;
 		vec4 lightColor = u_LightColors[lightIndex];
+		vec3 R = reflect(-L, N);
+		float RdotZ = max(dot(R, vec3(0.0, 0.0, 1.0)), 0.0);
+		float specularStrength = smoothstep(SPECULAR_OUTER, SPECULAR_INNER, RdotZ);
 		float intensity = u_LightArgs[lightIndex].w;
 		lightColor.rgb *= intensity;
 		float shadow = computeShadow(vWorldPos.xy, posRadius.xy, u_LightingLayer, lightLayer);
-		vec3 contribution = lightColor.rgb * lightTexColor * NdotL * shadow;
+		vec3 contribution = (lightColor.rgb * lightTexColor * NdotL + lightColor.rgb * specularTexel.rgb * specularStrength) * shadow;
 		lightAccum += contribution;
 	}
 	{
 		// Add environment lighting
 		vec3 envLightDir = -normalize(u_EnvLight.xyz);
-		vec3 envLightColor = u_EnvLightColor.rgb;
-		float envLightIntensity = u_EnvLight.w;
+		vec3 envLightColor = u_EnvLightColor.rgb * u_EnvLight.w;
 		float NdotL = max(dot(N, envLightDir), 0.0);
+		vec3 R = reflect(-envLightDir, N);
+		float RdotZ = max(dot(R, vec3(0.0, 0.0, 1.0)), 0.0);
+		float specularStrength = smoothstep(SPECULAR_OUTER, SPECULAR_INNER, RdotZ);
 		float shadow = computeSunShadow(vWorldPos.xy, envLightDir, u_LightingLayer);
-		vec3 envContribution = envLightColor * envLightIntensity * NdotL * shadow;
+		vec3 envContribution = (envLightColor * NdotL + envLightColor * specularTexel.rgb * specularStrength) * shadow;
 		lightAccum += envContribution;
 	}
 	vec3 unlitColor = albedo.rgb * u_EnvAmbient.rgb;

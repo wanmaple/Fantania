@@ -202,6 +202,15 @@ namespace Fantania.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 读取翻译文件&apos;{0}‘时出错，详情: {1}.
+        /// </summary>
+        public static string ERR_LoadTranslationFailed {
+            get {
+                return ResourceManager.GetString("ERR_LoadTranslationFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &apos;{0}&apos;不存在。.
         /// </summary>
         public static string ERR_NonExist_Workspace {
@@ -445,6 +454,15 @@ namespace Fantania.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 加个简单易懂的名称吧.
+        /// </summary>
+        public static string TT_Name {
+            get {
+                return ResourceManager.GetString("TT_Name", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 粘贴(快捷键: Ctrl + V).
         /// </summary>
         public static string TT_PasteEntities {
@@ -486,6 +504,15 @@ namespace Fantania.Localization {
         public static string TT_SelectMode {
             get {
                 return ResourceManager.GetString("TT_SelectMode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 加个简单易懂的描述吧.
+        /// </summary>
+        public static string TT_Tooltip {
+            get {
+                return ResourceManager.GetString("TT_Tooltip", resourceCulture);
             }
         }
         
@@ -558,6 +585,15 @@ namespace Fantania.Localization {
         public static string WARN_Replace_Exist_Workspace {
             get {
                 return ResourceManager.GetString("WARN_Replace_Exist_Workspace", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 翻译文件&apos;{0}&apos;未找到。.
+        /// </summary>
+        public static string WARN_TranslationFileNotFound {
+            get {
+                return ResourceManager.GetString("WARN_TranslationFileNotFound", resourceCulture);
             }
         }
         

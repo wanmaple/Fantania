@@ -5,6 +5,7 @@ public class TextureManager : IDisposable
 {
     public int White4x4TextureID => _white4x4TextureId;
     public int Black4x4TextureID => _black4x4TextureId;
+    public int Flat4x4TextureID => _flat4x4TextureId;
 
     public unsafe TextureManager(IRenderDevice device)
     {
@@ -24,6 +25,14 @@ public class TextureManager : IDisposable
             fixed (void* ptr = data)
             {
                 _black4x4TextureId = device.CreateTexture2D(desc, (nint)ptr);
+            }
+        }
+        var flat4x4 = new LocalTexture2D("avares://Fantania/Assets/textures/flat4x4.png");
+        if (flat4x4.TryDecode(out desc, out data))
+        {
+            fixed (void* ptr = data)
+            {
+                _flat4x4TextureId = device.CreateTexture2D(desc, (nint)ptr);
             }
         }
     }
@@ -62,4 +71,5 @@ public class TextureManager : IDisposable
     LocalTextureCache _cacheAtlas;
     int _white4x4TextureId = 0;
     int _black4x4TextureId = 0;
+    int _flat4x4TextureId = 0;
 }

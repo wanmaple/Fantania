@@ -12,6 +12,10 @@ LitSprite.dataDefs = {
         type = FieldTypes.Texture,
         default = Helper.localTexture("avares://Fantania/Assets/textures/flat4x4.png"),
     },
+    specular = {
+        type = FieldTypes.Texture,
+        default = Helper.localTexture("avares://Fantania/Assets/textures/black4x4.png"),
+    },
     lightingLayer = {
         type = FieldTypes.Integer,
         default = 1,
@@ -37,6 +41,10 @@ LitSprite.editDefs = {
     normal = {
         group = "SG_Appearance",
         tooltip = "ST_LitSprite_Normal",
+    },
+    specular = {
+        group = "SG_Appearance",
+        tooltip = "ST_LitSprite_Specular",
     },
     lightingLayer = {
         group = "SG_Appearance",
@@ -76,6 +84,10 @@ function LitSprite:nodeAt(info, index, nodeCount)
             u_Normal = {
                 type = UniformTypes.Texture,
                 value = info.normal,
+            },
+            u_Specular = {
+                type = UniformTypes.Texture,
+                value = info.specular,
             },
             u_Cutoff = {
                 type = UniformTypes.Float1,

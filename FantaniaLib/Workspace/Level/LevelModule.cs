@@ -123,6 +123,11 @@ public class LevelModule : WorkspaceModule
         {
             string lvPath = GetLevelFilePath(_curLv.Name);
             await _syncer!.SyncToFile(lvPath);
+            if (_metaSyncer != null)
+            {
+                string metaPath = GetLevelMetaPath(_curLv.Name);
+                File.WriteAllText(metaPath, _metaSyncer.SyncToJson());
+            }
             _specPropOb.Reset();
             foreach (var entity in _curLv.Entities)
             {

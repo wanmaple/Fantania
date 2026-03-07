@@ -58,7 +58,7 @@ PointLight.editDefs = {
     },
 }
 
-PointLight.defaultLayer = 0
+PointLight.defaultLayer = -20
 PointLight.placementType = PlacementTypes.LightSource
 
 function PointLight:canRotate(index)

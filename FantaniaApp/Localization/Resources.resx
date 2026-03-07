@@ -345,4 +345,20 @@
     <value>关卡'{0}'的元数据可能已经损坏，无法加载，详情：{1}</value>
     <comment/>
   </data>
+  <data name="TT_Name" xml:space="preserve">
+    <value>加个简单易懂的名称吧</value>
+    <comment/>
+  </data>
+  <data name="TT_Tooltip" xml:space="preserve">
+    <value>加个简单易懂的描述吧</value>
+    <comment/>
+  </data>
+  <data name="ERR_LoadTranslationFailed" xml:space="preserve">
+    <value>读取翻译文件'{0}‘时出错，详情: {1}</value>
+    <comment/>
+  </data>
+  <data name="WARN_TranslationFileNotFound" xml:space="preserve">
+    <value>翻译文件'{0}'未找到。</value>
+    <comment/>
+  </data>
 </root>

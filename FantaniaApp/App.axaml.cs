@@ -10,6 +10,8 @@ namespace Fantania;
 
 public partial class App : Application
 {
+    public AppSettings Settings { get; } = new AppSettings();
+
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);

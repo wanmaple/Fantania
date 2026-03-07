@@ -1,0 +1,21 @@
+SG_Decoration=装饰
+SG_Appearance=表现
+SG_Transform=变换
+
+# Sprite
+SN_Sprite=精灵
+ST_Sprite=单贴图(无光照)
+ST_Sprite_Texture=展示贴图
+ST_Sprite_Color=顶点色
+ST_Sprite_Anchor=锚点
+
+# LitSprite
+SN_LitSprite=精灵(受光)
+ST_LitSprite=但贴图(带光照计算)
+ST_LitSprite_Albedo=反射率贴图
+ST_LitSprite_Normal=法线贴图
+ST_LitSprite_Specular=高光贴图
+ST_LitSprite_LightingLayer=光照层(0 -> 3 依次从近到远)
+ST_LitSprite_Color=顶点色
+ST_LitSprite_Cutoff=Alpha裁剪(用于Alpha Test)
+ST_LitSprite_Anchor=锚点

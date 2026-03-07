@@ -13,6 +13,9 @@
   <Design.DataContext>
     <vm:PlacementViewModel />
   </Design.DataContext>
+  <UserControl.Resources>
+    <v:Placement2LocalizedConverter x:Key="Cvt_PlLocalized" />
+  </UserControl.Resources>
   <Grid RowDefinitions="auto,auto,*">
     <TextBlock Classes="h2" Grid.Row="0" Text="{x:Static lang:Resources.H_Placements}" />
     <TextBox x:Name="txtFilter" Grid.Row="1" Watermark="{x:Static lang:Resources.WM_Filter}" Margin="0 10 0 0" TextChanged="FilterBox_TextChanged" />
@@ -28,17 +31,19 @@
             <StackPanel Orientation="Horizontal">
               <TextBlock Classes="m" Width="200" ClipToBounds="True" ToolTip.ServiceEnabled="{Binding Tooltip, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" VerticalAlignment="Center" Margin="5 0 0 0" PointerPressed="UserPlacement_PointerPressed">
                 <TextBlock.Text>
-                  <MultiBinding Converter="{StaticResource Cvt_Localized}">
+                  <MultiBinding Converter="{StaticResource Cvt_PlLocalized}">
                     <Binding Path="Name" />
                     <ReflectionBinding Path="#Root.DataContext.Workspace" />
+                    <Binding Path="." />
                   </MultiBinding>
                 </TextBlock.Text>
                 <ToolTip.Tip>
                   <TextBlock Classes="p tooltip">
                     <TextBlock.Text>
-                      <MultiBinding Converter="{StaticResource Cvt_Localized}">
+                      <MultiBinding Converter="{StaticResource Cvt_PlLocalized}">
                         <Binding Path="Tooltip" />
                         <ReflectionBinding Path="#Root.DataContext.Workspace" />
+                        <Binding Path="." />
                       </MultiBinding>
                     </TextBlock.Text>
                   </TextBlock>
