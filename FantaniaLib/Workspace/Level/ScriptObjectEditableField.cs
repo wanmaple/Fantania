@@ -4,13 +4,13 @@ using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace FantaniaLib;
 
-public class UserPlacementEditableField : ObservableObject, IEditableField
+public class ScriptObjectEditableField : ObservableObject, IEditableField
 {
     public string FieldName => _fieldName;
     public FieldEditInfo EditInfo => _editInfo;
     public object FieldValue 
     { 
-        get => _placement.GetFieldValue(FieldName)!;
+        get => _scriptObj.GetFieldValue(FieldName)!;
         set
         {
             if (value == null) return;
@@ -18,7 +18,7 @@ public class UserPlacementEditableField : ObservableObject, IEditableField
             {
                 if (FieldValidator == null || FieldValidator.ValidateField(Workspace, value))
                 {
-                    _placement.SetFieldValue(FieldName, value);
+                    _scriptObj.SetFieldValue(FieldName, value);
                     OnPropertyChanged(nameof(FieldValue));
                 }
             }
@@ -28,29 +28,29 @@ public class UserPlacementEditableField : ObservableObject, IEditableField
     }
     public Type FieldType => FieldValue.GetType();
     public IFieldValidator? FieldValidator => _validator;
-    public object SampleInstance => _placement;
+    public object SampleInstance => _scriptObj;
     public IWorkspace Workspace { get; private set; }
 
-    public UserPlacementEditableField(IWorkspace workspace, UserPlacement placement, string fieldName)
+    public ScriptObjectEditableField(IWorkspace workspace, ScriptObject placement, string fieldName)
     {
         Workspace = workspace;
-        _placement = placement;
+        _scriptObj = placement;
         _fieldName = fieldName;
 
-        _placement.Template.FillEditingInfo(_fieldName, _editInfo);
-        Type? validatorType = _placement.Template.GetFieldValidatorType(_fieldName);
+        _scriptObj.Template.FillEditingInfo(_fieldName, _editInfo);
+        Type? validatorType = _scriptObj.Template.GetFieldValidatorType(_fieldName);
         if (validatorType != null)
             _validator = Activator.CreateInstance(validatorType) as IFieldValidator;
         if (_validator == null)
             _validator = EmptyFieldValidator.Empty;
         _validator.ValidateField(Workspace, FieldValue);
 
-        WeakEventHandlerManager.Subscribe<UserPlacement, PropertyChangedEventArgs, UserPlacementEditableField>(_placement, nameof(PropertyChanged), OnPlacementPropertyChanged);
+        WeakEventHandlerManager.Subscribe<ScriptObject, PropertyChangedEventArgs, ScriptObjectEditableField>(_scriptObj, nameof(PropertyChanged), OnPlacementPropertyChanged);
     }
 
-    ~UserPlacementEditableField()
+    ~ScriptObjectEditableField()
     {
-        WeakEventHandlerManager.Unsubscribe<PropertyChangedEventArgs, UserPlacementEditableField>(_placement, nameof(PropertyChanged), OnPlacementPropertyChanged);
+        WeakEventHandlerManager.Unsubscribe<PropertyChangedEventArgs, ScriptObjectEditableField>(_scriptObj, nameof(PropertyChanged), OnPlacementPropertyChanged);
     }
 
     void OnPlacementPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -61,7 +61,7 @@ public class UserPlacementEditableField : ObservableObject, IEditableField
         }
     }
 
-    UserPlacement _placement;
+    ScriptObject _scriptObj;
     FieldEditInfo _editInfo = new FieldEditInfo();
     string _fieldName;
     IFieldValidator? _validator;

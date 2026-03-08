@@ -29,6 +29,7 @@ public class SingleObjectEditableField : ObservableObject, IEditableField
     }
     public Type FieldType => FieldValue.GetType();
     public IFieldValidator? FieldValidator => _validator;
+    public object SampleInstance => _instance;
     public IWorkspace Workspace { get; private set; }
 
     public SingleObjectEditableField(IWorkspace workspace, ObservableObject instance, PropertyInfo propInfo)
@@ -42,6 +43,7 @@ public class SingleObjectEditableField : ObservableObject, IEditableField
         _editInfo.Tooltip = attr.TooltipKey;
         _editInfo.EditControlType = attr.EditControlType;
         _editInfo.EditParameter = attr.EditParameter;
+        _editInfo.DefaultMemberValue = attr.DefaultMemberValue;
         if (attr.FieldValidatorType != null)
             _validator = Activator.CreateInstance(attr.FieldValidatorType) as IFieldValidator;
         if (_validator == null)

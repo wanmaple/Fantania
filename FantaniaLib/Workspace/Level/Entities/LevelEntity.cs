@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using System.Numerics;
 
 namespace FantaniaLib;

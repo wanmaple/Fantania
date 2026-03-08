@@ -8,6 +8,7 @@ using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.Input;
 using Fantania.Localization;
 using Fantania.Models;
+using Fantania.Views;
 using FantaniaLib;
 
 namespace Fantania.ViewModels;
@@ -105,6 +106,22 @@ public partial class MainWindowViewModel : ViewModelBase
             return;
         }
         await OpenWorkspace(folder);
+    }
+
+    [RelayCommand(CanExecute = nameof(CanOperateWorkspace))]
+    public async Task Export()
+    {
+        var settings = Workspace!.ScriptingModule.GetExportSettings();
+        if (settings == null)
+        {
+            await MessageBoxHelper.PopupErrorOkay(AvaloniaHelper.GetTopWindow(), LocalizationHelper.GetLocalizedString("ERR_WorkspaceNotExportable"));
+            return;
+        }
+        if (!await CheckAndSaveWorkspaceChanges()) return;
+        var vExport = new ExportView();
+        var vmExport = new ExportViewModel(Workspace!, settings);
+        vExport.DataContext = vmExport;
+        await vExport.ShowDialog(AvaloniaHelper.GetTopWindow());
     }
 
     bool CanOperateWorkspace()

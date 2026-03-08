@@ -381,4 +381,20 @@
     <value>平行光的强度</value>
     <comment/>
   </data>
+  <data name="MI_File_Export" xml:space="preserve">
+    <value>导出</value>
+    <comment/>
+  </data>
+  <data name="H_ExportTo" xml:space="preserve">
+    <value>导出到...</value>
+    <comment/>
+  </data>
+  <data name="BT_Export" xml:space="preserve">
+    <value>导出</value>
+    <comment/>
+  </data>
+  <data name="ERR_WorkspaceNotExportable" xml:space="preserve">
+    <value>在当前工作区未找到导出相关配置，无法导出。</value>
+    <comment/>
+  </data>
 </root>

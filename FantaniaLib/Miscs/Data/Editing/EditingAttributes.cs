@@ -7,4 +7,5 @@ public class EditableFieldAttribute : Attribute
     public string TooltipKey { get; set; } = string.Empty;
     public string EditParameter { get; set; } = string.Empty;
     public Type? FieldValidatorType { get; set; }
+    public object? DefaultMemberValue { get; set; }
 }

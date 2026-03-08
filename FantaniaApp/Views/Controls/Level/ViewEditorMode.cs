@@ -148,7 +148,7 @@ public class ViewEditorMode : ILevelEditorMode
                         };
                         winEdit.Title = Resources.H_ModifyEntities;
                         winEdit.DataContext = new CommonEditObjectViewModel(context.Workspace, new MultiEditableObjects(entities));
-                        winEdit.ShowDialog(AvaloniaHelper.GetTopWindow());
+                        winEdit.Show(AvaloniaHelper.GetTopWindow());
                         e.Handled = true;
                     }
                 }

@@ -1,5 +1,7 @@
+using System.Collections;
 using System.Data;
 using System.Numerics;
+using System.Text;
 using Avalonia.Media;
 
 namespace FantaniaLib;
@@ -275,6 +277,47 @@ public class SerializationRule
         }
     }
 
+    private class DefaultArrayCast<T, C> : IFieldCastRule where T : notnull where C : IFieldCastRule, new()
+    {
+        public object? CastFrom(string casted, object instance)
+        {
+            int index = casted.IndexOf('#');
+            int count = int.Parse(casted.Substring(0, index));
+            string valuesStr = casted.Substring(index + 1);
+            char separator = (char)30;
+            string[] valueParts = valuesStr.Split(separator);
+            var memberCast = new C();
+            var list = new FantaniaArray<T>();
+            for (int i = 0; i < count; i++)
+            {
+                string itemData = valueParts[i];
+                object item = memberCast.CastFrom(itemData, instance)!;
+                list.Add((T)item);
+            }
+            return list;
+        }
+
+        public string CastTo(object? fieldVal, object instance)
+        {
+            IList<T> list = (IList<T>)fieldVal!;
+            int count = list.Count;
+            var memberCast = new C();
+            var sb = new StringBuilder();
+            sb.Append(count);
+            sb.Append('#');
+            char separator = (char)30;
+            for (int i = 0; i < count; i++)
+            {
+                sb.Append(memberCast.CastTo(list[i], instance));
+                if (i < count - 1)
+                {
+                    sb.Append(separator);
+                }
+            }
+            return sb.ToString();
+        }
+    }
+
     public static readonly SerializationRule Default = new SerializationRule();
 
     public SerializationRule()
@@ -293,6 +336,19 @@ public class SerializationRule
         SetFieldCast(FieldTypes.TypeReference, new DefaultTypeReferenceCast());
         SetFieldCast(FieldTypes.Enum, new DefaultEnumCast());
         SetFieldCast(FieldTypes.Custom, new DefaultCustomSerializableCast());
+        SetFieldCast(FieldTypes.BooleanArray, new DefaultArrayCast<bool, DefaultBooleanCast>());
+        SetFieldCast(FieldTypes.IntegerArray, new DefaultArrayCast<int, DefaultIntegerCast>());
+        SetFieldCast(FieldTypes.FloatArray, new DefaultArrayCast<float, DefaultFloatCast>());
+        SetFieldCast(FieldTypes.StringArray, new DefaultArrayCast<string, DefaultStringCast>());
+        SetFieldCast(FieldTypes.Vector2Array, new DefaultArrayCast<Vector2, DefaultVector2Cast>());
+        SetFieldCast(FieldTypes.Vector2IntArray, new DefaultArrayCast<Vector2Int, DefaultVector2IntCast>());
+        SetFieldCast(FieldTypes.Vector3Array, new DefaultArrayCast<Vector3, DefaultVector3Cast>());
+        SetFieldCast(FieldTypes.ColorArray, new DefaultArrayCast<Vector4, DefaultColorCast>());
+        SetFieldCast(FieldTypes.Direction3DArray, new DefaultArrayCast<Direction3D, Direction3DCast>());
+        SetFieldCast(FieldTypes.TextureArray, new DefaultArrayCast<TextureDefinition, DefaultTextureCast>());
+        SetFieldCast(FieldTypes.GroupReferenceArray, new DefaultArrayCast<GroupReference, DefaultGroupReferenceCast>());
+        SetFieldCast(FieldTypes.TypeReferenceArray, new DefaultArrayCast<TypeReference, DefaultTypeReferenceCast>());
+        SetFieldCast(FieldTypes.EnumArray, new DefaultArrayCast<Enum, DefaultEnumCast>());
     }
 
     public string CastTo(FieldTypes fieldType, object? fieldValue, object instance)

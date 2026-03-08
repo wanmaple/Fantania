@@ -76,6 +76,11 @@ public abstract class Workspace : SyncableObject, IWorkspace
         return Path.Combine(pathes).ToStandardPath();
     }
 
+    public void ExportToGame(string exportFolder)
+    {
+        
+    }
+
     public async Task CreateNew()
     {
         _solution = new WorkspaceSolution();

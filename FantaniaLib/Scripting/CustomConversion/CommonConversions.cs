@@ -1,3 +1,4 @@
+using System.Numerics;
 using MoonSharp.Interpreter;
 
 namespace FantaniaLib;
@@ -110,6 +111,204 @@ public static class CommonConversions
                 ReferenceGroup = type,
                 ReferenceID = id,
             };
+        });
+        Script.GlobalOptions.CustomConverters.SetClrToScriptCustomConversion<FantaniaArray<bool>>((env, v) =>
+        {
+            var ret = DynValue.NewTable(env);
+            for (int i = 0; i < v.Count; i++)
+            {
+                ret.Table.Append(DynValue.NewBoolean(v[i]));
+            }
+            return ret;
+        });
+        Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Table, typeof(FantaniaArray<bool>), v =>
+        {
+            var ret = new FantaniaArray<bool>();
+            foreach (DynValue val in v.Table.Values)
+            {
+                ret.Add(val.GetBooleanOrDefault(false));
+            }
+            return ret;
+        });
+        Script.GlobalOptions.CustomConverters.SetClrToScriptCustomConversion<FantaniaArray<int>>((env, v) =>
+        {
+            var ret = DynValue.NewTable(env);
+            for (int i = 0; i < v.Count; i++)
+            {
+                ret.Table.Append(DynValue.NewNumber((int)v[i]));
+            }
+            return ret;
+        });
+        Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Table, typeof(FantaniaArray<int>), v =>
+        {
+            var ret = new FantaniaArray<int>();
+            foreach (DynValue val in v.Table.Values)
+            {
+                ret.Add(val.GetIntegerOrDefault(0));
+            }
+            return ret;
+        });
+        Script.GlobalOptions.CustomConverters.SetClrToScriptCustomConversion<FantaniaArray<float>>((env, v) =>
+        {
+            var ret = DynValue.NewTable(env);
+            for (int i = 0; i < v.Count; i++)
+            {
+                ret.Table.Append(DynValue.NewNumber((float)v[i]));
+            }
+            return ret;
+        });
+        Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Table, typeof(FantaniaArray<float>), v =>
+        {
+            var ret = new FantaniaArray<float>();
+            foreach (DynValue val in v.Table.Values)
+            {
+                ret.Add(val.GetFloatOrDefault(0.0f));
+            }
+            return ret;
+        });
+        Script.GlobalOptions.CustomConverters.SetClrToScriptCustomConversion<FantaniaArray<string>>((env, v) =>
+        {
+            var ret = DynValue.NewTable(env);
+            for (int i = 0; i < v.Count; i++)
+            {
+                ret.Table.Append(DynValue.NewString(v[i]));
+            }
+            return ret;
+        });
+        Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Table, typeof(FantaniaArray<string>), v =>
+        {
+            var ret = new FantaniaArray<string>();
+            foreach (DynValue val in v.Table.Values)
+            {
+                ret.Add(val.GetStringOrDefault(string.Empty));
+            }
+            return ret;
+        });
+        Script.GlobalOptions.CustomConverters.SetClrToScriptCustomConversion<FantaniaArray<Vector2>>((env, v) =>
+        {
+            var ret = DynValue.NewTable(env);
+            for (int i = 0; i < v.Count; i++)
+            {
+                ret.Table.Append(DynValue.FromObject(env, v[i]));
+            }
+            return ret;
+        });
+        Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Table, typeof(FantaniaArray<Vector2>), v =>
+        {
+            var ret = new FantaniaArray<Vector2>();
+            foreach (DynValue val in v.Table.Values)
+            {
+                ret.Add(val.GetObjectOrDefault(Vector2.Zero));
+            }
+            return ret;
+        });
+        Script.GlobalOptions.CustomConverters.SetClrToScriptCustomConversion<FantaniaArray<Vector2Int>>((env, v) =>
+        {
+            var ret = DynValue.NewTable(env);
+            for (int i = 0; i < v.Count; i++)
+            {
+                ret.Table.Append(DynValue.FromObject(env, v[i]));
+            }
+            return ret;
+        });
+        Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Table, typeof(FantaniaArray<Vector2Int>), v =>
+        {
+            var ret = new FantaniaArray<Vector2Int>();
+            foreach (DynValue val in v.Table.Values)
+            {
+                ret.Add(val.GetObjectOrDefault(Vector2Int.Zero));
+            }
+            return ret;
+        });
+        Script.GlobalOptions.CustomConverters.SetClrToScriptCustomConversion<FantaniaArray<Vector3>>((env, v) =>
+        {
+            var ret = DynValue.NewTable(env);
+            for (int i = 0; i < v.Count; i++)
+            {
+                ret.Table.Append(DynValue.FromObject(env, v[i]));
+            }
+            return ret;
+        });
+        Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Table, typeof(FantaniaArray<Vector3>), v =>
+        {
+            var ret = new FantaniaArray<Vector3>();
+            foreach (DynValue val in v.Table.Values)
+            {
+                ret.Add(val.GetObjectOrDefault(Vector3.Zero));
+            }
+            return ret;
+        });
+        Script.GlobalOptions.CustomConverters.SetClrToScriptCustomConversion<FantaniaArray<Vector4>>((env, v) =>
+        {
+            var ret = DynValue.NewTable(env);
+            for (int i = 0; i < v.Count; i++)
+            {
+                ret.Table.Append(DynValue.FromObject(env, v[i]));
+            }
+            return ret;
+        });
+        Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Table, typeof(FantaniaArray<Vector4>), v =>
+        {
+            var ret = new FantaniaArray<Vector4>();
+            foreach (DynValue val in v.Table.Values)
+            {
+                ret.Add(val.GetObjectOrDefault(Vector4.One));
+            }
+            return ret;
+        });
+        Script.GlobalOptions.CustomConverters.SetClrToScriptCustomConversion<FantaniaArray<TextureDefinition>>((env, v) =>
+        {
+            var ret = DynValue.NewTable(env);
+            for (int i = 0; i < v.Count; i++)
+            {
+                ret.Table.Append(DynValue.FromObject(env, v[i]));
+            }
+            return ret;
+        });
+        Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Table, typeof(FantaniaArray<TextureDefinition>), v =>
+        {
+            var ret = new FantaniaArray<TextureDefinition>();
+            foreach (DynValue val in v.Table.Values)
+            {
+                ret.Add(val.GetObjectOrDefault(TextureDefinition.None));
+            }
+            return ret;
+        });
+        Script.GlobalOptions.CustomConverters.SetClrToScriptCustomConversion<FantaniaArray<GroupReference>>((env, v) =>
+        {
+            var ret = DynValue.NewTable(env);
+            for (int i = 0; i < v.Count; i++)
+            {
+                ret.Table.Append(DynValue.FromObject(env, v[i]));
+            }
+            return ret;
+        });
+        Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Table, typeof(FantaniaArray<GroupReference>), v =>
+        {
+            var ret = new FantaniaArray<GroupReference>();
+            foreach (DynValue val in v.Table.Values)
+            {
+                ret.Add(val.GetObjectOrDefault(GroupReference.None));
+            }
+            return ret;
+        });
+        Script.GlobalOptions.CustomConverters.SetClrToScriptCustomConversion<FantaniaArray<TypeReference>>((env, v) =>
+        {
+            var ret = DynValue.NewTable(env);
+            for (int i = 0; i < v.Count; i++)
+            {
+                ret.Table.Append(DynValue.FromObject(env, v[i]));
+            }
+            return ret;
+        });
+        Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Table, typeof(FantaniaArray<TypeReference>), v =>
+        {
+            var ret = new FantaniaArray<TypeReference>();
+            foreach (DynValue val in v.Table.Values)
+            {
+                ret.Add(val.GetObjectOrDefault(TypeReference.None));
+            }
+            return ret;
         });
     }
 }

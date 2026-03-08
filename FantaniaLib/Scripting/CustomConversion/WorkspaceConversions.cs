@@ -71,6 +71,15 @@ public static class WorkspaceConversions
             }
             return ret;
         });
+        Script.GlobalOptions.CustomConverters.SetClrToScriptCustomConversion<ScriptObject>((env, v) =>
+        {
+            var ret = DynValue.NewTable(env);
+            foreach (var field in v.SerializableFields)
+            {
+                ret.Table.Set(field.FieldName, DynValue.FromObject(env, v.GetFieldValue(field.FieldName)));
+            }
+            return ret;
+        });
         Script.GlobalOptions.CustomConverters.SetClrToScriptCustomConversion<LevelEntityNode>((env, v) =>
         {
             var ret = DynValue.NewTable(env);
@@ -78,6 +87,22 @@ public static class WorkspaceConversions
             ret.Table.Set("rotation", DynValue.NewNumber(v.Rotation));
             ret.Table.Set("scale", DynValue.FromObject(env, v.Scale));
             return ret;
+        });
+        Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Table, typeof(ExportVariant), v =>
+        {
+            FieldTypes type = v.Table.Get("type").GetEnumOrDefault(FieldTypes.String);
+            object? value = ConversionHelper.FieldTypeToValue(type, v.Table.Get("value"));
+            int order = v.Table.Get("order").GetIntegerOrDefault(0);
+            string usage = v.Table.Get("usage").GetStringOrDefault(string.Empty);
+            string parameter = v.Table.Get("parameter").GetStringOrDefault(string.Empty);
+            return new ExportVariant
+            {
+                Type = type,
+                Value = value,
+                Order = order,
+                Usage = usage,
+                Parameter = parameter,
+            };
         });
     }
 }

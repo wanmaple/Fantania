@@ -50,6 +50,8 @@
                     </MenuItem.Styles>
                 </MenuItem>
                 <Separator />
+                <MenuItem Classes="p" Header="{x:Static lang:Resources.MI_File_Export}" Command="{Binding ExportCommand}" />
+                <Separator />
                 <MenuItem Classes="p" Header="{x:Static lang:Resources.MI_File_Exit}" Command="{Binding ExitApplicationCommand}" />
             </MenuItem>
             <MenuItem Classes="m" Header="{x:Static lang:Resources.MI_Edit}" IsVisible="{Binding Workspace, Converter={x:Static ObjectConverters.IsNotNull}}">

@@ -36,24 +36,22 @@ Sprite.placementType = PlacementTypes.Single
 
 function Sprite:nodeAt(info, index, nodeCount)
     local ret = {}
-    if not info.lit then
-        table.insert(ret, {
-            stage = BuiltinStages.Transparent,
-            anchor = info.anchor,
-            materialKey = "Standard",
-            color = info.color,
-            uniforms = {
-                u_Texture = {
-                    type = UniformTypes.Texture,
-                    value = info.texture,
-                },
+    table.insert(ret, {
+        stage = BuiltinStages.Transparent,
+        anchor = info.anchor,
+        materialKey = "Standard",
+        color = info.color,
+        uniforms = {
+            u_Texture = {
+                type = UniformTypes.Texture,
+                value = info.texture,
             },
-            sizer = {
-                type = SizerTypes.Texture,
-                texture = info.texture,
-            },
-        })
-    end
+        },
+        sizer = {
+            type = SizerTypes.Texture,
+            texture = info.texture,
+        },
+    })
     return ret
 end
 

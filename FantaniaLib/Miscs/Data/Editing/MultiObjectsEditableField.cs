@@ -27,6 +27,7 @@ public class MultiObjectsEditableField : ObservableObject, IEditableField
     }
     public Type FieldType => FieldValue.GetType();
     public IFieldValidator? FieldValidator => _fields[0].FieldValidator;
+    public object SampleInstance => _fields[0].SampleInstance;
     public IWorkspace Workspace => _workspace;
 
     public MultiObjectsEditableField(IWorkspace workspace, IReadOnlyList<IEditableField> fields)

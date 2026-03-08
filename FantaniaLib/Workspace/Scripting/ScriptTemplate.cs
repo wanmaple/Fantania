@@ -1,4 +1,3 @@
-using System.Numerics;
 using MoonSharp.Interpreter;
 
 namespace FantaniaLib;
@@ -14,6 +13,7 @@ public class ScriptTemplate
         public Type? EditControlType { get; set; } = null;
         public string EditParameter { get; set; } = string.Empty;
         public Type? EditValidatorType { get; set; } = null;
+        public object? DefaultMemberValue { get; set; } = null;   // Only used for array-member field defaults, ignored otherwise.
     }
 
     public string ClassName
@@ -76,11 +76,13 @@ public class ScriptTemplate
                         string param = paramVal.Type == DataType.String ? paramVal.String : string.Empty;
                         var validatorVal = _engine.GetInstanceMember(tbVal, "validator");
                         Type? validatorType = validatorVal.IsNil() ? null : validatorVal.ToObject<Type>();
+                        var defMemberVal = _engine.GetInstanceMember(tbVal, "defaultMemberValue");
                         extra.EditGroup = group;
                         extra.Tooltip = tooltip;
                         extra.EditControlType = ctrlType;
                         extra.EditParameter = param;
                         extra.EditValidatorType = validatorType;
+                        extra.DefaultMemberValue = defMemberVal;    // Here saves the DynValue directly.
                     }
                     else
                     {
@@ -113,6 +115,15 @@ public class ScriptTemplate
         editInfo.Tooltip = extra.Tooltip;
         editInfo.EditGroup = extra.EditGroup;
         editInfo.EditParameter = extra.EditParameter;
+        var field = _fieldDefs!.First(f => f.FieldName == fieldName);
+        if (field.FieldType >= FieldTypes.BooleanArray)
+        {
+            editInfo.DefaultMemberValue = ConversionHelper.FieldTypeToValue((FieldTypes)(field.FieldType - FieldTypes.BooleanArray), extra.DefaultValue);
+        }
+        else
+        {
+            editInfo.DefaultMemberValue = null;
+        }
     }
 
     public bool CanEditField(string fieldName)

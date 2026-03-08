@@ -26,6 +26,7 @@ uniform mat3 u_View;
 uniform int u_LightingLayer;
 uniform sampler2D u_LightOccluderMask;
 uniform vec4 u_LightLayerDepth;
+uniform vec4[] u_LightLayerDepths;
 uniform vec4 u_ShadowArguments; // x: fadeStart, y: fadeEnd, zw unused
 uniform vec4 u_EnvAmbient;
 uniform vec4 u_EnvLight; // xyz: direction, w: intensity
@@ -47,8 +48,8 @@ float computeShadow(vec2 fragPos, vec2 lightPos, int fragLayer, int lightLayer)
 	int layerDiff = max(fragLayer - lightLayer, 0);
 	vec2 fragSS = (u_View * vec3(fragPos, 1.0)).xy;
 	vec2 lightSS = (u_View * vec3(lightPos, 1.0)).xy;
-	float fragZ = u_LightLayerDepth[fragLayer];
-	float lightZ = u_LightLayerDepth[lightLayer];
+	float fragZ = u_LightLayerDepths[0][fragLayer];
+	float lightZ = u_LightLayerDepths[0][lightLayer];
 	vec3 fragWS = vec3(fragPos, fragZ);
 	vec3 lightWS = vec3(lightPos, lightZ);
 	float dist = length(fragWS - lightWS);
@@ -57,7 +58,7 @@ float computeShadow(vec2 fragPos, vec2 lightPos, int fragLayer, int lightLayer)
 	float t = 0.0;
 	for (int layer = fragLayer - 1; layer > lightLayer; layer--)
 	{
-		t += (u_LightLayerDepth[layer + 1] - u_LightLayerDepth[layer]) / zDiff;
+		t += (u_LightLayerDepths[0][layer + 1] - u_LightLayerDepths[0][layer]) / zDiff;
 		vec2 sampleUV = mix(fragSS, lightSS, t) * u_Resolution.zw;
 		sampleUV.y = 1.0 - sampleUV.y;
 		vec4 mask = texture(u_LightOccluderMask, sampleUV);
@@ -69,13 +70,13 @@ float computeShadow(vec2 fragPos, vec2 lightPos, int fragLayer, int lightLayer)
 float computeSunShadow(vec2 fragPos, vec3 sunDir, int fragLayer)
 {
 	if (abs(sunDir.z) < 0.1) return 1.0;
-	float fragZ = u_LightLayerDepth[fragLayer];
+	float fragZ = u_LightLayerDepths[0][fragLayer];
 	vec3 fragWS = vec3(fragPos, fragZ);
 	vec3 sunWS = fragWS + sunDir * 1000.0; // Arbitrary large distance
 	float t = 0.0;
 	for (int layer = fragLayer - 1; layer >= 0; layer--)
 	{
-		t += (u_LightLayerDepth[layer + 1] - u_LightLayerDepth[layer]) / abs(sunDir.z);
+		t += (u_LightLayerDepths[0][layer + 1] - u_LightLayerDepths[0][layer]) / abs(sunDir.z);
 		vec2 sampleUV = (u_View * vec3(fragPos + sunDir.xy * t, 1.0)).xy * u_Resolution.zw;
 		sampleUV.y = 1.0 - sampleUV.y;
 		if (sampleUV.x < 0.0 || sampleUV.x > 1.0 || sampleUV.y < 0.0 || sampleUV.y > 1.0) break;
@@ -91,7 +92,7 @@ void main() {
 		discard;
 	}
 	vec4 normalTexel = texture(u_Normal, vUV);
-	vec4 specularTexel = texture(u_Specular, vUV);
+	float specular = texture(u_Specular, vUV).r;	// Specular贴图必须是张灰度图，所以只需要取R通道
 	float lightingMask = clamp(normalTexel.a, 0.0, 1.0);
 	vec3 normalSample = normalTexel.xyz * 2.0 - 1.0;
 	normalSample.y = -normalSample.y;
@@ -121,7 +122,7 @@ void main() {
 		vec4 posRadius = u_LightPosRadius[lightIndex];
 		float radius = max(posRadius.w, 0.0001);
 		vec2 toLightXY = posRadius.xy - vWorldPos.xy;
-		float toLightZ = u_LightLayerDepth[u_LightingLayer] - u_LightLayerDepth[lightLayer];
+		float toLightZ = u_LightLayerDepths[0][u_LightingLayer] - u_LightLayerDepths[0][lightLayer];
         vec3 toLight = vec3(toLightXY, toLightZ);
 		vec3 L = normalize(toLight);
 		float NdotL = max(dot(N, L), 0.0);
@@ -136,7 +137,7 @@ void main() {
 		float intensity = u_LightArgs[lightIndex].w;
 		lightColor.rgb *= intensity;
 		float shadow = computeShadow(vWorldPos.xy, posRadius.xy, u_LightingLayer, lightLayer);
-		vec3 contribution = (lightColor.rgb * lightTexColor * NdotL + lightColor.rgb * specularTexel.rgb * specularStrength) * shadow;
+		vec3 contribution = (lightColor.rgb * lightTexColor * NdotL + lightColor.rgb * specular * specularStrength) * shadow;
 		lightAccum += contribution;
 	}
 	{
@@ -148,7 +149,7 @@ void main() {
 		float RdotZ = max(dot(R, vec3(0.0, 0.0, 1.0)), 0.0);
 		float specularStrength = smoothstep(SPECULAR_OUTER, SPECULAR_INNER, RdotZ);
 		float shadow = computeSunShadow(vWorldPos.xy, envLightDir, u_LightingLayer);
-		vec3 envContribution = (envLightColor * NdotL + envLightColor * specularTexel.rgb * specularStrength) * shadow;
+		vec3 envContribution = (envLightColor * NdotL + envLightColor * specular * specularStrength) * shadow;
 		lightAccum += envContribution;
 	}
 	vec3 unlitColor = albedo.rgb * u_EnvAmbient.rgb;

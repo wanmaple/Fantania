@@ -17,4 +17,5 @@ public interface IWorkspace
 
     string GetAbsolutePath(params string[] pathes);
     string LocalizeString(string content);
+    void ExportToGame(string exportFolder);
 }

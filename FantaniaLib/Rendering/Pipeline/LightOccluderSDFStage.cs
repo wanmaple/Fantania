@@ -107,7 +107,7 @@ public class LightOccluderSDFStage : IPipelineStage
         DepthTestEnabled = false,
         DepthWriteEnabled = false,
         BlendingEnabled = true,
-        BlendSrcFactor = BlendFuncs.One,
-        BlendDstFactor = BlendFuncs.One,
+        BlendSrcFactor = BlendFactors.One,
+        BlendDstFactor = BlendFactors.One,
     };
 }

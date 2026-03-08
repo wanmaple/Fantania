@@ -110,8 +110,8 @@ public static class RenderingConversions
             bool depthTestEnabled = v.Table.Get("depthTestEnabled").GetBooleanOrDefault(true);
             bool depthWriteEnabled = v.Table.Get("depthWriteEnabled").GetBooleanOrDefault(false);
             bool blendEnabled = v.Table.Get("blendEnabled").GetBooleanOrDefault(true);
-            BlendFuncs blendFuncSrc = v.Table.Get("blendFuncSrc").GetEnumOrDefault(BlendFuncs.SrcAlpha);
-            BlendFuncs blendFuncDst = v.Table.Get("blendFuncDst").GetEnumOrDefault(BlendFuncs.OneMinusSrcAlpha);
+            BlendFactors blendFuncSrc = v.Table.Get("blendFuncSrc").GetEnumOrDefault(BlendFactors.SrcAlpha);
+            BlendFactors blendFuncDst = v.Table.Get("blendFuncDst").GetEnumOrDefault(BlendFactors.OneMinusSrcAlpha);
             return new RenderState
             {
                 DepthTestEnabled = depthTestEnabled,

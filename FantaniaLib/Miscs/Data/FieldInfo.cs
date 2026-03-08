@@ -17,7 +17,6 @@ public enum FieldTypes
     GroupReference,
     TypeReference,
     Enum,
-    Custom = 1000,
     BooleanArray = Boolean + 2000,
     IntegerArray = Integer + 2000,
     FloatArray = Float + 2000,
@@ -32,7 +31,7 @@ public enum FieldTypes
     GroupReferenceArray = GroupReference + 2000,
     TypeReferenceArray = TypeReference + 2000,
     EnumArray = Enum + 2000,
-    CustomArray = Custom + 2000,
+    Custom = 1000,
 }
 
 public class FieldInfo

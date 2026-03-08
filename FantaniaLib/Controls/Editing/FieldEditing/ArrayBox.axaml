@@ -5,18 +5,32 @@
              xmlns:lib="using:FantaniaLib"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="lib:IEditableField"
-             x:Class="FantaniaLib.ArrayBox">
+             x:Class="FantaniaLib.ArrayBox"
+             x:Name="Root">
+  <UserControl.Resources>
+    <lib:EditableField2EditControlConverter x:Key="Cvt_Field2Ctrl" />
+  </UserControl.Resources>
   <Grid>
     <StackPanel Orientation="Vertical">
-      <ItemsControl ItemsSource="{Binding FieldValue}">
+      <ItemsControl ItemsSource="{Binding #Root.IndexedFields}">
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate>
+            <StackPanel Orientation="Vertical" Spacing="2" />
+          </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
         <ItemsControl.ItemTemplate>
           <DataTemplate>
-            <ContentPresenter />
+            <DockPanel>
+              <Button DockPanel.Dock="Right" Content="Remove" VerticalAlignment="Center" Margin="5 0 0 0" Click="ButtonRemove_Click" />
+              <ContentPresenter Content="{Binding Converter={StaticResource Cvt_Field2Ctrl}}" />
+            </DockPanel>
           </DataTemplate>
         </ItemsControl.ItemTemplate>
       </ItemsControl>
-      <Button Content="Add" />
-      <Button Content="Clear" />
+      <StackPanel Orientation="Horizontal" Spacing="5" Margin="0 5 0 0">
+        <Button Content="Add" Command="{Binding #Root.AddItem}" />
+        <Button Content="Clear" Command="{Binding #Root.ClearItems}" />
+      </StackPanel>
     </StackPanel>
     <Border Classes="thick err" IsVisible="{Binding FieldValidator.Error, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
   </Grid>

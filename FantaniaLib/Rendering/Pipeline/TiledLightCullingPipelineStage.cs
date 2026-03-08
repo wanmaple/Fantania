@@ -11,16 +11,6 @@ public class TiledLightCullingPipelineStage : IPipelineStage
 
     public void Setup(IRenderContext context)
     {
-        context.GlobalUniforms.SetUniform("u_TileGridInfo", Vector4.Zero);
-        context.GlobalUniforms.SetUniform("u_TileOffsets", Array.Empty<int>());
-        context.GlobalUniforms.SetUniform("u_TileCounts", Array.Empty<int>());
-        context.GlobalUniforms.SetUniform("u_TileLightIndices", Array.Empty<int>());
-        context.GlobalUniforms.SetUniform("u_LightPosRadius", Array.Empty<Vector4>());
-        context.GlobalUniforms.SetUniform("u_LightColors", Array.Empty<Vector4>());
-        context.GlobalUniforms.SetUniform("u_LightArgs", Array.Empty<Vector4>());
-        context.GlobalUniforms.SetUniform("u_LightLayers", Array.Empty<int>());
-        context.GlobalUniforms.SetUniform("u_LightTextureIndices", Array.Empty<int>());
-        context.GlobalUniforms.SetUniform("u_LightTextures", Array.Empty<TextureDefinition>(), Array.Empty<int>());
     }
 
     public void PostRender(IRenderContext context)

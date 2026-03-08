@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace FantaniaLib;
 
 [BindingScript]
-public enum BlendFuncs
+public enum BlendFactors
 {
     Zero,
     One,
@@ -22,8 +22,8 @@ public struct RenderState : IEquatable<RenderState>
     public bool DepthTestEnabled;
     public bool DepthWriteEnabled;
     public bool BlendingEnabled;
-    public BlendFuncs BlendSrcFactor;
-    public BlendFuncs BlendDstFactor;
+    public BlendFactors BlendSrcFactor;
+    public BlendFactors BlendDstFactor;
     // TODO: stencil, culling etc...
 
     public bool Equals(RenderState other)

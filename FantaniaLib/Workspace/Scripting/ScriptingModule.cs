@@ -195,8 +195,36 @@ public class ScriptingModule : WorkspaceModule
         return ret;
     }
 
+    public ExportSettings? GetExportSettings()
+    {
+        if (_exportSettings == null)
+        {
+            string scriptPath = _workspace.GetAbsolutePath(Workspace.SCRIPTS_FOLDER, "export_settings.lua");
+            if (File.Exists(scriptPath))
+            {
+                DynValue settings = _scriptEngine.ExecuteFile(scriptPath);
+                if (settings != null && settings.Type == DataType.Table)
+                {
+                    try
+                    {
+                        var template = new ScriptTemplate(_scriptEngine, settings);
+                        _exportSettings = new ExportSettings(template);
+                    }
+                    catch (Exception ex)
+                    {
+                        _workspace.LogError("export_settings.lua is corrupt.");
+                        _workspace.LogError($"Detail: {ex}");
+                        _exportSettings = null;
+                    }
+                }
+            }
+        }
+        return _exportSettings;
+    }
+
     RenderPipelineConfig? _renderPipelineCfg;
     PipelineHook? _pipelineHook;
+    ExportSettings? _exportSettings;
 
     ScriptEngine _scriptEngine = new ScriptEngine();
 }

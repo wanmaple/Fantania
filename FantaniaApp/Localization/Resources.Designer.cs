@@ -94,6 +94,15 @@ namespace Fantania.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 导出.
+        /// </summary>
+        public static string BT_Export {
+            get {
+                return ResourceManager.GetString("BT_Export", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 层级管理.
         /// </summary>
         public static string BT_LayerManage {
@@ -238,6 +247,15 @@ namespace Fantania.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 在当前工作区未找到导出相关配置，无法导出。.
+        /// </summary>
+        public static string ERR_WorkspaceNotExportable {
+            get {
+                return ResourceManager.GetString("ERR_WorkspaceNotExportable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 关卡光照.
         /// </summary>
         public static string G_LightingEnvironment {
@@ -261,6 +279,15 @@ namespace Fantania.Localization {
         public static string H_CurrentWorkspace {
             get {
                 return ResourceManager.GetString("H_CurrentWorkspace", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 导出到....
+        /// </summary>
+        public static string H_ExportTo {
+            get {
+                return ResourceManager.GetString("H_ExportTo", resourceCulture);
             }
         }
         
@@ -387,6 +414,15 @@ namespace Fantania.Localization {
         public static string MI_File_Exit {
             get {
                 return ResourceManager.GetString("MI_File_Exit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 导出.
+        /// </summary>
+        public static string MI_File_Export {
+            get {
+                return ResourceManager.GetString("MI_File_Export", resourceCulture);
             }
         }
         
