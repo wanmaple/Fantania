@@ -119,7 +119,7 @@ public class TransparentPipelineStage : IPipelineStage
             {
                 if (meshes.Count > 0 && currentMaterial != null)
                 {
-                    context.CommandBuffer.Draw(meshes.ToArray(), currentMaterial);
+                    context.CommandBuffer.Draw(meshes.ToArray(), currentMaterial, context.WorkerGlobalUniforms);
                     meshes.Clear();
                 }
                 currentMaterial = renderable.Material;
@@ -129,7 +129,7 @@ public class TransparentPipelineStage : IPipelineStage
         }
         if (meshes.Count > 0 && currentMaterial != null)
         {
-            context.CommandBuffer.Draw(meshes.ToArray(), currentMaterial);
+            context.CommandBuffer.Draw(meshes.ToArray(), currentMaterial, context.WorkerGlobalUniforms);
         }
     }
 

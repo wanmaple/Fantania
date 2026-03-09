@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Reflection;
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 
@@ -12,11 +11,11 @@ public partial class ArrayBox : UserControl
 {
     public IEditableField? Field => DataContext as IEditableField;
 
-    public static readonly StyledProperty<ObservableCollection<IndexedEditableField>> IndexedFieldsProperty = AvaloniaProperty.Register<ArrayBox, ObservableCollection<IndexedEditableField>>(nameof(IndexedFields), defaultValue: new ObservableCollection<IndexedEditableField>());
+    private ObservableCollection<IndexedEditableField> _indexedFields = new ObservableCollection<IndexedEditableField>();
     public ObservableCollection<IndexedEditableField> IndexedFields
     {
-        get => GetValue(IndexedFieldsProperty);
-        set => SetValue(IndexedFieldsProperty, value);
+        get { return _indexedFields; }
+        set { _indexedFields = value; }
     }
 
     public ArrayBox()
@@ -112,7 +111,16 @@ public partial class ArrayBox : UserControl
             Type itemType = _clone.GetType().GetGenericArguments()[0];
             object? defaultValue = Field!.EditInfo.DefaultMemberValue;
             if (defaultValue == null)
-                defaultValue = Activator.CreateInstance(itemType)!;
+            {
+                if (itemType.IsValueType)
+                {
+                    defaultValue = Activator.CreateInstance(itemType);
+                }
+                else if (itemType == typeof(string))
+                {
+                    defaultValue = string.Empty;
+                }
+            }
             MethodInfo addMethod = _clone.GetType().GetMethod("Add")!;
             addMethod.Invoke(_clone, new object?[] { defaultValue });
             IndexedFields.Add(new IndexedEditableField(Field.Workspace, _clone, IndexedFields.Count, Field.EditInfo));
@@ -140,11 +148,6 @@ public partial class ArrayBox : UserControl
         {
             IndexedFields[i].Index = i;
         }
-    }
-
-    void TextBox_TextChanged(object? sender, TextChangedEventArgs e)
-    {
-        // This handler is just to trigger the binding update when FieldValue changes.
     }
 
     ICloneable? _clone;

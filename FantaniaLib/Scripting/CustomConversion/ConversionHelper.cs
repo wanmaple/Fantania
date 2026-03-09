@@ -17,6 +17,7 @@ public static class ConversionHelper
             FieldTypes.Vector2Int => val.GetObjectOrDefault(Vector2Int.Zero),
             FieldTypes.Vector3 => val.GetObjectOrDefault(Vector3.Zero),
             FieldTypes.Color => val.GetObjectOrDefault(Vector4.One),
+            FieldTypes.Direction3D => val.GetObjectOrDefault(Vector3.UnitZ),
             FieldTypes.Texture => val.GetObjectOrDefault(TextureDefinition.None),
             FieldTypes.GroupReference => val.GetObjectOrDefault(GroupReference.None),
             FieldTypes.TypeReference => val.GetObjectOrDefault(TypeReference.None),
@@ -28,6 +29,7 @@ public static class ConversionHelper
             FieldTypes.Vector2IntArray => val.GetObjectOrDefault(new FantaniaArray<Vector2Int>()),
             FieldTypes.Vector3Array => val.GetObjectOrDefault(new FantaniaArray<Vector3>()),
             FieldTypes.ColorArray => val.GetObjectOrDefault(new FantaniaArray<Vector4>()),
+            FieldTypes.Direction3DArray => val.GetObjectOrDefault(new FantaniaArray<Vector3>()),
             FieldTypes.TextureArray => val.GetObjectOrDefault(new FantaniaArray<TextureDefinition>()),
             FieldTypes.GroupReferenceArray => val.GetObjectOrDefault(new FantaniaArray<GroupReference>()),
             FieldTypes.TypeReferenceArray => val.GetObjectOrDefault(new FantaniaArray<TypeReference>()),
@@ -45,6 +47,7 @@ public static class ConversionHelper
         if (type == typeof(Vector2Int)) return FieldTypes.Vector2Int;
         if (type == typeof(Vector3)) return FieldTypes.Vector3;
         if (type == typeof(Vector4)) return FieldTypes.Color;
+        if (type == typeof(Direction3D)) return FieldTypes.Direction3D;
         if (type == typeof(TextureDefinition)) return FieldTypes.Texture;
         if (type == typeof(GroupReference)) return FieldTypes.GroupReference;
         if (type == typeof(TypeReference)) return FieldTypes.TypeReference;
@@ -56,6 +59,7 @@ public static class ConversionHelper
         if (type == typeof(FantaniaArray<Vector2Int>)) return FieldTypes.Vector2IntArray;
         if (type == typeof(FantaniaArray<Vector3>)) return FieldTypes.Vector3Array;
         if (type == typeof(FantaniaArray<Vector4>)) return FieldTypes.ColorArray;
+        if (type == typeof(FantaniaArray<Direction3D>)) return FieldTypes.Direction3DArray;
         if (type == typeof(FantaniaArray<TextureDefinition>)) return FieldTypes.TextureArray;
         if (type == typeof(FantaniaArray<GroupReference>)) return FieldTypes.GroupReferenceArray;
         if (type == typeof(FantaniaArray<TypeReference>)) return FieldTypes.TypeReferenceArray;

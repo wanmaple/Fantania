@@ -32,9 +32,9 @@ public class CommandBuffer : IEnumerable<IRenderCommand>
         AddCommand(new SetupStateCommand(state));
     }
 
-    public void Draw(IEnumerable<Mesh> meshes, RenderMaterial material)
+    public void Draw(IEnumerable<Mesh> meshes, RenderMaterial material, UniformSet globals)
     {
-        AddCommand(new DrawCommand(meshes, material));
+        AddCommand(new DrawCommand(meshes, material, globals));
     }
 
     [MoonSharpHidden]

@@ -36,7 +36,7 @@ public class OpaquePipelineStage : IPipelineStage
         }
         foreach (var pair in groupDict)
         {
-            context.CommandBuffer.Draw(pair.Value.Item1, pair.Value.Item2);
+            context.CommandBuffer.Draw(pair.Value.Item1, pair.Value.Item2, context.WorkerGlobalUniforms);
         }
     }
 

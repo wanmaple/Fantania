@@ -95,6 +95,16 @@ public static class MathHelper
         return new Vector4(CubicLerp(a.X, b.X, c.X, d.X, t), CubicLerp(a.Y, b.Y, c.Y, d.Y, t), CubicLerp(a.Z, b.Z, c.Z, d.Z, t), CubicLerp(a.W, b.W, c.W, d.W, t));
     }
 
+    public static float Degree2Radian(float angle)
+    {
+        return angle * MathF.PI / 180.0f;
+    }
+
+    public static float Radian2Degree(float angle)
+    {
+        return angle * 180.0f / MathF.PI;
+    }
+
     public static float Hermite(float t)
     {
         return t * t * (3.0f - 2.0f * t);

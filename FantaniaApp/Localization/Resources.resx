@@ -397,4 +397,12 @@
     <value>在当前工作区未找到导出相关配置，无法导出。</value>
     <comment/>
   </data>
+  <data name="TT_ExportSettings_ExportFolder" xml:space="preserve">
+    <value>你的游戏工程目录</value>
+    <comment/>
+  </data>
+  <data name="G_Transform" xml:space="preserve">
+    <value>变换</value>
+    <comment/>
+  </data>
 </root>

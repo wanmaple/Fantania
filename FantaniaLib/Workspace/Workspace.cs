@@ -57,7 +57,7 @@ public abstract class Workspace : SyncableObject, IWorkspace
     protected Workspace(string rootFolder)
     {
         if (!Directory.Exists(rootFolder))
-            throw new WorkspaceException("Invalid workspace folder");
+            throw new WorkspaceException($"Invalid workspace folder {rootFolder}");
         RootFolder = rootFolder.ToStandardPath();
         _lvModule = new LevelModule(this);
         _dbModule = new DatabaseModule(this);

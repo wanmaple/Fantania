@@ -3,7 +3,7 @@ namespace FantaniaLib;
 public class ExportSettings : ScriptObject
 {
     private string _exportFolder = string.Empty;
-    [SerializableField(FieldTypes.String), EditableField(EditControlType = typeof(FolderBox), EditParameter = "title:H_ExportTo")]
+    [SerializableField(FieldTypes.String), EditableField(EditControlType = typeof(FolderBox), TooltipKey = "TT_ExportSettings_ExportFolder", EditParameter = "title:H_ExportTo")]
     public string ExportFolder
     {
         get { return _exportFolder; }

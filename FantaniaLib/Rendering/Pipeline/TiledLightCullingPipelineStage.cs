@@ -168,16 +168,16 @@ public class TiledLightCullingPipelineStage : IPipelineStage
         cullingData.LightTextureIndices = lightTextureIndices.ToArray();
         cullingData.LightTextures = uniqueLightTextures.ToArray();
         cullingData.LightTextureSlots = uniqueLightTextureSlots.ToArray();
-        context.GlobalUniforms.SetUniform("u_TileGridInfo", new Vector4(tileSize.X, tilesX, tilesY, lightPosRadius.Count));
-        context.GlobalUniforms.SetUniform("u_TileOffsets", cullingData.TileOffsets);
-        context.GlobalUniforms.SetUniform("u_TileCounts", cullingData.TileCounts);
-        context.GlobalUniforms.SetUniform("u_TileLightIndices", cullingData.TileLightIndices);
-        context.GlobalUniforms.SetUniform("u_LightPosRadius", cullingData.LightPosRadius);
-        context.GlobalUniforms.SetUniform("u_LightColors", cullingData.LightColors);
-        context.GlobalUniforms.SetUniform("u_LightArgs", cullingData.LightArgs);
-        context.GlobalUniforms.SetUniform("u_LightLayers", cullingData.LightLayers);
-        context.GlobalUniforms.SetUniform("u_LightTextureIndices", cullingData.LightTextureIndices);
-        context.GlobalUniforms.SetUniform("u_LightTextures", cullingData.LightTextures, cullingData.LightTextureSlots);
+        context.WorkerGlobalUniforms.SetUniform("u_TileGridInfo", new Vector4(tileSize.X, tilesX, tilesY, lightPosRadius.Count));
+        context.WorkerGlobalUniforms.SetUniform("u_TileOffsets", cullingData.TileOffsets);
+        context.WorkerGlobalUniforms.SetUniform("u_TileCounts", cullingData.TileCounts);
+        context.WorkerGlobalUniforms.SetUniform("u_TileLightIndices", cullingData.TileLightIndices);
+        context.WorkerGlobalUniforms.SetUniform("u_LightPosRadius", cullingData.LightPosRadius);
+        context.WorkerGlobalUniforms.SetUniform("u_LightColors", cullingData.LightColors);
+        context.WorkerGlobalUniforms.SetUniform("u_LightArgs", cullingData.LightArgs);
+        context.WorkerGlobalUniforms.SetUniform("u_LightLayers", cullingData.LightLayers);
+        context.WorkerGlobalUniforms.SetUniform("u_LightTextureIndices", cullingData.LightTextureIndices);
+        context.WorkerGlobalUniforms.SetUniform("u_LightTextures", cullingData.LightTextures, cullingData.LightTextureSlots);
     }
 
     List<Vector4> _lightPosRadius = new List<Vector4>(64);

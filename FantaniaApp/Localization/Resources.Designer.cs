@@ -265,6 +265,15 @@ namespace Fantania.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 变换.
+        /// </summary>
+        public static string G_Transform {
+            get {
+                return ResourceManager.GetString("G_Transform", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 创建关卡.
         /// </summary>
         public static string H_CreateLevel {
@@ -495,6 +504,15 @@ namespace Fantania.Localization {
         public static string TT_CutEntities {
             get {
                 return ResourceManager.GetString("TT_CutEntities", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 你的游戏工程目录.
+        /// </summary>
+        public static string TT_ExportSettings_ExportFolder {
+            get {
+                return ResourceManager.GetString("TT_ExportSettings_ExportFolder", resourceCulture);
             }
         }
         

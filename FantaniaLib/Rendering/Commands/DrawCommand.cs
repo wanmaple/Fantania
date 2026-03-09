@@ -4,11 +4,13 @@ public class DrawCommand : IRenderCommand
 {
     public IEnumerable<Mesh> Meshes { get; private set; }
     public RenderMaterial Material { get; private set; }
+    public UniformSet Globals { get; private set; }
 
-    public DrawCommand(IEnumerable<Mesh> meshes, RenderMaterial material)
+    public DrawCommand(IEnumerable<Mesh> meshes, RenderMaterial material, UniformSet globals)
     {
         Meshes = meshes;
         Material = material;
+        Globals = globals;
     }
 
     public void Execute(ConfigurableRenderPipeline pipeline)
@@ -20,7 +22,7 @@ public class DrawCommand : IRenderCommand
             if (!stream.TryAppend(mesh))
             {
                 pipeline.Device.SyncVertexStream(stream);
-                pipeline.Device.Draw(stream, Material.Shader, Material.Uniforms, pipeline.GlobalUniforms);
+                pipeline.Device.Draw(stream, Material.Shader, Material.Uniforms, Globals);
                 ++pipeline.Statistics.DrawCalls;
                 pipeline.Statistics.Triangles += stream.IndiceCount / 3;
                 stream.Reset();
@@ -30,7 +32,7 @@ public class DrawCommand : IRenderCommand
         if (stream.IndiceCount > 0)
         {
             pipeline.Device.SyncVertexStream(stream);
-            pipeline.Device.Draw(stream, Material.Shader, Material.Uniforms, pipeline.GlobalUniforms);
+            pipeline.Device.Draw(stream, Material.Shader, Material.Uniforms, Globals);
             ++pipeline.Statistics.DrawCalls;
             pipeline.Statistics.Triangles += stream.IndiceCount / 3;
         }

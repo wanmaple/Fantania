@@ -8,6 +8,7 @@ public interface IRenderContext
     MaterialSet MaterialSet { get; }
     VertexStreamCache VertexStreamCache { get; }
     UniformSet GlobalUniforms { get; }
+    UniformSet WorkerGlobalUniforms { get; }
     int LightCullingTileSize { get; }
     TiledLightCullingData TiledLightCullingData { get; }
 

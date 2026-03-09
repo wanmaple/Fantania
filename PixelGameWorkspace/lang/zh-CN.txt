@@ -36,3 +36,8 @@ ST_PointLight_Intensity=光照强度
 SN_PlayerSpawn=玩家出生点
 ST_PlayerSpawn=玩家的出生点，一般在切地图点的附近放置。
 ST_PlayerSpawn_IsGameStart=是否是游戏刚开始时的出生点，如果配置有多个这类节点，游戏中只会取到第一个。
+
+# Export Settings
+ST_ExportSettings_DefaultLevelName=游戏刚开始时加载的关卡名称
+ST_ExportSettings_GlobalUniforms=需要导出的全局Uniforms，必须在pipeline_hook中设置且类型必须是Float4。
+ST_ExportSettings_ExceptLevels=不参与导出的关卡列表(输入名称即可)

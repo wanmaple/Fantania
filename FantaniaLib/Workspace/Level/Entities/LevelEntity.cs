@@ -1,4 +1,3 @@
-using System.Collections.ObjectModel;
 using System.Numerics;
 
 namespace FantaniaLib;
@@ -40,7 +39,7 @@ public abstract class LevelEntity : BinaryObject
     }
 
     private float _rotation = 0.0f;
-    [SerializableField(FieldTypes.Float), EditableField(EditGroup = "G_Transform", TooltipKey = "TT_Rotation")]
+    [SerializableField(FieldTypes.Float), EditableField(EditGroup = "G_Transform", EditControlType = typeof(AngleBox), TooltipKey = "TT_Rotation")]
     public float Rotation
     {
         get { return _rotation; }

@@ -80,26 +80,24 @@ public class LevelModule : WorkspaceModule
 
     public async Task DeleteLevel(string lvName)
     {
-        await Task.Run(() =>
+        var desc = _lvDescs.FirstOrDefault(lv => lv.Name == lvName);
+        if (desc != null)
         {
-            var desc = _lvDescs.FirstOrDefault(lv => lv.Name == lvName);
-            if (desc != null)
+            string path = GetLevelFilePath(desc.Name);
+            File.Delete(path);
+            string metaPath = GetLevelMetaPath(desc.Name);
+            if (File.Exists(metaPath))
             {
-                string path = GetLevelFilePath(desc.Name);
-                File.Delete(path);
-                string metaPath = GetLevelMetaPath(desc.Name);
-                if (File.Exists(metaPath))
-                {
-                    File.Delete(metaPath);
-                }
-                _lvDescs.Remove(desc);
-                if (_curLv != null && _curLv.Name == desc.Name)
-                {
-                    _syncer = null;
-                    SetCurrentLevel(null!);
-                }
+                File.Delete(metaPath);
             }
-        });
+            _lvDescs.Remove(desc);
+            if (_curLv != null && _curLv.Name == desc.Name)
+            {
+                _syncer = null;
+                SetCurrentLevel(null!);
+            }
+        }
+        await Task.CompletedTask;
     }
 
     public void DeleteAllLevels()

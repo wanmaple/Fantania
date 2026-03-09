@@ -10,15 +10,15 @@ local PipelineHook = {
         --     type = PipelineHookUniformTypes.FrameBufferColorAttachment0,
         --     value = "JFA2",
         -- },
-        {
-            name = "u_SDFResolution",
-            type = PipelineHookUniformTypes.Float4,
-            value = { x = 320.0, y = 180.0, z = 1.0 / 320.0, w = 1.0 / 180.0, },
-        },
+        -- {
+        --     name = "u_SDFResolution",
+        --     type = PipelineHookUniformTypes.Float4,
+        --     value = { x = 320.0, y = 180.0, z = 1.0 / 320.0, w = 1.0 / 180.0, },
+        -- },
         {
             name = "u_LightLayerDepth",
             type = PipelineHookUniformTypes.Float4,
-            value = { x = 0.0, y = 80.0, z = 160.0, w = 300.0, },
+            value = { x = 0.0, y = 80.0, z = 160.0, w = 240.0, },
             export = true,
         },
         -- {

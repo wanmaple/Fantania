@@ -39,7 +39,7 @@ public class LightOccluderSDFStage : IPipelineStage
         }
         foreach (var pair in groupDict)
         {
-            context.CommandBuffer.Draw(pair.Value.Item1, pair.Value.Item2);
+            context.CommandBuffer.Draw(pair.Value.Item1, pair.Value.Item2, context.WorkerGlobalUniforms);
         }
         // // 生成SDF的流程：首先从LightOccluderMask生成一个初始的JFA纹理（Seed），然后进行多次Jump Flood迭代，最后根据JFA结果和LightOccluderMask生成最终的SDF。
         // FrameBuffer fbMask = context.GetFrameBuffer(ConfigurableRenderPipeline.LIGHT_OCCLUDER_MASK_BUFFER)!;
@@ -74,8 +74,8 @@ public class LightOccluderSDFStage : IPipelineStage
         // _matBuildSDF.MutableUniforms.SetUniform("u_MaxDistancePixels", maxDistancePixels);
         // context.CommandBuffer.SetRenderTarget(finalBufferName);
         // context.CommandBuffer.Draw([_meshFullScreen], _matBuildSDF);
-        // int slot = context.GlobalUniforms["u_LightOccluderSDF"].Get<UniformSet.TextureInformation>().TextureSlot;
-        // context.GlobalUniforms.SetUniform("u_LightOccluderSDF", TextureDefinition.CreateGpuDefinition(fbFinal.ColorAttachment), slot);
+        // int slot = context.WorkerGlobalUniforms["u_LightOccluderSDF"].Get<UniformSet.TextureInformation>().TextureSlot;
+        // context.WorkerGlobalUniforms.SetUniform("u_LightOccluderSDF", TextureDefinition.CreateGpuDefinition(fbFinal.ColorAttachment), slot);
     }
 
     public void Setup(IRenderContext context)

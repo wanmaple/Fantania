@@ -36,6 +36,7 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
 
     public IRenderDevice Device => _device;
     public UniformSet GlobalUniforms => _globalUniforms;
+    public UniformSet WorkerGlobalUniforms => _workerUniforms;
     public ShaderCache ShaderCache => _cacheShaders;
     public TextureManager TextureManager => _mgrTextures;
     public MaterialSet MaterialSet => _materials;
@@ -147,15 +148,15 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
                                 FrameBuffer? fb = GetFrameBuffer(fbName);
                                 if (fb == null)
                                 {
-                                    workspace.LogWarning($"Pipeline Hook Warning: FrameBuffer '{fbName}' not found for uniform '{uniformName}'.");
+                                    _ = workspace.LogWarningAsync($"Pipeline Hook Warning: FrameBuffer '{fbName}' not found for uniform '{uniformName}'.");
                                     continue;
                                 }
                                 if (index >= fb.ColorAttachments.Count)
                                 {
-                                    workspace.LogWarning($"Pipeline Hook Warning: FrameBuffer '{fbName}' does not have color attachment at index {index} for uniform '{uniformName}'.");
+                                    _ = workspace.LogWarningAsync($"Pipeline Hook Warning: FrameBuffer '{fbName}' does not have color attachment at index {index} for uniform '{uniformName}'.");
                                     continue;
                                 }
-                                GlobalUniforms.SetUniform(uniformName, TextureDefinition.CreateGpuDefinition(fb.ColorAttachmentAt(index)), ++_frameData.MaxTextureSlot);
+                                WorkerGlobalUniforms.SetUniform(uniformName, TextureDefinition.CreateGpuDefinition(fb.ColorAttachmentAt(index)), ++_frameData.MaxTextureSlot);
                             }
                             else if (uniform.Type == PipelineHookUniformTypes.FrameBufferDepthAttachment)
                             {
@@ -163,49 +164,49 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
                                 FrameBuffer? fb = GetFrameBuffer(fbName);
                                 if (fb == null)
                                 {
-                                    workspace.LogWarning($"Pipeline Hook Warning: FrameBuffer '{fbName}' not found for uniform '{uniformName}'.");
+                                    _ = workspace.LogWarningAsync($"Pipeline Hook Warning: FrameBuffer '{fbName}' not found for uniform '{uniformName}'.");
                                     continue;
                                 }
                                 if (fb.Description.DepthFormat == DepthFormats.None)
                                 {
-                                    workspace.LogWarning($"Pipeline Hook Warning: FrameBuffer '{fbName}' does not have a depth attachment for uniform '{uniformName}'.");
+                                    _ = workspace.LogWarningAsync($"Pipeline Hook Warning: FrameBuffer '{fbName}' does not have a depth attachment for uniform '{uniformName}'.");
                                     continue;
                                 }
-                                GlobalUniforms.SetUniform(uniformName, TextureDefinition.CreateGpuDefinition(fb.DepthAttachment), ++_frameData.MaxTextureSlot);
+                                WorkerGlobalUniforms.SetUniform(uniformName, TextureDefinition.CreateGpuDefinition(fb.DepthAttachment), ++_frameData.MaxTextureSlot);
                             }
                             else
                             {
                                 switch (uniform.Type)
                                 {
                                     case PipelineHookUniformTypes.Int1:
-                                        GlobalUniforms.SetUniform(uniformName, (int)uniform.Value);
+                                        WorkerGlobalUniforms.SetUniform(uniformName, (int)uniform.Value);
                                         break;
                                     case PipelineHookUniformTypes.Float1:
-                                        GlobalUniforms.SetUniform(uniformName, (float)uniform.Value);
+                                        WorkerGlobalUniforms.SetUniform(uniformName, (float)uniform.Value);
                                         break;
                                     case PipelineHookUniformTypes.Float2:
-                                        GlobalUniforms.SetUniform(uniformName, (Vector2)uniform.Value);
+                                        WorkerGlobalUniforms.SetUniform(uniformName, (Vector2)uniform.Value);
                                         break;
                                     case PipelineHookUniformTypes.Float3:
-                                        GlobalUniforms.SetUniform(uniformName, (Vector3)uniform.Value);
+                                        WorkerGlobalUniforms.SetUniform(uniformName, (Vector3)uniform.Value);
                                         break;
                                     case PipelineHookUniformTypes.Float4:
-                                        GlobalUniforms.SetUniform(uniformName, (Vector4)uniform.Value);
+                                        WorkerGlobalUniforms.SetUniform(uniformName, (Vector4)uniform.Value);
                                         break;
                                     case PipelineHookUniformTypes.Int1Array:
-                                        GlobalUniforms.SetUniform(uniformName, ((IReadOnlyList<int>)uniform.Value).ToArray());
+                                        WorkerGlobalUniforms.SetUniform(uniformName, ((IReadOnlyList<int>)uniform.Value).ToArray());
                                         break;
                                     case PipelineHookUniformTypes.Float1Array:
-                                        GlobalUniforms.SetUniform(uniformName, ((IReadOnlyList<float>)uniform.Value).ToArray());
+                                        WorkerGlobalUniforms.SetUniform(uniformName, ((IReadOnlyList<float>)uniform.Value).ToArray());
                                         break;
                                     case PipelineHookUniformTypes.Float2Array:
-                                        GlobalUniforms.SetUniform(uniformName, ((IReadOnlyList<Vector2>)uniform.Value).ToArray());
+                                        WorkerGlobalUniforms.SetUniform(uniformName, ((IReadOnlyList<Vector2>)uniform.Value).ToArray());
                                         break;
                                     case PipelineHookUniformTypes.Float3Array:
-                                        GlobalUniforms.SetUniform(uniformName, ((IReadOnlyList<Vector3>)uniform.Value).ToArray());
+                                        WorkerGlobalUniforms.SetUniform(uniformName, ((IReadOnlyList<Vector3>)uniform.Value).ToArray());
                                         break;
                                     case PipelineHookUniformTypes.Float4Array:
-                                        GlobalUniforms.SetUniform(uniformName, ((IReadOnlyList<Vector4>)uniform.Value).ToArray());
+                                        WorkerGlobalUniforms.SetUniform(uniformName, ((IReadOnlyList<Vector4>)uniform.Value).ToArray());
                                         break;
                                 }
                             }
@@ -241,8 +242,6 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
                     _evTaskComplete.Set();
                 }
             }
-            _evTaskStart?.Dispose();
-            _evTaskComplete?.Dispose();
         })
         {
             Name = "Pipeline Worker Thread",
@@ -293,6 +292,7 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
             }
             _frameData.MaxTextureSlot = maxTextureSlot;
             _camData = camData;
+            _workerUniforms = GlobalUniforms.Clone();
             _evTaskStart!.Set();
         }
     }
@@ -316,20 +316,23 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
 
     public void Dispose()
     {
+        _ctsWorker?.Cancel();
+        _evTaskStart?.Set();
+        _worker?.Join(1000);
+        _evTaskStart?.Dispose();
+        _evTaskComplete?.Dispose();
         _cacheShaders.Dispose();
         _mgrTextures.Dispose();
         foreach (var fb in _fbs.Values)
         {
             fb.Dispose(_device);
         }
-        _ctsWorker?.Cancel();
-        _evTaskStart?.Set();
-        _worker?.Join(1000);
     }
 
     IRenderDevice _device;
     Dictionary<string, FrameBuffer> _fbs = new Dictionary<string, FrameBuffer>(8);
     UniformSet _globalUniforms = new UniformSet();
+    UniformSet _workerUniforms = new UniformSet();
 
     List<IPipelineStage> _stageList = new List<IPipelineStage>(8);
     Dictionary<string, IPipelineStage> _stageMap = new Dictionary<string, IPipelineStage>(8);
