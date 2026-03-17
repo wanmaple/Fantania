@@ -154,6 +154,15 @@ public class LevelEntityNode : SyncableObject, ISelectableItem
         Scale = snapshot.Scale;
     }
 
+    public void OnExport(BinaryWriter writer)
+    {
+        writer.Write(Position.X);
+        writer.Write(Position.Y);
+        writer.Write(MathHelper.RoundToInt(MathHelper.Radian2Degree(Rotation)));
+        writer.Write(Scale.X);
+        writer.Write(Scale.Y);
+    }
+
     IMultiNodeContainer _container;
     Vector2 _startWorldPos;
     Vector2 _startScale;

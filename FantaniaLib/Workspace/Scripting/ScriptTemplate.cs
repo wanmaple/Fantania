@@ -142,7 +142,7 @@ public class ScriptTemplate
         return extra.EditValidatorType;
     }
 
-    protected DynValue GetOrCallMember(string memberName, params object[] args)
+    public DynValue GetOrCallMember(string memberName, params object[] args)
     {
         DynValue member = _engine.GetInstanceMember(_obj, memberName);
         if (member.Type == DataType.Function)

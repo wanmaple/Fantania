@@ -5,9 +5,6 @@ PointLight.group = "SG_Lights"
 PointLight.name = "SN_PointLight"
 PointLight.tooltip = "ST_PointLight"
 PointLight.dataDefs = {
-    icon = {
-        type = FieldTypes.Texture,
-    },
     texture = {
         type = FieldTypes.Texture,
     },
@@ -29,10 +26,6 @@ PointLight.dataDefs = {
     },
 }
 PointLight.editDefs = {
-    icon = {
-        group = "SG_Appearance",
-        tooltip = "ST_PointLight_Icon",
-    },
     texture = {
         group = "SG_Appearance",
         tooltip = "ST_PointLight_Texture",
@@ -67,6 +60,7 @@ end
 
 function PointLight:nodeAt(info, index, nodeCount)
     local ret = {}
+    local indicator = Helper.localTexture("textures/indicators/light_bulb.png")
     table.insert(ret, {
         stage = BuiltinStages.Transparent,
         anchor = { x = 0.5, y = 0.5, },
@@ -75,12 +69,12 @@ function PointLight:nodeAt(info, index, nodeCount)
         uniforms = {
             u_Texture = {
                 type = UniformTypes.Texture,
-                value = info.icon,
+                value = indicator,
             },
         },
         sizer = {
             type = SizerTypes.Texture,
-            texture = info.icon,
+            texture = indicator,
         },
     })
     table.insert(ret, {

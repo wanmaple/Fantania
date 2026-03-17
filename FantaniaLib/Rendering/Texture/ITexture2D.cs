@@ -18,5 +18,5 @@ public interface ITexture2D
     Recti TextureRect { get; }
     bool IsValid { get; }
 
-    bool TryDecode(out TextureDescription desc, out byte[]? data);
+    bool TryDecode(TextureFilters filter, out TextureDescription desc, out byte[]? data);
 }

@@ -24,7 +24,7 @@
       </lib:ObjectEditView>
     </ScrollViewer>
     <StackPanel Grid.Row="1" Orientation="Horizontal" FlowDirection="RightToLeft" Margin="5">
-      <Button Content="{x:Static lang:Resources.BT_Export}" />
+      <Button Content="{x:Static lang:Resources.BT_Export}" Command="{Binding ExportCommand}" />
     </StackPanel>
   </Grid>
 </Window>

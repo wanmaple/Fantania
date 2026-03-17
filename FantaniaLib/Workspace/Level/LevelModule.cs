@@ -138,6 +138,13 @@ public class LevelModule : WorkspaceModule
         }
     }
 
+    public Level GetLevel(string lvName)
+    {
+        string lvPath = GetLevelFilePath(lvName);
+        var lv = Level.OpenExist(lvPath);
+        return lv;
+    }
+
     void LoadExistingLevels()
     {
         string lvFolder = _workspace.GetAbsolutePath(Workspace.LEVELS_FOLDER);
@@ -384,12 +391,12 @@ public class LevelModule : WorkspaceModule
         }
     }
 
-    string GetLevelFilePath(string lvName)
+    public string GetLevelFilePath(string lvName)
     {
         return _workspace.GetAbsolutePath(Workspace.LEVELS_FOLDER, lvName + LEVEL_EXTENSION);
     }
 
-    string GetLevelMetaPath(string lvName)
+    public string GetLevelMetaPath(string lvName)
     {
         return _workspace.GetAbsolutePath(Workspace.LEVELS_FOLDER, lvName + LEVEL_META_EXTENSION);
     }

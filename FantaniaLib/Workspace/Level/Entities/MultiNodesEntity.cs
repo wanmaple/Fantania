@@ -224,6 +224,16 @@ public class MultiNodesEntity : LevelEntity, IMultiNodeContainer
         RaiseRenderingDirty();
     }
 
+    public override void OnExport(BinaryWriter writer)
+    {
+        base.OnExport(writer);
+        writer.Write(MutableNodes.Count);
+        foreach (var node in MutableNodes)
+        {
+            node.OnExport(writer);
+        }
+    }
+
     List<LevelEntityNode> _toRm = new List<LevelEntityNode>(8);
     int _nextNodeId = 0;
 }

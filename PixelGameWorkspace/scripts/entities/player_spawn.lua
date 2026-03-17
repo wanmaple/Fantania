@@ -29,7 +29,7 @@ end
 
 function PlayerSpawn:nodeAt(info, index, nodeCount)
     local ret = {}
-    local texPlayer = Helper.localTexture("textures/scene/characters/fox_test.png")
+    local texPlayer = Helper.localTexture("textures/indicators/fox_test.png")
     table.insert(ret, {
         stage = BuiltinStages.Transparent,
         anchor = { x = 0.5, y = 1.0, },

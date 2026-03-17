@@ -18,8 +18,8 @@ public class LightOccluderSDFStage : IPipelineStage
 
     public void Render(IRenderContext context, IEnumerable<IRenderable> renderables, Camera2DFrameData camData)
     {
-        if (_meshFullScreen == null || _matSeed == null || _matBuildSDF == null || _fbJFA == null)
-            return;
+        // if (_meshFullScreen == null || _matSeed == null || _matBuildSDF == null || _fbJFA == null)
+        //     return;
         context.CommandBuffer.SetRenderTarget(ConfigurableRenderPipeline.LIGHT_OCCLUDER_MASK_BUFFER);
         // LightOccluderMask 使用RGBA四层遮挡掩码，通道非零表示该层有遮挡。
         context.CommandBuffer.ClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -80,27 +80,30 @@ public class LightOccluderSDFStage : IPipelineStage
 
     public void Setup(IRenderContext context)
     {
-        if (_meshFullScreen == null)
-        {
-            _meshFullScreen = MeshBuilder.CreateScreenQuad();
-        }
-        if (_matSeed == null)
-        {
-            _matSeed = context.MaterialSet.GetTemporaryMaterial("#FantaniaSDFSeed");
-        }
-        if (_matBuildSDF == null)
-        {
-            _matBuildSDF = context.MaterialSet.GetTemporaryMaterial("#FantaniaSDFBuild");
-        }
-        FrameBuffer fbJFA1 = context.GetFrameBuffer(ConfigurableRenderPipeline.JFA1_BUFFER)!;
-        FrameBuffer fbJFA2 = context.GetFrameBuffer(ConfigurableRenderPipeline.JFA2_BUFFER)!;
-        _fbJFA = new FrameBufferPingPong(ConfigurableRenderPipeline.JFA1_BUFFER, fbJFA1, ConfigurableRenderPipeline.JFA2_BUFFER, fbJFA2);
+        // if (_meshFullScreen == null)
+        // {
+        //     _meshFullScreen = MeshBuilder.CreateScreenQuad();
+        // }
+        // if (_matSeed == null)
+        // {
+        //     _matSeed = context.MaterialSet.GetTemporaryMaterial("#FantaniaSDFSeed");
+        // }
+        // if (_matBuildSDF == null)
+        // {
+        //     _matBuildSDF = context.MaterialSet.GetTemporaryMaterial("#FantaniaSDFBuild");
+        // }
+        // if (_fbJFA == null)
+        // {
+        //     FrameBuffer fbJFA1 = context.GetFrameBuffer(ConfigurableRenderPipeline.JFA1_BUFFER)!;
+        //     FrameBuffer fbJFA2 = context.GetFrameBuffer(ConfigurableRenderPipeline.JFA2_BUFFER)!;
+        //     _fbJFA = new FrameBufferPingPong(ConfigurableRenderPipeline.JFA1_BUFFER, fbJFA1, ConfigurableRenderPipeline.JFA2_BUFFER, fbJFA2);
+        // }
     }
 
-    Mesh? _meshFullScreen;
-    RenderMaterial? _matSeed;
-    RenderMaterial? _matBuildSDF;
-    FrameBufferPingPong? _fbJFA;
+    // Mesh? _meshFullScreen;
+    // RenderMaterial? _matSeed;
+    // RenderMaterial? _matBuildSDF;
+    // FrameBufferPingPong? _fbJFA;
 
     readonly RenderState _state = new RenderState
     {

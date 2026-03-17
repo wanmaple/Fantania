@@ -346,6 +346,15 @@ namespace Fantania.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 源码目录.
+        /// </summary>
+        public static string H_SelectSourceCodeFolder {
+            get {
+                return ResourceManager.GetString("H_SelectSourceCodeFolder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 编辑.
         /// </summary>
         public static string MI_Edit {
@@ -513,6 +522,15 @@ namespace Fantania.Localization {
         public static string TT_ExportSettings_ExportFolder {
             get {
                 return ResourceManager.GetString("TT_ExportSettings_ExportFolder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 你的游戏源码目录.
+        /// </summary>
+        public static string TT_ExportSettings_SourceCodeFolder {
+            get {
+                return ResourceManager.GetString("TT_ExportSettings_SourceCodeFolder", resourceCulture);
             }
         }
         

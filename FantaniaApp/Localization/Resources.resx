@@ -405,4 +405,12 @@
     <value>变换</value>
     <comment/>
   </data>
+  <data name="TT_ExportSettings_SourceCodeFolder" xml:space="preserve">
+    <value>你的游戏源码目录</value>
+    <comment/>
+  </data>
+  <data name="H_SelectSourceCodeFolder" xml:space="preserve">
+    <value>源码目录</value>
+    <comment/>
+  </data>
 </root>

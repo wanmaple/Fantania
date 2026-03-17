@@ -14,6 +14,23 @@ public static class CommonConversions
             return Type.GetType(typeStr);
         });
         // Field Types
+        Script.GlobalOptions.CustomConverters.SetClrToScriptCustomConversion<Direction3D>((env, v) =>
+        {
+            var ret = DynValue.NewTable(env);
+            ret.Table.Set("azimuth", DynValue.FromObject(env, v.Azimuth));
+            ret.Table.Set("elevation", DynValue.FromObject(env, v.Elevation));
+            return ret;
+        });
+        Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Table, typeof(Direction3D), v =>
+        {
+            float azimuth = v.Table.Get("azimuth").GetFloatOrDefault(0.0f);
+            float elevation = v.Table.Get("elevation").GetFloatOrDefault(0.0f);
+            return new Direction3D
+            {
+                Azimuth = azimuth,
+                Elevation = elevation,
+            };
+        });
         Script.GlobalOptions.CustomConverters.SetClrToScriptCustomConversion<TextureDefinition>((env, v) =>
         {
             int texType = (int)v.TextureType;

@@ -43,7 +43,7 @@ public class LocalTexture2D : ITexture2D
         }
     }
 
-    public bool TryDecode(out TextureDescription desc, out byte[]? data)
+    public bool TryDecode(TextureFilters filter, out TextureDescription desc, out byte[]? data)
     {
         desc = new TextureDescription();
         data = null;
@@ -64,10 +64,10 @@ public class LocalTexture2D : ITexture2D
                     desc.Height = Height;
                     desc.Format = Format;
                     desc.GenerateMipmap = false;
-                    desc.WrapS = TextureWraps.ClampToEdge;
-                    desc.WrapT = TextureWraps.ClampToEdge;
-                    desc.MinFilter = TextureMinFilters.Nearest;
-                    desc.MagFilter = TextureMagFilters.Nearest;
+                    desc.WrapS = filter.WrapS;
+                    desc.WrapT = filter.WrapT;
+                    desc.MinFilter = filter.MinFilter;
+                    desc.MagFilter = filter.MagFilter;
                     return true;
                 }
             }

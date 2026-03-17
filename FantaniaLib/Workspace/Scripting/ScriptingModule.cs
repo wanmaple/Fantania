@@ -107,6 +107,7 @@ public class ScriptingModule : WorkspaceModule
                 _renderPipelineCfg = new RenderPipelineConfig
                 {
                     Resolution = new Vector2Int(1920, 1080),
+                    DefaultTextureFilter = TextureFilters.LinearClamp,
                     LightCullingTileSize = 32,
                     FrameBuffers = [
                         new FrameBufferConfig

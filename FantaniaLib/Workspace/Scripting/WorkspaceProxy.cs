@@ -1,3 +1,4 @@
+using System.Text.Json;
 using MoonSharp.Interpreter;
 
 namespace FantaniaLib;
@@ -6,6 +7,7 @@ namespace FantaniaLib;
 public class WorkspaceProxy
 {
     public string RootFolder => _workspace.RootFolder;
+    public IReadOnlyList<string> AllLevelNames => _workspace.LevelModule.LevelDescriptions.Select(desc => desc.Name).ToList();
 
     internal IWorkspace RealWorkspace => _workspace;
 
@@ -42,6 +44,79 @@ public class WorkspaceProxy
     public void LogError(string content)
     {
         _workspace.LogError(content);
+    }
+
+    public void ThrowException(string content)
+    {
+        throw new Exception(content);
+    }
+
+    public IReadOnlyList<ExportProperty> GetExportMetadata(string lvName)
+    {
+        var level = _workspace.LevelModule.GetLevel(lvName);
+        string metaPath = _workspace.LevelModule.GetLevelMetaPath(lvName);
+        string metaContent = File.ReadAllText(metaPath);
+        var syncer = new JsonDataSyncer<LevelMetadata>(level.Metadata, SerializationRule.Default);
+        syncer.SyncFromJson(metaContent);
+        return GetExportProperties(level.Metadata);
+    }
+
+    public IReadOnlyList<ExportEntity> GetExportEntities(string lvName)
+    {
+        var level = _workspace.LevelModule.GetLevel(lvName);
+        var syncer = new BinaryDataSyncer<LevelEntity>(level.MutableEntities, SerializationRule.Default);
+        syncer.SyncFromFile(_workspace.LevelModule.GetLevelFilePath(lvName)).GetAwaiter().GetResult();
+        var ret = new List<ExportEntity>();
+        foreach (var entity in level.Entities)
+        {
+            string eType = entity.GetType().FullName!;
+            var placement = entity.GetReferencedPlacement(_workspace);
+            if (placement.ID < 0)
+                continue;
+            IReadOnlyList<ExportProperty> eProps = GetExportProperties(entity);
+            IReadOnlyList<ExportProperty> tProps = GetExportProperties(placement);
+            ret.Add(new ExportEntity
+            {
+                EntityType = eType,
+                EntityProperties = eProps,
+                TemplateProperties = tProps,
+            });
+        }
+        return ret;
+    }
+
+    IReadOnlyList<ExportProperty> GetExportProperties(ISerializableData data)
+    {
+        var fields = data.SerializableFields;
+        var ret = new List<ExportProperty>(fields.Count);
+        if (data is UserPlacement placement)
+        {
+            ret.Add(new ExportProperty
+            {
+                Name = "id",
+                Variant = new ExportVariant
+                {
+                    Type = FieldTypes.Integer,
+                    Value = placement.ID,
+                },
+            });
+        }
+        foreach (var field in fields)
+        {
+            string name = field.FieldName;
+            if (name == "Name" || name == "Tooltip") continue;
+            object? value = data.GetFieldValue(name);
+            ret.Add(new ExportProperty
+            {
+                Name = name,
+                Variant = new ExportVariant
+                {
+                    Type = field.FieldType,
+                    Value = value,
+                },
+            });
+        }
+        return ret;
     }
 
     IWorkspace _workspace;

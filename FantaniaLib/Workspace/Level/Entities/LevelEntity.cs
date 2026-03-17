@@ -242,6 +242,17 @@ public abstract class LevelEntity : BinaryObject
     {
     }
 
+    public virtual void OnExport(BinaryWriter writer)
+    {
+        writer.Write(Position.X);
+        writer.Write(Position.Y);
+        writer.Write(RealDepth);
+        writer.Write(MathHelper.RoundToInt(MathHelper.Radian2Degree(Rotation)));
+        writer.Write(Scale.X);
+        writer.Write(Scale.Y);
+        writer.Write(Order);
+    }
+
     public abstract Matrix3x3 TransformAt(int index);
     public abstract void GetLocalNodeAt(IWorkspace workspace, int index, out IReadOnlyList<LocalRenderInfo> locals);
     public abstract void OnAddSelectables(BoundingVolumeHierarchy<ISelectableItem> bvh, int index, Rectf bound);

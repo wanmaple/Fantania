@@ -88,20 +88,64 @@ public static class WorkspaceConversions
             ret.Table.Set("scale", DynValue.FromObject(env, v.Scale));
             return ret;
         });
+        Script.GlobalOptions.CustomConverters.SetClrToScriptCustomConversion<ExportSettings>((env, v) =>
+        {
+            var ret = DynValue.NewTable(env);
+            foreach (var field in v.SerializableFields)
+            {
+                ret.Table.Set(field.FieldName, DynValue.FromObject(env, v.GetFieldValue(field.FieldName)));
+            }
+            return ret;
+        });
+        Script.GlobalOptions.CustomConverters.SetClrToScriptCustomConversion<ExportVariant>((env, v) =>
+        {
+            var ret = DynValue.NewTable(env);
+            ret.Table.Set("type", DynValue.NewNumber((int)v.Type));
+            ret.Table.Set("value", ConversionHelper.FieldTypeToDynValue(env, v.Type, v.Value!));
+            return ret;
+        });
         Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Table, typeof(ExportVariant), v =>
         {
             FieldTypes type = v.Table.Get("type").GetEnumOrDefault(FieldTypes.String);
             object? value = ConversionHelper.FieldTypeToValue(type, v.Table.Get("value"));
-            int order = v.Table.Get("order").GetIntegerOrDefault(0);
-            string usage = v.Table.Get("usage").GetStringOrDefault(string.Empty);
-            string parameter = v.Table.Get("parameter").GetStringOrDefault(string.Empty);
             return new ExportVariant
             {
                 Type = type,
                 Value = value,
-                Order = order,
-                Usage = usage,
-                Parameter = parameter,
+            };
+        });
+        Script.GlobalOptions.CustomConverters.SetClrToScriptCustomConversion<ExportProperty>((env, v) =>
+        {
+            var ret = DynValue.NewTable(env);
+            ret.Table.Set("name", DynValue.NewString(v.Name));
+            ret.Table.Set("value", DynValue.FromObject(env, v.Variant));
+            return ret;
+        });
+        Script.GlobalOptions.CustomConverters.SetClrToScriptCustomConversion<ExportEntity>((env, v) =>
+        {
+            var ret = DynValue.NewTable(env);
+            ret.Table.Set("type", DynValue.NewString(v.EntityType));
+            var eProps = DynValue.FromObject(env, v.EntityProperties);
+            ret.Table.Set("entityProperties", eProps);
+            var tProps = DynValue.FromObject(env, v.TemplateProperties);
+            ret.Table.Set("templateProperties", tProps);
+            return ret;
+        });
+        Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Table, typeof(IDRemap), v =>
+        {
+            var name = v.Table.Get("name").String;
+            var remapTable = v.Table.Get("remap").Table;
+            var remap = new Dictionary<int, int>();
+            foreach (var pair in remapTable.Pairs)
+            {
+                int key = (int)pair.Key.Number;
+                int value = (int)pair.Value.Number;
+                remap.Add(key, value);
+            }
+            return new IDRemap
+            {
+                Name = name,
+                Remap = remap,
             };
         });
     }

@@ -3,6 +3,12 @@ local RenderPipelineSetup = {
 		x = 640,
 		y = 360,
 	},
+	defaultTextureFilter = {
+		minFilter = TextureMinFilters.Nearest,
+		magFilter = TextureMagFilters.Nearest,
+		wrapS = TextureWraps.ClampToEdge,
+		wrapT = TextureWraps.ClampToEdge,
+	},
 	lightCullingTileSize = 64,
 	frameBuffers = {
 		-- Color is required.

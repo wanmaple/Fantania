@@ -7,12 +7,12 @@ public class TextureManager : IDisposable
     public int Black4x4TextureID => _black4x4TextureId;
     public int Flat4x4TextureID => _flat4x4TextureId;
 
-    public unsafe TextureManager(IRenderDevice device)
+    public unsafe TextureManager(IRenderDevice device, TextureFilters filter)
     {
-        _cacheSingleImage = new LocalTextureCache(device);
-        _cacheAtlas = new LocalTextureCache(device);
+        _cacheSingleImage = new LocalTextureCache(device, filter);
+        _cacheAtlas = new LocalTextureCache(device, filter);
         var white4x4 = new LocalTexture2D("avares://Fantania/Assets/textures/white4x4.png");
-        if (white4x4.TryDecode(out var desc, out var data))
+        if (white4x4.TryDecode(filter, out var desc, out var data))
         {
             fixed (void* ptr = data)
             {
@@ -20,7 +20,7 @@ public class TextureManager : IDisposable
             }
         }
         var black4x4 = new LocalTexture2D("avares://Fantania/Assets/textures/black4x4.png");
-        if (black4x4.TryDecode(out desc, out data))
+        if (black4x4.TryDecode(filter, out desc, out data))
         {
             fixed (void* ptr = data)
             {
@@ -28,7 +28,7 @@ public class TextureManager : IDisposable
             }
         }
         var flat4x4 = new LocalTexture2D("avares://Fantania/Assets/textures/flat4x4.png");
-        if (flat4x4.TryDecode(out desc, out data))
+        if (flat4x4.TryDecode(filter, out desc, out data))
         {
             fixed (void* ptr = data)
             {

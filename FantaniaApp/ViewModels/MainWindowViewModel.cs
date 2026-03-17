@@ -119,7 +119,7 @@ public partial class MainWindowViewModel : ViewModelBase
         }
         if (!await CheckAndSaveWorkspaceChanges()) return;
         var vExport = new ExportView();
-        var vmExport = new ExportViewModel(Workspace!, settings);
+        var vmExport = new ExportViewModel(vExport, Workspace!, settings);
         vExport.DataContext = vmExport;
         await vExport.ShowDialog(AvaloniaHelper.GetTopWindow());
     }

@@ -89,9 +89,24 @@ public static class RenderingConversions
                 Description = desc,
             };
         });
+        Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Table, typeof(TextureFilters), v =>
+        {
+            TextureMinFilters minFilter = v.Table.Get("minFilter").GetEnumOrDefault(TextureMinFilters.Nearest);
+            TextureMagFilters magFilter = v.Table.Get("magFilter").GetEnumOrDefault(TextureMagFilters.Nearest);
+            TextureWraps wrapS = v.Table.Get("wrapS").GetEnumOrDefault(TextureWraps.ClampToEdge);
+            TextureWraps wrapT = v.Table.Get("wrapT").GetEnumOrDefault(TextureWraps.ClampToEdge);
+            return new TextureFilters
+            {
+                MinFilter = minFilter,
+                MagFilter = magFilter,
+                WrapS = wrapS,
+                WrapT = wrapT,
+            };
+        });
         Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Table, typeof(RenderPipelineConfig), v =>
         {
             Vector2Int resolution = v.Table.Get("resolution").GetObjectOrDefault(new Vector2Int(1920, 1080));
+            TextureFilters defaultTextureFilter = v.Table.Get("defaultTextureFilter").ToObject<TextureFilters>();
             int lightCullingTileSize = v.Table.Get("lightCullingTileSize").GetIntegerOrDefault(32);
             List<FrameBufferConfig> fbCfgs = v.Table.Get("frameBuffers").GetObjectOrDefault(new List<FrameBufferConfig>(0));
             List<IPipelineStage> stages = v.Table.Get("stages").GetObjectOrDefault(new List<IPipelineStage>(0));
@@ -99,6 +114,7 @@ public static class RenderingConversions
             return new RenderPipelineConfig
             {
                 Resolution = resolution,
+                DefaultTextureFilter = defaultTextureFilter,
                 LightCullingTileSize = lightCullingTileSize,
                 FrameBuffers = fbCfgs,
                 Stages = stages,

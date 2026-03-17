@@ -38,7 +38,7 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
     public UniformSet GlobalUniforms => _globalUniforms;
     public UniformSet WorkerGlobalUniforms => _workerUniforms;
     public ShaderCache ShaderCache => _cacheShaders;
-    public TextureManager TextureManager => _mgrTextures;
+    public TextureManager TextureManager => _mgrTextures!;
     public MaterialSet MaterialSet => _materials;
     public VertexStreamCache VertexStreamCache => _cacheVertStreams;
     public CommandBuffer CommandBuffer => WorkingBuffer;
@@ -56,7 +56,6 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
     {
         _device = device;
         _cacheShaders = new ShaderCache(device);
-        _mgrTextures = new TextureManager(device);
         _materials = new MaterialSet(_cacheShaders.Fallback);
         _cacheVertStreams = new VertexStreamCache(device);
     }
@@ -67,9 +66,15 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
         return fb;
     }
 
+    public void BuildSimple(TextureFilters defaultTextureFilter)
+    {
+        _mgrTextures = new TextureManager(_device, defaultTextureFilter);
+    }
+
     public void Build(RenderPipelineConfig config, IWorkspace workspace)
     {
         if (_built) return;
+        _mgrTextures = new TextureManager(_device, config.DefaultTextureFilter);
         foreach (var fbConfig in config.FrameBuffers)
         {
             AddFrameBuffer(fbConfig);
@@ -261,7 +266,12 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
 
     public void ReceiveRenderables(IEnumerable<IRenderable> renderables, Camera2DFrameData camData)
     {
-        if (_evTaskComplete!.WaitOne(-1))
+        if (_evTaskComplete == null || _evTaskStart == null)
+            return;
+        if (!_evTaskComplete.WaitOne(RECEIVE_WAIT_TIMEOUT_MS))
+        {
+            return;
+        }
         {
             _renderables.Clear();
             _renderables.AddRange(renderables);
@@ -293,7 +303,7 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
             _frameData.MaxTextureSlot = maxTextureSlot;
             _camData = camData;
             _workerUniforms = GlobalUniforms.Clone();
-            _evTaskStart!.Set();
+            _evTaskStart.Set();
         }
     }
 
@@ -305,7 +315,7 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
 
     public void Tick()
     {
-        _mgrTextures.Tick();
+        _mgrTextures?.Tick();
     }
 
     public void ResetStatistics()
@@ -322,7 +332,7 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
         _evTaskStart?.Dispose();
         _evTaskComplete?.Dispose();
         _cacheShaders.Dispose();
-        _mgrTextures.Dispose();
+        _mgrTextures?.Dispose();
         foreach (var fb in _fbs.Values)
         {
             fb.Dispose(_device);
@@ -339,7 +349,7 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
     bool _built = false;
 
     ShaderCache _cacheShaders;
-    TextureManager _mgrTextures;
+    TextureManager? _mgrTextures;
     MaterialSet _materials;
     VertexStreamCache _cacheVertStreams;
 
@@ -354,6 +364,8 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
     FrameData _frameData = new FrameData();
     Camera2DFrameData? _camData;
     TiledLightCullingData _tiledLightCullingData = new TiledLightCullingData();
+
+    const int RECEIVE_WAIT_TIMEOUT_MS = 50;
 
     readonly (string, string, string)[] BUILTIN_SHADER_SOURCES = new[]
     {

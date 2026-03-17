@@ -323,6 +323,14 @@ public class TiledEntity : LevelEntity, ISelectableItem, ISizeableEntity
         }
     }
 
+    public override void OnExport(BinaryWriter writer)
+    {
+        base.OnExport(writer);
+        writer.Write(Size.X);
+        writer.Write(Size.Y);
+        writer.Write(RandomSeed);
+    }
+
     int Hash(int x, int y, int seed)
     {
         unchecked

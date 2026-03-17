@@ -64,6 +64,7 @@ public class GLImagePreview : GLCanvas
     protected override void OnContextInitializing(ConfigurableRenderPipeline pipeline)
     {
         IRenderDevice device = pipeline.Device;
+        pipeline.BuildSimple(TextureFilters.PixelClamp);
         var vertDesc = VertexAnalyzer.GenerateDescriptor<PositionUV>();
         _blitVertStream = device.CreateVertexStream(vertDesc, vertDesc.SizeofVertex * 4, sizeof(ushort) * 6);
         _quad = MeshBuilder.CreateScreenQuad();

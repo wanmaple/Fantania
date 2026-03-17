@@ -2,9 +2,10 @@ namespace FantaniaLib;
 
 public class LocalTextureCache : IDisposable
 {
-    public LocalTextureCache(IRenderDevice device)
+    public LocalTextureCache(IRenderDevice device, TextureFilters defaultFilter)
     {
         _device = device;
+        _defaultFilter = defaultFilter;
     }
 
     public unsafe int Acquire(ITexture2D texture)
@@ -12,7 +13,7 @@ public class LocalTextureCache : IDisposable
         if (_blacklist.Contains(texture.Identifier)) return 0;
         if (!_texIdMap.TryGetValue(texture.Identifier, out var counter))
         {
-            if (!texture.TryDecode(out var desc, out var data))
+            if (!texture.TryDecode(_defaultFilter, out var desc, out var data))
             {
                 _blacklist.Add(texture.Identifier);
                 return 0;
@@ -44,12 +45,23 @@ public class LocalTextureCache : IDisposable
 
     public void CleanFreedTextures()
     {
-        foreach (var key in _texIdMap.Keys)
+        if (_texIdMap.Count == 0)
+            return;
+        List<string>? keysToRemove = null;
+        foreach (var pair in _texIdMap)
         {
-            var counter = _texIdMap[key];
+            var counter = pair.Value;
             if (counter.IsFree)
             {
                 _device.DeleteTexture(counter.Item);
+                keysToRemove ??= new List<string>(4);
+                keysToRemove.Add(pair.Key);
+            }
+        }
+        if (keysToRemove != null)
+        {
+            foreach (var key in keysToRemove)
+            {
                 _texIdMap.Remove(key);
             }
         }
@@ -64,6 +76,7 @@ public class LocalTextureCache : IDisposable
     }
 
     IRenderDevice _device;
+    TextureFilters _defaultFilter;
     Dictionary<string, ReferenceCounter<int>> _texIdMap = new Dictionary<string, ReferenceCounter<int>>(128);
     HashSet<string> _blacklist = new HashSet<string>(16);
 }

@@ -37,6 +37,38 @@ public static class ConversionHelper
         };
     }
 
+    public static DynValue FieldTypeToDynValue(Script env, FieldTypes type, object value)
+    {
+        return type switch
+        {
+            FieldTypes.Boolean => DynValue.NewBoolean((bool)value),
+            FieldTypes.Integer => DynValue.NewNumber((int)value),
+            FieldTypes.Float => DynValue.NewNumber((float)value),
+            FieldTypes.String => DynValue.NewString((string)value),
+            FieldTypes.Vector2 => DynValue.FromObject(env, (Vector2)value),
+            FieldTypes.Vector2Int => DynValue.FromObject(env, (Vector2Int)value),
+            FieldTypes.Vector3 => DynValue.FromObject(env, (Vector3)value),
+            FieldTypes.Color => DynValue.FromObject(env, (Vector4)value),
+            FieldTypes.Direction3D => DynValue.FromObject(env, (Vector3)value),
+            FieldTypes.Texture => DynValue.FromObject(env, (TextureDefinition)value),
+            FieldTypes.GroupReference => DynValue.FromObject(env, (GroupReference)value),
+            FieldTypes.TypeReference => DynValue.FromObject(env, (TypeReference)value),
+            FieldTypes.BooleanArray => DynValue.FromObject(env, (FantaniaArray<bool>)value),
+            FieldTypes.IntegerArray => DynValue.FromObject(env, (FantaniaArray<int>)value),
+            FieldTypes.FloatArray => DynValue.FromObject(env, (FantaniaArray<float>)value),
+            FieldTypes.StringArray => DynValue.FromObject(env, (FantaniaArray<string>)value),
+            FieldTypes.Vector2Array => DynValue.FromObject(env, (FantaniaArray<Vector2>)value),
+            FieldTypes.Vector2IntArray => DynValue.FromObject(env, (FantaniaArray<Vector2Int>)value),
+            FieldTypes.Vector3Array => DynValue.FromObject(env, (FantaniaArray<Vector3>)value),
+            FieldTypes.ColorArray => DynValue.FromObject(env, (FantaniaArray<Vector4>)value),
+            FieldTypes.Direction3DArray => DynValue.FromObject(env, (FantaniaArray<Vector3>)value),
+            FieldTypes.TextureArray => DynValue.FromObject(env, (FantaniaArray<TextureDefinition>)value),
+            FieldTypes.GroupReferenceArray => DynValue.FromObject(env, (FantaniaArray<GroupReference>)value),
+            FieldTypes.TypeReferenceArray => DynValue.FromObject(env, (FantaniaArray<TypeReference>)value),
+            _ => DynValue.Nil,
+        };
+    }
+
     public static FieldTypes TypeToFieldType(Type type)
     {
         if (type == typeof(bool)) return FieldTypes.Boolean;
