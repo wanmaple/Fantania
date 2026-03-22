@@ -1,5 +1,3 @@
-using System.Numerics;
-
 namespace FantaniaLib;
 
 public class LightSourceEntity : SingleNodeEntity

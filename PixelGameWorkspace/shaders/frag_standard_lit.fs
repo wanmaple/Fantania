@@ -39,7 +39,6 @@ uniform vec4 u_LightColors[MAX_LIGHTS];    // rgb: color, a: intensity scale
 uniform vec4 u_LightArgs[MAX_LIGHTS];      // xyz: unused, w: intensity
 uniform int u_LightLayers[MAX_LIGHTS];
 uniform int u_LightTextureIndices[MAX_LIGHTS];
-uniform sampler2D u_LightTextures[MAX_LIGHT_TEXTURES];
 
 float computeShadow(vec2 fragPos, vec2 lightPos, int fragLayer, int lightLayer)
 {
@@ -127,7 +126,7 @@ void main() {
         float len = clamp(length(toLight) / radius, 0.0, 1.0);
         vec2 lightUV = len * 0.5 + vec2(0.5);
 		int texIndex = clamp(u_LightTextureIndices[lightIndex], 0, MAX_LIGHT_TEXTURES - 1);
-		vec3 lightTexColor = texture(u_LightTextures[texIndex], lightUV).rgb;
+		float lightAttenuation = max(1.0 - len, 0.0);
 		vec4 lightColor = u_LightColors[lightIndex];
 		vec3 R = reflect(-L, N);
 		float RdotZ = max(dot(R, vec3(0.0, 0.0, 1.0)), 0.0);
@@ -135,7 +134,7 @@ void main() {
 		float intensity = u_LightArgs[lightIndex].w;
 		lightColor.rgb *= intensity;
 		float shadow = computeShadow(vWorldPos.xy, posRadius.xy, u_LightingLayer, lightLayer);
-		vec3 contribution = (lightColor.rgb * lightTexColor * NdotL + lightColor.rgb * specular * specularStrength) * shadow;
+		vec3 contribution = (lightColor.rgb * lightAttenuation * NdotL + lightColor.rgb * specular * specularStrength) * shadow;
 		lightAccum += contribution;
 	}
 	{

@@ -5,7 +5,6 @@ namespace FantaniaLib;
 public struct LightSourceInfo
 {
     public TextureDefinition LightTexture;
-    public int LightTextureID;
     public float Radius;
     public float Intensity;
     public Vector4 Color;
@@ -49,11 +48,6 @@ public class LightSource : RenderableBase
 
     public LightSourceInfo LightInfo => _lightInfo;
 
-    public void SetResolvedLightTextureID(int textureID)
-    {
-        _lightInfo.LightTextureID = textureID;
-    }
-
     public LightSource(RenderInfo info, RenderMaterial material, IReadOnlyDictionary<string, object?> customArgs)
     {
         _mesh = MeshBuilder.CreateStandardQuad(info.Size);
@@ -73,44 +67,6 @@ public class LightSource : RenderableBase
         CalculateBounds(Transform);
     }
 
-    public override void OnEnter(IWorkspace workspace, IRenderContext context)
-    {
-        LightSourceInfo lightInfo = LightInfo;
-        TextureDefinition lightTexDef = lightInfo.LightTexture;
-        int lightTexId = context.TextureManager.White4x4TextureID;
-        if (lightTexDef.TextureType == TextureTypes.Gpu)
-        {
-            lightTexId = lightTexDef.TextureParameters.GpuParams.TextureID;
-        }
-        else
-        {
-            ITexture2D? lightTex = lightTexDef.ToTexture(workspace.RootFolder);
-            if (lightTex != null)
-            {
-                lightTexId = context.TextureManager.AcquireTextureID(lightTex);
-            }
-        }
-        SetResolvedLightTextureID(lightTexId);
-        base.OnEnter(workspace, context);
-    }
-
-    public override void OnExit(IWorkspace workspace, IRenderContext context)
-    {
-        LightSourceInfo lightInfo = LightInfo;
-        TextureDefinition lightTexDef = lightInfo.LightTexture;
-        int lightTexId = lightInfo.LightTextureID;
-        if (lightTexDef.TextureType != TextureTypes.Gpu && lightTexId != context.TextureManager.White4x4TextureID)
-        {
-            ITexture2D? lightTex = lightTexDef.ToTexture(workspace.RootFolder);
-            if (lightTex != null)
-            {
-                context.TextureManager.ReleaseTexture(lightTex);
-            }
-        }
-        SetResolvedLightTextureID(0);
-        base.OnExit(workspace, context);
-    }
-
     void SetupLightInfo(IReadOnlyDictionary<string, object?> customArgs)
     {
         if (customArgs.TryGetValue("lightTexture", out object? lightTexObj) && lightTexObj is TextureDefinition lightTex)
@@ -121,7 +77,6 @@ public class LightSource : RenderableBase
         {
             _lightInfo.LightTexture = TextureDefinition.None;
         }
-        _lightInfo.LightTextureID = 0;
         if (customArgs.TryGetValue("radius", out object? radiusObj) && radiusObj is int radius)
         {
             _lightInfo.Radius = radius;

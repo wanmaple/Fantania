@@ -5,9 +5,6 @@ PointLight.group = "SG_Lights"
 PointLight.name = "SN_PointLight"
 PointLight.tooltip = "ST_PointLight"
 PointLight.dataDefs = {
-    texture = {
-        type = FieldTypes.Texture,
-    },
     lightingLayer = {
         type = FieldTypes.Integer,
         default = 0,
@@ -26,10 +23,6 @@ PointLight.dataDefs = {
     },
 }
 PointLight.editDefs = {
-    texture = {
-        group = "SG_Appearance",
-        tooltip = "ST_PointLight_Texture",
-    },
     lightingLayer = {
         group = "SG_Appearance",
         tooltip = "ST_PointLight_LightingLayer",
@@ -84,10 +77,6 @@ function PointLight:nodeAt(info, index, nodeCount)
         color = info.color,
         renderableType = "FantaniaLib.LightSource",
         customArgs = {
-            lightTexture = {
-                type = FieldTypes.Texture,
-                value = info.texture,
-            },
             radius = {
                 type = FieldTypes.Integer,
                 value = info.radius,

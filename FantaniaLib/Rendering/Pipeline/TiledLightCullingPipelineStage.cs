@@ -47,19 +47,6 @@ public class TiledLightCullingPipelineStage : IPipelineStage
         lightArgs.Clear();
         var lightLayers = _lightLayers;
         lightLayers.Clear();
-        var lightTextureIndices = _lightTextureIndices;
-        lightTextureIndices.Clear();
-        var uniqueLightTextures = _uniqueLightTextures;
-        uniqueLightTextures.Clear();
-        var uniqueLightTextureSlots = _uniqueLightTextureSlots;
-        uniqueLightTextureSlots.Clear();
-        var textureIndexMap = _textureIndexMap;
-        textureIndexMap.Clear();
-        int fallbackTexId = context.TextureManager.Black4x4TextureID;
-        TextureDefinition fallbackTexDef = TextureDefinition.CreateGpuDefinition(fallbackTexId);
-        uniqueLightTextures.Add(fallbackTexDef);
-        uniqueLightTextureSlots.Add(context.MaxTextureSlot + 1);
-        textureIndexMap[fallbackTexDef] = 0;
         float cameraZoom = MathF.Max(camData.Zoom, 0.01f);
         if (cameraZoom > 0.5f)
         {
@@ -90,25 +77,6 @@ public class TiledLightCullingPipelineStage : IPipelineStage
                 lightColors.Add(lightInfo.Color);
                 lightArgs.Add(new Vector4(0.0f, 0.0f, 0.0f, lightInfo.Intensity));
                 lightLayers.Add(lightInfo.LightingLayer);
-                int resolvedTexId = lightInfo.LightTextureID;
-                if (resolvedTexId == 0)
-                    resolvedTexId = fallbackTexId;
-                TextureDefinition gpuTexDef = TextureDefinition.CreateGpuDefinition(resolvedTexId);
-                if (!textureIndexMap.TryGetValue(gpuTexDef, out int texIndex))
-                {
-                    if (uniqueLightTextures.Count < MAX_LIGHT_TEXTURES)
-                    {
-                        texIndex = uniqueLightTextures.Count;
-                        textureIndexMap.Add(gpuTexDef, texIndex);
-                        uniqueLightTextures.Add(gpuTexDef);
-                        uniqueLightTextureSlots.Add(context.MaxTextureSlot + 1 + texIndex);
-                    }
-                    else
-                    {
-                        texIndex = 0;
-                    }
-                }
-                lightTextureIndices.Add(texIndex);
                 for (int tileY = minY; tileY <= maxY; tileY++)
                 {
                     int rowStart = tileY * tilesX;
@@ -165,9 +133,6 @@ public class TiledLightCullingPipelineStage : IPipelineStage
         cullingData.LightColors = lightColors.ToArray();
         cullingData.LightArgs = lightArgs.ToArray();
         cullingData.LightLayers = lightLayers.ToArray();
-        cullingData.LightTextureIndices = lightTextureIndices.ToArray();
-        cullingData.LightTextures = uniqueLightTextures.ToArray();
-        cullingData.LightTextureSlots = uniqueLightTextureSlots.ToArray();
         context.WorkerGlobalUniforms.SetUniform("u_TileGridInfo", new Vector4(tileSize.X, tilesX, tilesY, lightPosRadius.Count));
         context.WorkerGlobalUniforms.SetUniform("u_TileOffsets", cullingData.TileOffsets);
         context.WorkerGlobalUniforms.SetUniform("u_TileCounts", cullingData.TileCounts);
@@ -176,22 +141,15 @@ public class TiledLightCullingPipelineStage : IPipelineStage
         context.WorkerGlobalUniforms.SetUniform("u_LightColors", cullingData.LightColors);
         context.WorkerGlobalUniforms.SetUniform("u_LightArgs", cullingData.LightArgs);
         context.WorkerGlobalUniforms.SetUniform("u_LightLayers", cullingData.LightLayers);
-        context.WorkerGlobalUniforms.SetUniform("u_LightTextureIndices", cullingData.LightTextureIndices);
-        context.WorkerGlobalUniforms.SetUniform("u_LightTextures", cullingData.LightTextures, cullingData.LightTextureSlots);
     }
 
     List<Vector4> _lightPosRadius = new List<Vector4>(64);
     List<Vector4> _lightColors = new List<Vector4>(64);
     List<Vector4> _lightArgs = new List<Vector4>(64);
     List<int> _lightLayers = new List<int>(64);
-    List<int> _lightTextureIndices = new List<int>(64);
-    List<TextureDefinition> _uniqueLightTextures = new List<TextureDefinition>(16);
-    List<int> _uniqueLightTextureSlots = new List<int>(16);
-    Dictionary<TextureDefinition, int> _textureIndexMap = new Dictionary<TextureDefinition, int>(16);
 
     const int MAX_TILES = 32;
     const int MAX_LIGHTS = 64;
     const int MAX_TILE_LIGHT_INDICES = 256;
     const int MAX_LIGHTS_PER_TILE = 32;
-    const int MAX_LIGHT_TEXTURES = 8;
 }

@@ -16,7 +16,7 @@ function ExportHelper.fieldType2CppType(fieldType)
     elseif fieldType == FieldTypes.Vector3 then
         return "godot::Vector3"
     elseif fieldType == FieldTypes.Color then
-        return "godot::Color"
+        return "godot::Vector4"
     elseif fieldType == FieldTypes.Direction3D then
         return "godot::Vector3"
     elseif fieldType == FieldTypes.Texture then
@@ -44,7 +44,7 @@ function ExportHelper.fieldType2CppType(fieldType)
     elseif fieldType == FieldTypes.Vector3Array then
         return "ReadonlyArray<godot::Vector3>"
     elseif fieldType == FieldTypes.ColorArray then
-        return "ReadonlyArray<godot::Color>"
+        return "ReadonlyArray<godot::Vector4>"
     elseif fieldType == FieldTypes.Direction3DArray then
         return "ReadonlyArray<godot::Vector3>"
     elseif fieldType == FieldTypes.TextureArray then

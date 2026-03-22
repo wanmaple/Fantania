@@ -13,7 +13,7 @@ public class ExportContext
             throw new DirectoryNotFoundException($"Export folder '{ExportSettings.ProjectFolder}' does not exist.");
         if (!Directory.Exists(ExportSettings.SourceCodeFolder))
             throw new DirectoryNotFoundException($"Source code folder '{ExportSettings.SourceCodeFolder}' does not exist.");
-        workspace.LogOptional("Starting export...");
+        workspace.Log("Starting export...");
         List<ExportVariant> toWrite = ExportSettings.Template.GetOrCallMember("gamedataVariants", ExportSettings).ToObject<List<ExportVariant>>();
         Dictionary<string, string> replacedEmbedded = ExportSettings.Template.GetOrCallMember("replacedEmbeddedAssets", ExportSettings).GetObjectOrDefault(new Dictionary<string, string>());
         Dictionary<string, int> strMapping = new Dictionary<string, int>();
@@ -164,7 +164,7 @@ public class ExportContext
         {
             throw new DirectoryNotFoundException($"Gamedata folder '{gamedataFolder}' does not exist.");
         }
-        workspace.LogOptional("Generating " + gamedataFile);
+        workspace.Log("Generating " + gamedataFile);
         using (var fs = new FileStream(gamedataFile, FileMode.Create, FileAccess.Write))
         {
             using (var bw = new BinaryWriter(fs))
@@ -273,7 +273,7 @@ public class ExportContext
             }
         }
         GC.Collect();
-        workspace.LogOptional("Export completed.");
+        workspace.Log("Export completed.");
     }
 
     void Write(BinaryWriter writer, ExportVariant variant, IReadOnlyDictionary<string, int> strMapping, Dictionary<string, string> replacedEmbedded)
@@ -326,10 +326,9 @@ public class ExportContext
                 break;
             case FieldTypes.Texture:
                 TextureDefinition texDef = (TextureDefinition)variant.Value!;
-                writer.Write((int)texDef.TextureType);
                 if (texDef.TextureType == TextureTypes.Image)
                 {
-                    writer.Write((byte)texDef.TextureType);
+                    writer.Write((uint)texDef.TextureType);
                     string imgPath = texDef.TextureParameters.ImageParams.ImagePath;
                     if (replacedEmbedded.TryGetValue(imgPath, out string? replacement))
                     {
@@ -341,7 +340,7 @@ public class ExportContext
                 }
                 else if (texDef.TextureType == TextureTypes.Atlas)
                 {
-                    writer.Write((byte)texDef.TextureType);
+                    writer.Write((uint)texDef.TextureType);
                     string atlasPath = texDef.TextureParameters.AtlasParams.AtlasPath;
                     int atlasIndex = strMapping[atlasPath];
                     writer.Write(atlasIndex);
