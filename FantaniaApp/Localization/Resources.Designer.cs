@@ -130,6 +130,15 @@ namespace Fantania.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 保存.
+        /// </summary>
+        public static string CM_Save {
+            get {
+                return ResourceManager.GetString("CM_Save", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 创建关卡失败，详情：{0}.
         /// </summary>
         public static string ERR_CreateLevelFailure {
@@ -328,6 +337,15 @@ namespace Fantania.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 噪声图生成.
+        /// </summary>
+        public static string H_NoiseGenerator {
+            get {
+                return ResourceManager.GetString("H_NoiseGenerator", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 实体.
         /// </summary>
         public static string H_Placements {
@@ -477,6 +495,24 @@ namespace Fantania.Localization {
         public static string MI_File_SaveWorkspace {
             get {
                 return ResourceManager.GetString("MI_File_SaveWorkspace", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 工具.
+        /// </summary>
+        public static string MI_Tools {
+            get {
+                return ResourceManager.GetString("MI_Tools", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 噪声图生成.
+        /// </summary>
+        public static string MI_Tools_NoiseGenerator {
+            get {
+                return ResourceManager.GetString("MI_Tools_NoiseGenerator", resourceCulture);
             }
         }
         

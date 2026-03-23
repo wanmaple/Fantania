@@ -218,6 +218,15 @@ public partial class MainWindowViewModel : ViewModelBase
         return false;
     }
 
+    [RelayCommand]
+    async Task NoiseGenerator()
+    {
+        var vNoiseGen = new NoiseGeneratorView();
+        var vmNoiseGen = new NoiseGeneratorViewModel(vNoiseGen, Workspace!);
+        vNoiseGen.DataContext = vmNoiseGen;
+        await vNoiseGen.ShowDialog(AvaloniaHelper.GetTopWindow());
+    }
+
     async Task OpenWorkspace(string folder)
     {
         if (Workspace != null)

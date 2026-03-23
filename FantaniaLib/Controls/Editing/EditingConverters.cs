@@ -86,3 +86,29 @@ public class Object2GroupedEditFieldsConverter : IMultiValueConverter
         });
     }
 }
+
+public class Objects2GroupedEditFieldsConverter : IMultiValueConverter
+{
+    public object? Convert(IList<object?> values, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (values == null) return AvaloniaProperty.UnsetValue;
+        if (values.Count < 2) return AvaloniaProperty.UnsetValue;
+        for (int i = 0; i < values.Count - 1; i++)
+        {
+            if (values[i] is not IEditableObject) return AvaloniaProperty.UnsetValue;
+        }
+        if (values[values.Count - 1] is not IWorkspace workspace) return AvaloniaProperty.UnsetValue;
+        List<IEditableField> fields = new List<IEditableField>();
+        for (int i = 0; i < values.Count - 1; i++)
+        {
+            IEditableObject editable = (IEditableObject)values[i]!;
+            fields.AddRange(editable.GetEditableFields(workspace));
+        }
+        return fields.GroupBy(f => f.EditInfo.EditGroup).OrderBy(g => g.Key).Select(g => new GroupedEditableFields
+        {
+            Workspace = workspace,
+            Group = g.Key,
+            Fields = new EditableFields(workspace, g),
+        });
+    }
+}

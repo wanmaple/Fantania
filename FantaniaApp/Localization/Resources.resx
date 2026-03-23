@@ -413,4 +413,20 @@
     <value>源码目录</value>
     <comment/>
   </data>
+  <data name="MI_Tools" xml:space="preserve">
+    <value>工具</value>
+    <comment/>
+  </data>
+  <data name="MI_Tools_NoiseGenerator" xml:space="preserve">
+    <value>噪声图生成</value>
+    <comment/>
+  </data>
+  <data name="H_NoiseGenerator" xml:space="preserve">
+    <value>噪声图生成</value>
+    <comment/>
+  </data>
+  <data name="CM_Save" xml:space="preserve">
+    <value>保存</value>
+    <comment/>
+  </data>
 </root>

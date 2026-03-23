@@ -40,7 +40,7 @@ public class UserPlacement : DatabaseObject, IPlacement
     {
         if (_fieldValues.TryGetValue(fieldName, out object? oldVal))
         {
-            if (oldVal != value)
+            if (!oldVal!.Equals(value))
             {
                 OnPropertyChanging(fieldName);
                 _fieldValues[fieldName] = value;

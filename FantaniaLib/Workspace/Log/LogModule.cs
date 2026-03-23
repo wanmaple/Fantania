@@ -27,6 +27,8 @@ public class LogModule : WorkspaceModule
     {
 #if DEBUG
         await Dispatcher.UIThread.InvokeAsync(() => AddOptionalLog(content));
+#else
+        await Task.CompletedTask;
 #endif
     }
 
@@ -34,6 +36,8 @@ public class LogModule : WorkspaceModule
     {
 #if DEBUG
         Dispatcher.UIThread.Invoke(() => AddOptionalLog(content));
+#else
+        await Task.CompletedTask;
 #endif
     }
 

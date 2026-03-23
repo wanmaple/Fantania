@@ -82,6 +82,9 @@
                     </MenuItem.Icon>
                 </MenuItem>
             </MenuItem>
+            <MenuItem Classes= "m" Header="{x:Static lang:Resources.MI_Tools}" IsVisible="{Binding Workspace, Converter={x:Static ObjectConverters.IsNotNull}}">
+                <MenuItem Classes="p" Header="{x:Static lang:Resources.MI_Tools_NoiseGenerator}" Command="{Binding NoiseGeneratorCommand}" />
+            </MenuItem>
         </Menu>
         <ContentControl Content="{Binding Workspace, Converter={StaticResource Cvt_WS2WSView}}" />
     </DockPanel>

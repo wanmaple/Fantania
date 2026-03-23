@@ -28,7 +28,7 @@
         </TextBlock.Text>
       </TextBlock>
       <Button x:Name="btnRenderStatistics" DockPanel.Dock="Right" Classes="m" Command="{Binding ToggleRenderStatisticsPopupCommand}" Content="{Binding Workspace.EditorModule.FPS, StringFormat={}FPS: {0}}" HorizontalAlignment="Right" VerticalAlignment="Center" />
-      <Popup PlacementTarget="{Binding #btnRenderStatistics}" IsOpen="{Binding PopupStates.RenderStatisticsPopupIsOpen}" Placement="BottomEdgeAlignedRight">
+      <Popup PlacementTarget="{Binding #btnRenderStatistics}" IsOpen="{Binding PopupStates.RenderStatisticsPopupIsOpen}" Placement="BottomEdgeAlignedRight" Topmost="False" ShouldUseOverlayLayer="True">
         <Border Classes="thin s1" Background="{x:Static f:ThemeHelper.BackgroundBrush}">
           <ScrollViewer MaxHeight="400">
             <v:RenderStatisticsPanel />
@@ -71,7 +71,7 @@
           </MultiBinding>
         </Button.Content>
       </Button>
-      <Popup PlacementTarget="{Binding #btnLevels}" IsOpen="{Binding PopupStates.LevelPopupIsOpen}" Placement="BottomEdgeAlignedLeft">
+      <Popup PlacementTarget="{Binding #btnLevels}" IsOpen="{Binding PopupStates.LevelPopupIsOpen}" Placement="BottomEdgeAlignedLeft" Topmost="False" ShouldUseOverlayLayer="True">
         <Border Classes="thin s1" Background="{x:Static f:ThemeHelper.BackgroundBrush}">
           <ScrollViewer MinWidth="200" MaxHeight="400">
             <v:LevelPanel />
@@ -79,7 +79,7 @@
         </Border>
       </Popup>
       <Button x:Name="btnLayers" Classes="m" Background="Transparent" Command="{Binding ToggleLayerPopupCommand}" Content="{x:Static lang:Resources.BT_LayerManage}" />
-      <Popup PlacementTarget="{Binding #btnLayers}" IsOpen="{Binding PopupStates.LayerPopupIsOpen}" Placement="BottomEdgeAlignedLeft">
+      <Popup PlacementTarget="{Binding #btnLayers}" IsOpen="{Binding PopupStates.LayerPopupIsOpen}" Placement="BottomEdgeAlignedLeft" Topmost="False" ShouldUseOverlayLayer="True">
         <Border Classes="thin s1" Background="{x:Static f:ThemeHelper.BackgroundBrush}">
           <ScrollViewer MinWidth="200" MaxHeight="400">
             <v:LayerPanel />
@@ -87,7 +87,7 @@
         </Border>
       </Popup>
       <Button x:Name="btnLvMeta" Classes="m" Background="Transparent" Command="{Binding ToggleLevelMetaPopupCommand}" Content="{x:Static lang:Resources.BT_LevelMetadata}" IsVisible="{Binding Workspace.LevelModule.CurrentLevel, Converter={x:Static ObjectConverters.IsNotNull}}" />
-      <Popup PlacementTarget="{Binding #btnLvMeta}" IsOpen="{Binding PopupStates.LevelMetaPopupIsOpen}" Placement="BottomEdgeAlignedLeft">
+      <Popup PlacementTarget="{Binding #btnLvMeta}" IsOpen="{Binding PopupStates.LevelMetaPopupIsOpen}" Placement="BottomEdgeAlignedLeft" Topmost="False" ShouldUseOverlayLayer="True">
         <Border Classes="thin s1" Background="{x:Static f:ThemeHelper.BackgroundBrush}">
           <ScrollViewer MinWidth="400" MaxHeight="640">
             <v:LevelMetaPanel />
