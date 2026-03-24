@@ -101,6 +101,11 @@ local RenderPipelineSetup = {
 			fragShader = "shaders/frag_standard_lit.fs",
 		},
 		{
+			key = "Terrain",
+			vertShader = "shaders/vert_standard_lit.vs",
+			fragShader = "shaders/frag_terrain.fs",
+		},
+		{
 			key = "PureColor",
 			vertShader = BuiltinShaders.VS_Standard,
 			fragShader = "shaders/pure_color.fs",

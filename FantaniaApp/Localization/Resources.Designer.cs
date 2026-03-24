@@ -526,6 +526,33 @@ namespace Fantania.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 距离度量方式。Euclidean：圆润自然。EuclideanSquared：强调距离差异。Manhattan：更方格/菱形感。Hybrid：介于两者，变化更激烈。.
+        /// </summary>
+        public static string TT_CellularDistanceFunction {
+            get {
+                return ResourceManager.GetString("TT_CellularDistanceFunction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 控制特征点抖动强度，绝对值越接近1越不规则，负值表示反向偏移。.
+        /// </summary>
+        public static string TT_CellularJitterModifier {
+            get {
+                return ResourceManager.GetString("TT_CellularJitterModifier", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cellular的输出公式.
+        /// </summary>
+        public static string TT_CellularReturnType {
+            get {
+                return ResourceManager.GetString("TT_CellularReturnType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 复制(快捷键: Ctrl + C).
         /// </summary>
         public static string TT_CopyEntities {
@@ -616,6 +643,87 @@ namespace Fantania.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 后处理组合器.
+        /// </summary>
+        public static string TT_NoiseCompositor {
+            get {
+                return ResourceManager.GetString("TT_NoiseCompositor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 基础采样频率，频率越高纹理越密越碎，反之则会越大块。.
+        /// </summary>
+        public static string TT_NoiseFrequency {
+            get {
+                return ResourceManager.GetString("TT_NoiseFrequency", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 如果选中，明暗关系会反转。.
+        /// </summary>
+        public static string TT_NoiseInverted {
+            get {
+                return ResourceManager.GetString("TT_NoiseInverted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 每一层Octave的频率增长系数，越大层间的尺度跳跃越明显（更锐），越小则更平滑。.
+        /// </summary>
+        public static string TT_NoiseLacunarity {
+            get {
+                return ResourceManager.GetString("TT_NoiseLacunarity", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 叠加层数，层数越高细节越多、纹理越丰富，但也更容易&apos;脏&apos;。.
+        /// </summary>
+        public static string TT_NoiseOctaves {
+            get {
+                return ResourceManager.GetString("TT_NoiseOctaves", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 每一层Octave的振幅衰减系数，越小高频层越弱（更干净），反之高频层越强（更粗糙）。.
+        /// </summary>
+        public static string TT_NoisePersistence {
+            get {
+                return ResourceManager.GetString("TT_NoisePersistence", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 如果选中，则会生成可平铺噪声。.
+        /// </summary>
+        public static string TT_NoiseRepeat {
+            get {
+                return ResourceManager.GetString("TT_NoiseRepeat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 纹理尺寸，范围是[32, 2048]。.
+        /// </summary>
+        public static string TT_NoiseSize {
+            get {
+                return ResourceManager.GetString("TT_NoiseSize", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 基础噪声类型.
+        /// </summary>
+        public static string TT_NoiseType {
+            get {
+                return ResourceManager.GetString("TT_NoiseType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 粘贴(快捷键: Ctrl + V).
         /// </summary>
         public static string TT_PasteEntities {
@@ -625,11 +733,56 @@ namespace Fantania.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 插值平滑函数，Quintic更平滑自然、Hermit过渡相对更硬一些。.
+        /// </summary>
+        public static string TT_PerlinSmoothFunction {
+            get {
+                return ResourceManager.GetString("TT_PerlinSmoothFunction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 实体放置模式(快捷键: 2).
         /// </summary>
         public static string TT_PlaceMode {
             get {
                 return ResourceManager.GetString("TT_PlaceMode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 随机种子.
+        /// </summary>
+        public static string TT_RandomSeed {
+            get {
+                return ResourceManager.GetString("TT_RandomSeed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 脊形状指数，越大&apos;脊&apos;越尖锐。.
+        /// </summary>
+        public static string TT_RidgedMultiFractalExponent {
+            get {
+                return ResourceManager.GetString("TT_RidgedMultiFractalExponent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 脊信号增益，越大对比越强，&apos;脊&apos;更突出；太大容易过曝/硬边。.
+        /// </summary>
+        public static string TT_RidgedMultiFractalGain {
+            get {
+                return ResourceManager.GetString("TT_RidgedMultiFractalGain", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 脊线形成的基准偏移，越大可保留更多&apos;脊&apos;，越小&apos;脊&apos;更细更稀。.
+        /// </summary>
+        public static string TT_RidgedMultiFractalOffset {
+            get {
+                return ResourceManager.GetString("TT_RidgedMultiFractalOffset", resourceCulture);
             }
         }
         
@@ -661,6 +814,15 @@ namespace Fantania.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Simplex变体.
+        /// </summary>
+        public static string TT_SimplexAlgorithm {
+            get {
+                return ResourceManager.GetString("TT_SimplexAlgorithm", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 加个简单易懂的描述吧.
         /// </summary>
         public static string TT_Tooltip {
@@ -675,6 +837,15 @@ namespace Fantania.Localization {
         public static string TT_TranslateMode {
             get {
                 return ResourceManager.GetString("TT_TranslateMode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Value变体，ValueCubic更平滑、块感和插值痕迹更弱。.
+        /// </summary>
+        public static string TT_ValueAlgorithm {
+            get {
+                return ResourceManager.GetString("TT_ValueAlgorithm", resourceCulture);
             }
         }
         

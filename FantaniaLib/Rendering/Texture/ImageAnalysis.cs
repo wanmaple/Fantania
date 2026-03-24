@@ -35,7 +35,13 @@ public static class ImageAnalysis
         try
         {
             using var image = new MagickImage(stream);
-            return image.GetPixels().ToArray();
+            if (image.HasAlpha)
+            {
+                image.ColorType = ColorType.TrueColorAlpha;
+                return image.GetPixels().ToByteArray(PixelMapping.RGBA);
+            }
+            image.ColorType = ColorType.TrueColor;
+            return image.GetPixels().ToByteArray(PixelMapping.RGB);
         }
         catch (Exception)
         {

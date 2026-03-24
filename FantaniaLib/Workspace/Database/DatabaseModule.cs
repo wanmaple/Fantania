@@ -50,12 +50,10 @@ public class DatabaseModule : WorkspaceModule
     public void AddObject(DatabaseObject obj)
     {
         _syncer.AddObject(obj);
-        WatchPropertyChange(obj);
     }
 
     public void RemoveObject(DatabaseObject obj)
     {
-        UnwatchPropertyChange(obj);
         _syncer.RemoveObject(obj);
     }
 

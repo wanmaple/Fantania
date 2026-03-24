@@ -3,7 +3,7 @@ namespace FantaniaLib;
 public class ValueNoise2DParameters : NoiseParameters
 {
     private NoiseHelper.ValueAlgorithms _algorithm = NoiseHelper.ValueAlgorithms.Value;
-    [EditableField]
+    [EditableField(TooltipKey = "TT_ValueAlgorithm")]
     public NoiseHelper.ValueAlgorithms Algorithm
     {
         get { return _algorithm; }

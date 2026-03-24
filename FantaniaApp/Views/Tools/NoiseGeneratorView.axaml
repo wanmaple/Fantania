@@ -21,6 +21,7 @@
           <MultiBinding Converter="{StaticResource Cvt_Objs2Groups}">
             <Binding Path="Noise" />
             <Binding Path="Noise.NoiseArguments" />
+            <Binding Path="Noise.CompositorArguments" />
             <Binding Path="Workspace" />
           </MultiBinding>
         </lib:ObjectEditView.EditableFields>

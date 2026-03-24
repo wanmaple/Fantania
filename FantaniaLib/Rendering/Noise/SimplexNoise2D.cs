@@ -3,7 +3,7 @@ namespace FantaniaLib;
 public class SimplexNoise2DParameters : NoiseParameters
 {
     private NoiseHelper.SimplexAlgorithms _algorithm = NoiseHelper.SimplexAlgorithms.OrdinarySimplex;
-    [EditableField]
+    [EditableField(TooltipKey = "TT_SimplexAlgorithm")]
     public NoiseHelper.SimplexAlgorithms Algorithm
     {
         get { return _algorithm; }

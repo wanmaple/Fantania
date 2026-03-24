@@ -3,7 +3,7 @@ namespace FantaniaLib;
 public class CellularNoise2DParameters : NoiseParameters
 {
     private float _jitterModifier = 1.0f;
-    [EditableField(EditParameter = "-1:1:0.05")]
+    [EditableField(EditParameter = "-1:1:0.05", TooltipKey = "TT_CellularJitterModifier")]
     public float JitterModifier
     {
         get { return _jitterModifier; }
@@ -18,7 +18,7 @@ public class CellularNoise2DParameters : NoiseParameters
     }
 
     private NoiseHelper.CellularDistanceFunctions _disFunc = NoiseHelper.CellularDistanceFunctions.Euclidean;
-    [EditableField]
+    [EditableField(TooltipKey = "TT_CellularDistanceFunction")]
     public NoiseHelper.CellularDistanceFunctions DistanceFunction
     {
         get { return _disFunc; }
@@ -33,7 +33,7 @@ public class CellularNoise2DParameters : NoiseParameters
     }
 
     private NoiseHelper.CellularReturnTypes _retType = NoiseHelper.CellularReturnTypes.Distance;
-    [EditableField]
+    [EditableField(TooltipKey = "TT_CellularReturnType")]
     public NoiseHelper.CellularReturnTypes ReturnType
     {
         get { return _retType; }

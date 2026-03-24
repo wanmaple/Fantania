@@ -429,4 +429,80 @@
     <value>保存</value>
     <comment/>
   </data>
+  <data name="TT_NoiseType" xml:space="preserve">
+    <value>基础噪声类型</value>
+    <comment/>
+  </data>
+  <data name="TT_RandomSeed" xml:space="preserve">
+    <value>随机种子</value>
+    <comment/>
+  </data>
+  <data name="TT_NoiseOctaves" xml:space="preserve">
+    <value>叠加层数，层数越高细节越多、纹理越丰富，但也更容易'脏'。</value>
+    <comment/>
+  </data>
+  <data name="TT_NoiseFrequency" xml:space="preserve">
+    <value>基础采样频率，频率越高纹理越密越碎，反之则会越大块。</value>
+    <comment/>
+  </data>
+  <data name="TT_NoisePersistence" xml:space="preserve">
+    <value>每一层Octave的振幅衰减系数，越小高频层越弱（更干净），反之高频层越强（更粗糙）。</value>
+    <comment/>
+  </data>
+  <data name="TT_NoiseLacunarity" xml:space="preserve">
+    <value>每一层Octave的频率增长系数，越大层间的尺度跳跃越明显（更锐），越小则更平滑。</value>
+    <comment/>
+  </data>
+  <data name="TT_NoiseInverted" xml:space="preserve">
+    <value>如果选中，明暗关系会反转。</value>
+    <comment/>
+  </data>
+  <data name="TT_NoiseRepeat" xml:space="preserve">
+    <value>如果选中，则会生成可平铺噪声。</value>
+    <comment/>
+  </data>
+  <data name="TT_NoiseSize" xml:space="preserve">
+    <value>纹理尺寸，范围是[32, 2048]。</value>
+    <comment/>
+  </data>
+  <data name="TT_NoiseCompositor" xml:space="preserve">
+    <value>后处理组合器</value>
+    <comment/>
+  </data>
+  <data name="TT_PerlinSmoothFunction" xml:space="preserve">
+    <value>插值平滑函数，Quintic更平滑自然、Hermit过渡相对更硬一些。</value>
+    <comment/>
+  </data>
+  <data name="TT_SimplexAlgorithm" xml:space="preserve">
+    <value>Simplex变体</value>
+    <comment/>
+  </data>
+  <data name="TT_ValueAlgorithm" xml:space="preserve">
+    <value>Value变体，ValueCubic更平滑、块感和插值痕迹更弱。</value>
+    <comment/>
+  </data>
+  <data name="TT_CellularJitterModifier" xml:space="preserve">
+    <value>控制特征点抖动强度，绝对值越接近1越不规则，负值表示反向偏移。</value>
+    <comment/>
+  </data>
+  <data name="TT_CellularDistanceFunction" xml:space="preserve">
+    <value>距离度量方式。Euclidean：圆润自然。EuclideanSquared：强调距离差异。Manhattan：更方格/菱形感。Hybrid：介于两者，变化更激烈。</value>
+    <comment/>
+  </data>
+  <data name="TT_CellularReturnType" xml:space="preserve">
+    <value>Cellular的输出公式</value>
+    <comment/>
+  </data>
+  <data name="TT_RidgedMultiFractalOffset" xml:space="preserve">
+    <value>脊线形成的基准偏移，越大可保留更多'脊'，越小'脊'更细更稀。</value>
+    <comment/>
+  </data>
+  <data name="TT_RidgedMultiFractalGain" xml:space="preserve">
+    <value>脊信号增益，越大对比越强，'脊'更突出；太大容易过曝/硬边。</value>
+    <comment/>
+  </data>
+  <data name="TT_RidgedMultiFractalExponent" xml:space="preserve">
+    <value>脊形状指数，越大'脊'越尖锐。</value>
+    <comment/>
+  </data>
 </root>

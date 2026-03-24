@@ -39,6 +39,13 @@ public static class NoiseHelper
         ValueCubic,
     }
 
+    public enum RidgedBaseKernels
+    {
+        Perlin,
+        Simplex,
+        Value,
+    }
+
     public const int DefaultNoiseSize = 256;
 
     public const int PrimeX = 501125321;

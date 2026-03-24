@@ -30,6 +30,12 @@ public partial class NoiseGeneratorView : Window
         {
             ViewModel.Noise.NoiseParameterAt(noiseType).PropertyChanged += Noise_PropertyChanged;
         }
+        foreach (var compositor in Enum.GetValues<NoiseCompositors>())
+        {
+            if (compositor == NoiseCompositors.None)
+                continue;
+            ViewModel.Noise.CompositorParameterAt(compositor).PropertyChanged += Noise_PropertyChanged;
+        }
         _ = RefreshTextureAsync(CancellationToken.None);
     }
 
@@ -41,6 +47,12 @@ public partial class NoiseGeneratorView : Window
         foreach (var noiseType in Enum.GetValues<NoiseTypes>())
         {
             ViewModel.Noise.NoiseParameterAt(noiseType).PropertyChanged -= Noise_PropertyChanged;
+        }
+        foreach (var compositor in Enum.GetValues<NoiseCompositors>())
+        {
+            if (compositor == NoiseCompositors.None)
+                continue;
+            ViewModel.Noise.CompositorParameterAt(compositor).PropertyChanged -= Noise_PropertyChanged;
         }
         ViewModel.Noise.PropertyChanged -= Noise_PropertyChanged;
         base.OnUnloaded(e);

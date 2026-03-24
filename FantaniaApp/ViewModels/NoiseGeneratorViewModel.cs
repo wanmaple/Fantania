@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Media.Imaging;
@@ -6,6 +7,7 @@ using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.Input;
 using Fantania.Views;
 using FantaniaLib;
+using ImageMagick;
 
 namespace Fantania.ViewModels;
 
@@ -74,8 +76,29 @@ public partial class NoiseGeneratorViewModel : ViewModelBase
         if (file != null)
         {
             using var stream = await file.OpenWriteAsync();
-            NoiseBitmap?.Save(stream);
+            SaveNoiseWithLinearProfile(stream);
         }
+    }
+
+    void SaveNoiseWithLinearProfile(Stream output)
+    {
+        using var encoded = new MemoryStream();
+        NoiseBitmap!.Save(encoded);
+        encoded.Position = 0;
+        using var image = new MagickImage(encoded);
+        image.Format = MagickFormat.Png;
+        const string linearIccRef = "avares://Fantania/Assets/textures/linear_icc_reference.png";
+        using var refStream = AvaloniaHelper.ReadAssetStream(linearIccRef);
+        if (refStream != null)
+        {
+            using var refImage = new MagickImage(refStream);
+            var profile = refImage.GetColorProfile();
+            if (profile != null)
+            {
+                image.SetProfile(profile);
+            }
+        }
+        image.Write(output);
     }
 
     Noise2DLite _noise = new Noise2DLite();

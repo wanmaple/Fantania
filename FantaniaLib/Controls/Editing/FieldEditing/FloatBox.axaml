@@ -8,7 +8,7 @@
              x:Class="FantaniaLib.FloatBox"
              x:Name="Root">
   <Grid>
-    <NumericUpDown Value="{Binding FieldValue, Converter={x:Static lib:NumberConverters.Float2Decimal}}" Minimum="{Binding #Root.RangeMinimum}" Maximum="{Binding #Root.RangeMaximum}" FormatString="F2" ParsingNumberStyle="Float" Increment="{Binding #Root.RangeIncrement}" ToolTip.ServiceEnabled="{Binding FieldValidator.Error, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+    <NumericUpDown Value="{Binding FieldValue, Converter={x:Static lib:NumberConverters.Float2Decimal}}" Minimum="{Binding #Root.RangeMinimum}" Maximum="{Binding #Root.RangeMaximum}" FormatString="F3" ParsingNumberStyle="Float" Increment="{Binding #Root.RangeIncrement}" ToolTip.ServiceEnabled="{Binding FieldValidator.Error, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
       <ToolTip.Tip>
         <TextBlock Classes="p err" Text="{Binding FieldValidator.Error}" />
       </ToolTip.Tip>

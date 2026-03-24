@@ -3,7 +3,7 @@ namespace FantaniaLib;
 public class PerlinNoise2DParameters : NoiseParameters
 {
     private NoiseHelper.PerlinSmoothFunctions _smoothFunc = NoiseHelper.PerlinSmoothFunctions.Quintic;
-    [EditableField]
+    [EditableField(TooltipKey = "TT_PerlinSmoothFunction")]
     public NoiseHelper.PerlinSmoothFunctions SmoothFunction
     {
         get { return _smoothFunc; }
