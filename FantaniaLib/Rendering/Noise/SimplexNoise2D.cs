@@ -30,13 +30,16 @@ public class SimplexNoise2D : INoise2D
 
     public void TransformCoordinate(ref float x, ref float y)
     {
-        float s = (x + y) * F2;
-        x += s;
-        y += s;
+        // Skew is applied inside Noise() so that repeat wrapping
+        // operates on un-skewed integer coordinates, enabling correct tiling.
     }
 
     public float Noise(float x, float y, int repeat)
     {
+        if (repeat > 0)
+        {
+            return TileableSimplex4D(x, y, repeat);
+        }
         switch (Arguments.Algorithm)
         {
             case NoiseHelper.SimplexAlgorithms.OpenSimplex2S:
@@ -47,21 +50,123 @@ public class SimplexNoise2D : INoise2D
         }
     }
 
+    float TileableSimplex4D(float x, float y, int repeat)
+    {
+        // Map 2D coordinates onto a 4D torus. This guarantees strict periodicity in x/y.
+        float period = MathF.Max(1.0f, repeat);
+        float angleX = x * TWO_PI / period;
+        float angleY = y * TWO_PI / period;
+        float radius = period / TWO_PI;
+        float nx = MathF.Cos(angleX) * radius;
+        float ny = MathF.Sin(angleX) * radius;
+        float nz = MathF.Cos(angleY) * radius;
+        float nw = MathF.Sin(angleY) * radius;
+        return Simplex4D(nx, ny, nz, nw);
+    }
+
+    float Simplex4D(float x, float y, float z, float w)
+    {
+        float s = (x + y + z + w) * F4;
+        int i = MathHelper.FloorToInt(x + s);
+        int j = MathHelper.FloorToInt(y + s);
+        int k = MathHelper.FloorToInt(z + s);
+        int l = MathHelper.FloorToInt(w + s);
+        float t = (i + j + k + l) * G4;
+        float x0 = x - (i - t);
+        float y0 = y - (j - t);
+        float z0 = z - (k - t);
+        float w0 = w - (l - t);
+        int rankx = 0;
+        int ranky = 0;
+        int rankz = 0;
+        int rankw = 0;
+        if (x0 > y0) rankx++; else ranky++;
+        if (x0 > z0) rankx++; else rankz++;
+        if (x0 > w0) rankx++; else rankw++;
+        if (y0 > z0) ranky++; else rankz++;
+        if (y0 > w0) ranky++; else rankw++;
+        if (z0 > w0) rankz++; else rankw++;
+        int i1 = rankx >= 3 ? 1 : 0;
+        int j1 = ranky >= 3 ? 1 : 0;
+        int k1 = rankz >= 3 ? 1 : 0;
+        int l1 = rankw >= 3 ? 1 : 0;
+        int i2 = rankx >= 2 ? 1 : 0;
+        int j2 = ranky >= 2 ? 1 : 0;
+        int k2 = rankz >= 2 ? 1 : 0;
+        int l2 = rankw >= 2 ? 1 : 0;
+        int i3 = rankx >= 1 ? 1 : 0;
+        int j3 = ranky >= 1 ? 1 : 0;
+        int k3 = rankz >= 1 ? 1 : 0;
+        int l3 = rankw >= 1 ? 1 : 0;
+        float x1 = x0 - i1 + G4;
+        float y1 = y0 - j1 + G4;
+        float z1 = z0 - k1 + G4;
+        float w1 = w0 - l1 + G4;
+        float x2 = x0 - i2 + 2.0f * G4;
+        float y2 = y0 - j2 + 2.0f * G4;
+        float z2 = z0 - k2 + 2.0f * G4;
+        float w2 = w0 - l2 + 2.0f * G4;
+        float x3 = x0 - i3 + 3.0f * G4;
+        float y3 = y0 - j3 + 3.0f * G4;
+        float z3 = z0 - k3 + 3.0f * G4;
+        float w3 = w0 - l3 + 3.0f * G4;
+        float x4 = x0 - 1.0f + 4.0f * G4;
+        float y4 = y0 - 1.0f + 4.0f * G4;
+        float z4 = z0 - 1.0f + 4.0f * G4;
+        float w4 = w0 - 1.0f + 4.0f * G4;
+        float n0 = Corner4(i, j, k, l, x0, y0, z0, w0);
+        float n1 = Corner4(i + i1, j + j1, k + k1, l + l1, x1, y1, z1, w1);
+        float n2 = Corner4(i + i2, j + j2, k + k2, l + l2, x2, y2, z2, w2);
+        float n3 = Corner4(i + i3, j + j3, k + k3, l + l3, x3, y3, z3, w3);
+        float n4 = Corner4(i + 1, j + 1, k + 1, l + 1, x4, y4, z4, w4);
+        return 27.0f * (n0 + n1 + n2 + n3 + n4);
+    }
+
+    float Corner4(int i, int j, int k, int l, float x, float y, float z, float w)
+    {
+        float t = 0.6f - x * x - y * y - z * z - w * w;
+        if (t <= 0.0f)
+        {
+            return 0.0f;
+        }
+        t *= t;
+        return t * t * GradientCoord4(i, j, k, l, x, y, z, w);
+    }
+
+    float GradientCoord4(int i, int j, int k, int l, float x, float y, float z, float w)
+    {
+        int hash = Hash4(i, j, k, l);
+        int gi = hash & 31;
+        int index = gi * 4;
+        return x * Gradients4D[index]
+            + y * Gradients4D[index + 1]
+            + z * Gradients4D[index + 2]
+            + w * Gradients4D[index + 3];
+    }
+
+    int Hash4(int i, int j, int k, int l)
+    {
+        int hash = Seed;
+        hash ^= i * NoiseHelper.PrimeX;
+        hash ^= j * NoiseHelper.PrimeY;
+        hash ^= k * PrimeZ;
+        hash ^= l * PrimeW;
+        hash *= 0x27d4eb2d;
+        hash ^= hash >> 15;
+        return hash;
+    }
+
     float OrdinarySimplex(float x, float y, int repeat)
     {
+        float s = (x + y) * F2;
+        x += s;
+        y += s;
         int i0 = MathHelper.FloorToInt(x);
         int j0 = MathHelper.FloorToInt(y);
         int i1 = i0 + 1;
         int j1 = j0 + 1;
-        if (repeat > 0)
-        {
-            i0 = ((i0 % repeat) + repeat) % repeat;
-            j0 = ((j0 % repeat) + repeat) % repeat;
-            i1 = ((i1 % repeat) + repeat) % repeat;
-            j1 = ((j1 % repeat) + repeat) % repeat;
-        }
-        float xi = x - MathHelper.FloorToInt(x);
-        float yi = y - MathHelper.FloorToInt(y);
+        float xi = x - i0;
+        float yi = y - j0;
         float t = (xi + yi) * G2;
         float x0 = xi - t;
         float y0 = yi - t;
@@ -112,6 +217,9 @@ public class SimplexNoise2D : INoise2D
 
     float OpenSimplex2S(float x, float y, int repeat)
     {
+        float s = (x + y) * F2;
+        x += s;
+        y += s;
         int i0 = MathHelper.FloorToInt(x);
         int j0 = MathHelper.FloorToInt(y);
         int i1 = i0 + 1;
@@ -120,19 +228,8 @@ public class SimplexNoise2D : INoise2D
         int j2 = j0 + 2;
         int im1 = i0 - 1;
         int jm1 = j0 - 1;
-        if (repeat > 0)
-        {
-            i0 = ((i0 % repeat) + repeat) % repeat;
-            j0 = ((j0 % repeat) + repeat) % repeat;
-            i1 = ((i1 % repeat) + repeat) % repeat;
-            j1 = ((j1 % repeat) + repeat) % repeat;
-            i2 = ((i2 % repeat) + repeat) % repeat;
-            j2 = ((j2 % repeat) + repeat) % repeat;
-            im1 = ((im1 % repeat) + repeat) % repeat;
-            jm1 = ((jm1 % repeat) + repeat) % repeat;
-        }
-        float xi = x - MathHelper.FloorToInt(x);
-        float yi = y - MathHelper.FloorToInt(y);
+        float xi = x - i0;
+        float yi = y - j0;
         float t = (xi + yi) * G2;
         float x0 = xi - t;
         float y0 = yi - t;
@@ -243,4 +340,22 @@ public class SimplexNoise2D : INoise2D
     const float SQRT3 = 1.7320508075688772935274463415059f;
     const float G2 = (3.0f - SQRT3) / 6.0f;
     const float F2 = 0.5f * (SQRT3 - 1.0f);
+    const float SQRT5 = 2.2360679774997896964091736687313f;
+    const float F4 = (SQRT5 - 1.0f) / 4.0f;
+    const float G4 = (5.0f - SQRT5) / 20.0f;
+    const float TWO_PI = MathF.PI * 2.0f;
+    const int PrimeZ = 1720413743;
+    const int PrimeW = 19990303;
+
+    static readonly float[] Gradients4D =
+    {
+        0, 1, 1, 1, 0, 1, 1, -1, 0, 1, -1, 1, 0, 1, -1, -1,
+        0, -1, 1, 1, 0, -1, 1, -1, 0, -1, -1, 1, 0, -1, -1, -1,
+        1, 0, 1, 1, 1, 0, 1, -1, 1, 0, -1, 1, 1, 0, -1, -1,
+        -1, 0, 1, 1, -1, 0, 1, -1, -1, 0, -1, 1, -1, 0, -1, -1,
+        1, 1, 0, 1, 1, 1, 0, -1, 1, -1, 0, 1, 1, -1, 0, -1,
+        -1, 1, 0, 1, -1, 1, 0, -1, -1, -1, 0, 1, -1, -1, 0, -1,
+        1, 1, 1, 0, 1, 1, -1, 0, 1, -1, 1, 0, 1, -1, -1, 0,
+        -1, 1, 1, 0, -1, 1, -1, 0, -1, -1, 1, 0, -1, -1, -1, 0,
+    };
 }

@@ -162,9 +162,9 @@ public class Noise2DLite : FantaniaObject
         }
     }
 
-    private float _lacunarity = 2.0f;
-    [EditableField(EditParameter = "1.0:4.0:0.01", TooltipKey = "TT_NoiseLacunarity")]
-    public float Lacunarity
+    private int _lacunarity = 2;
+    [EditableField(EditParameter = "1:4:1", TooltipKey = "TT_NoiseLacunarity")]
+    public int Lacunarity
     {
         get { return _lacunarity; }
         set
@@ -301,7 +301,7 @@ public class Noise2DLite : FantaniaObject
         for (int i = 0; i < Octaves; i++)
         {
             // float noise = CurrentNoise.Noise(x * freq, y * freq, (int)(repeat * freq));
-            float noise = CurrentCompositor.Composite(CurrentNoise, x * freq, y * freq, (int)(repeat * freq));
+            float noise = CurrentCompositor.Composite(CurrentNoise, x * freq, y * freq, MathHelper.RoundToInt(repeat * freq));
             if (Inverted)
             {
                 noise = -noise;

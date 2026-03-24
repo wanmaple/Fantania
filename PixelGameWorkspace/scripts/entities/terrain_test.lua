@@ -16,7 +16,7 @@ TerrainTest.dataDefs = {
     },
     color = {
         type = FieldTypes.Color,
-        default = "#ffffff",
+        default = "#363636",
     },
     cutoff = {
         type = FieldTypes.Float,
@@ -28,39 +28,19 @@ TerrainTest.dataDefs = {
     },
     brightnessScale = {
         type = FieldTypes.Float,
-        default = 0.003,
+        default = 0.01,
     },
     brightnessStrength = {
         type = FieldTypes.Float,
-        default = 0.22,
+        default = 1.05,
     },
     brightnessQuantizationSteps = {
         type = FieldTypes.Integer,
-        default = 8,
+        default = 10,
     },
     brightnessColor = {
         type = FieldTypes.Color,
-        default = "#ffffff",
-    },
-    crackScale = {
-        type = FieldTypes.Float,
-        default = 0.003,
-    },
-    crackThresholdMin = {
-        type = FieldTypes.Float,
-        default = 0.82,
-    },
-    crackThresholdMax = {
-        type = FieldTypes.Float,
-        default = 0.90,
-    },
-    crackSharpness = {
-        type = FieldTypes.Float,
-        default = 2.4,
-    },
-    crackStrength = {
-        type = FieldTypes.Float,
-        default = 0.10,
+        default = "#000000",
     },
 }
 TerrainTest.editDefs = {
@@ -109,31 +89,6 @@ TerrainTest.editDefs = {
         group = "SG_Appearance",
         tooltip = "ST_TerrainTest_BrightnessColor",
     },
-    crackScale = {
-        group = "SG_Appearance",
-        tooltip = "ST_TerrainTest_CrackScale",
-        parameter = "0.001:10:0.001",
-    },
-    crackThresholdMin = {
-        group = "SG_Appearance",
-        tooltip = "ST_TerrainTest_CrackThresholdMin",
-        parameter = "0:1:0.01",
-    },
-    crackThresholdMax = {
-        group = "SG_Appearance",
-        tooltip = "ST_TerrainTest_CrackThresholdMax",
-        parameter = "0:1:0.01",
-    },
-    crackSharpness = {
-        group = "SG_Appearance",
-        tooltip = "ST_TerrainTest_CrackSharpness",
-        parameter = "1:10:0.1",
-    },
-    crackStrength = {
-        group = "SG_Appearance",
-        tooltip = "ST_TerrainTest_CrackStrength",
-        parameter = "0:1:0.01",
-    },
 }
 
 TerrainTest.defaultLayer = 0
@@ -155,10 +110,6 @@ function TerrainTest:nodeAt(info, index, nodeCount)
                 type = UniformTypes.Texture,
                 value = info.brightnessNoise,
             },
-            u_NoiseCrack = {
-                type = UniformTypes.Texture,
-                value = info.crackNoise,
-            },
             u_Cutoff = {
                 type = UniformTypes.Float1,
                 value = info.cutoff,
@@ -169,11 +120,7 @@ function TerrainTest:nodeAt(info, index, nodeCount)
             },
             u_BrightnessColor = {
                 type = UniformTypes.Float4,
-                value = { info.brightnessColor.x, info.brightnessColor.y, info.brightnessColor.z, info.crackScale, },
-            },
-            u_CrackArgs = {
-                type = UniformTypes.Float4,
-                value = { x = info.crackThresholdMin, y = info.crackThresholdMax, z = info.crackSharpness, w = info.crackStrength, },
+                value = info.brightnessColor,
             },
         },
         sizer = {
@@ -182,7 +129,6 @@ function TerrainTest:nodeAt(info, index, nodeCount)
         },
         overrideTextureFilters = {
             u_NoiseBrightness = BuiltinTextureFilters.PixelRepeat,
-            u_NoiseCrack = BuiltinTextureFilters.PixelRepeat,
         },
     })
     return ret

@@ -814,7 +814,7 @@ namespace Fantania.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Simplex变体.
+        ///   Looks up a localized string similar to Simplex变体，需要注意的是如果勾选了Repeat，这两种算法在数学上无法成立，因此会固定用Simplex4D算法来构建可平铺贴图。.
         /// </summary>
         public static string TT_SimplexAlgorithm {
             get {
