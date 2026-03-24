@@ -12,6 +12,7 @@ public class LocalRenderInfo
     public required Vector4 Color { get; set; }
     public required string MaterialKey { get; set; }
     public required DesiredUniformMap Uniforms { get; set; }
+    public required IReadOnlyDictionary<string, TextureFilters> OverrideTextureFilters { get; set; }
     public required IRenderableSizer Sizer { get; set; }
 
     public Rectf Tiling { get; set; } = new Rectf(0.0f, 0.0f, 1.0f, 1.0f);

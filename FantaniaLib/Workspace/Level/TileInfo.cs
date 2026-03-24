@@ -12,6 +12,7 @@ public struct TileInfo
         UVOffset = Vector2.Zero,
         UVSize = Vector2.One,
         Color = Vector4.One,
+        OverrideTextureFilters = new Dictionary<string, TextureFilters>(),
     };
 
     public string RenderStage;
@@ -20,4 +21,5 @@ public struct TileInfo
     public Vector2 UVOffset;
     public Vector2 UVSize;
     public Vector4 Color;
+    public IReadOnlyDictionary<string, TextureFilters> OverrideTextureFilters;
 }

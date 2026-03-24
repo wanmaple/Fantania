@@ -13,7 +13,7 @@ public struct MaterialInfo
     public required string FragmentShader { get; set; }
 }
 
-public struct TextureFilters
+public struct TextureFilters : IEquatable<TextureFilters>
 {
     public static TextureFilters PixelClamp => new TextureFilters
     {
@@ -48,6 +48,36 @@ public struct TextureFilters
     public required TextureMagFilters MagFilter { get; set; }
     public required TextureWraps WrapS { get; set; }
     public required TextureWraps WrapT { get; set; }
+
+    public static bool operator ==(TextureFilters left, TextureFilters right)
+    {
+        return left.Equals(right);
+    }
+
+    public static bool operator !=(TextureFilters left, TextureFilters right)
+    {
+        return !(left == right);
+    }
+
+    public bool Equals(TextureFilters other)
+    {
+        return MinFilter == other.MinFilter && MagFilter == other.MagFilter && WrapS == other.WrapS && WrapT == other.WrapT;
+    }
+
+    public override bool Equals(object? obj)
+    {
+        return obj is TextureFilters other && Equals(other);
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(MinFilter, MagFilter, WrapS, WrapT);
+    }
+
+    public override string ToString()
+    {
+        return $"MinFilter: {MinFilter}, MagFilter: {MagFilter}, WrapS: {WrapS}, WrapT: {WrapT}";
+    }
 }
 
 public class RenderPipelineConfig

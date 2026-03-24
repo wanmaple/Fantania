@@ -20,6 +20,7 @@ public abstract class RenderableBase : ObservableObject, IRenderable
     public int EntityOrder { get; set; }
     public int LocalOrder { get; set; }
     public int NodeIndex { get; set; } = -1;
+    public IReadOnlyDictionary<string, TextureFilters> OverrideTextureFilters => _overrideTextureFilters;
 
     protected RenderableBase()
     {
@@ -46,7 +47,12 @@ public abstract class RenderableBase : ObservableObject, IRenderable
                     ITexture2D? tex = def.ToTexture(workspace.RootFolder);
                     if (tex != null)
                     {
-                        texId = context.TextureManager.AcquireTextureID(tex);
+                        TextureFilters? filter = null;
+                        if (_overrideTextureFilters.TryGetValue(name, out var overrideFilter))
+                        {
+                            filter = overrideFilter;
+                        }
+                        texId = context.TextureManager.AcquireTextureID(tex, filter);
                     }
                 }
                 info.TextureID = texId;
@@ -70,7 +76,12 @@ public abstract class RenderableBase : ObservableObject, IRenderable
                         ITexture2D? tex = def.ToTexture(workspace.RootFolder);
                         if (tex != null)
                         {
-                            texId = context.TextureManager.AcquireTextureID(tex);
+                            TextureFilters? filter = null;
+                            if (_overrideTextureFilters.TryGetValue(name, out var overrideFilter))
+                            {
+                                filter = overrideFilter;
+                            }
+                            texId = context.TextureManager.AcquireTextureID(tex, filter);
                         }
                     }
                     texIds[i] = texId;
@@ -96,7 +107,12 @@ public abstract class RenderableBase : ObservableObject, IRenderable
                 if (def.TextureType != TextureTypes.Gpu && texId != context.TextureManager.White4x4TextureID)
                 {
                     ITexture2D tex = def.ToTexture(workspace.RootFolder)!;
-                    context.TextureManager.ReleaseTexture(tex);
+                    TextureFilters? filter = null;
+                    if (_overrideTextureFilters.TryGetValue(name, out var overrideFilter))
+                    {
+                        filter = overrideFilter;
+                    }
+                    context.TextureManager.ReleaseTexture(tex, filter);
                 }
                 info.TextureID = texId;
                 uniform.Set(info);
@@ -111,10 +127,17 @@ public abstract class RenderableBase : ObservableObject, IRenderable
                     if (def.TextureType != TextureTypes.Gpu && texId != context.TextureManager.White4x4TextureID)
                     {
                         ITexture2D tex = def.ToTexture(workspace.RootFolder)!;
-                        context.TextureManager.ReleaseTexture(tex);
+                        TextureFilters? filter = null;
+                        if (_overrideTextureFilters.TryGetValue(name, out var overrideFilter))
+                        {
+                            filter = overrideFilter;
+                        }
+                        context.TextureManager.ReleaseTexture(tex, filter);
                     }
                 }
             }
         }
     }
+
+    protected IReadOnlyDictionary<string, TextureFilters> _overrideTextureFilters = new Dictionary<string, TextureFilters>(16);
 }

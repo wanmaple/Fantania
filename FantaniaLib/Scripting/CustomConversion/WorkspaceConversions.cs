@@ -52,6 +52,7 @@ public static class WorkspaceConversions
             Vector2 uvOffset = v.Table.Get("uvOffset").GetObjectOrDefault(Vector2.Zero);
             Vector2 uvSize = v.Table.Get("uvSize").GetObjectOrDefault(Vector2.One);
             Vector4 color = v.Table.Get("color").GetObjectOrDefault(Vector4.One);
+            IReadOnlyDictionary<string, TextureFilters> overrideTextureFilters = v.Table.Get("overrideTextureFilters").GetObjectOrDefault(new Dictionary<string, TextureFilters>());
             return new TileInfo
             {
                 RenderStage = stage,
@@ -60,6 +61,7 @@ public static class WorkspaceConversions
                 UVOffset = uvOffset,
                 UVSize = uvSize,
                 Color = color,
+                OverrideTextureFilters = overrideTextureFilters,
             };
         });
         Script.GlobalOptions.CustomConverters.SetClrToScriptCustomConversion<UserPlacement>((env, v) =>

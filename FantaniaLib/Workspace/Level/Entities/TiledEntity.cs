@@ -181,6 +181,7 @@ public class TiledEntity : LevelEntity, ISelectableItem, ISizeableEntity
                         Uniforms = tileInfo.Uniforms,
                         Sizer = new FixedSizer(tileSize),
                         Tiling = new Rectf(tileInfo.UVOffset, tileInfo.UVSize),
+                        OverrideTextureFilters = tileInfo.OverrideTextureFilters,
                     };
                     tiles.Add(localInfo);
                 }

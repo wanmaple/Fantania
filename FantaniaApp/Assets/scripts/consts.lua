@@ -31,3 +31,30 @@ BuiltinShaders = {
     FS_StandardCutoff = "avares://Fantania/Assets/shaders/frag_standard_cutoff.fs",
     FS_LightOccluderMask = "avares://Fantania/Assets/shaders/frag_light_occluder_mask.fs",
 }
+
+BuiltinTextureFilters = {
+    PixelClamp = {
+        minFilter = TextureMinFilters.Nearest,
+        magFilter = TextureMagFilters.Nearest,
+        wrapS = TextureWraps.ClampToEdge,
+        wrapT = TextureWraps.ClampToEdge,
+    },
+    PixelRepeat = {
+        minFilter = TextureMinFilters.Nearest,
+        magFilter = TextureMagFilters.Nearest,
+        wrapS = TextureWraps.Repeat,
+        wrapT = TextureWraps.Repeat,
+    },
+    LinearClamp = {
+        minFilter = TextureMinFilters.Linear,
+        magFilter = TextureMagFilters.Linear,
+        wrapS = TextureWraps.ClampToEdge,
+        wrapT = TextureWraps.ClampToEdge,
+    },
+    LinearRepeat = {
+        minFilter = TextureMinFilters.Linear,
+        magFilter = TextureMagFilters.Linear,
+        wrapS = TextureWraps.Repeat,
+        wrapT = TextureWraps.Repeat,
+    },
+}

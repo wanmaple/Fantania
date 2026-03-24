@@ -197,6 +197,7 @@ public static class RenderingConversions
             string matKey = v.Table.Get("materialKey").GetStringOrDefault(string.Empty);
             DesiredUniformMap uniforms = v.Table.Get("uniforms").GetObjectOrDefault(new DesiredUniformMap());
             IRenderableSizer sizer = v.Table.Get("sizer").GetObjectOrDefault(FallbackSizer.Fallback);
+            IReadOnlyDictionary<string, TextureFilters> overrideTexFilters = v.Table.Get("overrideTextureFilters").GetObjectOrDefault(new Dictionary<string, TextureFilters>());
             Type renderableType = v.Table.Get("renderableType").GetObjectOrDefault(typeof(QuadRenderable));
             var customArgs = new Dictionary<string, object?>(8);
             var customArgsTable = v.Table.Get("customArgs");
@@ -225,6 +226,7 @@ public static class RenderingConversions
                 MaterialKey = matKey,
                 Uniforms = uniforms,
                 Sizer = sizer,
+                OverrideTextureFilters = overrideTexFilters,
                 RenderableType = renderableType,
                 CustomArgs = customArgs,
             };

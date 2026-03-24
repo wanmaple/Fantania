@@ -8,12 +8,13 @@ public class LocalTextureCache : IDisposable
         _defaultFilter = defaultFilter;
     }
 
-    public unsafe int Acquire(ITexture2D texture)
+    public unsafe int Acquire(ITexture2D texture, TextureFilters? filter = null)
     {
         if (_blacklist.Contains(texture.Identifier)) return 0;
-        if (!_texIdMap.TryGetValue(texture.Identifier, out var counter))
+        filter = filter ?? _defaultFilter;
+        if (!_texIdMap.TryGetValue((texture.Identifier, filter.Value), out var counter))
         {
-            if (!texture.TryDecode(_defaultFilter, out var desc, out var data))
+            if (!texture.TryDecode(filter.Value, out var desc, out var data))
             {
                 _blacklist.Add(texture.Identifier);
                 return 0;
@@ -23,23 +24,19 @@ public class LocalTextureCache : IDisposable
                 int texId = _device.CreateTexture2D(desc, (nint)ptr);
                 counter = new ReferenceCounter<int>(texId);
             }
-            _texIdMap.Add(texture.Identifier, counter);
+            _texIdMap.Add((texture.Identifier, filter.Value), counter);
         }
         else
             counter.Acquire();
         return counter.Item;
     }
 
-    public void Release(ITexture2D texture)
+    public void Release(ITexture2D texture, TextureFilters? filter = null)
     {
-        if (_texIdMap.TryGetValue(texture.Identifier, out var counter))
+        filter = filter ?? _defaultFilter;
+        if (_texIdMap.TryGetValue((texture.Identifier, filter.Value), out var counter))
         {
             counter.Release();
-            // if (counter.IsFree)
-            // {
-            //     _device.DeleteTexture(counter.Item);
-            //     _texIdMap.Remove(texture.Identifier);
-            // }
         }
     }
 
@@ -47,14 +44,14 @@ public class LocalTextureCache : IDisposable
     {
         if (_texIdMap.Count == 0)
             return;
-        List<string>? keysToRemove = null;
+        List<(string, TextureFilters)>? keysToRemove = null;
         foreach (var pair in _texIdMap)
         {
             var counter = pair.Value;
             if (counter.IsFree)
             {
                 _device.DeleteTexture(counter.Item);
-                keysToRemove ??= new List<string>(4);
+                keysToRemove ??= new List<(string, TextureFilters)>(8);
                 keysToRemove.Add(pair.Key);
             }
         }
@@ -77,6 +74,6 @@ public class LocalTextureCache : IDisposable
 
     IRenderDevice _device;
     TextureFilters _defaultFilter;
-    Dictionary<string, ReferenceCounter<int>> _texIdMap = new Dictionary<string, ReferenceCounter<int>>(128);
+    Dictionary<(string, TextureFilters), ReferenceCounter<int>> _texIdMap = new Dictionary<(string, TextureFilters), ReferenceCounter<int>>(128);
     HashSet<string> _blacklist = new HashSet<string>(16);
 }

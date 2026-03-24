@@ -157,6 +157,7 @@ public abstract class LevelEntityCommand : ICanvasCommand
                 Tiling2 = local.Tiling2,
                 MaterialKey = local.MaterialKey,
                 Uniforms = local.Uniforms,
+                OverrideTextureFilters = local.OverrideTextureFilters,
             };
             var uniforms = new UniformSet(info.Uniforms);
             RenderMaterial material = context.MaterialSet.AcquireMaterial(info.MaterialKey, uniforms);

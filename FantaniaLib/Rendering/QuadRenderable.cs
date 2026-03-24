@@ -49,6 +49,7 @@ public class QuadRenderable : RenderableBase
         VertexColor = info.Color;
         _material = material;
         _transform = info.Transform;
+        _overrideTextureFilters = info.OverrideTextureFilters;
         UpdateVertices();
         CalculateBounds(Transform);
     }

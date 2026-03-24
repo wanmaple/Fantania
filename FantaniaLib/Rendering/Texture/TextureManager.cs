@@ -37,21 +37,21 @@ public class TextureManager : IDisposable
         }
     }
 
-    public int AcquireTextureID(ITexture2D texture)
+    public int AcquireTextureID(ITexture2D texture, TextureFilters? filter = null)
     {
         if (texture.Category == TextureCategory.Local)
-            return _cacheSingleImage.Acquire(texture);
+            return _cacheSingleImage.Acquire(texture, filter);
         else if (texture.Category == TextureCategory.Atlas)
-            return _cacheAtlas.Acquire(texture);
+            return _cacheAtlas.Acquire(texture, filter);
         return 0;
     }
 
-    public void ReleaseTexture(ITexture2D texture)
+    public void ReleaseTexture(ITexture2D texture, TextureFilters? filter = null)
     {
         if (texture.Category == TextureCategory.Local)
-            _cacheSingleImage.Release(texture);
+            _cacheSingleImage.Release(texture, filter);
         else if (texture.Category == TextureCategory.Atlas)
-            _cacheAtlas.Release(texture);
+            _cacheAtlas.Release(texture, filter);
     }
 
     public void Tick()
