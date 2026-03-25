@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Numerics;
+using Avalonia;
 using Avalonia.Controls;
 using Fantania.Localization;
 using Fantania.Models;
@@ -130,6 +131,17 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
     protected override void OnContextCreateFailed()
     {
         Workspace!.LogError(LocalizationHelper.GetLocalizedString("ERR_GLContextFailure"));
+    }
+
+    protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+    {
+        base.OnPropertyChanged(change);
+        if (_context == null) return;
+        if (change.Property == BoundsProperty)
+        {
+            _context.SceneDirty = true;
+            Workspace!.EditorModule.Notify();
+        }
     }
 
     void OnEntityAdded(LevelEntity entity)

@@ -106,5 +106,32 @@ public class TileGroup
         BoundingBox = BoundingBox.Merge(other.BoundingBox);
     }
 
+    public TiledEntity? GetTiledEntityAtGrid(int xGrid, int yGrid)
+    {
+        foreach (var e in _entities)
+        {
+            int eX = (e.Position.X - BoundingBox.X) / TileSize.X;
+            int eY = (e.Position.Y - BoundingBox.Y) / TileSize.Y;
+            if (xGrid >= eX && xGrid < eX + e.Size.X && yGrid >= eY && yGrid < eY + e.Size.Y)
+            {
+                return e;
+            }
+        }
+        return null;
+    }
+
+    public TiledEntity? GetTiledEntityAtWorld(int xWorld, int yWorld)
+    {
+        foreach (var e in _entities)
+        {
+            if (xWorld >= e.Position.X && xWorld < e.Position.X + e.Size.X * TileSize.X &&
+                yWorld >= e.Position.Y && yWorld < e.Position.Y + e.Size.Y * TileSize.Y)
+            {
+                return e;
+            }
+        }
+        return null;
+    }
+
     List<TiledEntity> _entities = new List<TiledEntity>(0);
 }

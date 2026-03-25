@@ -37,7 +37,7 @@ ForeTiledPlatform.dataDefs = {
     },
     brightnessColor = {
         type = FieldTypes.Color,
-        default = "#000000",
+        default = "#ffffff",
     },
 }
 ForeTiledPlatform.editDefs = {
@@ -92,7 +92,7 @@ function ForeTiledPlatform:tileAt(placement, size, locType, hash)
     local uvOffset = TilingHelper.getUVOffset(locType, hash)
     return {
         stage = BuiltinStages.Opaque,
-        materialKey = "Terrain",
+        materialKey = "ForeTerrain",
         uniforms = {
             u_Texture = {
                 type = UniformTypes.Texture,

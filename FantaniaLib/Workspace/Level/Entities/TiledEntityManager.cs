@@ -2,6 +2,8 @@ namespace FantaniaLib;
 
 public class TiledEntityManager
 {
+    public IReadOnlyList<TileGroup> TileGroups => _tileGroups;
+
     public TileGroup GetGroup(TiledEntity entity)
     {
         return _guid2TileGroup[entity.GUID];

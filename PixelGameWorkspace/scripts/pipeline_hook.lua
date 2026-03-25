@@ -18,7 +18,7 @@ local PipelineHook = {
         {
             name = "u_LightLayerDepth",
             type = PipelineHookUniformTypes.Float4,
-            value = { x = 0.0, y = 128.0, z = 256.0, w = 512.0, },
+            value = { x = 0.0, y = 64.0, z = 128.0, w = 256.0, },
             export = true,
         },
         -- {
@@ -32,7 +32,7 @@ local PipelineHook = {
         {
             name = "u_ShadowArguments",
             type = PipelineHookUniformTypes.Float4,
-            value = { x = 512.0, y = 1024.0, z = 0.0, w = 0.0, },
+            value = { x = 256.0, y = 512.0, z = 0.0, w = 0.0, },
             export = true,
         },
     }

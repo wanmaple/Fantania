@@ -22,7 +22,7 @@ public class DrawCommand : IRenderCommand
             if (!stream.TryAppend(mesh))
             {
                 pipeline.Device.SyncVertexStream(stream);
-                pipeline.Device.Draw(stream, Material.Shader, Material.Uniforms, Globals);
+                pipeline.Device.Draw(stream, Material.Shader, Material.Uniforms, Globals, pipeline.GlobalUniforms);
                 ++pipeline.Statistics.DrawCalls;
                 pipeline.Statistics.Triangles += stream.IndiceCount / 3;
                 stream.Reset();
@@ -32,7 +32,7 @@ public class DrawCommand : IRenderCommand
         if (stream.IndiceCount > 0)
         {
             pipeline.Device.SyncVertexStream(stream);
-            pipeline.Device.Draw(stream, Material.Shader, Material.Uniforms, Globals);
+            pipeline.Device.Draw(stream, Material.Shader, Material.Uniforms, Globals, pipeline.GlobalUniforms);
             ++pipeline.Statistics.DrawCalls;
             pipeline.Statistics.Triangles += stream.IndiceCount / 3;
         }

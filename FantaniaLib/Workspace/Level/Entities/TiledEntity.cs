@@ -326,10 +326,16 @@ public class TiledEntity : LevelEntity, ISelectableItem, ISizeableEntity
 
     public override void OnExport(BinaryWriter writer)
     {
-        base.OnExport(writer);
-        writer.Write(Size.X);
-        writer.Write(Size.Y);
-        writer.Write(RandomSeed);
+        // 瓦片块有单独的存储格式，因此不需要导出任何数据
+    }
+
+    public Rectf GetTileUVRect(IWorkspace workspace, int x, int y)
+    {
+        int hash = Hash(x, y, RandomSeed);
+        var placement = GetReferencedPlacement(workspace);
+        TileLocationTypes locType = workspace.LevelModule.CurrentLevel!.TiledEntityManager.GetLocationType(workspace, this, x, y);
+        var tileInfo = placement.Template.GetTileInfo(placement, Size, locType, hash);
+        return new Rectf(tileInfo.UVOffset, tileInfo.UVSize);
     }
 
     int Hash(int x, int y, int seed)

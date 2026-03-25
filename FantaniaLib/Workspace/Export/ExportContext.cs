@@ -251,15 +251,65 @@ public class ExportContext
                 using (var bw = new BinaryWriter(fs))
                 {
                     int count = 0;
+                    var tileMgr = new TiledEntityManager();
                     foreach (var entity in level.MutableEntities)
                     {
                         UserPlacement placement = entity.GetReferencedPlacement(workspace);
                         if (placement.ID < 0) continue;
-                        ++count;
+                        if (entity is TiledEntity tiled)
+                            tileMgr.AddEntity(workspace, tiled);
+                        else
+                            ++count;
                     }
+                    // Add tile data first.
+                    var groups = tileMgr.TileGroups;
+                    bw.Write(groups.Count);
+                    for (int i = 0; i < groups.Count; i++)
+                    {
+                        TileGroup group = groups[i];
+                        var bounds = group.BoundingBox;
+                        bw.Write(bounds.X);
+                        bw.Write(bounds.Y);
+                        int width = bounds.Width / group.TileSize.X;
+                        int height = bounds.Height / group.TileSize.Y;
+                        bw.Write(width);
+                        bw.Write(height);
+                        bw.Write(group.TileSize.X);
+                        bw.Write(group.TileSize.Y);
+                        for (int y = 0; y < height; y++)
+                        {
+                            for (int x = 0; x < width; x++)
+                            {
+                                TiledEntity? e = group.GetTiledEntityAtGrid(x, y);
+                                if (e == null)
+                                {
+                                    bw.Write((byte)0);
+                                }
+                                else
+                                {
+                                    bw.Write((byte)1);
+                                    var placement = e.GetReferencedPlacement(workspace);
+                                    int index = placementArr.FindIndex(x => x.Name == placement.TypeName);
+                                    if (index < 0) throw new Exception("The placement is not in the entity list?");
+                                    bw.Write(index);
+                                    IDRemap remap = placementArr[index];
+                                    bw.Write(remap.Remap[placement.ID]);
+                                    int x2e = (bounds.X + x * group.TileSize.X - e.Position.X) / group.TileSize.X;
+                                    int y2e = (bounds.Y + y * group.TileSize.Y - e.Position.Y) / group.TileSize.Y;
+                                    Rectf uvRect = e.GetTileUVRect(workspace, x2e, y2e);
+                                    bw.Write(uvRect.X);
+                                    bw.Write(uvRect.Y);
+                                    bw.Write(uvRect.Width);
+                                    bw.Write(uvRect.Height);
+                                }
+                            }
+                        }
+                    }
+                    // Write other entities
                     bw.Write(count);
                     foreach (var entity in level.MutableEntities)
                     {
+                        if (entity is TiledEntity tiled) continue;
                         UserPlacement placement = entity.GetReferencedPlacement(workspace);
                         if (placement.ID < 0) continue;
                         int index = placementArr.FindIndex(x => x.Name == placement.TypeName);

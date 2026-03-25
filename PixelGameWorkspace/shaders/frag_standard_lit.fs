@@ -11,7 +11,6 @@ in vec4 vRotationScale; // x = rotation (radians), yz = scale, w is not used.
 const int MAX_TILES = 32;
 const int MAX_LIGHTS = 64;
 const int MAX_TILE_LIGHT_INDICES = 256;
-const int MAX_LIGHT_TEXTURES = 8;
 
 const float SPECULAR_INNER = 0.9848077; // cos(10 degrees)
 const float SPECULAR_OUTER = 0.9659258; // cos(15 degrees)
@@ -124,8 +123,6 @@ void main() {
 		vec3 L = normalize(toLight);
 		float NdotL = max(dot(N, L), 0.0);
         float len = clamp(length(toLight) / radius, 0.0, 1.0);
-        vec2 lightUV = len * 0.5 + vec2(0.5);
-		int texIndex = clamp(u_LightTextureIndices[lightIndex], 0, MAX_LIGHT_TEXTURES - 1);
 		float lightAttenuation = max(1.0 - len, 0.0);
 		vec4 lightColor = u_LightColors[lightIndex];
 		vec3 R = reflect(-L, N);
