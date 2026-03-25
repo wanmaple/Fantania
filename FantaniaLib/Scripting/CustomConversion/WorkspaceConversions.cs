@@ -47,7 +47,7 @@ public static class WorkspaceConversions
         Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Table, typeof(TileInfo), v =>
         {
             string stage = v.Table.Get("stage").GetStringOrDefault(string.Empty);
-            string materialKey = v.Table.Get("material").GetStringOrDefault(string.Empty);
+            string materialKey = v.Table.Get("materialKey").GetStringOrDefault(string.Empty);
             DesiredUniformMap uniforms = v.Table.Get("uniforms").GetObjectOrDefault(new DesiredUniformMap());
             Vector2 uvOffset = v.Table.Get("uvOffset").GetObjectOrDefault(Vector2.Zero);
             Vector2 uvSize = v.Table.Get("uvSize").GetObjectOrDefault(Vector2.One);

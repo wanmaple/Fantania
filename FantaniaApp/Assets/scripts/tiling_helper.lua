@@ -1,10 +1,10 @@
 local TilingHelper = {}
 
-local function coordAt(num, tileSize)
-    return (num + 0.5 / tileSize) / 8.0
+local function coordAt(num)
+    return num / 8.0
 end
 
-function TilingHelper.getUVOffset(locType, hash, tileSize)
+function TilingHelper.getUVOffset(locType, hash)
     local x, y
     if locType == TileLocationTypes.Center then
         local rd = hash % 9
@@ -96,16 +96,24 @@ function TilingHelper.getUVOffset(locType, hash, tileSize)
     elseif locType == TileLocationTypes.InnerMissingBottomRight then
         x = 4
         y = 0
+    elseif locType == TileLocationTypes.InnerProtrudingTop then
+        x = 7
+        y = 2
+    elseif locType == TileLocationTypes.InnerProtrudingBottom then
+        x = 7
+        y = 4
+    elseif locType == TileLocationTypes.InnerProtrudingLeft then
+        x = 7
+        y = 5
+    elseif locType == TileLocationTypes.InnerProtrudingRight then
+        x = 7
+        y = 3
     else
         local rd = hash % 9
         x = 2 + rd % 3
         y = 2 + math.floor(rd / 3)
     end
-    return { x = coordAt(x, tileSize.x), y = coordAt(y, tileSize.y), }
-end
-
-function TilingHelper.getTileUVSize(tileSize)
-    return { x = 1.0 / 8.0 - 0.5 / (8.0 * tileSize.x), y = 1.0 / 8.0 - 0.5 / (8.0 * tileSize.y), }
+    return { x = coordAt(x), y = coordAt(y), }
 end
 
 return TilingHelper

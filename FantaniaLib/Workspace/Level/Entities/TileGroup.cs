@@ -30,6 +30,10 @@ public enum TileLocationTypes
     InnerMissingTopRight,      // 011-111-010
     InnerMissingBottomLeft,    // 010-111-110
     InnerMissingBottomRight,   // 010-111-011
+    InnerProtrudingTop,        // 010-111-111
+    InnerProtrudingBottom,     // 111-111-010
+    InnerProtrudingLeft,       // 011-111-011
+    InnerProtrudingRight,      // 110-111-110
 }
 
 public class TileGroup

@@ -1,17 +1,14 @@
-local TerrainTest = Class("TerrainTest")
-local Helper = require("helper_functions")
+local ForeTiledPlatform = Class("ForeTiledPlatform")
+local TilingHelper = require("tiling_helper")
 
-TerrainTest.group = "SG_Decoration"
-TerrainTest.name = "SN_TerrainTest"
-TerrainTest.tooltip = "ST_TerrainTest"
-TerrainTest.dataDefs = {
+ForeTiledPlatform.group = "SG_Platforms"
+ForeTiledPlatform.name = "SN_ForeTiledPlatform"
+ForeTiledPlatform.tooltip = "ST_ForeTiledPlatform"
+ForeTiledPlatform.dataDefs = {
     texture = {
         type = FieldTypes.Texture,
     },
     brightnessNoise = {
-        type = FieldTypes.Texture,
-    },
-    crackNoise = {
         type = FieldTypes.Texture,
     },
     color = {
@@ -43,95 +40,88 @@ TerrainTest.dataDefs = {
         default = "#000000",
     },
 }
-TerrainTest.editDefs = {
+ForeTiledPlatform.editDefs = {
     texture = {
         group = "SG_Appearance",
-        tooltip = "ST_TerrainTest_Texture",
+        tooltip = "ST_ForeTiledPlatform_Texture",
     },
     brightnessNoise = {
         group = "SG_Appearance",
-        tooltip = "ST_TerrainTest_BrightnessNoise",
-    },
-    crackNoise = {
-        group = "SG_Appearance",
-        tooltip = "ST_TerrainTest_CrackNoise",
+        tooltip = "ST_ForeTiledPlatform_BrightnessNoise",
     },
     color = {
         group = "SG_Appearance",
-        tooltip = "ST_TerrainTest_Color",
+        tooltip = "ST_ForeTiledPlatform_Color",
     },
     cutoff = {
         group = "SG_Appearance",
-        tooltip = "ST_TerrainTest_Cutoff",
+        tooltip = "ST_ForeTiledPlatform_Cutoff",
         parameter = "0:1:0.01",
     },
     luminanceThreshold = {
         group = "SG_Appearance",
-        tooltip = "ST_TerrainTest_LuminanceThreshold",
+        tooltip = "ST_ForeTiledPlatform_LuminanceThreshold",
         parameter = "0:1:0.01",
     },
     brightnessScale = {
         group = "SG_Appearance",
-        tooltip = "ST_TerrainTest_BrightnessScale",
+        tooltip = "ST_ForeTiledPlatform_BrightnessScale",
         parameter = "0.001:0.1:0.001",
     },
     brightnessStrength = {
         group = "SG_Appearance",
-        tooltip = "ST_TerrainTest_BrightnessStrength",
+        tooltip = "ST_ForeTiledPlatform_BrightnessStrength",
         parameter = "0:4:0.01",
     },
     brightnessQuantizationSteps = {
         group = "SG_Appearance",
-        tooltip = "ST_TerrainTest_BrightnessQuantizationSteps",
+        tooltip = "ST_ForeTiledPlatform_BrightnessQuantizationSteps",
         parameter = "1:64:1",
     },
     brightnessColor = {
         group = "SG_Appearance",
-        tooltip = "ST_TerrainTest_BrightnessColor",
+        tooltip = "ST_ForeTiledPlatform_BrightnessColor",
     },
 }
 
-TerrainTest.defaultLayer = 0
-TerrainTest.placementType = PlacementTypes.Single
+ForeTiledPlatform.defaultLayer = -10
+ForeTiledPlatform.placementType = PlacementTypes.Tiled
+ForeTiledPlatform.tileSize = { x = 128, y = 128, }
 
-function TerrainTest:nodeAt(info, index, nodeCount)
-    local ret = {}
-    table.insert(ret, {
+function ForeTiledPlatform:tileAt(placement, size, locType, hash)
+    local uvOffset = TilingHelper.getUVOffset(locType, hash)
+    return {
         stage = BuiltinStages.Opaque,
-        anchor = { x = 0.5, y = 0.5, },
         materialKey = "Terrain",
-        color = info.color,
         uniforms = {
             u_Texture = {
                 type = UniformTypes.Texture,
-                value = info.texture,
+                value = placement.texture,
             },
             u_NoiseBrightness = {
                 type = UniformTypes.Texture,
-                value = info.brightnessNoise,
+                value = placement.brightnessNoise,
             },
             u_Cutoff = {
                 type = UniformTypes.Float1,
-                value = info.cutoff,
+                value = placement.cutoff,
             },
             u_BrightnessArgs = {
                 type = UniformTypes.Float4,
-                value = { x = info.brightnessScale, y = info.brightnessStrength, z = info.brightnessQuantizationSteps, w = info.luminanceThreshold, },
+                value = { x = placement.brightnessScale, y = placement.brightnessStrength, z = placement.brightnessQuantizationSteps, w = placement.luminanceThreshold, },
             },
             u_BrightnessColor = {
                 type = UniformTypes.Float4,
-                value = info.brightnessColor,
+                value = placement.brightnessColor,
             },
         },
-        sizer = {
-            type = SizerTypes.Texture,
-            texture = info.texture,
-        },
+        uvOffset = uvOffset,
+        uvSize = { x = 0.125, y = 0.125, },
+        color = placement.color,
         overrideTextureFilters = {
             u_NoiseBrightness = BuiltinTextureFilters.PixelRepeat,
         },
-    })
-    return ret
+    }
 end
 
-return TerrainTest
+return ForeTiledPlatform

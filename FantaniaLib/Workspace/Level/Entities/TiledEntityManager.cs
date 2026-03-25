@@ -39,6 +39,14 @@ public class TiledEntityManager
                 return TileLocationTypes.InnerMissingBottomRight;
             if (mask == 0x5E)
                 return TileLocationTypes.InnerMissingBottomLeft;
+            if (mask == 0x5F)
+                return TileLocationTypes.InnerProtrudingTop;
+            if (mask == 0xFA)
+                return TileLocationTypes.InnerProtrudingBottom;
+            if (mask == 0x7B)
+                return TileLocationTypes.InnerProtrudingLeft;
+            if (mask == 0xDE)
+                return TileLocationTypes.InnerProtrudingRight;
             if ((mask & 0x52) == 0 && (mask & 0x08) == 0x08)
                 return TileLocationTypes.PillarHorizontalLeft;
             if ((mask & 0x4A) == 0 && (mask & 0x10) == 0x10)
