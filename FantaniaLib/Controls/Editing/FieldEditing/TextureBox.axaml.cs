@@ -105,6 +105,28 @@ public partial class TextureBox : UserControl
         topLevel.RequestAnimationFrame(OnTick);
     }
 
+    protected override void OnDataContextChanged(EventArgs e)
+    {
+        base.OnDataContextChanged(e);
+        if (Field != null)
+        {
+            string args = Field.EditInfo.EditParameter;
+            if (!string.IsNullOrEmpty(args))
+            {
+                var ary = Field.EditInfo.EditParameter.Split(';');
+                var kv = ary.Select(s => s.Split(':')).ToDictionary(a => a[0], a => a[1]);
+                if (kv.TryGetValue("excepts", out string? excepts))
+                {
+                    var converter = new EnumType2OptionsConverter();
+                    var exceptTypes = excepts.Split(',').Select(s => Enum.Parse<TextureTypes>(s)).ToHashSet();
+                    if (exceptTypes.Add(TextureTypes.Gpu))
+                        excepts += ",Gpu";
+                    obTexType.Options = (IEnumerable<Option>)converter.Convert(typeof(TextureTypes), typeof(IEnumerable<Option>), excepts, CultureInfo.InvariantCulture)!;
+                }
+            }
+        }
+    }
+
     void OnTick(TimeSpan dt)
     {
         if (Field != null)

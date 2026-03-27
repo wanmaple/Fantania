@@ -82,7 +82,10 @@
                     </MenuItem.Icon>
                 </MenuItem>
             </MenuItem>
-            <MenuItem Classes= "m" Header="{x:Static lang:Resources.MI_Tools}" IsVisible="{Binding Workspace, Converter={x:Static ObjectConverters.IsNotNull}}">
+            <MenuItem Classes="m" Header="{x:Static lang:Resources.MI_GameData}" IsVisible="{Binding Workspace, Converter={x:Static ObjectConverters.IsNotNull}}">
+                <MenuItem Classes="p" Header="{x:Static lang:Resources.MI_GameData_EditGameData}" Command="{Binding EditGameDataCommand}" />
+            </MenuItem>
+            <MenuItem Classes="m" Header="{x:Static lang:Resources.MI_Tools}" IsVisible="{Binding Workspace, Converter={x:Static ObjectConverters.IsNotNull}}">
                 <MenuItem Classes="p" Header="{x:Static lang:Resources.MI_Tools_NoiseGenerator}" Command="{Binding NoiseGeneratorCommand}" />
             </MenuItem>
         </Menu>

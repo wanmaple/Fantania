@@ -66,7 +66,38 @@ public class ScriptingModule : WorkspaceModule
                 }
                 catch (Exception ex)
                 {
-                    _workspace.LogError($"Invalid entity: {scriptPath}");
+                    _workspace.LogError($"Invalid entity script: {scriptPath}");
+                    _workspace.LogError($"Detail: {ex}");
+                }
+            }
+        }
+        string configFolder = _workspace.GetAbsolutePath(Workspace.SCRIPTS_FOLDER, Workspace.CONFIGS_FOLDER);
+        if (Directory.Exists(configFolder))
+        {
+            var di = new DirectoryInfo(configFolder);
+            foreach (var fi in di.GetFiles("*.lua", SearchOption.AllDirectories))
+            {
+                string scriptPath = fi.FullName.ToStandardPath();
+                try
+                {
+                    string script = File.ReadAllText(scriptPath);
+                    DynValue table = _scriptEngine.ExecuteString(script);
+                    if (table.IsNil())
+                    {
+                        _workspace.LogError($"GameData '{scriptPath}' returns nil.");
+                        continue;
+                    }
+                    var template = new GameDataTemplate(_scriptEngine, table);
+                    if (string.IsNullOrEmpty(template.DataGroup))
+                    {
+                        _workspace.LogWarning($"GameData '{scriptPath}' has empty data group, skipped.");
+                        continue;
+                    }
+                    _workspace.DatabaseModule.AddGameDataTemplate(template);
+                }
+                catch (Exception ex)
+                {
+                    _workspace.LogError($"Invalid config script: {scriptPath}");
                     _workspace.LogError($"Detail: {ex}");
                 }
             }

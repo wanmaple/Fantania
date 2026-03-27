@@ -1,0 +1,100 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        xmlns:lib="using:FantaniaLib"
+        xmlns:v="using:Fantania.Views"
+        xmlns:vm="using:Fantania.ViewModels"
+        xmlns:lang="using:Fantania.Localization"
+        x:Class="Fantania.Views.EditGameDataView"
+        x:DataType="vm:EditGameDataViewModel"
+        Title="{x:Static lang:Resources.H_EditGameData}" WindowStartupLocation="CenterScreen"
+        SizeToContent="WidthAndHeight" CanResize="False"
+        x:Name="Root">
+  <Window.Resources>
+    <v:DataGroup2TemplatesConverter x:Key="Cvt_Group2Templates" />
+    <v:DataGroup2GameDataListConverter x:Key="Cvt_Group2Objs" />
+  </Window.Resources>
+  <DockPanel Margin="10">
+    <TextBlock Classes="h2" DockPanel.Dock="Top" Text="{x:Static lang:Resources.H_EditGameData}" HorizontalAlignment="Left" VerticalAlignment="Center" />
+    <Grid ColumnDefinitions="auto,auto,*" Height="640" Margin="10">
+      <Border Classes="thin s1" Grid.Column="0">
+        <Grid RowDefinitions="auto,*">
+          <TextBox x:Name="txtFilterGroup" Grid.Row="0" Watermark="{x:Static lang:Resources.WM_Filter}" Margin="0 0 0 10" TextChanged="FilterGroupBox_TextChanged" />
+          <ListBox x:Name="lbGroups" Grid.Row="1" ItemsSource="{Binding GameDataGroups}" Background="Transparent" MinWidth="200" />
+        </Grid>
+      </Border>
+      <GridSplitter Grid.Column="1" ResizeDirection="Columns" ResizeBehavior="PreviousAndNext" Width="1" />
+      <Border Classes="thin s1" Grid.Column="2">
+        <Grid RowDefinitions="auto,*" Width="824">
+          <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+            <ItemsControl Margin="5">
+              <ItemsControl.ItemsSource>
+                <MultiBinding Converter="{StaticResource Cvt_Group2Templates}">
+                  <Binding ElementName="lbGroups" Path="SelectedItem" />
+                  <Binding Path="Workspace" />
+                </MultiBinding>
+              </ItemsControl.ItemsSource>
+              <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                  <StackPanel Orientation="Horizontal" Spacing="4" />
+                </ItemsPanelTemplate>
+              </ItemsControl.ItemsPanel>
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="lib:GameDataTemplate">
+                  <Button Click="ButtonAddGameData_Click" ToolTip.ServiceEnabled="True">
+                    <Button.Content>
+                      <MultiBinding Converter="{StaticResource Cvt_Localized}">
+                        <Binding Path="Name" />
+                        <Binding Path="#Root.DataContext.Workspace" />
+                      </MultiBinding>
+                    </Button.Content>
+                    <ToolTip.Tip>
+                      <TextBlock Classes="tooltip">
+                        <TextBlock.Text>
+                          <MultiBinding Converter="{StaticResource Cvt_Localized}">
+                            <Binding Path="Tooltip" />
+                            <Binding Path="#Root.DataContext.Workspace" />
+                          </MultiBinding>
+                        </TextBlock.Text>
+                      </TextBlock>
+                    </ToolTip.Tip>
+                  </Button>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </ScrollViewer>
+          <Grid Grid.Row="1" ColumnDefinitions="auto,auto,*" Margin="5">
+            <Grid Grid.Column="0" RowDefinitions="auto,*">
+              <TextBox x:Name="txtFilterName" Grid.Row="0" Watermark="{x:Static lang:Resources.WM_Filter}" Margin="0 0 0 10" TextChanged="FilterNameBox_TextChanged" />
+              <ListBox x:Name="lbGamedata" Grid.Row="1" Background="Transparent" MinWidth="200">
+                <ListBox.ItemsSource>
+                  <MultiBinding Converter="{StaticResource Cvt_Group2Objs}">
+                    <Binding ElementName="lbGroups" Path="SelectedItem" />
+                    <Binding Path="Workspace" />
+                    <Binding Path="#Root.NotifyChange" />
+                  </MultiBinding>
+                </ListBox.ItemsSource>
+                <ListBox.DisplayMemberBinding>
+                  <ReflectionBinding Path="Name" />
+                </ListBox.DisplayMemberBinding>
+              </ListBox>
+            </Grid>
+            <GridSplitter Grid.Column="1" ResizeDirection="Columns" ResizeBehavior="PreviousAndNext" Width="1" />
+            <ScrollViewer Grid.Column="2">
+              <lib:ObjectEditView>
+                <lib:ObjectEditView.EditableFields>
+                  <MultiBinding Converter="{StaticResource Cvt_Obj2Groups}">
+                    <Binding ElementName="lbGamedata" Path="SelectedItem" />
+                    <Binding Path="Workspace" />
+                  </MultiBinding>
+                </lib:ObjectEditView.EditableFields>
+              </lib:ObjectEditView>
+            </ScrollViewer>
+          </Grid>
+        </Grid>
+      </Border>
+    </Grid>
+  </DockPanel>
+</Window>

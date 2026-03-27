@@ -27,6 +27,7 @@ public abstract class Workspace : SyncableObject, IWorkspace
     public const string TEXTURE_FOLDER = "textures";
     public const string SCRIPTS_FOLDER = "scripts";
     public const string ENTITIES_FOLDER = "entities";
+    public const string CONFIGS_FOLDER = "gamedata";
     public const string LEVELS_FOLDER = "levels";
 
     public string RootFolder { get; private set; }

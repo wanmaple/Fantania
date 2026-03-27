@@ -301,6 +301,15 @@ namespace Fantania.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 游戏配置.
+        /// </summary>
+        public static string H_EditGameData {
+            get {
+                return ResourceManager.GetString("H_EditGameData", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 导出到....
         /// </summary>
         public static string H_ExportTo {
@@ -495,6 +504,24 @@ namespace Fantania.Localization {
         public static string MI_File_SaveWorkspace {
             get {
                 return ResourceManager.GetString("MI_File_SaveWorkspace", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 数据.
+        /// </summary>
+        public static string MI_GameData {
+            get {
+                return ResourceManager.GetString("MI_GameData", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 编辑游戏配置.
+        /// </summary>
+        public static string MI_GameData_EditGameData {
+            get {
+                return ResourceManager.GetString("MI_GameData_EditGameData", resourceCulture);
             }
         }
         

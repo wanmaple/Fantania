@@ -7,8 +7,6 @@ public enum TextureTypes
     None,
     Image,
     Atlas,
-    // Gradient,
-    // Noise,
     Gpu,
 }
 

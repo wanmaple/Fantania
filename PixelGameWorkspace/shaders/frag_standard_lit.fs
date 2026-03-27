@@ -148,6 +148,6 @@ void main() {
 	}
 	vec3 unlitColor = albedo.rgb * u_EnvAmbient.rgb;
 	vec3 litColor = unlitColor + albedo.rgb * lightAccum;
-	vec3 finalColor = mix(unlitColor, litColor, lightingMask);
+	vec3 finalColor = mix(albedo.rgb, litColor, lightingMask);
 	FragColor = vec4(finalColor, albedo.a);
 }

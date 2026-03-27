@@ -505,4 +505,16 @@
     <value>脊形状指数，越大'脊'越尖锐。</value>
     <comment/>
   </data>
+  <data name="MI_GameData" xml:space="preserve">
+    <value>数据</value>
+    <comment/>
+  </data>
+  <data name="MI_GameData_EditGameData" xml:space="preserve">
+    <value>编辑游戏配置</value>
+    <comment/>
+  </data>
+  <data name="H_EditGameData" xml:space="preserve">
+    <value>游戏配置</value>
+    <comment/>
+  </data>
 </root>

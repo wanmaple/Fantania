@@ -78,6 +78,11 @@ public class Object2GroupedEditFieldsConverter : IMultiValueConverter
         if (values[0] is not IEditableObject editable) return AvaloniaProperty.UnsetValue;
         if (values[1] is not IWorkspace workspace) return AvaloniaProperty.UnsetValue;
         var fields = editable.GetEditableFields(workspace);
+        if (parameter != null && parameter is string excepts)
+        {
+            HashSet<string> exceptSet = new HashSet<string>(excepts.Split(',').Select(s => s.Trim()));
+            fields = fields.Where(f => !exceptSet.Contains(f.FieldName)).ToList();
+        }
         return fields.GroupBy(f => f.EditInfo.EditGroup).OrderBy(g => g.Key).Select(g => new GroupedEditableFields
         {
             Workspace = workspace,
@@ -103,6 +108,11 @@ public class Objects2GroupedEditFieldsConverter : IMultiValueConverter
         {
             IEditableObject editable = (IEditableObject)values[i]!;
             fields.AddRange(editable.GetEditableFields(workspace));
+        }
+        if (parameter != null && parameter is string excepts)
+        {
+            HashSet<string> exceptSet = new HashSet<string>(excepts.Split(',').Select(s => s.Trim()));
+            fields = fields.Where(f => !exceptSet.Contains(f.FieldName)).ToList();
         }
         return fields.GroupBy(f => f.EditInfo.EditGroup).OrderBy(g => g.Key).Select(g => new GroupedEditableFields
         {

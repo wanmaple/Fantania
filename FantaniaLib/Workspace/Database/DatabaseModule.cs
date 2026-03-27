@@ -6,6 +6,7 @@ public class DatabaseModule : WorkspaceModule
 {
     public const string DATABASE_FILENAME = "main.db";
 
+    public IList<string> GameDataGroups => _gamedataTemplateGroupMap.Keys.ToList();
     public SerializationRule SerializationRule => _rule;
     public bool HasChange => _syncer.HasChange;
 
@@ -57,6 +58,43 @@ public class DatabaseModule : WorkspaceModule
         _syncer.RemoveObject(obj);
     }
 
+    public void AddGameDataTemplate(GameDataTemplate template)
+    {
+        _gamedataTemplateMap.Add(template.ClassName, template);
+        if (!_gamedataTemplateGroupMap.TryGetValue(template.DataGroup, out var list))
+        {
+            list = new List<GameDataTemplate>(4);
+            _gamedataTemplateGroupMap.Add(template.DataGroup, list);
+        }
+        list.Add(template);
+    }
+
+    public IReadOnlyList<GameDataTemplate> GetGameDataTemplatesOfGroup(string group)
+    {
+        if (_gamedataTemplateGroupMap.TryGetValue(group, out var list))
+            return list;
+        return Array.Empty<GameDataTemplate>();
+    }
+
+    public UserGameData AddUserGameData(string templateType)
+    {
+        GameDataTemplate template = _gamedataTemplateMap[templateType];
+        var groupObjs = GetObjectsOfGroup(template.DataGroup);
+        int newId = groupObjs.Count <= 0 ? 1 : groupObjs.Max(d => d.ID) + 1;
+        var data = new UserGameData(template, newId);
+        AddObject(data);
+        WatchPropertyChange(data);
+        _workspace.UndoStack.AddOperation(new NewDatabaseObjectOperation(_workspace, data));
+        return data;
+    }
+
+    public void RemoveUserGameData(UserGameData data)
+    {
+        RemoveObject(data);
+        UnwatchPropertyChange(data);
+        _workspace.UndoStack.AddOperation(new DelDatabaseObjectOperation(_workspace, data));
+    }
+
     internal void WatchPropertyChange(DatabaseObject obj)
     {
         obj.PropertyChanging += OnDatabaseObjectPropertyChanging;
@@ -104,6 +142,8 @@ public class DatabaseModule : WorkspaceModule
     SqliteDatabase _db;
     SqliteSyncer _syncer;
     SerializationRule _rule = SerializationRule.Default;
+    Dictionary<string, GameDataTemplate> _gamedataTemplateMap = new Dictionary<string, GameDataTemplate>(64);
+    Dictionary<string, List<GameDataTemplate>> _gamedataTemplateGroupMap = new Dictionary<string, List<GameDataTemplate>>(16);
 
     PropertyChangeInfo? _tempChange;
 }

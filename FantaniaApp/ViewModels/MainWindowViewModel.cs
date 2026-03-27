@@ -219,6 +219,13 @@ public partial class MainWindowViewModel : ViewModelBase
     }
 
     [RelayCommand]
+    void EditGameData()
+    {
+        var vmGameData = new EditGameDataViewModel(Workspace!);
+        vmGameData.ShowView();
+    }
+
+    [RelayCommand]
     async Task NoiseGenerator()
     {
         var vNoiseGen = new NoiseGeneratorView();

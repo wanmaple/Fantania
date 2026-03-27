@@ -3,6 +3,7 @@ SG_Appearance=表现
 SG_Transform=变换
 SG_Lights=光源
 SG_FeatureNodes=功能
+SG_Data=数据
 
 # Sprite
 SN_Sprite=精灵
