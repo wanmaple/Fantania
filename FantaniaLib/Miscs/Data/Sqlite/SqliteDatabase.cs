@@ -9,6 +9,8 @@ public class SqliteDatabase : IDisposable
 {
     public event Action<string>? ExecutingNonQuery;
 
+    public IReadOnlyList<DatabaseObject> AllObjects => _typedObjs.Values.SelectMany(objs => objs).Where(obj => obj != EmptyDatabaseObject.Instance).ToList();
+
     public SqliteDatabase(string dbPath)
     {
         _conn = new SqliteConnection($"Data Source={dbPath}");

@@ -73,6 +73,15 @@ public static class WorkspaceConversions
             }
             return ret;
         });
+        Script.GlobalOptions.CustomConverters.SetClrToScriptCustomConversion<UserGameData>((env, v) =>
+        {
+            var ret = DynValue.NewTable(env);
+            foreach (var field in v.SerializableFields)
+            {
+                ret.Table.Set(field.FieldName, DynValue.FromObject(env, v.GetFieldValue(field.FieldName)));
+            }
+            return ret;
+        });
         Script.GlobalOptions.CustomConverters.SetClrToScriptCustomConversion<ScriptObject>((env, v) =>
         {
             var ret = DynValue.NewTable(env);
@@ -131,6 +140,15 @@ public static class WorkspaceConversions
             ret.Table.Set("entityProperties", eProps);
             var tProps = DynValue.FromObject(env, v.TemplateProperties);
             ret.Table.Set("templateProperties", tProps);
+            return ret;
+        });
+        Script.GlobalOptions.CustomConverters.SetClrToScriptCustomConversion<ExportGameData>((env, v) =>
+        {
+            var ret = DynValue.NewTable(env);
+            ret.Table.Set("type", DynValue.NewString(v.TypeName));
+            ret.Table.Set("group", DynValue.NewString(v.GroupName));
+            var props = DynValue.FromObject(env, v.Properties);
+            ret.Table.Set("properties", props);
             return ret;
         });
         Script.GlobalOptions.CustomConverters.SetScriptToClrCustomConversion(DataType.Table, typeof(IDRemap), v =>

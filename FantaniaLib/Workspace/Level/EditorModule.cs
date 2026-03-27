@@ -4,6 +4,8 @@ namespace FantaniaLib;
 
 public class EditorModule : WorkspaceModule
 {
+    public event Action? OnSceneChanged;
+
     private bool _notifyFlag = false;
     /// <summary>
     /// 这是一个专门用于各种情况的Binding触发器，如果你的Binding由于某些原因不会触发PropertyChanged，你可以用MultiBinding把这个属性绑定上去，然后在需要触发的时机，调用Notify方法就可以触发Binding的改变了。
@@ -143,5 +145,10 @@ public class EditorModule : WorkspaceModule
     public void Notify()
     {
         NotifyFlag = !NotifyFlag;
+    }
+
+    public void NotifySceneChanged()
+    {
+        OnSceneChanged?.Invoke();
     }
 }

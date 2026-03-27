@@ -66,6 +66,7 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
         Workspace.LevelModule.EntityRemoved += OnEntityRemoved;
         Workspace.LevelModule.PropertyChanged += OnLevelChanged;
         Workspace.LevelModule.LayerManager.LayerVisibilityChanged += OnLayerVisibilityChanged;
+        Workspace.EditorModule.OnSceneChanged += OnSceneChanged;
     }
 
     protected override void OnContextFinalizing(ConfigurableRenderPipeline pipeline)
@@ -74,6 +75,7 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
         Workspace.LevelModule.EntityRemoved -= OnEntityRemoved;
         Workspace.LevelModule.PropertyChanged -= OnLevelChanged;
         Workspace.LevelModule.LayerManager.LayerVisibilityChanged -= OnLayerVisibilityChanged;
+        Workspace.EditorModule.OnSceneChanged -= OnSceneChanged;
         if (Workspace.LevelModule.CurrentLevel != null)
             FinalizeLevel(Workspace.LevelModule.CurrentLevel);
         _lifeOfRenderables!.Unregister(_context!.RenderableHierarchy);
@@ -207,6 +209,11 @@ public class LevelCanvas : GLCanvas, ILevelCanvas
         {
             selections.Remove(sel);
         }
+    }
+
+    void OnSceneChanged()
+    {
+        _context!.SceneDirty = true;
     }
 
     void InitializeLevel(IReadonlyLevel? lv)

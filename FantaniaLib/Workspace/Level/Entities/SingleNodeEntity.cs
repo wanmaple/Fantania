@@ -90,17 +90,17 @@ public class SingleNodeEntity : LevelEntity, ISelectableItem
 
     public virtual bool CanRotate(IWorkspace workspace)
     {
-        return GetReferencedPlacement(workspace).Template.CanRotate(0);
+        return GetReferencedPlacement(workspace).TemplateAs<PlacementTemplate>().CanRotate(0);
     }
 
     public virtual bool CanScale(IWorkspace workspace)
     {
-        return GetReferencedPlacement(workspace).Template.CanScale(0);
+        return GetReferencedPlacement(workspace).TemplateAs<PlacementTemplate>().CanScale(0);
     }
 
     public virtual bool CanTranslate(IWorkspace workspace)
     {
-        return GetReferencedPlacement(workspace).Template.CanTranslate(0);
+        return GetReferencedPlacement(workspace).TemplateAs<PlacementTemplate>().CanTranslate(0);
     }
 
     public override Matrix3x3 TransformAt(int index)

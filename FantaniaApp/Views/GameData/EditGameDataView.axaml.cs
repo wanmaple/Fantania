@@ -5,7 +5,9 @@ using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data.Converters;
+using Avalonia.Input;
 using Avalonia.Interactivity;
+using Fantania.Localization;
 using Fantania.ViewModels;
 using FantaniaLib;
 
@@ -77,8 +79,8 @@ public partial class EditGameDataView : Window
     {
         string? selected = (string?)lbGroups.SelectedItem;
         string filterContent = txtFilterGroup.Text == null ? string.Empty : txtFilterGroup.Text.Trim();
-        ViewModel!.FilterGroups(g => string.IsNullOrEmpty(filterContent) || g.Contains(filterContent, System.StringComparison.OrdinalIgnoreCase));
-        if (selected != null && !string.IsNullOrEmpty(filterContent) && !selected.Contains(filterContent, System.StringComparison.OrdinalIgnoreCase))
+        ViewModel!.FilterGroups(g => string.IsNullOrEmpty(filterContent) || g.Contains(filterContent, StringComparison.OrdinalIgnoreCase));
+        if (selected != null && !string.IsNullOrEmpty(filterContent) && !selected.Contains(filterContent, StringComparison.OrdinalIgnoreCase))
             lbGroups.SelectedItem = null;
         else
             lbGroups.SelectedItem = selected;
@@ -107,9 +109,43 @@ public partial class EditGameDataView : Window
         lbGamedata.SelectedItem = newData;
     }
 
+    async void ListBoxGamedata_PointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (!e.GetCurrentPoint(lbGamedata).Properties.IsMiddleButtonPressed)
+            return;
+        var source = e.Source as Control;
+        while (source != null && source is not ListBoxItem)
+            source = source.Parent as Control;
+        if (source is ListBoxItem { DataContext: UserGameData gamedata })
+        {
+            IWorkspace workspace = ViewModel.Workspace;
+            var referedlist = workspace.DatabaseModule.GetObjectsReferenced(gamedata);
+            if (referedlist.Count > 0)
+            {
+                if (!await MessageBoxHelper.PopupWarningYesNo(this, LocalizationHelper.GetLocalizedString("WARN_ConfirmRemoveGameDataReferenced"), gamedata.Name))
+                    return;
+            }
+            // 这里有严格的顺序要求，具体原因没查，总之先这样
+            workspace.DatabaseModule.RemoveUserGameData(gamedata);
+            workspace.DatabaseModule.FixObjectsReferenced(referedlist, gamedata);
+            NotifyChange = !NotifyChange;
+        }
+    }
+
     bool FilterGameData(DatabaseObject obj)
     {
         string filterContent = txtFilterName.Text == null ? string.Empty : txtFilterName.Text.Trim();
         return string.IsNullOrEmpty(filterContent) || obj.Name.Contains(filterContent, StringComparison.OrdinalIgnoreCase);
+    }
+
+    void ResetSelectionIfRequired()
+    {
+        if (lbGamedata.ItemsSource is FilterableBindingSource<DatabaseObject> source)
+        {
+            if (source.Count == 0)
+                lbGamedata.SelectedItem = null;
+            else if (!source.Contains((DatabaseObject)lbGamedata.SelectedItem!))
+                lbGamedata.SelectedItem = null;
+        }
     }
 }

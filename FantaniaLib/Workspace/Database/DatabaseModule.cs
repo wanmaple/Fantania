@@ -20,7 +20,7 @@ public class DatabaseModule : WorkspaceModule
 
     public async Task SyncFromDatabase()
     {
-        await _syncer.SyncFromDatabase(_workspace.PlacementModule.PlacementTemplateMap.Values.ToArray(), Array.Empty<Type>());
+        await _syncer.SyncFromDatabase(_workspace.PlacementModule.PlacementTemplateMap.Values.ToArray(), _gamedataTemplateMap.Values.ToArray());
     }
 
     public async Task SyncToDatabase()
@@ -93,6 +93,102 @@ public class DatabaseModule : WorkspaceModule
         RemoveObject(data);
         UnwatchPropertyChange(data);
         _workspace.UndoStack.AddOperation(new DelDatabaseObjectOperation(_workspace, data));
+    }
+
+    public IReadOnlyList<DatabaseObject> GetObjectsReferenced(DatabaseObject data)
+    {
+        var ret = new List<DatabaseObject>();
+        foreach (var obj in _db.AllObjects)
+        {
+            var fields = obj.SerializableFields;
+            foreach (var field in fields)
+            {
+                if (field.FieldType == FieldTypes.GroupReference)
+                {
+                    GroupReference groupRef = (GroupReference)obj.GetFieldValue(field.FieldName)!;
+                    if (groupRef.ReferenceGroup == data.GroupName && groupRef.ReferenceID == data.ID)
+                        ret.Add(obj);
+                }
+                else if (field.FieldType == FieldTypes.TypeReference)
+                {
+                    TypeReference typeRef = (TypeReference)obj.GetFieldValue(field.FieldName)!;
+                    if (typeRef.ReferenceType == data.TypeName && typeRef.ReferenceID == data.ID)
+                        ret.Add(obj);
+                }
+                else if (field.FieldType == FieldTypes.GroupReferenceArray)
+                {
+                    FantaniaArray<GroupReference> groupRefArray = (FantaniaArray<GroupReference>)obj.GetFieldValue(field.FieldName)!;
+                    if (groupRefArray.Any(r => r.ReferenceGroup == data.GroupName && r.ReferenceID == data.ID))
+                        ret.Add(obj);
+                }
+                else if (field.FieldType == FieldTypes.TypeReferenceArray)
+                {
+                    FantaniaArray<TypeReference> typeRefArray = (FantaniaArray<TypeReference>)obj.GetFieldValue(field.FieldName)!;
+                    if (typeRefArray.Any(r => r.ReferenceType == data.TypeName && r.ReferenceID == data.ID))
+                        ret.Add(obj);
+                }
+            }
+        }
+        return ret;
+    }
+
+    public void FixObjectsReferenced(IReadOnlyList<DatabaseObject> objs, DatabaseObject refered)
+    {
+        foreach (var obj in objs)
+        {
+            var fields = obj.SerializableFields;
+            foreach (var field in fields)
+            {
+                if (field.FieldType == FieldTypes.GroupReference)
+                {
+                    GroupReference groupRef = (GroupReference)obj.GetFieldValue(field.FieldName)!;
+                    if (groupRef.ReferenceGroup == refered.GroupName && groupRef.ReferenceID == refered.ID)
+                        obj.SetFieldValue(field.FieldName, new GroupReference
+                        {
+                            ReferenceGroup = refered.GroupName,
+                            ReferenceID = 0,
+                        });
+                }
+                else if (field.FieldType == FieldTypes.TypeReference)
+                {
+                    TypeReference typeRef = (TypeReference)obj.GetFieldValue(field.FieldName)!;
+                    if (typeRef.ReferenceType == refered.TypeName && typeRef.ReferenceID == refered.ID)
+                        obj.SetFieldValue(field.FieldName, new TypeReference
+                        {
+                            ReferenceType = refered.TypeName,
+                            ReferenceID = 0,
+                        });
+                }
+                else if (field.FieldType == FieldTypes.GroupReferenceArray)
+                {
+                    FantaniaArray<GroupReference> groupRefArray = (FantaniaArray<GroupReference>)obj.GetFieldValue(field.FieldName)!;
+                    for (int i = 0; i < groupRefArray.Count; i++)
+                    {
+                        GroupReference r = groupRefArray[i];
+                        if (r.ReferenceGroup == refered.GroupName && r.ReferenceID == refered.ID)
+                            groupRefArray[i] = new GroupReference
+                            {
+                                ReferenceGroup = refered.GroupName,
+                                ReferenceID = 0,
+                            };
+                    }
+                }
+                else if (field.FieldType == FieldTypes.TypeReferenceArray)
+                {
+                    FantaniaArray<TypeReference> typeRefArray = (FantaniaArray<TypeReference>)obj.GetFieldValue(field.FieldName)!;
+                    for (int i = 0; i < typeRefArray.Count; i++)
+                    {
+                        TypeReference r = typeRefArray[i];
+                        if (r.ReferenceType == refered.TypeName && r.ReferenceID == refered.ID)
+                            typeRefArray[i] = new TypeReference
+                            {
+                                ReferenceType = refered.TypeName,
+                                ReferenceID = 0,
+                            };
+                    }
+                }
+            }
+        }
     }
 
     internal void WatchPropertyChange(DatabaseObject obj)

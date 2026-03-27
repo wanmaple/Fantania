@@ -30,6 +30,32 @@ ExportSettings.editDefs = {
     },
 }
 
+local function toCppName(value)
+    return string.upper(string.sub(value, 1, 1)) .. string.sub(value, 2)
+end
+
+local function sortedKeys(input)
+    local keys = {}
+    for key, _ in pairs(input) do
+        table.insert(keys, key)
+    end
+    table.sort(keys)
+    return keys
+end
+
+local function getSortedGameDataGroups(gamedataByType)
+    local groups = {}
+    local groupMap = {}
+    for _, info in pairs(gamedataByType) do
+        if not groupMap[info.group] then
+            groupMap[info.group] = true
+            table.insert(groups, info.group)
+        end
+    end
+    table.sort(groups)
+    return groups
+end
+
 local function getGlobalUniformVariants(uniforms)
     local ret = {}
     for _, uniform in ipairs(PipelineHook.uniforms) do
@@ -76,16 +102,137 @@ local function getGlobalUniformVariants(uniforms)
     return ret
 end
 
-local function getPlacementVariants(placements, remappedPlacements)
+local function normalizeStringVariants(props, string2index, stringIndex)
+    for _, prop in ipairs(props) do
+        if prop.value.type == FieldTypes.String then
+            local str = prop.value.value
+            if not string2index[str] then
+                string2index[str] = stringIndex
+                stringIndex = stringIndex + 1
+            end
+            prop.value.type = FieldTypes.Integer
+            prop.value.value = string2index[str]
+        elseif prop.value.type == FieldTypes.StringArray then
+            local strArr = prop.value.value
+            local indices = {}
+            for _, str in ipairs(strArr) do
+                if not string2index[str] then
+                    string2index[str] = stringIndex
+                    stringIndex = stringIndex + 1
+                end
+                table.insert(indices, string2index[str])
+            end
+            prop.value.type = FieldTypes.IntegerArray
+            prop.value.value = indices
+        end
+    end
+    return stringIndex
+end
+
+local function buildPlacementRemap(placements)
+    local remap = {}
+    for typeName, typedPlacements in pairs(placements) do
+        local ids = sortedKeys(typedPlacements)
+        remap[typeName] = {}
+        local newId = 0
+        for _, oldId in ipairs(ids) do
+            remap[typeName][oldId] = newId
+            newId = newId + 1
+        end
+    end
+    return remap
+end
+
+local function buildGameDataRemap(gamedataByType)
+    local groupRemap = {}
+    local typeRemap = {}
+    local groupTypeMap = {}
+
+    local groupedIds = {}
+    for _, info in pairs(gamedataByType) do
+        groupedIds[info.group] = groupedIds[info.group] or {}
+        for id, _ in pairs(info.objects) do
+            groupedIds[info.group][id] = true
+        end
+    end
+
+    for group, idsMap in pairs(groupedIds) do
+        local ids = sortedKeys(idsMap)
+        groupRemap[group] = {}
+        groupTypeMap[group] = {}
+        local newId = 0
+        for _, oldId in ipairs(ids) do
+            groupRemap[group][oldId] = newId
+            newId = newId + 1
+        end
+    end
+
+    for typeName, info in pairs(gamedataByType) do
+        local gRemap = groupRemap[info.group] or {}
+        typeRemap[typeName] = {}
+        for id, _ in pairs(info.objects) do
+            if gRemap[id] ~= nil then
+                local newId = gRemap[id]
+                typeRemap[typeName][id] = newId
+                groupTypeMap[info.group][newId] = typeName
+            end
+        end
+    end
+
+    return typeRemap, groupRemap, groupTypeMap
+end
+
+local function remapTypeReference(ref, placementRemap, gamedataTypeRemap)
+    if not ref then
+        return
+    end
+    local remap = placementRemap[ref.type]
+    if not remap then
+        remap = gamedataTypeRemap[ref.type]
+    end
+    if remap and remap[ref.id] ~= nil then
+        ref.id = remap[ref.id]
+    end
+end
+
+local function remapGroupReference(ref, gamedataGroupRemap)
+    if not ref then
+        return
+    end
+    local remap = gamedataGroupRemap[ref.group]
+    if remap and remap[ref.id] ~= nil then
+        ref.id = remap[ref.id]
+    end
+end
+
+local function remapVariantReference(variant, placementRemap, gamedataTypeRemap, gamedataGroupRemap)
+    if variant.type == FieldTypes.TypeReference then
+        remapTypeReference(variant.value, placementRemap, gamedataTypeRemap)
+    elseif variant.type == FieldTypes.TypeReferenceArray then
+        for _, ref in ipairs(variant.value) do
+            remapTypeReference(ref, placementRemap, gamedataTypeRemap)
+        end
+    elseif variant.type == FieldTypes.GroupReference then
+        remapGroupReference(variant.value, gamedataGroupRemap)
+    elseif variant.type == FieldTypes.GroupReferenceArray then
+        for _, ref in ipairs(variant.value) do
+            remapGroupReference(ref, gamedataGroupRemap)
+        end
+    end
+end
+
+local function remapPropertyReferences(props, placementRemap, gamedataTypeRemap, gamedataGroupRemap)
+    for _, prop in ipairs(props) do
+        remapVariantReference(prop.value, placementRemap, gamedataTypeRemap, gamedataGroupRemap)
+    end
+end
+
+local function getPlacementVariants(placements)
     local ret = {}
     local structures = {}
     for name, placement in pairs(placements) do
-        remappedPlacements[name] = remappedPlacements[name] or {}
-        local newId = 0
         local fields = {}
-        for id, props in pairs(placement) do
-            remappedPlacements[name][id] = newId
-            newId = newId + 1
+        for _, props in pairs(placement) do
             local hasFields = #fields > 0
             for _, prop in ipairs(props) do
                 if prop.name ~= "id" then
@@ -102,6 +249,36 @@ local function getPlacementVariants(placements, remappedPlacements)
         table.insert(structures, {
             name = name,
             fields = fields,
+            count = Helper.count(placement),
+        })
+    end
+    return ret, structures
+end
+
+local function getGameDataVariants(gamedataMap)
+    local ret = {}
+    local structures = {}
+    for typeName, info in pairs(gamedataMap) do
+        local fields = {}
+        for _, props in pairs(info.objects) do
+            local hasFields = #fields > 0
+            for _, prop in ipairs(props) do
+                if prop.name ~= "id" then
+                    table.insert(ret, prop.value)
+                    if not hasFields then
+                        table.insert(fields, {
+                            name = prop.name,
+                            type = prop.value.type,
+                        })
+                    end
+                end
+            end
+        end
+        table.insert(structures, {
+            name = typeName,
+            group = info.group,
+            fields = fields,
+            count = Helper.count(info.objects),
         })
     end
     return ret, structures
@@ -129,9 +306,13 @@ end
 
 local PlacementStructures = nil
 local PlacementRemap = nil
+local GameDataStructures = nil
+local GameDataTypeRemap = nil
+local GameDataGroupRemap = nil
+local GameDataGroupTypeMap = nil
+local GameDataGroups = nil
 
 function ExportSettings:gamedataVariants(data)
-    local projFolder = data.ProjectFolder
     local srcCodeFolder = data.SourceCodeFolder
     local globalUniforms = data.globalUniforms
     local exceptLevels = data.exceptLevels
@@ -139,79 +320,110 @@ function ExportSettings:gamedataVariants(data)
     if #allLvs == 0 then
         Workspace.ThrowException("No levels found in the workspace.")
     end
+
     local ret = {}
     local uniforms = getGlobalUniformVariants(globalUniforms)
     Helper.mergeArray(ret, Helper.select(uniforms, function(uniform)
         return uniform.value
     end))
-    -- write levels but put the default level first, and except levels will be ignored
+
     local sorted = {}
     for _, lv in ipairs(allLvs) do
         if not Helper.arrayHasElement(exceptLevels, lv) then
             table.insert(sorted, lv)
         end
     end
+
     local stringIndex = 1
     local string2index = {}
-    local lvData = {}
+
     local placements = {}
     for _, lv in ipairs(sorted) do
         local entities = Workspace.GetExportEntities(lv)
-        local placementId
-        for _, data in ipairs(entities) do
-            local prop = Helper.first(data.entityProperties, function(prop)
-                return prop.name == "PlacementReference"
+        for _, entity in ipairs(entities) do
+            local prop = Helper.first(entity.entityProperties, function(p)
+                return p.name == "PlacementReference"
             end)
             local ref = prop.value.value
-            placementId = ref.id
             local placementName = ref.type
+            local placementId = ref.id
             placements[placementName] = placements[placementName] or {}
-            placements[placementName][placementId] = data.templateProperties
-            for _, prop in ipairs(data.templateProperties) do
-                if prop.value.type == FieldTypes.String then
-                    local str = prop.value.value
-                    if not string2index[str] then
-                        string2index[str] = stringIndex
-                        stringIndex = stringIndex + 1
-                    end
-                    prop.value.type = FieldTypes.Integer
-                    prop.value.value = string2index[str]
-                elseif prop.value.type == FieldTypes.StringArray then
-                    local strArr = prop.value.value
-                    local indices = {}
-                    for _, str in ipairs(strArr) do
-                        if not string2index[str] then
-                            string2index[str] = stringIndex
-                            stringIndex = stringIndex + 1
-                        end
-                        table.insert(indices, string2index[str])
-                    end
-                    prop.value.type = FieldTypes.IntegerArray
-                    prop.value.value = indices
-                end
+            placements[placementName][placementId] = entity.templateProperties
+            stringIndex = normalizeStringVariants(entity.templateProperties, string2index, stringIndex)
+        end
+    end
+
+    local gamedataByType = {}
+    local exportGameData = Workspace.GetExportGameData()
+    -- NOTE: gd.group (GroupName) is only used to organize types into groups for mapping.
+    --       The group value itself should NOT be exported as a string resource,
+    --       since C++ uses GroupTypeMap for type/group resolution instead.
+    for _, gd in ipairs(exportGameData) do
+        local typeName = gd.type
+        local groupName = gd.group
+        local props = gd.properties
+        local idProp = Helper.first(props, function(prop)
+            return prop.name == "id"
+        end)
+        if idProp then
+            local oldId = idProp.value.value
+            gamedataByType[typeName] = gamedataByType[typeName] or {
+                group = groupName,
+                objects = {},
+            }
+            if gamedataByType[typeName].group ~= groupName then
+                Workspace.ThrowException("GameData type '" .. typeName .. "' is bound to multiple groups.")
             end
-        end
-        lvData[lv] = {
-            placementId = placementId,
-            entities = entities,
-        }
-    end
-    -- remap ids
-    local remappedPlacements = {}
-    for name, placements in pairs(placements) do
-        remappedPlacements[name] = remappedPlacements[name] or {}
-        local newId = 1
-        for id, props in pairs(placements) do
-            remappedPlacements[name][id] = newId
-            newId = newId + 1
+            gamedataByType[typeName].objects[oldId] = props
+            stringIndex = normalizeStringVariants(props, string2index, stringIndex)
         end
     end
-    local placementVars, placementStructures = getPlacementVariants(placements, remappedPlacements)
+
+    local remappedPlacements = buildPlacementRemap(placements)
+    local remappedGameDataType, remappedGameDataGroup, remappedGameDataGroupTypeMap = buildGameDataRemap(gamedataByType)
+
+    for typeName, typedPlacements in pairs(placements) do
+        for oldId, props in pairs(typedPlacements) do
+            local idProp = Helper.first(props, function(prop)
+                return prop.name == "id"
+            end)
+            if idProp and remappedPlacements[typeName] and remappedPlacements[typeName][oldId] ~= nil then
+                idProp.value.value = remappedPlacements[typeName][oldId]
+            end
+            remapPropertyReferences(props, remappedPlacements, remappedGameDataType, remappedGameDataGroup)
+        end
+    end
+
+    for typeName, info in pairs(gamedataByType) do
+        for oldId, props in pairs(info.objects) do
+            local idProp = Helper.first(props, function(prop)
+                return prop.name == "id"
+            end)
+            if idProp and remappedGameDataType[typeName] and remappedGameDataType[typeName][oldId] ~= nil then
+                idProp.value.value = remappedGameDataType[typeName][oldId]
+            end
+            remapPropertyReferences(props, remappedPlacements, remappedGameDataType, remappedGameDataGroup)
+        end
+    end
+
+    local placementVars, placementStructures = getPlacementVariants(placements)
+    local gamedataVars, gamedataStructures = getGameDataVariants(gamedataByType)
+    local gameDataGroups = getSortedGameDataGroups(gamedataByType)
+
     PlacementStructures = placementStructures
     PlacementRemap = remappedPlacements
+    GameDataStructures = gamedataStructures
+    GameDataTypeRemap = remappedGameDataType
+    GameDataGroupRemap = remappedGameDataGroup
+    GameDataGroupTypeMap = remappedGameDataGroupTypeMap
+    GameDataGroups = gameDataGroups
+
     Helper.mergeArray(ret, placementVars)
-    -- code generation
+    Helper.mergeArray(ret, gamedataVars)
+
     local genFolder = Helper.combinePath(srcCodeFolder, "src", "game", "generated")
+    Workspace.Log("Clearing " .. genFolder)
+    Workspace.ClearDirectory(genFolder)
     local constHeaderFile = Helper.combinePath(genFolder, "ExportConstants.h")
     local constCppFile = Helper.combinePath(genFolder, "ExportConstants.cpp")
     local fConstHeader = io.open(constHeaderFile, "w")
@@ -225,12 +437,38 @@ function ExportSettings:gamedataVariants(data)
     fConstHeader:write('NS_GAME_BEGIN\n\n')
     fConstHeader:write('class ExportConstants {\n')
     fConstHeader:write('public:\n')
+    
+    local typeEnumNames = {}
+    local groupEnumNames = {}
+    fConstHeader:write('\tenum class GameDataTypeEnum : int {\n')
+    for i, structure in ipairs(gamedataStructures) do
+        local typeName = toCppName(structure.name) .. "Config"
+        typeEnumNames[structure.name] = typeName
+        fConstHeader:write(string.format('\t\t%s = %d,\n', typeName, i - 1))
+    end
+    fConstHeader:write('\t};\n\n')
+    fConstHeader:write('\tenum class GameDataGroupEnum : int {\n')
+    for i, group in ipairs(gameDataGroups) do
+        local groupName = toCppName(group)
+        groupEnumNames[group] = groupName
+        fConstHeader:write(string.format('\t\t%s = %d,\n', groupName, i - 1))
+    end
+    fConstHeader:write('\t};\n\n')
+    
     fConstHeader:write('\tstatic const int GlobalUniformCount;\n')
     fConstHeader:write('\tstatic const int PlacementCounts[' .. #placementStructures .. '];\n')
+    fConstHeader:write('\tstatic const int GameDataCounts[' .. #gamedataStructures .. '];\n')
+    
+    for group, typeMap in pairs(remappedGameDataGroupTypeMap) do
+        local groupCount = Helper.count(typeMap)
+        fConstHeader:write('\tstatic const GameDataTypeEnum GroupTypeMap_' .. toCppName(group) .. '[' .. groupCount .. '];\n')
+    end
+    
     fConstHeader:write('};\n\n')
     fConstHeader:write('NS_GAME_ENDED')
     fConstHeader:flush()
     fConstHeader:close()
+
     Workspace.Log("Generating " .. constCppFile)
     fConstCpp:write('/// This file is generated by ExportSettings script, do not edit it manually.\n')
     fConstCpp:write('#include "game/generated/ExportConstants.h"\n\n')
@@ -238,14 +476,32 @@ function ExportSettings:gamedataVariants(data)
     fConstCpp:write('const int ExportConstants::GlobalUniformCount = ' .. #globalUniforms .. ';\n')
     fConstCpp:write('const int ExportConstants::PlacementCounts[' .. #placementStructures .. '] = {\n')
     for _, structure in ipairs(placementStructures) do
-        fConstCpp:write('\t' .. tostring(Helper.count(placements[structure.name])) .. ',\n')
+        fConstCpp:write('\t' .. tostring(structure.count) .. ',\n')
+    end
+    fConstCpp:write('};\n')
+    fConstCpp:write('const int ExportConstants::GameDataCounts[' .. #gamedataStructures .. '] = {\n')
+    for _, structure in ipairs(gamedataStructures) do
+        fConstCpp:write('\t' .. tostring(structure.count) .. ',\n')
     end
     fConstCpp:write('};\n\n')
+    
+    for group, typeMap in pairs(remappedGameDataGroupTypeMap) do
+        local groupCount = Helper.count(typeMap)
+        fConstCpp:write('const ExportConstants::GameDataTypeEnum ExportConstants::GroupTypeMap_' .. toCppName(group) .. '[' .. groupCount .. '] = {\n')
+        for newId = 0, groupCount - 1 do
+            local typeName = typeMap[newId]
+            local enumName = typeEnumNames[typeName]
+            fConstCpp:write(string.format('\tExportConstants::GameDataTypeEnum::%s,\n', enumName))
+        end
+        fConstCpp:write('};\n\n')
+    end
+    
     fConstCpp:write('NS_GAME_ENDED')
     fConstCpp:flush()
     fConstCpp:close()
-    for i, structure in ipairs(placementStructures) do
-        local placementName = string.upper(string.sub(structure.name, 1, 1)) .. string.sub(structure.name, 2) .. "Placement"
+
+    for _, structure in ipairs(placementStructures) do
+        local placementName = toCppName(structure.name) .. "Placement"
         local structHeaderFile = Helper.combinePath(genFolder, placementName .. ".h")
         local structCppFile = Helper.combinePath(genFolder, placementName .. ".cpp")
         local fStructHeader = io.open(structHeaderFile, "w")
@@ -274,6 +530,7 @@ function ExportSettings:gamedataVariants(data)
         fStructHeader:write('NS_GAME_ENDED')
         fStructHeader:flush()
         fStructHeader:close()
+
         local fStructCpp = io.open(structCppFile, "w")
         Workspace.Log("Generating " .. structCppFile)
         fStructCpp:write('/// This file is generated by ExportSettings script, do not edit it manually.\n')
@@ -283,8 +540,7 @@ function ExportSettings:gamedataVariants(data)
         fStructCpp:write('bool ' .. placementName .. '::read(const godot::Ref<godot::FileAccess> &fs) {\n')
         for _, field in ipairs(structure.fields) do
             local fieldName = "_" .. string.lower(string.sub(field.name, 1, 1)) .. string.sub(field.name, 2)
-            if field.type >= FieldTypes.BooleanArray then
-            else
+            if field.type < FieldTypes.BooleanArray then
                 fStructCpp:write(string.format('\tif (!StorageHelper::readBinary(fs, %s)) return false;\n', fieldName))
             end
         end
@@ -294,6 +550,58 @@ function ExportSettings:gamedataVariants(data)
         fStructCpp:flush()
         fStructCpp:close()
     end
+
+    for _, structure in ipairs(gamedataStructures) do
+        local dataName = toCppName(structure.name) .. "Config"
+        local dataHeaderFile = Helper.combinePath(genFolder, dataName .. ".h")
+        local dataCppFile = Helper.combinePath(genFolder, dataName .. ".cpp")
+
+        local fDataHeader = io.open(dataHeaderFile, "w")
+        Workspace.Log("Generating " .. dataHeaderFile)
+        fDataHeader:write('/// This file is generated by ExportSettings script, do not edit it manually.\n')
+        fDataHeader:write('#pragma once\n\n')
+        fDataHeader:write('#include "core/core.h"\n')
+        fDataHeader:write('#include "game/GameMacroes.h"\n')
+        fDataHeader:write('#include "game/field_types/FieldTypes.h"\n')
+        fDataHeader:write('#include <godot_cpp/godot.hpp>\n')
+        fDataHeader:write('#include <godot_cpp/classes/file_access.hpp>\n\n')
+        fDataHeader:write('NS_GAME_BEGIN\n\n')
+        fDataHeader:write('struct ' .. dataName .. ' {\n')
+        fDataHeader:write('public:\n')
+        fDataHeader:write('\tbool read(const godot::Ref<godot::FileAccess> &fs);\n\n')
+        for _, field in ipairs(structure.fields) do
+            local typeStr = ExportHelper.fieldType2CppType(field.type)
+            if not typeStr then
+                Workspace.ThrowException("Unsupported field type: " .. tostring(field.type))
+            end
+            local fieldName = "_" .. string.lower(string.sub(field.name, 1, 1)) .. string.sub(field.name, 2)
+            fDataHeader:write(string.format('\tGETTER(%s, %s, %s);\n', fieldName, typeStr, field.name))
+        end
+        fDataHeader:write('};\n\n')
+        fDataHeader:write('NS_GAME_ENDED')
+        fDataHeader:flush()
+        fDataHeader:close()
+
+        local fDataCpp = io.open(dataCppFile, "w")
+        Workspace.Log("Generating " .. dataCppFile)
+        fDataCpp:write('/// This file is generated by ExportSettings script, do not edit it manually.\n')
+        fDataCpp:write('#include "game/generated/' .. dataName .. '.h"\n\n')
+        fDataCpp:write('using namespace core;\n\n')
+        fDataCpp:write('NS_GAME_BEGIN\n\n')
+        fDataCpp:write('bool ' .. dataName .. '::read(const godot::Ref<godot::FileAccess> &fs) {\n')
+        for _, field in ipairs(structure.fields) do
+            local fieldName = "_" .. string.lower(string.sub(field.name, 1, 1)) .. string.sub(field.name, 2)
+            if field.type < FieldTypes.BooleanArray then
+                fDataCpp:write(string.format('\tif (!StorageHelper::readBinary(fs, %s)) return false;\n', fieldName))
+            end
+        end
+        fDataCpp:write('\treturn true;\n')
+        fDataCpp:write('}\n\n')
+        fDataCpp:write('NS_GAME_ENDED')
+        fDataCpp:flush()
+        fDataCpp:close()
+    end
+
     local gamedataHeaderFile = Helper.combinePath(genFolder, "GameData.h")
     local gamedataCppFile = Helper.combinePath(genFolder, "GameData.cpp")
     local fGameDataHeader = io.open(gamedataHeaderFile, "w")
@@ -303,8 +611,12 @@ function ExportSettings:gamedataVariants(data)
     fGameDataHeader:write('#include "core/core.h"\n')
     fGameDataHeader:write('#include "game/GameMacroes.h"\n')
     for _, structure in ipairs(placementStructures) do
-        local placementName = string.upper(string.sub(structure.name, 1, 1)) .. string.sub(structure.name, 2) .. "Placement"
+        local placementName = toCppName(structure.name) .. "Placement"
         fGameDataHeader:write('#include "game/generated/' .. placementName .. '.h"\n')
+    end
+    for _, structure in ipairs(gamedataStructures) do
+        local dataName = toCppName(structure.name) .. "Config"
+        fGameDataHeader:write('#include "game/generated/' .. dataName .. '.h"\n')
     end
     fGameDataHeader:write('#include <godot_cpp/godot.hpp>\n')
     fGameDataHeader:write('\n')
@@ -316,26 +628,40 @@ function ExportSettings:gamedataVariants(data)
     fGameDataHeader:write('\tstatic const char *UniformNames[GLOBAL_UNIFORM_COUNT];\n')
     fGameDataHeader:write('\tFORCEINLINE const godot::Vector4 &globalUniformAt(u32 index) const { return _globalUniforms[index]; }\n')
     for _, structure in ipairs(placementStructures) do
-        local placementName = string.upper(string.sub(structure.name, 1, 1)) .. string.sub(structure.name, 2) .. "Placement"
+        local placementName = toCppName(structure.name) .. "Placement"
         local arrayName = "_" .. string.lower(string.sub(structure.name, 1, 1)) .. string.sub(structure.name, 2) .. "Placements"
         fGameDataHeader:write(string.format('\tFORCEINLINE const %s *get%s(u32 id) const { return &%s[id]; }\n', placementName, placementName, arrayName))
     end
     fGameDataHeader:write('\n')
+    for _, structure in ipairs(gamedataStructures) do
+        local dataName = toCppName(structure.name) .. "Config"
+        local arrayName = "_" .. string.lower(string.sub(structure.name, 1, 1)) .. string.sub(structure.name, 2) .. "Config"
+        fGameDataHeader:write(string.format('\tFORCEINLINE const %s *get%s(u32 id) const { return &%s[id]; }\n', dataName, dataName, arrayName))
+    end
+    fGameDataHeader:write('\n')
     fGameDataHeader:write('private:\n')
-    fGameDataHeader:write(string.format('\tgodot::Vector4 _globalUniforms[GLOBAL_UNIFORM_COUNT];\n'))
+    fGameDataHeader:write('\tgodot::Vector4 _globalUniforms[GLOBAL_UNIFORM_COUNT];\n')
     for _, structure in ipairs(placementStructures) do
-        local placementName = string.upper(string.sub(structure.name, 1, 1)) .. string.sub(structure.name, 2) .. "Placement"
+        local placementName = toCppName(structure.name) .. "Placement"
         local arrayName = "_" .. string.lower(string.sub(structure.name, 1, 1)) .. string.sub(structure.name, 2) .. "Placements"
-        fGameDataHeader:write(string.format('\t%s %s[%d];\n', placementName, arrayName, Helper.count(placements[structure.name])))
+        fGameDataHeader:write(string.format('\t%s %s[%d];\n', placementName, arrayName, structure.count))
+    end
+    fGameDataHeader:write('\n')
+    for _, structure in ipairs(gamedataStructures) do
+        local dataName = toCppName(structure.name) .. "Config"
+        local arrayName = "_" .. string.lower(string.sub(structure.name, 1, 1)) .. string.sub(structure.name, 2) .. "Config"
+        fGameDataHeader:write(string.format('\t%s %s[%d];\n', dataName, arrayName, structure.count))
     end
     fGameDataHeader:write('};\n\n')
     fGameDataHeader:write('NS_GAME_ENDED')
     fGameDataHeader:flush()
     fGameDataHeader:close()
+
     local fGameDataCpp = io.open(gamedataCppFile, "w")
     Workspace.Log("Generating " .. gamedataCppFile)
     fGameDataCpp:write('/// This file is generated by ExportSettings script, do not edit it manually.\n')
     fGameDataCpp:write('#include "game/generated/GameData.h"\n\n')
+    fGameDataCpp:write('using namespace core;\n\n')
     fGameDataCpp:write('NS_GAME_BEGIN\n\n')
     fGameDataCpp:write('const char *GameData::UniformNames[GLOBAL_UNIFORM_COUNT] = {\n')
     for _, uniform in ipairs(uniforms) do
@@ -345,6 +671,7 @@ function ExportSettings:gamedataVariants(data)
     fGameDataCpp:write('NS_GAME_ENDED\n')
     fGameDataCpp:flush()
     fGameDataCpp:close()
+
     local loaderHeaderFile = Helper.combinePath(genFolder, "GameDataLoader.h")
     local loaderCppFile = Helper.combinePath(genFolder, "GameDataLoader.cpp")
     local fLoaderHeader = io.open(loaderHeaderFile, "w")
@@ -357,7 +684,7 @@ function ExportSettings:gamedataVariants(data)
     fLoaderHeader:write('#include "game/generated/GameData.h"\n')
     fLoaderHeader:write('#include "game/generated/ExportConstants.h"\n')
     for _, structure in ipairs(placementStructures) do
-        local placementName = string.upper(string.sub(structure.name, 1, 1)) .. string.sub(structure.name, 2) .. "Placement"
+        local placementName = toCppName(structure.name) .. "Placement"
         fLoaderHeader:write('#include "game/generated/' .. placementName .. '.h"\n')
     end
     fLoaderHeader:write('#include <godot_cpp/godot.hpp>\n')
@@ -370,6 +697,7 @@ function ExportSettings:gamedataVariants(data)
     fLoaderHeader:write('NS_GAME_ENDED')
     fLoaderHeader:flush()
     fLoaderHeader:close()
+
     local fLoaderCpp = io.open(loaderCppFile, "w")
     Workspace.Log("Generating " .. loaderCppFile)
     fLoaderCpp:write('/// This file is generated by ExportSettings script, do not edit it manually.\n')
@@ -385,11 +713,19 @@ function ExportSettings:gamedataVariants(data)
     fLoaderCpp:write('\t\tif (!StorageHelper::readBinary(fs, data->_globalUniforms[i])) return false;\n')
     fLoaderCpp:write('\t}\n')
     for i, structure in ipairs(placementStructures) do
-        local placementName = string.upper(string.sub(structure.name, 1, 1)) .. string.sub(structure.name, 2) .. "Placement"
+        local placementName = toCppName(structure.name) .. "Placement"
         local arrayName = "_" .. string.lower(string.sub(structure.name, 1, 1)) .. string.sub(structure.name, 2) .. "Placements"
         fLoaderCpp:write(string.format('\tfor (int i = 0; i < ExportConstants::PlacementCounts[%d]; i++) {\n', i - 1))
         fLoaderCpp:write(string.format('\t\t%s &placement = data->%s[i];\n', placementName, arrayName))
         fLoaderCpp:write('\t\tif (!placement.read(fs)) return false;\n')
+        fLoaderCpp:write('\t}\n')
+    end
+    for i, structure in ipairs(gamedataStructures) do
+        local dataName = toCppName(structure.name) .. "Config"
+        local arrayName = "_" .. string.lower(string.sub(structure.name, 1, 1)) .. string.sub(structure.name, 2) .. "Config"
+        fLoaderCpp:write(string.format('\tfor (int i = 0; i < ExportConstants::GameDataCounts[%d]; i++) {\n', i - 1))
+        fLoaderCpp:write(string.format('\t\t%s &item = data->%s[i];\n', dataName, arrayName))
+        fLoaderCpp:write('\t\tif (!item.read(fs)) return false;\n')
         fLoaderCpp:write('\t}\n')
     end
     fLoaderCpp:write('\treturn true;\n')
@@ -397,7 +733,12 @@ function ExportSettings:gamedataVariants(data)
     fLoaderCpp:write('NS_GAME_ENDED\n')
     fLoaderCpp:flush()
     fLoaderCpp:close()
+
     return ret
+end
+
+function ExportSettings:exportedGameDataGroups()
+    return GameDataGroups or {}
 end
 
 function ExportSettings:beforeExportLevels(data, strMapping)
@@ -423,6 +764,7 @@ function ExportSettings:beforeExportLevels(data, strMapping)
     fStrHeader:write('NS_GAME_ENDED\n')
     fStrHeader:flush()
     fStrHeader:close()
+
     local fStrCpp = io.open(strCppFile, "w")
     Workspace.Log("Generating " .. strCppFile)
     fStrCpp:write('/// This file is generated by ExportSettings script, do not edit it manually.\n')
@@ -436,6 +778,7 @@ function ExportSettings:beforeExportLevels(data, strMapping)
     fStrCpp:write('NS_GAME_ENDED\n')
     fStrCpp:flush()
     fStrCpp:close()
+
     local nameArr = Helper.select(PlacementStructures, function(structure)
         return structure.name
     end)
@@ -456,6 +799,7 @@ function ExportSettings:beforeExportLevels(data, strMapping)
     fEntityFactoryHeader:write('NS_GAME_ENDED\n')
     fEntityFactoryHeader:flush()
     fEntityFactoryHeader:close()
+
     local fEntityFactoryCpp = io.open(entityFactoryCppFile, "w")
     Workspace.Log("Generating " .. entityFactoryCppFile)
     fEntityFactoryCpp:write('/// This file is generated by ExportSettings script, do not edit it manually.\n')
@@ -476,6 +820,7 @@ function ExportSettings:beforeExportLevels(data, strMapping)
     fEntityFactoryCpp:write('NS_GAME_ENDED\n')
     fEntityFactoryCpp:flush()
     fEntityFactoryCpp:close()
+
     local remapArr = Helper.select(nameArr, function(name)
         return {
             name = name,

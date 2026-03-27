@@ -46,7 +46,7 @@ public class MultiNodesEntity : LevelEntity, IMultiNodeContainer
     NodeOptions GetNodeOption(IWorkspace workspace)
     {
         UserPlacement placement = GetReferencedPlacement(workspace);
-        var option = placement.Template.NodeOptions;
+        var option = placement.TemplateAs<PlacementTemplate>().NodeOptions;
         return option;
     }
 
@@ -137,17 +137,17 @@ public class MultiNodesEntity : LevelEntity, IMultiNodeContainer
 
     public bool CanRotate(IWorkspace workspace, int index)
     {
-        return GetReferencedPlacement(workspace).Template.CanRotate(index);
+        return GetReferencedPlacement(workspace).TemplateAs<PlacementTemplate>().CanRotate(index);
     }
 
     public bool CanScale(IWorkspace workspace, int index)
     {
-        return GetReferencedPlacement(workspace).Template.CanScale(index);
+        return GetReferencedPlacement(workspace).TemplateAs<PlacementTemplate>().CanScale(index);
     }
 
     public bool CanTranslate(IWorkspace workspace, int index)
     {
-        return GetReferencedPlacement(workspace).Template.CanTranslate(index);
+        return GetReferencedPlacement(workspace).TemplateAs<PlacementTemplate>().CanTranslate(index);
     }
 
     public override int GetIndexByNodeId(int nodeId)

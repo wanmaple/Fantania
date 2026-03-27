@@ -15,6 +15,12 @@ public class ExportContext
             throw new DirectoryNotFoundException($"Source code folder '{ExportSettings.SourceCodeFolder}' does not exist.");
         workspace.Log("Starting export...");
         List<ExportVariant> toWrite = ExportSettings.Template.GetOrCallMember("gamedataVariants", ExportSettings).ToObject<List<ExportVariant>>();
+        List<string> gameDataGroups = ExportSettings.Template.GetOrCallMember("exportedGameDataGroups", ExportSettings).ToObject<List<string>>();
+        Dictionary<string, int> groupMapping = new Dictionary<string, int>(gameDataGroups.Count);
+        for (int i = 0; i < gameDataGroups.Count; i++)
+        {
+            groupMapping[gameDataGroups[i]] = i;
+        }
         Dictionary<string, string> replacedEmbedded = ExportSettings.Template.GetOrCallMember("replacedEmbeddedAssets", ExportSettings).GetObjectOrDefault(new Dictionary<string, string>());
         Dictionary<string, int> strMapping = new Dictionary<string, int>();
         HashSet<string> assets = new HashSet<string>();
@@ -113,28 +119,6 @@ public class ExportContext
                     }
                 }
             }
-            else if (variant.Type == FieldTypes.GroupReference)
-            {
-                GroupReference groupRef = (GroupReference)variant.Value!;
-                string str = groupRef.ReferenceGroup;
-                if (!strMapping.TryGetValue(str, out int index))
-                {
-                    strMapping[str] = strIndex++;
-                }
-            }
-            else if (variant.Type == FieldTypes.GroupReferenceArray)
-            {
-                FantaniaArray<GroupReference> arr = (FantaniaArray<GroupReference>)variant.Value!;
-                for (int i = 0; i < arr.Count; i++)
-                {
-                    GroupReference groupRef = arr[i];
-                    string str = groupRef.ReferenceGroup;
-                    if (!strMapping.TryGetValue(str, out int index))
-                    {
-                        strMapping[str] = strIndex++;
-                    }
-                }
-            }
             else if (variant.Type == FieldTypes.TypeReference)
             {
                 TypeReference typeRef = (TypeReference)variant.Value!;
@@ -171,7 +155,7 @@ public class ExportContext
             {
                 foreach (var variant in toWrite)
                 {
-                    Write(bw, variant, strMapping, replacedEmbedded);
+                    Write(bw, variant, strMapping, groupMapping, replacedEmbedded);
                 }
             }
         }
@@ -326,7 +310,7 @@ public class ExportContext
         workspace.Log("Export completed.");
     }
 
-    void Write(BinaryWriter writer, ExportVariant variant, IReadOnlyDictionary<string, int> strMapping, Dictionary<string, string> replacedEmbedded)
+    void Write(BinaryWriter writer, ExportVariant variant, IReadOnlyDictionary<string, int> strMapping, IReadOnlyDictionary<string, int> groupMapping, Dictionary<string, string> replacedEmbedded)
     {
         switch (variant.Type)
         {
@@ -403,8 +387,7 @@ public class ExportContext
                 break;
             case FieldTypes.GroupReference:
                 GroupReference groupRef = (GroupReference)variant.Value!;
-                string groupStr = groupRef.ReferenceGroup;
-                int groupIndex = strMapping[groupStr];
+                int groupIndex = groupMapping[groupRef.ReferenceGroup];
                 writer.Write(groupIndex);
                 writer.Write(groupRef.ReferenceID);
                 break;
@@ -543,8 +526,7 @@ public class ExportContext
                 for (int i = 0; i < groupRefArr.Count; i++)
                 {
                     GroupReference gRef = groupRefArr[i];
-                    string gStr = gRef.ReferenceGroup;
-                    int gIdx = strMapping[gStr];
+                    int gIdx = groupMapping[gRef.ReferenceGroup];
                     writer.Write(gIdx);
                     writer.Write(gRef.ReferenceID);
                 }

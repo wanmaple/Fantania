@@ -33,9 +33,9 @@ public class PlaceEditorMode : ILevelEditorMode
         var activePlacement = context.Workspace.PlacementModule.ActivePlacement;
         if (activePlacement != null)
         {
-            if (activePlacement.Template.IsSizeable && e.MouseState.IsLeftButtonPressed)
+            if (activePlacement.TemplateAs<PlacementTemplate>().IsSizeable && e.MouseState.IsLeftButtonPressed)
             {
-                Vector2Int tileSize = activePlacement.Template.TileSize;
+                Vector2Int tileSize = activePlacement.TemplateAs<PlacementTemplate>().TileSize;
                 Vector2Int gridPos = worldPos.ToGridSpace(context.EditConfig.GridAlign);
                 _rangeBox.Current = gridPos.ToVector2();
                 int width = MathHelper.RoundToInt(_rangeBox.Width / tileSize.X);
@@ -54,7 +54,7 @@ public class PlaceEditorMode : ILevelEditorMode
     public void OnMousePressed(LevelEditorContext context, ControlInputEventArgs e)
     {
         var activePlacement = context.Workspace.PlacementModule.ActivePlacement;
-        if (activePlacement != null && activePlacement.Template.IsSizeable)
+        if (activePlacement != null && activePlacement.TemplateAs<PlacementTemplate>().IsSizeable)
         {
             if (e.MouseState.IsLeftButtonPressed)
             {

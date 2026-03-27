@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data.Converters;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Fantania.Localization;
 using Fantania.ViewModels;
 using FantaniaLib;
 
@@ -57,7 +59,7 @@ public partial class PlacementView : UserControl
         e.Handled = true;
     }
 
-    void UserPlacement_PointerPressed(object? sender, PointerPressedEventArgs e)
+    async void UserPlacement_PointerPressed(object? sender, PointerPressedEventArgs e)
     {
         TextBlock tb = (TextBlock)sender!;
         UserPlacement? placement = tb.DataContext as UserPlacement;
@@ -65,7 +67,20 @@ public partial class PlacementView : UserControl
         {
             if (e.Properties.IsMiddleButtonPressed)
             {
+                var refEntities = ViewModel!.Workspace.LevelModule.GetEntitiesReferencing(placement);
+                if (refEntities.Count > 0)
+                {
+                    if (!await MessageBoxHelper.PopupWarningYesNo(this, LocalizationHelper.GetLocalizedString("WARN_ConfirmRemovePlacementReferenced"), placement.Name))
+                        return;
+                }
                 ViewModel!.Workspace.PlacementModule.RemoveUserPlacement(placement);
+                if (refEntities.Count > 0)
+                {
+                    foreach (var entity in refEntities)
+                    {
+                        entity.RefreshSelf();
+                    }
+                }
             }
         }
     }

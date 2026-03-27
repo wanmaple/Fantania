@@ -14,7 +14,7 @@ public class SqliteSyncer
         _rule = rule;
     }
 
-    public async Task SyncFromDatabase(IReadOnlyList<PlacementTemplate> placements, IReadOnlyList<Type> commonTypes)
+    public async Task SyncFromDatabase(IReadOnlyList<PlacementTemplate> placements, IReadOnlyList<GameDataTemplate> dataTemplates)
     {
         await _db.OpenAsync();
         var kvs = new List<KeyValuePair<string, string>>(16);
@@ -30,7 +30,7 @@ public class SqliteSyncer
                     string propVal = reader.GetString(i);
                     kvs.Add(new KeyValuePair<string, string>(propName, propVal));
                 }
-                int id = int.Parse(kvs.First(pair => pair.Key == "ID")!.Value);
+                int id = int.Parse(kvs.First(pair => pair.Key == "ID").Value);
                 var placement = new UserPlacement(template, id);
                 var fields = placement.SerializableFields;
                 foreach (var kv in kvs)
@@ -42,6 +42,32 @@ public class SqliteSyncer
                 }
                 WatchPropertyChange(placement);
                 _db.AddObject(placement);
+            });
+        }
+        foreach (GameDataTemplate template in dataTemplates)
+        {
+            if (!await CheckTableExists(template.ClassName)) continue;
+            await _db.ExecuteQuery(SqlQueryTable(template.ClassName), (reader, cols) =>
+            {
+                kvs.Clear();
+                for (int i = 0; i < cols.Count; i++)
+                {
+                    string propName = cols[i].ColumnName;
+                    string propVal = reader.GetString(i);
+                    kvs.Add(new KeyValuePair<string, string>(propName, propVal));
+                }
+                int id = int.Parse(kvs.First(pair => pair.Key == "ID").Value);
+                var data = new UserGameData(template, id);
+                var fields = data.SerializableFields;
+                foreach (var kv in kvs)
+                {
+                    if (kv.Key == "ID") continue;
+                    FieldInfo? field = fields.FirstOrDefault(f => f.FieldName == kv.Key);
+                    if (field == null) continue;
+                    data.SetFieldValue(kv.Key, _rule.CastFrom(field.FieldType, kv.Value, data));
+                }
+                WatchPropertyChange(data);
+                _db.AddObject(data);
             });
         }
         await _db.CloseAsync();

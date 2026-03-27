@@ -517,4 +517,12 @@
     <value>游戏配置</value>
     <comment/>
   </data>
+  <data name="WARN_ConfirmRemovePlacementReferenced" xml:space="preserve">
+    <value>当前场景存在引用了'{0}'的实体(其他场景并未检测)，确定要删除吗？</value>
+    <comment/>
+  </data>
+  <data name="WARN_ConfirmRemoveGameDataReferenced" xml:space="preserve">
+    <value>存在引用了'{0}'的其他对象，确定要删除吗？</value>
+    <comment/>
+  </data>
 </root>

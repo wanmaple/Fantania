@@ -144,18 +144,18 @@ public abstract class LevelEntity : BinaryObject
     public static LevelEntity BuildFromPlacement(IWorkspace workspace, UserPlacement placement)
     {
         LevelEntity? entity;
-        if (placement.Template.PlacementType == PlacementTypes.MultiNodes)
+        if (placement.TemplateAs<PlacementTemplate>().PlacementType == PlacementTypes.MultiNodes)
             entity = new MultiNodesEntity();
-        else if (placement.Template.PlacementType == PlacementTypes.Tiled)
+        else if (placement.TemplateAs<PlacementTemplate>().PlacementType == PlacementTypes.Tiled)
             entity = new TiledEntity();
-        else if (placement.Template.PlacementType == PlacementTypes.Single)
+        else if (placement.TemplateAs<PlacementTemplate>().PlacementType == PlacementTypes.Single)
             entity = new SingleNodeEntity();
-        else if (placement.Template.PlacementType == PlacementTypes.LightSource)
+        else if (placement.TemplateAs<PlacementTemplate>().PlacementType == PlacementTypes.LightSource)
             entity = new LightSourceEntity();
         else
             entity = new SingleNodeEntity();
         entity.PlacementReference = new TypeReference(placement.TypeName, placement.ID);
-        entity.Layer = placement.Template.DefaultLayer;
+        entity.Layer = placement.TemplateAs<PlacementTemplate>().DefaultLayer;
         entity.Initialize(workspace);
         return entity;
     }

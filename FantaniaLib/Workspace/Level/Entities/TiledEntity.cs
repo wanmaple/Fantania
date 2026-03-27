@@ -87,7 +87,7 @@ public class TiledEntity : LevelEntity, ISelectableItem, ISizeableEntity
     public Vector2Int GetTileSize(IWorkspace workspace)
     {
         var placement = GetReferencedPlacement(workspace);
-        return placement.Template.TileSize;
+        return placement.TemplateAs<PlacementTemplate>().TileSize;
     }
 
     public Vector2Int GetUnitSize(IWorkspace workspace)
@@ -135,17 +135,17 @@ public class TiledEntity : LevelEntity, ISelectableItem, ISizeableEntity
 
     public bool CanTranslate(IWorkspace workspace)
     {
-        return GetReferencedPlacement(workspace).Template.CanTranslate(0);
+        return GetReferencedPlacement(workspace).TemplateAs<PlacementTemplate>().CanTranslate(0);
     }
 
     public bool CanRotate(IWorkspace workspace)
     {
-        return false;
+        return GetReferencedPlacement(workspace).TemplateAs<PlacementTemplate>().CanRotate(0);
     }
 
     public bool CanScale(IWorkspace workspace)
     {
-        return false;
+        return GetReferencedPlacement(workspace).TemplateAs<PlacementTemplate>().CanScale(0);
     }
 
     public override Matrix3x3 TransformAt(int index)
@@ -168,7 +168,7 @@ public class TiledEntity : LevelEntity, ISelectableItem, ISizeableEntity
                 {
                     int hash = Hash(x, y, RandomSeed);
                     TileLocationTypes locType = workspace.LevelModule.CurrentLevel!.TiledEntityManager.GetLocationType(workspace, this, x, y);
-                    var tileInfo = placement.Template.GetTileInfo(placement, Size, locType, hash);
+                    var tileInfo = placement.TemplateAs<PlacementTemplate>().GetTileInfo(placement, Size, locType, hash);
                     var localInfo = new LocalRenderInfo
                     {
                         Stage = tileInfo.RenderStage,
@@ -334,7 +334,7 @@ public class TiledEntity : LevelEntity, ISelectableItem, ISizeableEntity
         int hash = Hash(x, y, RandomSeed);
         var placement = GetReferencedPlacement(workspace);
         TileLocationTypes locType = workspace.LevelModule.CurrentLevel!.TiledEntityManager.GetLocationType(workspace, this, x, y);
-        var tileInfo = placement.Template.GetTileInfo(placement, Size, locType, hash);
+        var tileInfo = placement.TemplateAs<PlacementTemplate>().GetTileInfo(placement, Size, locType, hash);
         return new Rectf(tileInfo.UVOffset, tileInfo.UVSize);
     }
 

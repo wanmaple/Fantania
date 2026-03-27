@@ -886,6 +886,24 @@ namespace Fantania.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 存在引用了&apos;{0}&apos;的其他对象，确定要删除吗？.
+        /// </summary>
+        public static string WARN_ConfirmRemoveGameDataReferenced {
+            get {
+                return ResourceManager.GetString("WARN_ConfirmRemoveGameDataReferenced", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 当前场景存在引用了&apos;{0}&apos;的实体(其他场景并未检测)，确定要删除吗？.
+        /// </summary>
+        public static string WARN_ConfirmRemovePlacementReferenced {
+            get {
+                return ResourceManager.GetString("WARN_ConfirmRemovePlacementReferenced", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 检测到当前工作区有未保存的修改，你是否要先保存再继续？.
         /// </summary>
         public static string WARN_ConfirmSaveWorkspace {

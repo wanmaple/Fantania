@@ -313,6 +313,39 @@ public class LevelModule : WorkspaceModule
         }
     }
 
+    public IReadOnlyList<LevelEntity> GetEntitiesReferencing(UserPlacement placement)
+    {
+        var ret = new List<LevelEntity>();
+        if (CurrentLevel != null)
+        {
+            foreach (var entity in CurrentLevel.Entities)
+            {
+                var typeRef = entity.PlacementReference;
+                if (typeRef.ReferenceType == placement.Template.ClassName && typeRef.ReferenceID == placement.ID)
+                {
+                    ret.Add(entity);
+                }
+            }
+        }
+        return ret;
+    }
+
+    public bool HasEntitiesReferencing(UserPlacement placement)
+    {
+        if (CurrentLevel != null)
+        {
+            foreach (var entity in CurrentLevel.Entities)
+            {
+                var typeRef = entity.PlacementReference;
+                if (typeRef.ReferenceType == placement.Template.ClassName && typeRef.ReferenceID == placement.ID)
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     public void WatchEntityPropertyChange(LevelEntity obj)
     {
         obj.PropertyChanging += OnLevelEntityPropertyChanging;

@@ -16,17 +16,21 @@
     <v:DataGroup2TemplatesConverter x:Key="Cvt_Group2Templates" />
     <v:DataGroup2GameDataListConverter x:Key="Cvt_Group2Objs" />
   </Window.Resources>
+  <Window.KeyBindings>
+    <KeyBinding Command="{Binding UndoCommand}" Gesture="Ctrl+Z" />
+    <KeyBinding Command="{Binding RedoCommand}" Gesture="Ctrl+Shift+Z" />
+    <KeyBinding Command="{Binding RedoCommand}" Gesture="Ctrl+Y" />
+  </Window.KeyBindings>
   <DockPanel Margin="10">
     <TextBlock Classes="h2" DockPanel.Dock="Top" Text="{x:Static lang:Resources.H_EditGameData}" HorizontalAlignment="Left" VerticalAlignment="Center" />
-    <Grid ColumnDefinitions="auto,auto,*" Height="640" Margin="10">
+    <Grid ColumnDefinitions="auto,*" Height="640" Margin="10">
       <Border Classes="thin s1" Grid.Column="0">
         <Grid RowDefinitions="auto,*">
           <TextBox x:Name="txtFilterGroup" Grid.Row="0" Watermark="{x:Static lang:Resources.WM_Filter}" Margin="0 0 0 10" TextChanged="FilterGroupBox_TextChanged" />
           <ListBox x:Name="lbGroups" Grid.Row="1" ItemsSource="{Binding GameDataGroups}" Background="Transparent" MinWidth="200" />
         </Grid>
       </Border>
-      <GridSplitter Grid.Column="1" ResizeDirection="Columns" ResizeBehavior="PreviousAndNext" Width="1" />
-      <Border Classes="thin s1" Grid.Column="2">
+      <Border Classes="thin s1" Grid.Column="1">
         <Grid RowDefinitions="auto,*" Width="824">
           <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
             <ItemsControl Margin="5">
@@ -65,10 +69,10 @@
               </ItemsControl.ItemTemplate>
             </ItemsControl>
           </ScrollViewer>
-          <Grid Grid.Row="1" ColumnDefinitions="auto,auto,*" Margin="5">
+          <Grid Grid.Row="1" ColumnDefinitions="auto,*" Margin="5">
             <Grid Grid.Column="0" RowDefinitions="auto,*">
               <TextBox x:Name="txtFilterName" Grid.Row="0" Watermark="{x:Static lang:Resources.WM_Filter}" Margin="0 0 0 10" TextChanged="FilterNameBox_TextChanged" />
-              <ListBox x:Name="lbGamedata" Grid.Row="1" Background="Transparent" MinWidth="200">
+              <ListBox x:Name="lbGamedata" Grid.Row="1" Background="Transparent" MinWidth="200" PointerPressed="ListBoxGamedata_PointerPressed">
                 <ListBox.ItemsSource>
                   <MultiBinding Converter="{StaticResource Cvt_Group2Objs}">
                     <Binding ElementName="lbGroups" Path="SelectedItem" />
@@ -81,8 +85,7 @@
                 </ListBox.DisplayMemberBinding>
               </ListBox>
             </Grid>
-            <GridSplitter Grid.Column="1" ResizeDirection="Columns" ResizeBehavior="PreviousAndNext" Width="1" />
-            <ScrollViewer Grid.Column="2">
+            <ScrollViewer Grid.Column="1">
               <lib:ObjectEditView>
                 <lib:ObjectEditView.EditableFields>
                   <MultiBinding Converter="{StaticResource Cvt_Obj2Groups}">

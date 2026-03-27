@@ -1,4 +1,3 @@
-using System.Text.Json;
 using MoonSharp.Interpreter;
 
 namespace FantaniaLib;
@@ -51,6 +50,15 @@ public class WorkspaceProxy
         throw new Exception(content);
     }
 
+    public void ClearDirectory(string path)
+    {
+        if (Directory.Exists(path))
+        {
+            Directory.Delete(path, true);
+        }
+        Directory.CreateDirectory(path);
+    }
+
     public IReadOnlyList<ExportProperty> GetExportMetadata(string lvName)
     {
         var level = _workspace.LevelModule.GetLevel(lvName);
@@ -85,6 +93,27 @@ public class WorkspaceProxy
         return ret;
     }
 
+    public IReadOnlyList<ExportGameData> GetExportGameData()
+    {
+        var ret = new List<ExportGameData>();
+        foreach (string group in _workspace.DatabaseModule.GameDataGroups)
+        {
+            var groupObjects = _workspace.DatabaseModule.GetObjectsOfGroup(group);
+            foreach (var obj in groupObjects)
+            {
+                if (obj is not UserGameData gameData)
+                    continue;
+                ret.Add(new ExportGameData
+                {
+                    TypeName = gameData.TypeName,
+                    GroupName = gameData.GroupName,
+                    Properties = GetExportProperties(gameData),
+                });
+            }
+        }
+        return ret;
+    }
+
     IReadOnlyList<ExportProperty> GetExportProperties(ISerializableData data)
     {
         var fields = data.SerializableFields;
@@ -98,6 +127,18 @@ public class WorkspaceProxy
                 {
                     Type = FieldTypes.Integer,
                     Value = placement.ID,
+                },
+            });
+        }
+        else if (data is UserGameData gameData)
+        {
+            ret.Add(new ExportProperty
+            {
+                Name = "id",
+                Variant = new ExportVariant
+                {
+                    Type = FieldTypes.Integer,
+                    Value = gameData.ID,
                 },
             });
         }
