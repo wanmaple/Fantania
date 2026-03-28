@@ -525,4 +525,16 @@
     <value>存在引用了'{0}'的其他对象，确定要删除吗？</value>
     <comment/>
   </data>
+  <data name="ERR_InvalidAtlas" xml:space="preserve">
+    <value>无效的Atlas</value>
+    <comment/>
+  </data>
+  <data name="ERR_FrameDescriptionEmpty" xml:space="preserve">
+    <value>帧描述符不能为空</value>
+    <comment/>
+  </data>
+  <data name="ERR_InvalidDescriptionFormat" xml:space="preserve">
+    <value>无效的帧描述符，必须由逗号分隔，每个部分可以用F:N表示第F帧持续N帧，或者用N1-N2来表示连续播放[N1, N2]。</value>
+    <comment/>
+  </data>
 </root>

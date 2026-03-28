@@ -1,0 +1,17 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:lib="using:FantaniaLib"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="lib:IEditableField"
+             x:Class="FantaniaLib.AtlasBox">
+  <Grid>
+    <lib:FileSelectBox Workspace="{Binding Workspace}" Path="{Binding FieldValue, Mode=TwoWay}" Title="Pick Atlas" Filter="Atlas files (*.json)|*.json" RootFolder="{Binding Workspace.RootFolder}" ToolTip.ServiceEnabled="{Binding FieldValidator.Error, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" MaxWidth="300">
+      <ToolTip.Tip>
+        <TextBlock Classes="p err" Text="{Binding FieldValidator.Error}" />
+      </ToolTip.Tip>
+    </lib:FileSelectBox>
+    <Border Classes="thick err" IsVisible="{Binding FieldValidator.Error, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+  </Grid>
+</UserControl>

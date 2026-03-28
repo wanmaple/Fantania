@@ -4,6 +4,7 @@ SG_Transform=变换
 SG_Lights=光源
 SG_FeatureNodes=功能
 SG_Data=数据
+SG_Platforms=平台
 
 # Sprite
 SN_Sprite=精灵
@@ -37,6 +38,28 @@ ST_PointLight_Intensity=光照强度
 SN_PlayerSpawn=玩家出生点
 ST_PlayerSpawn=玩家的出生点，一般在切地图点的附近放置。
 ST_PlayerSpawn_IsGameStart=是否是游戏刚开始时的出生点，如果配置有多个这类节点，游戏中只会取到第一个。
+
+# Fore Tiled Platform
+SN_ForeTiledPlatform=前景瓦片平台
+ST_ForeTiledPlatform=前景瓦片平台
+ST_ForeTiledPlatform_Texture=Tileset贴图
+ST_ForeTiledPlatform_BrightnessNoise=控制随机斑纹的噪声图
+ST_ForeTiledPlatform_Color=顶点色
+ST_ForeTiledPlatform_Cutoff=Alpha裁剪(用于Alpha Test)
+ST_ForeTiledPlatform_LuminanceThreshold=亮度阈值，低于该阈值的颜色不会参与混合。
+ST_ForeTiledPlatform_BrightnessScale=噪声图采样Scale
+ST_ForeTiledPlatform_BrightnessStrength=斑纹强度
+ST_ForeTiledPlatform_BrightnessQuantizationSteps=噪声点离散程度
+ST_ForeTiledPlatform_BrightnessColor=斑纹颜色(用于叠加)
+
+# Frame Animation
+SN_FrameAnimation=帧动画
+ST_FrameAnimation=帧动画
+ST_FrameAnimation_Atlas=帧动画Sheets
+ST_FrameAnimation_Interval=动画间隔
+ST_FrameAnimation_FrameDescription=帧描述符，必须由逗号分隔，每个部分可以用F:N表示第F帧持续N帧，或者用N1-N2来表示连续播放[N1, N2]。示例：1,3:2,4-6,7-4,2:2,1
+ST_FrameAnimation_Loop=是否循环
+ST_FrameAnimation_Next=衔接的下一个动画，如果已经勾上循环则无效。
 
 # Export Settings
 ST_ExportSettings_DefaultLevelName=游戏刚开始时加载的关卡名称

@@ -5,7 +5,7 @@ FrameAnimation.tooltip = "ST_FrameAnimation"
 FrameAnimation.dataGroup = "Animation"
 FrameAnimation.dataDefs = {
     atlas = {
-        type = FieldTypes.Texture,
+        type = FieldTypes.StringArray,
     },
     interval = {
         type = FieldTypes.Float,
@@ -31,7 +31,8 @@ FrameAnimation.editDefs = {
     atlas = {
         group = "SG_Data",
         tooltip = "ST_FrameAnimation_Atlas",
-        parameter = "excepts:Image",
+        control = "FantaniaLib.AtlasBox",
+        validator = "FantaniaLib.AtlasValidator",
     },
     interval = {
         group = "SG_Data",
@@ -41,6 +42,7 @@ FrameAnimation.editDefs = {
     frameDiscription = {
         group = "SG_Data",
         tooltip = "ST_FrameAnimation_FrameDescription",
+        validator = "FantaniaLib.FrameDescriptionValidator",
     },
     loop = {
         group = "SG_Data",

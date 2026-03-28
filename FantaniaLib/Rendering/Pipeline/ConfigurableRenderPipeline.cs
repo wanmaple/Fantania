@@ -140,6 +140,7 @@ public class ConfigurableRenderPipeline : IRenderContext, IDisposable
                     int signaled = WaitHandle.WaitAny(waitHandles);
                     if (signaled == 0)
                         break;
+                    _workerUniforms = new UniformSet();
                     var pipelineHook = workspace.ScriptingModule.GetPipelineHookOrDefault();
                     foreach (var uniform in pipelineHook.Uniforms)
                     {

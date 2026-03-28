@@ -6,7 +6,7 @@
              x:Class="FantaniaLib.FileSelectBox"
              x:Name="Root">
   <Grid ColumnDefinitions="*,auto">
-    <TextBox Grid.Column="0" Text="{Binding #Root.Path, Mode=TwoWay}" VerticalAlignment="Center" />
+    <TextBox Grid.Column="0" Text="{Binding #Root.Path}" VerticalAlignment="Center" />
     <Button Grid.Column="1" Content="..." Padding="5" Margin="5 0 0 0" Command="{Binding #Root.PickFile}" VerticalAlignment="Center" />
   </Grid>
 </UserControl>

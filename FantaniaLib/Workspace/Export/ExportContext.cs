@@ -30,6 +30,17 @@ public class ExportContext
             if (variant.Type == FieldTypes.String)
             {
                 string str = (string)variant.Value!;
+                if (str.EndsWith(".json") || str.EndsWith(".png") || str.EndsWith(".jpg") || str.EndsWith(".jpeg"))
+                {
+                    if (replacedEmbedded.TryGetValue(str, out string? replacement))
+                    {
+                        str = replacement;
+                    }
+                    else
+                    {
+                        assets.Add(str);
+                    }
+                }
                 if (!strMapping.TryGetValue(str, out int index))
                 {
                     strMapping[str] = strIndex++;
@@ -41,6 +52,17 @@ public class ExportContext
                 for (int i = 0; i < arr.Count; i++)
                 {
                     string str = arr[i];
+                    if (str.EndsWith(".json") || str.EndsWith(".png") || str.EndsWith(".jpg") || str.EndsWith(".jpeg"))
+                    {
+                        if (replacedEmbedded.TryGetValue(str, out string? replacement))
+                        {
+                            str = replacement;
+                        }
+                        else
+                        {
+                            assets.Add(str);
+                        }
+                    }
                     if (!strMapping.TryGetValue(str, out int index))
                     {
                         strMapping[str] = strIndex++;
@@ -78,7 +100,21 @@ public class ExportContext
                     {
                         strMapping[keyStr] = strIndex++;
                     }
-                    assets.Add(str);
+                    if (!str.StartsWith("avares://"))
+                        str = workspace.GetAbsolutePath(str);
+                    try
+                    {
+                        SpriteAtlas atlas = new SpriteAtlas(str);
+                        if (atlas.IsValid)
+                        {
+                            assets.Add(str);
+                            assets.Add(atlas.AtlasPath);
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        workspace.LogWarning("Atlas {0} is invalid and will be skipped.", str);
+                    }
                 }
             }
             else if (variant.Type == FieldTypes.TextureArray)
@@ -116,6 +152,7 @@ public class ExportContext
                             strMapping[keyStr] = strIndex++;
                         }
                         assets.Add(str);
+                        assets.Add(str.Replace(".json", ".png"));
                     }
                 }
             }

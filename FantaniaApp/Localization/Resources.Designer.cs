@@ -166,6 +166,15 @@ namespace Fantania.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 帧描述符不能为空.
+        /// </summary>
+        public static string ERR_FrameDescriptionEmpty {
+            get {
+                return ResourceManager.GetString("ERR_FrameDescriptionEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 加载OpenGL Desktop失败，确保其版本为3.3及以上。.
         /// </summary>
         public static string ERR_GLContextFailure {
@@ -180,6 +189,24 @@ namespace Fantania.Localization {
         public static string ERR_Invalid_Workspace {
             get {
                 return ResourceManager.GetString("ERR_Invalid_Workspace", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 无效的Atlas.
+        /// </summary>
+        public static string ERR_InvalidAtlas {
+            get {
+                return ResourceManager.GetString("ERR_InvalidAtlas", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 无效的帧描述符，必须由逗号分隔，每个部分可以用F:N表示第F帧持续N帧，或者用N1-N2来表示连续播放[N1, N2]。.
+        /// </summary>
+        public static string ERR_InvalidDescriptionFormat {
+            get {
+                return ResourceManager.GetString("ERR_InvalidDescriptionFormat", resourceCulture);
             }
         }
         
