@@ -16,6 +16,7 @@ public interface IWorkspace
     ScriptingModule ScriptingModule { get; }
 
     string GetAbsolutePath(params string[] pathes);
+    string GetRelativePath(string absolutePath);
     string LocalizeString(string content);
     void ExportToGame(string exportFolder);
 }

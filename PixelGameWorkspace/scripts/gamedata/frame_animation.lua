@@ -7,6 +7,12 @@ FrameAnimation.dataDefs = {
     atlas = {
         type = FieldTypes.StringArray,
     },
+    prefix = {
+        type = FieldTypes.StringArray,
+    },
+    uniforms = {
+        type = FieldTypes.StringArray,
+    },
     interval = {
         type = FieldTypes.Float,
         default = 0.1,
@@ -20,9 +26,9 @@ FrameAnimation.dataDefs = {
         default = true,
     },
     next = {
-        type = FieldTypes.GroupReference,
+        type = FieldTypes.TypeReference,
         default = {
-            group = "Animation",
+            type = "FrameAnimation",
             id = 0,
         },
     },
@@ -33,6 +39,14 @@ FrameAnimation.editDefs = {
         tooltip = "ST_FrameAnimation_Atlas",
         control = "FantaniaLib.AtlasBox",
         validator = "FantaniaLib.AtlasValidator",
+    },
+    prefix = {
+        group = "SG_Data",
+        tooltip = "ST_FrameAnimation_Prefix",
+    },
+    uniforms = {
+        group = "SG_Data",
+        tooltip = "ST_FrameAnimation_Uniforms",
     },
     interval = {
         group = "SG_Data",

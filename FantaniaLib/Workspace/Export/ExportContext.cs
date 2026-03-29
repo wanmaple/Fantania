@@ -40,6 +40,23 @@ public class ExportContext
                     {
                         assets.Add(str);
                     }
+                    if (str.EndsWith(".json"))
+                    {
+                        string atlasPath = workspace.GetAbsolutePath(str);
+                        try
+                        {
+                            SpriteAtlas atlas = new SpriteAtlas(atlasPath);
+                            if (atlas.IsValid)
+                            {
+                                atlasPath = workspace.GetRelativePath(atlas.AtlasPath);
+                                assets.Add(atlasPath);
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            workspace.LogWarning("Atlas {0} is invalid and will be skipped.", str);
+                        }
+                    }
                 }
                 if (!strMapping.TryGetValue(str, out int index))
                 {
@@ -61,6 +78,23 @@ public class ExportContext
                         else
                         {
                             assets.Add(str);
+                        }
+                        if (str.EndsWith(".json"))
+                        {
+                            string atlasPath = workspace.GetAbsolutePath(str);
+                            try
+                            {
+                                SpriteAtlas atlas = new SpriteAtlas(atlasPath);
+                                if (atlas.IsValid)
+                                {
+                                    atlasPath = workspace.GetRelativePath(atlas.AtlasPath);
+                                    assets.Add(atlasPath);
+                                }
+                            }
+                            catch (Exception)
+                            {
+                                workspace.LogWarning("Atlas {0} is invalid and will be skipped.", str);
+                            }
                         }
                     }
                     if (!strMapping.TryGetValue(str, out int index))
@@ -100,15 +134,14 @@ public class ExportContext
                     {
                         strMapping[keyStr] = strIndex++;
                     }
-                    if (!str.StartsWith("avares://"))
-                        str = workspace.GetAbsolutePath(str);
+                    string atlasPath = workspace.GetAbsolutePath(str);
                     try
                     {
-                        SpriteAtlas atlas = new SpriteAtlas(str);
+                        SpriteAtlas atlas = new SpriteAtlas(atlasPath);
                         if (atlas.IsValid)
                         {
-                            assets.Add(str);
-                            assets.Add(atlas.AtlasPath);
+                            atlasPath = workspace.GetRelativePath(atlas.AtlasPath);
+                            assets.Add(atlasPath);
                         }
                     }
                     catch (Exception)
@@ -151,8 +184,20 @@ public class ExportContext
                         {
                             strMapping[keyStr] = strIndex++;
                         }
-                        assets.Add(str);
-                        assets.Add(str.Replace(".json", ".png"));
+                        string atlasPath = workspace.GetAbsolutePath(str);
+                        try
+                        {
+                            SpriteAtlas atlas = new SpriteAtlas(atlasPath);
+                            if (atlas.IsValid)
+                            {
+                                atlasPath = workspace.GetRelativePath(atlas.AtlasPath);
+                                assets.Add(atlasPath);
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            workspace.LogWarning("Atlas {0} is invalid and will be skipped.", str);
+                        }
                     }
                 }
             }

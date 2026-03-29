@@ -8,19 +8,17 @@ public class ScriptDatabaseEditableField : ObservableObject, IEditableField
 {
     public string FieldName => _fieldName;
     public FieldEditInfo EditInfo => _editInfo;
-    public object FieldValue 
-    { 
+    public object FieldValue
+    {
         get => _obj.GetFieldValue(FieldName)!;
         set
         {
             if (value == null) return;
             if (!FieldValue.Equals(value))
             {
-                if (FieldValidator == null || FieldValidator.ValidateField(Workspace, value))
-                {
-                    _obj.SetFieldValue(FieldName, value);
-                    OnPropertyChanged(nameof(FieldValue));
-                }
+                FieldValidator?.ValidateField(Workspace, value);
+                _obj.SetFieldValue(FieldName, value);
+                OnPropertyChanged(nameof(FieldValue));
             }
             else if (FieldValidator != null)
                 FieldValidator.ValidateField(Workspace, value);

@@ -14,11 +14,9 @@ public class IndexedEditableField : ObservableObject, IEditableField
         {
             if (!FieldValue.Equals(value))
             {
-                if (FieldValidator == null || FieldValidator.ValidateField(Workspace, value))
-                {
-                    _indexer.SetValue(_array, value, _cacheArgs);
-                    OnPropertyChanged(nameof(FieldValue));
-                }
+                FieldValidator?.ValidateField(Workspace, value);
+                _indexer.SetValue(_array, value, _cacheArgs);
+                OnPropertyChanged(nameof(FieldValue));
             }
             else if (FieldValidator != null)
                 FieldValidator.ValidateField(Workspace, value);

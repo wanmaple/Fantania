@@ -537,4 +537,8 @@
     <value>无效的帧描述符，必须由逗号分隔，每个部分可以用F:N表示第F帧持续N帧，或者用N1-N2来表示连续播放[N1, N2]。</value>
     <comment/>
   </data>
+  <data name="ERR_DuplicateItem" xml:space="preserve">
+    <value>存在重复对象</value>
+    <comment/>
+  </data>
 </root>

@@ -17,15 +17,13 @@ public class SingleObjectEditableField : ObservableObject, IEditableField
             if (value == null) return;
             if (!FieldValue.Equals(value))
             {
-                if (FieldValidator == null || FieldValidator.ValidateField(Workspace, value))
-                {
-                    _propInfo.SetValue(_instance, value);
-                    OnPropertyChanged(nameof(FieldValue));
-                }
+                FieldValidator?.ValidateField(Workspace, value);
+                _propInfo.SetValue(_instance, value);
+                OnPropertyChanged(nameof(FieldValue));
             }
             else if (FieldValidator != null)
                 FieldValidator.ValidateField(Workspace, value);
-        } 
+        }
     }
     public Type FieldType => FieldValue.GetType();
     public IFieldValidator? FieldValidator => _validator;
@@ -37,7 +35,7 @@ public class SingleObjectEditableField : ObservableObject, IEditableField
         Workspace = workspace;
         _instance = instance;
         _propInfo = propInfo;
-        
+
         EditableFieldAttribute attr = propInfo.GetCustomAttribute<EditableFieldAttribute>()!;
         _editInfo.EditGroup = attr.EditGroup;
         _editInfo.Tooltip = attr.TooltipKey;

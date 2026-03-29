@@ -77,6 +77,13 @@ public abstract class Workspace : SyncableObject, IWorkspace
         return Path.Combine(pathes).ToStandardPath();
     }
 
+    public string GetRelativePath(string absolutePath)
+    {
+        if (!absolutePath.StartsWith(RootFolder))
+            return absolutePath;
+        return absolutePath.Substring(RootFolder.Length).TrimStart('/', '\\');
+    }
+
     public void ExportToGame(string exportFolder)
     {
         

@@ -118,7 +118,7 @@ public class ScriptTemplate
         var field = _fieldDefs!.First(f => f.FieldName == fieldName);
         if (field.FieldType >= FieldTypes.BooleanArray)
         {
-            editInfo.DefaultMemberValue = ConversionHelper.FieldTypeToValue((FieldTypes)(field.FieldType - FieldTypes.BooleanArray), extra.DefaultValue);
+            editInfo.DefaultMemberValue = ConversionHelper.FieldTypeToValue((FieldTypes)(field.FieldType - FieldTypes.BooleanArray), (DynValue)extra.DefaultMemberValue!);
         }
         else
         {

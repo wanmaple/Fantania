@@ -14,14 +14,12 @@ public class MultiObjectsEditableField : ObservableObject, IEditableField
             if (value == null) return;
             if (!FieldValue.Equals(value))
             {
-                if (FieldValidator == null || FieldValidator.ValidateField(Workspace, value))
-                {
+                FieldValidator?.ValidateField(Workspace, value);
                     foreach (var field in _fields)
-                    {
-                        field.FieldValue = value;
-                    }
-                    OnPropertyChanged(nameof(FieldValue));
+                {
+                    field.FieldValue = value;
                 }
+                OnPropertyChanged(nameof(FieldValue));
             }
         }
     }

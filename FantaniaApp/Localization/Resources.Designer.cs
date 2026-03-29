@@ -157,6 +157,15 @@ namespace Fantania.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 存在重复对象.
+        /// </summary>
+        public static string ERR_DuplicateItem {
+            get {
+                return ResourceManager.GetString("ERR_DuplicateItem", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 文件必须在工作区目录&apos;{0}&apos;内。.
         /// </summary>
         public static string ERR_FileInsideWorkspace {
